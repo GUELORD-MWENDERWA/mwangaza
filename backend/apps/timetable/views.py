@@ -16,12 +16,14 @@ from apps.core.errors import ErrorSerializer
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import services
+from apps.timetable import checks, services
 from apps.timetable.models import Room, TimeGrid
 from apps.timetable.serializers import (
+    ChecksSerializer,
     RoomCreateSerializer,
     RoomSerializer,
     RoomUpdateSerializer,
+    TeacherProfileSerializer,
     TimeGridCreateSerializer,
     TimeGridSerializer,
     TimeGridWriteSerializer,
@@ -158,3 +160,35 @@ class RulesView(_TimetableView):
         data = TimetableRulesSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         return Response(services.set_rules(data.validated_data, actor=request.user))
+
+
+@extend_schema(tags=["timetable"])
+class TeachersView(_TimetableView):
+    @extend_schema(responses={200: TeacherProfileSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Disponibilités réglées des enseignants (charge au plus, heures par jour, absences) ;
+        un enseignant absent de la liste n'a rien de réglé."""
+        return Response(TeacherProfileSerializer(services.teacher_profiles(), many=True).data)
+
+
+@extend_schema(tags=["timetable"])
+class TeacherView(_TimetableView):
+    @extend_schema(
+        request=TeacherProfileSerializer, responses={200: TeacherProfileSerializer, **WRITE_ERRORS}
+    )
+    def put(self, request: Request, pk) -> Response:
+        """Règle la disponibilité d'un membre du personnel actif de l'école (`pk` : son compte) ;
+        une absence en jour entier couvre les plages du même jour."""
+        data = TeacherProfileSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        profile = services.set_teacher_profile(pk, actor=request.user, **data.validated_data)
+        return Response(TeacherProfileSerializer(profile).data)
+
+
+@extend_schema(tags=["timetable"])
+class ChecksView(_TimetableView):
+    @extend_schema(responses={200: ChecksSerializer, **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Contrôles avant le calcul de l'horaire (année en cours) : classes, enseignants et
+        salles surchargés, cours impossibles à étaler, cours incomplets ; rouge d'abord."""
+        return Response(ChecksSerializer(checks.run(organisation.current_year())).data)

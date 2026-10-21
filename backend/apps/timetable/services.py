@@ -13,6 +13,7 @@ from django.db.models.functions import Coalesce
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from apps.academics.courses import active_staff
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
@@ -24,6 +25,7 @@ from apps.timetable.models import (
     MAX_SLOT_MINUTES,
     MIN_SLOT_MINUTES,
     Room,
+    TeacherTimetableProfile,
     TimeGrid,
     TimeSlot,
 )
@@ -70,6 +72,7 @@ UNKNOWN_GRID = ApiError("unknown_grid", _("This time grid does not exist."), 400
 UNKNOWN_ROOM = ApiError("unknown_room", _("This room does not exist."), 400)
 ROOM_RETIRED = ApiError("room_retired", _("This room is no longer in use."), 400)
 NO_LESSON = ApiError("no_lesson", _("The grid needs at least one lesson."), 400)
+UNKNOWN_TEACHER = ApiError("unknown_teacher", _("This person is not on the school's staff."), 404)
 
 
 def _bad_slots(weekday: int, message) -> BusinessError:
@@ -485,3 +488,68 @@ def set_rules(changed: dict, *, actor) -> dict:
         if new:
             audit.record(Action.TIMETABLE_RULES_CHANGED, school, actor=actor, before=old, after=new)
     return after
+
+
+# --------------------------------------------------------------------------- enseignants
+
+
+def teacher_profiles() -> list[TeacherTimetableProfile]:
+    """Disponibilités réglées des enseignants de l'école (au plus son personnel : pas de
+    pagination)."""
+    return list(TeacherTimetableProfile.objects.order_by("created_at"))
+
+
+def _profile_row(profile: TeacherTimetableProfile | None) -> dict:
+    if profile is None:
+        return {"max_week_hours": None, "max_day_hours": None, "unavailable": []}
+    return {
+        "max_week_hours": profile.max_week_hours,
+        "max_day_hours": profile.max_day_hours,
+        "unavailable": profile.unavailable,
+    }
+
+
+def normalize_unavailable(items: list[dict]) -> list[dict]:
+    """Une journée entière couvre ses plages ; doublons retirés ; rangé par jour et heure."""
+    whole = {item["weekday"] for item in items if "start" not in item}
+    rows = {(item["weekday"], "", "") for item in items if item["weekday"] in whole}
+    rows |= {
+        (item["weekday"], item["start"], item["end"])
+        for item in items
+        if item["weekday"] not in whole
+    }
+    return [
+        {"weekday": day} if not start else {"weekday": day, "start": start, "end": end}
+        for day, start, end in sorted(rows)
+    ]
+
+
+def set_teacher_profile(
+    teacher_id, *, actor, max_week_hours, max_day_hours, unavailable
+) -> TeacherTimetableProfile:
+    """Règle la disponibilité d'un membre du personnel actif de l'école (jamais celui d'une
+    autre : 404) ; chaque changement va dans le journal."""
+    teacher = active_staff().filter(pk=teacher_id).first()
+    if teacher is None:
+        raise BusinessError(UNKNOWN_TEACHER)
+    with transaction.atomic():
+        profile = (
+            TeacherTimetableProfile.objects.select_for_update().filter(teacher=teacher).first()
+        )
+        before = _profile_row(profile)
+        if profile is None:
+            profile = TeacherTimetableProfile(teacher=teacher, created_by=actor)
+        profile.max_week_hours = max_week_hours
+        profile.max_day_hours = max_day_hours
+        profile.unavailable = normalize_unavailable(unavailable)
+        old, new = audit.changes(before, _profile_row(profile))
+        if new:
+            profile.save()
+            audit.record(
+                Action.TEACHER_TIMETABLE_CHANGED,
+                profile,
+                actor=actor,
+                before={"teacher": str(teacher), **old},
+                after={"teacher": str(teacher), **new},
+            )
+    return profile

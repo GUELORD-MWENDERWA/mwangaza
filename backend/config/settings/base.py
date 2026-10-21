@@ -256,6 +256,7 @@ SPECTACULAR_SETTINGS = {
         "CourseCategoryEnum": "apps.academics.models.CATEGORIES",
         "TimeSlotKindEnum": "apps.timetable.models.TimeSlot.Kind",
         "RoomKindEnum": "apps.timetable.models.Room.Kind",
+        "CheckLevelEnum": "apps.timetable.checks.LEVELS",
         "ModulesEnum": "apps.accounts.modules.MODULE_CHOICES",
         "PlatformRoleEnum": "apps.accounts.platform_roles.ROLE_CHOICES",
         "CurrencyEnum": "apps.core.money.Currency",

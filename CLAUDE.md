@@ -25,7 +25,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 
 Espace de travail de Claude : `docs/claude/` — `reference.md` (commandes en détail, contenu de `make demo`, chaque écran et chaque API en développement), `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources). Le résultat de `/verifier` va dans la PR.
 
-GitHub (dépôt privé `GUELORD-MWENDERWA/mwangaza`) : un jalon par version (V1.0, V1.1, Lancement, V1.2 à V1.7, V2 ; découpage du 2026-10-13 dans `05`), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
+GitHub (dépôt `GUELORD-MWENDERWA/mwangaza`, public jusqu'à la fin de la V2 puis privé : `A-FAIRE.md` § 9 quinquies) : un jalon par version (V1.0, V1.1, Lancement, V1.2 à V1.7, V2 ; découpage du 2026-10-13 dans `05`), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 

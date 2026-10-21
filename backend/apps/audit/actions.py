@@ -112,6 +112,7 @@ class Action(models.TextChoices):
     ROOM_CHANGED = "timetable.room_changed", _("Room changed")
     CLASS_TIMETABLE_CHANGED = "timetable.class_changed", _("Time grid or room of a class changed")
     TIMETABLE_RULES_CHANGED = "timetable.rules_changed", _("Timetable rules changed")
+    TEACHER_TIMETABLE_CHANGED = "timetable.teacher_changed", _("Teacher availability changed")
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
     RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
     # Délibération (8.4.2) : décision d'un élève, date, proclamation des résultats, réouverture.

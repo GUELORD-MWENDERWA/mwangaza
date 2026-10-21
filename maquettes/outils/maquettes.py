@@ -167,6 +167,9 @@ ACTIVE_FOR = {
     "charges-enseignants.html": "notes-saisie.html",
     "grille-horaire.html": "notes-saisie.html",
     "salles.html": "notes-saisie.html",
+    "cours-placement.html": "notes-saisie.html",
+    "disponibilites-enseignant.html": "notes-saisie.html",
+    "controles-emploi-du-temps.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
 }
 
@@ -193,6 +196,7 @@ USERS = {
     "caissiere": ("Jeanne Kavira", "Caissière · Caisse 1", "JK"),
     "secretaire": ("Masika Furaha", "Secrétaire", "MF"),
     "promoteur": ("Fr. Innocent Mugisho", "Promoteur", "IM"),
+    "de": ("Esther Kavugho", "Directrice des études", "EK"),
 }
 
 SYNC = {
@@ -360,6 +364,9 @@ GESTION = [
     ("charges-enseignants", "Charges des enseignants", "V1.2", "Plus tard · 8.1", True),
     ("grille-horaire", "Grille horaire et capacité des classes", "V1.2", "Plus tard · EDT.1a", True),
     ("salles", "Salles et ateliers", "V1.2", "Plus tard · EDT.1a", True),
+    ("cours-placement", "Cours : placement dans l'horaire", "V1.2", "Plus tard · EDT.1b", True),
+    ("disponibilites-enseignant", "Disponibilités d'un enseignant", "V1.2", "Plus tard · EDT.1b", True),
+    ("controles-emploi-du-temps", "Contrôles avant le calcul de l'horaire", "V1.2", "Plus tard · EDT.1b", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),
     ("bulletin-education-de-base", "Bulletin officiel — 7e-8e EB", "V1.2", "Plus tard · 6.3", True),
 ]

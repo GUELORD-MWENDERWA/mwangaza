@@ -1,17 +1,22 @@
 """Emploi du temps de démonstration (EDT.1a) : la grille proposée, une salle par classe, et pour
 l'ITIG ses ateliers, son laboratoire, sa salle informatique et son terrain. `volcans` travaille en
-deux vacations : grille du matin et grille de l'après-midi, une salle pour deux classes. Rejouable :
-les grilles et salles de l'espace sont refaites (espace de démonstration seulement)."""
+deux vacations : grille du matin et grille de l'après-midi, une salle pour deux classes. EDT.1b :
+les ateliers exigent un atelier et se donnent en deux séances, le laboratoire, l'informatique et le
+sport leur salle (quand l'école en a une), les cours principaux le matin ; l'enseignant des deux
+écoles a ses absences et un maximum dans chacune. Rejouable : grilles, salles et disponibilités de
+l'espace sont refaites (espace de démonstration seulement)."""
 
 from datetime import time
 
 from django.db.models import Q
 
+from apps.academics.models import MAIN, MORNING, Course
+from apps.accounts.models import User
 from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.timetable.models import Room, TimeGrid, TimeSlot
+from apps.timetable.models import Room, TeacherTimetableProfile, TimeGrid, TimeSlot
 from apps.timetable.services import PRESET_LESSON_MINUTES, PRESET_START, week_shape
 
 WORKSHOP, LAB, COMPUTER, SPORTS = (
@@ -30,6 +35,23 @@ ITIG_ROOMS = (
     ("Terrain de sport", SPORTS, None),
 )
 VOLCANS_ROOMS = (("Laboratoire", LAB, 35), ("Cour de récréation", SPORTS, None))
+# Disponibilités (EDT.1b), par numéro de compte : l'enseignant des deux écoles enseigne à l'ITIG
+# sauf le mardi matin, et seulement le mardi et le jeudi à `volcans` ; le chef d'atelier.
+PROFILES = {
+    "itig": {
+        "+243000001008": {
+            "max_week_hours": 24,
+            "unavailable": [{"weekday": 2, "start": "07:30", "end": "10:00"}],
+        },
+        "+243000001010": {"max_week_hours": 30, "max_day_hours": 7},
+    },
+    "volcans": {
+        "+243000001008": {
+            "max_week_hours": 6,
+            "unavailable": [{"weekday": day} for day in (1, 3, 5, 6)],
+        },
+    },
+}
 # Après-midi de `volcans` : 12 h 30, heures de 45 min, 6 heures du lundi au vendredi.
 AFTERNOON = {
     "lesson_minutes": 45,
@@ -56,7 +78,9 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
                 Q(time_grid__isnull=False) | Q(home_room__isnull=False)
             ).update(time_grid=None, home_room=None)
             TimeGrid.objects.all().delete()
+            Course.objects.filter(room__isnull=False).update(room=None)
             Room.objects.all().delete()
+            TeacherTimetableProfile.objects.all().delete()
             groups = list(
                 ClassGroup.objects.filter(academic_year=current_year()).select_related(
                     "level", "track"
@@ -83,3 +107,30 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
                 group.home_room = classrooms[position % shared]
                 group.time_grid = afternoon if position >= shared else None
             ClassGroup.objects.bulk_update(groups, ["home_room", "time_grid"])
+            _place_courses({kind for _label, kind, _places in extra})
+            for phone, fields in PROFILES.get(space.profile, {}).items():
+                teacher = User.objects.get(phone=space.numbers.of(phone))
+                TeacherTimetableProfile.objects.create(teacher=teacher, **fields)
+
+
+def _place_courses(kinds: set[str]) -> None:
+    """Salle exigée par type (si l'école a ce type), ateliers en deux séances, cours principaux
+    le matin."""
+    courses = list(Course.objects.filter(class_group__academic_year=current_year()))
+    for course in courses:
+        name = course.name.casefold()
+        kind = ""
+        if name.startswith("atelier") or name == "pratique professionnelle":
+            kind = WORKSHOP
+            hours = course.weekly_hours or 0
+            course.lesson_pattern = f"{(hours + 1) // 2}+{hours // 2}" if hours >= 4 else ""
+        elif name.startswith("labo"):
+            kind = LAB
+        elif name.startswith("informatique"):
+            kind = COMPUTER
+        elif name == "éducation physique":
+            kind = SPORTS
+        course.room_kind = kind if kind in kinds else ""
+        if course.category == MAIN:
+            course.preferred_part = MORNING
+    Course.objects.bulk_update(courses, ["room_kind", "lesson_pattern", "preferred_part"])

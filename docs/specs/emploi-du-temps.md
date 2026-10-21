@@ -64,9 +64,9 @@ Les cours, leurs heures et leurs enseignants **existent déjà** (8.1 : `Course.
 - **Groupes en parallèle** : en technique, une classe se coupe en groupes (moitié en mécanique, moitié en électricité) : deux cours de la même classe marqués **parallèles** se placent **à la même heure**, chacun avec son enseignant et sa salle (règle `parallel_courses`). Les heures de la classe ne comptent qu'une fois.
 - **Cours commun à deux classes** (religion, éducation physique de deux sections ensemble) : règle `joint_courses` ; même heure, même enseignant, une seule fois dans sa charge.
 
-**Profil horaire de l'enseignant** (`TeacherTimetableProfile` [T], un par membre du personnel qui a des cours) : charge **maximale** par semaine (contrat ; vide = pas de limite), heures **au plus par jour**, **indisponibilités** (jours entiers ou cases : « ne vient pas le vendredi », « enseigne ailleurs le mardi matin »). Un enseignant **partagé avec une autre école** se règle ici par ses indisponibilités : on ne lit **jamais** l'horaire d'une autre école (isolation, règle 1).
+**Profil horaire de l'enseignant** (`TeacherTimetableProfile` [T], un par membre du personnel qui a des cours) : charge **maximale** par semaine (contrat ; vide = pas de limite), heures **au plus par jour**, **indisponibilités** (jours entiers ou plages horaires : « ne vient pas le vendredi », « enseigne ailleurs le mardi matin » ; gardées en heures, pas en numéros d'heure, pour valoir dans toutes les grilles — EDT.1b). La règle de l'école « N heures du même cours par jour » ne descend jamais sous la plus longue séance d'un cours (un atelier de 6 h d'un bloc reste possible) ; `max_per_day` du cours, lui, ne peut pas être plus court que sa plus longue séance (refusé à l'enregistrement). Un enseignant **partagé avec une autre école** se règle ici par ses indisponibilités : on ne lit **jamais** l'horaire d'une autre école (isolation, règle 1).
 
-## 5. Règles (contraintes)
+## 5. Règles (contraintes) (EDT.1c)
 
 Une règle = une ligne `TimetableRule` [T] : `kind` (liste fermée ci-dessous), `params` (JSON **vérifié par un schéma propre à chaque kind**), `strength` (`hard` obligatoire / `soft` souhait, avec un poids 1 à 10), `active`, `source` (`manual`, `ai`), `text` (la phrase d'origine, si l'IA l'a traduite), auteur. Les réglages des §§ 3 et 4 sont aussi des règles pour le solveur, mais rangés là où l'école les cherche.
 
@@ -102,7 +102,7 @@ Une règle = une ligne `TimetableRule` [T] : `kind` (liste fermée ci-dessous), 
 
 Liste **fermée** : une consigne qui n'entre dans aucun kind est refusée avec la raison (l'IA ne peut pas inventer de règle que le solveur ne sait pas lire). Un nouveau kind = du code, des tests, une ligne ici.
 
-## 6. Contrôles avant le calcul (EDT.1b) — le « diagnostic »
+## 6. Contrôles avant le calcul (EDT.1b : 1 à 5 ; EDT.1c : 6 et 7) — le « diagnostic »
 
 Calcul Python pur, quelques millisecondes, **sans solveur ni IA**, montré en permanence dans un panneau « À régler avant le calcul » (rouge = impossible, orange = risqué) :
 
@@ -203,7 +203,7 @@ Les vraies heures données demandent de savoir ce qui ne s'est pas passé comme 
 | `Room` [T] | EDT.1a | `name`, `kind`, `capacity`, `is_active` |
 | `Course` (champs ajoutés) | EDT.1b | `lesson_pattern`, `max_per_day`, `room`, `room_kind`, `can_span_break`, `preferred_part` |
 | `TeacherTimetableProfile` [T] | EDT.1b | `member` (personnel), `max_week_hours`, `max_day_hours`, `unavailable` (liste de cases ou jours, validée) |
-| `TimetableRule` [T] | EDT.1b | `kind`, `params` (schéma par kind), `strength`, `weight`, `active`, `source`, `text`, `created_by` |
+| `TimetableRule` [T] | EDT.1c | `kind`, `params` (schéma par kind), `strength`, `weight`, `active`, `source`, `text`, `created_by` |
 | `Timetable` [T] | EDT.2 | `academic_year`, `name`, `status`, `valid_from`, `published_at`, `published_by`, `based_on` |
 | `TimetableEntry` [T] | EDT.2 | `timetable`, `course`, `slot`, `length`, `room`, `locked` ; index (`timetable`, `slot`) |
 | `TimetableRun` [T] | EDT.3 | `request_id` (UUID v7, unique), `timetable`, `status`, `scope`, `time_limit`, `duration_ms`, `score`, `blocking` (JSON), `peak_mb` |

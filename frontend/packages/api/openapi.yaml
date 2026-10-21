@@ -780,6 +780,7 @@ paths:
           - timetable.room_changed
           - timetable.class_changed
           - timetable.rules_changed
+          - timetable.teacher_changed
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -916,6 +917,7 @@ paths:
           * `timetable.room_changed` - Room changed
           * `timetable.class_changed` - Time grid or room of a class changed
           * `timetable.rules_changed` - Timetable rules changed
+          * `timetable.teacher_changed` - Teacher availability changed
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1233,6 +1235,7 @@ paths:
           - timetable.room_changed
           - timetable.class_changed
           - timetable.rules_changed
+          - timetable.teacher_changed
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1369,6 +1372,7 @@ paths:
           * `timetable.room_changed` - Room changed
           * `timetable.class_changed` - Time grid or room of a class changed
           * `timetable.rules_changed` - Timetable rules changed
+          * `timetable.teacher_changed` - Teacher availability changed
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -15470,6 +15474,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/checks/:
+    get:
+      operationId: timetable_checks_retrieve
+      description: |-
+        Contrôles avant le calcul de l'horaire (année en cours) : classes, enseignants et
+        salles surchargés, cours impossibles à étaler, cours incomplets ; rouge d'abord.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Checks'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/classes/:
     get:
       operationId: timetable_classes_list
@@ -15931,6 +15964,97 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TimetableRules'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/teachers/:
+    get:
+      operationId: timetable_teachers_list
+      description: |-
+        Disponibilités réglées des enseignants (charge au plus, heures par jour, absences) ;
+        un enseignant absent de la liste n'a rien de réglé.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TeacherProfile'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/teachers/{id}/:
+    put:
+      operationId: timetable_teachers_update
+      description: |-
+        Règle la disponibilité d'un membre du personnel actif de l'école (`pk` : son compte) ;
+        une absence en jour entier couvre les plages du même jour.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TeacherProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TeacherProfileRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherProfile'
           description: ''
         '400':
           content:
@@ -16691,6 +16815,7 @@ components:
       - timetable.room_changed
       - timetable.class_changed
       - timetable.rules_changed
+      - timetable.teacher_changed
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -16826,6 +16951,7 @@ components:
         * `timetable.room_changed` - Room changed
         * `timetable.class_changed` - Time grid or room of a class changed
         * `timetable.rules_changed` - Timetable rules changed
+        * `timetable.teacher_changed` - Teacher availability changed
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -18043,6 +18169,83 @@ components:
       - address
       - email
       - emergency_contact
+    CheckIssue:
+      type: object
+      properties:
+        check:
+          type: integer
+          description: 1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets.
+        code:
+          type: string
+          description: Ex. class_overloaded, teacher_over_max.
+        level:
+          allOf:
+          - $ref: '#/components/schemas/CheckLevelEnum'
+          description: |-
+            error : rouge ; warning : orange.
+
+            * `error` - error
+            * `warning` - warning
+        subject:
+          type: string
+          description: Classe, enseignant, cours, salle, ou type de salle (code).
+        values:
+          type: object
+          additionalProperties: {}
+          description: Chiffres et noms de la phrase.
+        class_group:
+          type: string
+          format: uuid
+          nullable: true
+        teacher:
+          type: string
+          format: uuid
+          nullable: true
+        room:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - check
+      - code
+      - level
+      - subject
+      - values
+      - class_group
+      - teacher
+      - room
+    CheckLevelEnum:
+      enum:
+      - error
+      - warning
+      type: string
+      description: |-
+        * `error` - error
+        * `warning` - warning
+    Checks:
+      type: object
+      properties:
+        errors:
+          type: integer
+        warnings:
+          type: integer
+        classes:
+          type: integer
+        teachers:
+          type: integer
+        rooms:
+          type: integer
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckIssue'
+      required:
+      - errors
+      - warnings
+      - classes
+      - teachers
+      - rooms
+      - issues
     Child:
       type: object
       description: 'Un enfant inscrit cette année : classe et situation de paiement
@@ -20225,6 +20428,10 @@ components:
           - $ref: '#/components/schemas/Person'
           readOnly: true
           nullable: true
+        placement:
+          allOf:
+          - $ref: '#/components/schemas/CoursePlacement'
+          readOnly: true
       required:
       - id
       - name
@@ -20236,6 +20443,7 @@ components:
       - category
       - weekly_hours
       - teacher
+      - placement
     CourseCategoryEnum:
       enum:
       - general
@@ -20306,9 +20514,94 @@ components:
           format: uuid
           nullable: true
           description: '`id` du compte de l''enseignant : le personnel actif de l''école.'
+        placement:
+          allOf:
+          - $ref: '#/components/schemas/CoursePlacementInputRequest'
+          nullable: true
+          description: 'Placement dans l''horaire (droit `timetable.manage`, module
+            `timetable`) ; absent : gardé.'
       required:
       - name
       - period_max
+    CoursePlacement:
+      type: object
+      description: 'Placement dans l''horaire (EDT.1b) : vide = calculé ou règle de
+        l''école.'
+      properties:
+        lesson_pattern:
+          type: string
+          readOnly: true
+          title: Lessons
+        max_per_day:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: At most per day
+        room:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          title: Required room
+        room_kind:
+          oneOf:
+          - $ref: '#/components/schemas/RoomKindEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        can_span_break:
+          type: boolean
+          readOnly: true
+          nullable: true
+          title: May span a break
+        preferred_part:
+          $ref: '#/components/schemas/PreferredPartEnum'
+      required:
+      - lesson_pattern
+      - max_per_day
+      - room
+      - room_kind
+      - can_span_break
+      - preferred_part
+    CoursePlacementInputRequest:
+      type: object
+      properties:
+        lesson_pattern:
+          type: string
+          default: ''
+          description: Séances, ex. « 2+2+1 » ; somme = heures du cours ; vide = calculé.
+          maxLength: 40
+        max_per_day:
+          type: integer
+          maximum: 12
+          minimum: 1
+          nullable: true
+          description: 'Vide : règle de l''école.'
+        room_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Salle exigée (une salle de l'école en service).
+        room_kind:
+          default: ''
+          description: |-
+            Ou un type de salle.
+
+            * `classroom` - Classroom
+            * `workshop` - Workshop
+            * `lab` - Laboratory
+            * `computer` - Computer room
+            * `sports` - Sports ground
+            * `other` - Other
+          oneOf:
+          - $ref: '#/components/schemas/RoomKindEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        can_span_break:
+          type: boolean
+          nullable: true
+          description: 'Vide : oui pour un cours pratique.'
+        preferred_part:
+          allOf:
+          - $ref: '#/components/schemas/PreferredPartEnum'
+          default: any
     CoursesCopied:
       type: object
       properties:
@@ -27000,6 +27293,14 @@ components:
       - meeting_at
       - meet_with
       - seen
+    PreferredPartEnum:
+      enum:
+      - any
+      - morning
+      type: string
+      description: |-
+        * `any` - any
+        * `morning` - morning
     PrinterEnum:
       enum:
       - thermal_58
@@ -30504,6 +30805,57 @@ components:
       - name
       - starts_on
       - ends_on
+    TeacherProfile:
+      type: object
+      properties:
+        teacher:
+          type: string
+          format: uuid
+          readOnly: true
+        max_week_hours:
+          type: integer
+          maximum: 60
+          minimum: 1
+          nullable: true
+          description: 'Charge au plus par semaine (contrat) ; vide : pas de limite.'
+        max_day_hours:
+          type: integer
+          maximum: 12
+          minimum: 1
+          nullable: true
+          description: 'Vide : règle de l''école.'
+        unavailable:
+          type: array
+          items:
+            $ref: '#/components/schemas/Unavailable'
+      required:
+      - teacher
+      - max_week_hours
+      - max_day_hours
+      - unavailable
+    TeacherProfileRequest:
+      type: object
+      properties:
+        max_week_hours:
+          type: integer
+          maximum: 60
+          minimum: 1
+          nullable: true
+          description: 'Charge au plus par semaine (contrat) ; vide : pas de limite.'
+        max_day_hours:
+          type: integer
+          maximum: 12
+          minimum: 1
+          nullable: true
+          description: 'Vide : règle de l''école.'
+        unavailable:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnavailableRequest'
+      required:
+      - max_day_hours
+      - max_week_hours
+      - unavailable
     TeachingLoad:
       type: object
       properties:
@@ -31262,6 +31614,44 @@ components:
       required:
       - code
       - name
+    Unavailable:
+      type: object
+      description: 'Une absence : un jour entier, ou une plage horaire de ce jour
+        (début et fin).'
+      properties:
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+          description: 1 = lundi.
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+      required:
+      - weekday
+      - start
+      - end
+    UnavailableRequest:
+      type: object
+      description: 'Une absence : un jour entier, ou une plage horaire de ce jour
+        (début et fin).'
+      properties:
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+          description: 1 = lundi.
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+      required:
+      - weekday
     UnpaidAmount:
       type: object
       properties:

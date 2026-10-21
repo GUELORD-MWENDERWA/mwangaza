@@ -14,6 +14,7 @@ from django.core.management import CommandError, call_command
 
 from apps.academics import board
 from apps.academics.models import (
+    Course,
     Deliberation,
     DisciplineIncident,
     DisciplineRule,
@@ -35,7 +36,8 @@ from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
-from apps.timetable.models import Room
+from apps.timetable import checks
+from apps.timetable.models import Room, TeacherTimetableProfile
 from apps.timetable.services import class_rows
 from tests.factories import SchoolFactory, enable_totp
 
@@ -89,6 +91,14 @@ def created(demo) -> None:
         rows = class_rows(AcademicYear.objects.get(is_current=True))
         assert {row["capacity"] for row in rows} == {39, 30}
         assert len({row["home_room"] for row in rows}) == (len(rows) + 1) // 2
+    # EDT.1b : ateliers en deux séances dans un atelier, disponibilités, contrôles qui montrent les
+    # classes techniques au-delà de leur grille.
+    with use_school(itig):
+        atelier = Course.objects.filter(name="Atelier électrique", weekly_hours__gte=4).first()
+        assert atelier.room_kind == "workshop" and "+" in atelier.lesson_pattern
+        assert TeacherTimetableProfile.objects.count() == 2
+        report = checks.run(AcademicYear.objects.get(is_current=True))
+        assert "class_overloaded" in {issue["code"] for issue in report["issues"]}
     # Reprise des résultats (8.4.7) : la 8EB C sans aucune note, la moitié de ses élèves repris.
     with use_school(itig):
         paper = Deliberation.objects.get(class_group__level__name="8EB", class_group__section="C")
