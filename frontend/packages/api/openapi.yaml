@@ -783,6 +783,9 @@ paths:
           - timetable.teacher_changed
           - timetable.rule_changed
           - timetable.rule_deleted
+          - timetable.draft_created
+          - timetable.draft_deleted
+          - timetable.lock_changed
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -922,6 +925,9 @@ paths:
           * `timetable.teacher_changed` - Teacher availability changed
           * `timetable.rule_changed` - Timetable rule saved
           * `timetable.rule_deleted` - Timetable rule deleted
+          * `timetable.draft_created` - Timetable draft created
+          * `timetable.draft_deleted` - Timetable draft deleted
+          * `timetable.lock_changed` - Lesson locked or unlocked
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1242,6 +1248,9 @@ paths:
           - timetable.teacher_changed
           - timetable.rule_changed
           - timetable.rule_deleted
+          - timetable.draft_created
+          - timetable.draft_deleted
+          - timetable.lock_changed
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1381,6 +1390,9 @@ paths:
           * `timetable.teacher_changed` - Teacher availability changed
           * `timetable.rule_changed` - Timetable rule saved
           * `timetable.rule_deleted` - Timetable rule deleted
+          * `timetable.draft_created` - Timetable draft created
+          * `timetable.draft_deleted` - Timetable draft deleted
+          * `timetable.lock_changed` - Lesson locked or unlocked
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -15797,6 +15809,476 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/courses/:
+    get:
+      operationId: timetable_courses_list
+      description: |-
+        Cours enseignés cette année, tels que l'éditeur de l'horaire les place : séances, salle
+        ou type exigé, récréation traversable, au plus par jour.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableCourse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/:
+    get:
+      operationId: timetable_drafts_list
+      description: Brouillons de l'horaire de l'année en cours, le plus récent d'abord.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Draft'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_drafts_create
+      description: |-
+        Nouveau brouillon : copie d'un brouillon de l'année, ou vide avec les heures
+        verrouillées des règles déjà placées (journal).
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DraftCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DraftCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DraftCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/{id}/:
+    get:
+      operationId: timetable_drafts_retrieve
+      description: 'Un brouillon : séances, conflits (recalculés), reste à placer,
+        heures placées / dues.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: timetable_drafts_destroy
+      description: Supprime un brouillon et ses séances (journal).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/{id}/entries/:
+    post:
+      operationId: timetable_drafts_entries_create
+      description: |-
+        Place une séance restant à placer ; refusée hors de la grille de la classe, sur une
+        récréation que le cours ne passe pas, ou si le cours n'a plus de séance de cette longueur.
+        Un conflit ne la refuse pas : il est montré.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlaceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlaceRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/{id}/entries/{entry}/:
+    patch:
+      operationId: timetable_drafts_entries_partial_update
+      description: |-
+        Un geste sur une séance : la déplacer, changer sa salle, la verrouiller ou la
+        déverrouiller (journal). Une séance verrouillée ne bouge ni ne change de salle.
+      parameters:
+      - in: path
+        name: entry
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEntryChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEntryChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEntryChangeRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: timetable_drafts_entries_destroy
+      description: 'Retire une séance du brouillon : elle revient dans « À placer
+        ».'
+      parameters:
+      - in: path
+        name: entry
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/{id}/swap/:
+    post:
+      operationId: timetable_drafts_swap_create
+      description: Échange les places de deux séances du brouillon (aucune verrouillée).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SwapRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SwapRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SwapRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/{id}/undo/:
+    post:
+      operationId: timetable_drafts_undo_create
+      description: Annule le dernier geste (50 derniers gardés).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/grids/:
     get:
       operationId: timetable_grids_list
@@ -17024,6 +17506,9 @@ components:
       - timetable.teacher_changed
       - timetable.rule_changed
       - timetable.rule_deleted
+      - timetable.draft_created
+      - timetable.draft_deleted
+      - timetable.lock_changed
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -17162,6 +17647,9 @@ components:
         * `timetable.teacher_changed` - Teacher availability changed
         * `timetable.rule_changed` - Timetable rule saved
         * `timetable.rule_deleted` - Timetable rule deleted
+        * `timetable.draft_created` - Timetable draft created
+        * `timetable.draft_deleted` - Timetable draft deleted
+        * `timetable.lock_changed` - Lesson locked or unlocked
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -18421,6 +18909,11 @@ components:
           format: uuid
           nullable: true
           description: La règle à modifier (contrôles 6, 7).
+        entry:
+          type: string
+          format: uuid
+          nullable: true
+          description: La séance d'un brouillon (EDT.2a).
       required:
       - check
       - code
@@ -18431,6 +18924,7 @@ components:
       - teacher
       - room
       - rule
+      - entry
     CheckLevelEnum:
       enum:
       - error
@@ -18925,6 +19419,20 @@ components:
       required:
       - id
       - name
+    ClassLoad:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+        placed:
+          type: integer
+        due:
+          type: integer
+      required:
+      - class_group
+      - placed
+      - due
     ClassPassage:
       type: object
       properties:
@@ -21790,6 +22298,104 @@ components:
       - support
       - timetable
       type: string
+    Draft:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        status:
+          $ref: '#/components/schemas/TimetableStatusEnum'
+        based_on:
+          type: string
+          format: uuid
+          nullable: true
+          title: Copied from
+        hours:
+          type: integer
+          description: Heures placées.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - name
+      - status
+      - based_on
+      - hours
+      - updated_at
+    DraftCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        based_on:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Brouillon à copier ; vide : verrous des règles.'
+      required:
+      - name
+    DraftState:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/TimetableStatusEnum'
+        based_on:
+          type: string
+          format: uuid
+          nullable: true
+        can_undo:
+          type: boolean
+        errors:
+          type: integer
+        warnings:
+          type: integer
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entry'
+        left:
+          type: array
+          items:
+            $ref: '#/components/schemas/Left'
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassLoad'
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeacherLoad'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/CheckIssue'
+      required:
+      - id
+      - name
+      - status
+      - based_on
+      - can_undo
+      - errors
+      - warnings
+      - entries
+      - left
+      - classes
+      - teachers
+      - issues
     EmailChange:
       type: object
       properties:
@@ -21930,6 +22536,45 @@ components:
       description: |-
         * `enrollment` - enrollment
         * `config` - configuration
+    Entry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        course:
+          type: string
+          format: uuid
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+          title: Day
+        first:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: First lesson
+        length:
+          type: integer
+          maximum: 12
+          minimum: 1
+          title: Hours
+        room:
+          type: string
+          format: uuid
+          nullable: true
+        locked:
+          type: boolean
+      required:
+      - id
+      - course
+      - weekday
+      - first
+      - length
+      - room
+      - locked
     Error:
       type: object
       properties:
@@ -23529,6 +24174,20 @@ components:
       - paid_at
       - received_at
       - cancelled
+    Left:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+        lengths:
+          type: array
+          items:
+            type: integer
+          description: Séances restant à placer (heures).
+      required:
+      - course
+      - lengths
     Level:
       type: object
       properties:
@@ -25870,6 +26529,26 @@ components:
         left_on:
           type: string
           format: date
+    PatchedEntryChangeRequest:
+      type: object
+      description: |-
+        Un seul geste : déplacer (`weekday` et `first`), salle (`room`, vide : à choisir) ou
+        verrou (`locked`).
+      properties:
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+        first:
+          type: integer
+          maximum: 12
+          minimum: 1
+        room:
+          type: string
+          format: uuid
+          nullable: true
+        locked:
+          type: boolean
     PatchedFamilyWriteRequest:
       type: object
       properties:
@@ -26693,6 +27372,29 @@ components:
           $ref: '#/components/schemas/AnswerEnum'
       required:
       - answer
+    PlaceRequest:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+        weekday:
+          type: integer
+          maximum: 7
+          minimum: 1
+        first:
+          type: integer
+          maximum: 12
+          minimum: 1
+        length:
+          type: integer
+          maximum: 12
+          minimum: 1
+      required:
+      - course
+      - first
+      - length
+      - weekday
     PlaceStatusEnum:
       enum:
       - offered
@@ -30845,6 +31547,18 @@ components:
           maxLength: 200
       required:
       - reason
+    SwapRequest:
+      type: object
+      properties:
+        entry:
+          type: string
+          format: uuid
+        other:
+          type: string
+          format: uuid
+      required:
+      - entry
+      - other
     SyncClassGroup:
       type: object
       properties:
@@ -31124,6 +31838,28 @@ components:
       - name
       - starts_on
       - ends_on
+    TeacherLoad:
+      type: object
+      properties:
+        teacher:
+          type: string
+          format: uuid
+        name:
+          type: string
+        placed:
+          type: integer
+        due:
+          type: integer
+        max:
+          type: integer
+          nullable: true
+          description: Maximum de son contrat.
+      required:
+      - teacher
+      - name
+      - placed
+      - due
+      - max
     TeacherProfile:
       type: object
       properties:
@@ -31714,6 +32450,51 @@ components:
       - course_hours
       - missing_hours
       - capacity
+    TimetableCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        class_group:
+          type: string
+          format: uuid
+        teacher:
+          type: string
+          format: uuid
+          nullable: true
+        teacher_name:
+          type: string
+        sessions:
+          type: array
+          items:
+            type: integer
+        room:
+          type: string
+          format: uuid
+          nullable: true
+        room_kind:
+          type: string
+        spans_break:
+          type: boolean
+        max_per_day:
+          type: integer
+      required:
+      - id
+      - name
+      - category
+      - class_group
+      - teacher
+      - teacher_name
+      - sessions
+      - room
+      - room_kind
+      - spans_break
+      - max_per_day
     TimetableRule:
       type: object
       properties:
@@ -31845,6 +32626,16 @@ components:
       - max_same_course_per_day
       - no_gaps
       - teacher_max_day_hours
+    TimetableStatusEnum:
+      enum:
+      - draft
+      - published
+      - archived
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `published` - Published
+        * `archived` - Archived
     TotalsRow:
       type: object
       properties:

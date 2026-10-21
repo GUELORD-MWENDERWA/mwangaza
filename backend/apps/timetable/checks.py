@@ -597,6 +597,8 @@ def _lock_conflicts(locks, parallel, joint, rooms, by_group, prefix: str) -> lis
                 return a.course.pk in groups and groups[a.course.pk] == groups.get(b.course.pk)
 
             pair = {"first": a.label, "second": b.label, "day": a.weekday}
+            if a.entry:
+                pair["entries"] = [str(a.entry), str(b.entry)]
             course_a, course_b = a.course, b.course
             if course_a.pk == course_b.pk or (
                 course_a.class_group_id == course_b.class_group_id and not same(side_by_side)

@@ -85,6 +85,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "EDT.1b",
       },
       {
+        key: "timetable",
+        path: "timetable",
+        icon: "calendar",
+        permissions: ["timetable.manage"],
+        task: "EDT.2a",
+      },
+      {
         key: "grades",
         path: "grades",
         icon: "edit",
