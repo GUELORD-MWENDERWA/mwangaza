@@ -546,6 +546,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 | 9.12 | Cantine, transport, internat (la bibliothèque est passée en V1.6) | P3 |
 | 9.13 | Boutique (uniformes, fournitures) (inventaire et ateliers passés en V1.6) | P3 |
 | 9.14 | Orientation, anciens élèves (le site des écoles est passé en V1.7) | P3 |
+| 9.16 | 👤 Fin de la V2 : repasser le dépôt GitHub en privé (`A-FAIRE.md` § 9 quinquies, étapes 1 à 3 ; public depuis le 2026-10-21 pour les minutes d'Actions) | — |
 | ~~9.2~~ | ~~Abonnements~~ → ABO (V1.3) | — |
 | ~~9.15~~ | ~~Row Level Security~~ → S.6 (V1.2) | — |
 

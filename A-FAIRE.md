@@ -5,14 +5,14 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-21 (contrôles GitHub bloqués par la facturation : 0 ter).
+Dernière mise à jour : 2026-10-21 (dépôt repassé en public jusqu'à la fin de la V2 : 0 ter, § 9 quinquies).
 
 ## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
 | 0 | **Consommation de tokens (2026-10-19)** : dans le terminal, taper `/config` et régler l'effort sur **high** (il est sur « xhigh », la réflexion la plus chère) ; puis `/plugin` et **désactiver `typescript-lsp` et `pyright-lsp`** (leurs messages d'erreur, souvent faux, ajoutent des milliers de tokens après chaque modification ; `make lint` et `pnpm typecheck` font le même contrôle). Prendre Sonnet (`/model`) pour les tâches simples. Aussi : `~/.claude/settings.json` contient un **mot de passe en clair** (règle `curl … /auth/login` du projet SITE-DTMS) : supprimer cette ligne et changer ce mot de passe | 5 min | [ ] |
-| 0 ter | **Contrôles GitHub bloqués (2026-10-21, urgent)** : depuis que le dépôt est privé, GitHub ne lance plus les contrôles des PR (« recent account payments have failed or your spending limit needs to be increased »). Sur GitHub : ta photo → *Settings* → *Billing and plans* : vérifier le moyen de paiement et la limite de dépenses d'Actions, et les minutes utilisées (*Usage* ; 2 000 gratuites par mois, § 9 quinquies point 4). Ensuite, sur la PR #372, *Checks* → *Re-run all jobs* ; ou repasser le dépôt en public le temps de régler la facturation | 5 minutes | [ ] |
+| 0 ter | ~~**Contrôles GitHub bloqués (2026-10-21)**~~ : minutes d'Actions du dépôt privé épuisées ; dépôt **repassé en public le 2026-10-21** (par Claude, à ta demande) jusqu'à la fin de la V2, puis retour en privé (§ 9 quinquies). Rien à faire d'ici là : les images du serveur peuvent rester publiques | | [x] |
 | 0 bis | **Emploi du temps (2026-10-20)** : relire la PR « EDT.0 » (spécification `docs/specs/emploi-du-temps.md` et nouvel ordre de la file), la fusionner, puis répondre à **Q16** de `docs/06-suivi.md` (durée d'une heure, heures par jour, récréations, au plus 2 h du même cours par jour) ; ensuite, dans le terminal : `/clear` puis `/tache EDT.1a` | 20 min | [ ] |
 | 1 | ~~Relire et fusionner la PR « L.0 — plan révisé »~~ : fait (2026-10-13) ; la file des tâches est dans `docs/05-plan-de-travail.md` § 2 | | [x] |
 | 2 | ~~Sauvegardes hors du serveur, alertes, suivi d'erreurs (UptimeRobot, copie des clés)~~ : fait (L.1, vérifié le 2026-10-13) | | [x] |
@@ -135,8 +135,8 @@ Les images ne sont plus construites sur le serveur : GitHub Actions les fabrique
 4. Après la première construction : sur GitHub, ton profil → *Packages* → noter la taille de `mwangaza-backend` et `mwangaza-caddy-production` ; si le total dépasse 400 Mo, dire à Claude de passer à 2 versions gardées.
 Le jeton expire dans un an : le refaire alors (même chemin) et relancer l'étape 2 ; sans lui, `make deploy` s'arrête avec un message clair, le site en ligne continue de tourner.
 
-**Le jour où le dépôt repasse en privé** — étape 1 faite le 2026-10-20 (par Claude, à ta demande) ; **à toi : étapes 2 et 3** :
-1. ~~Dépôt → *Settings* → *General* → tout en bas, *Danger Zone* → *Change repository visibility* → *Make private*.~~ ✓
+**Le jour où le dépôt repasse en privé** — passé en privé le 2026-10-20, **repassé en public le 2026-10-21** (minutes d'Actions épuisées en privé ; par Claude, à ta demande). **Retour en privé prévu à la fin de la V2** : refaire alors les étapes 1 à 3 (d'ici là, rien à faire ; en public, Actions est sans limite et GitHub bloque de nouveau les secrets poussés) :
+1. Dépôt → *Settings* → *General* → tout en bas, *Danger Zone* → *Change repository visibility* → *Make private* (ou demander à Claude).
 2. **Rendre les deux images privées** (elles sont publiques tant que le dépôt l'est, et ne deviennent pas privées toutes seules) : GitHub → ton profil → *Packages* → `mwangaza-backend` → *Package settings* → *Danger Zone* → *Change visibility* → *Private* ; pareil pour `mwangaza-caddy-production`. Le serveur a déjà son jeton : rien à changer côté serveur. Tant qu'elles sont publiques, elles ne comptent pas dans les 500 Mo ; privées, elles comptent.
 3. `make deploy-check`, puis un `make deploy` quelconque : il doit finir sans erreur.
 4. Le plan gratuit d'un dépôt privé : 2 000 minutes d'Actions et 500 Mo de Packages par mois. Où regarder : *Settings* (ton compte) → *Billing and plans* → *Usage* (minutes d'Actions, stockage des paquets). Estimation : ≈ 300 minutes par mois (`docs/claude/recherches/perf-5c-…`). Une alerte à 75 % se règle dans *Billing* → *Budgets and alerts*.
@@ -252,7 +252,7 @@ Chaque compte dont dépend Mwangaza en ligne. **Aucun mot de passe ni code ici**
 | Cloudflare | DNS du domaine, enregistrements e-mail compris, rapports DMARC (plus tard : proxy, nuage orange) | adresses et e-mails détournés vers un autre serveur | toi | gratuit | [x] |
 | AWS (compte Guels_01) | serveur Lightsail `mwangaza-vps-prod`, IP statique, instantanés | serveur et base | toi (compte racine) | chaque mois, ≈ 12 $ après l'essai ; crédits jusqu'au 12/10/2027 (haut du § 9 octies) | [x] |
 | Backblaze B2 | copie chiffrée de la sauvegarde de chaque nuit, hors d'AWS (§ 9 bis) | plus de copie hors du serveur | toi ; le serveur : une clé limitée au bucket | gratuit jusqu'à 10 Go | [x] |
-| GitHub | code (dépôt privé), contrôles des PR (Actions), images du serveur (ghcr.io), Dependabot | du code d'un autre mis en ligne au prochain `make deploy` | toi (propriétaire) ; Claude Code avec ta session `gh` sur ta machine ; le serveur lit les images avec `GHCR_TOKEN` (§ 9 quinquies) | gratuit : 2 000 minutes d'Actions par mois, 500 Mo d'images (`docs/claude/recherches/perf-5c-images-et-minutes-2026-10-16.md`) | [x] |
+| GitHub | code (dépôt public jusqu'à la fin de la V2, puis privé), contrôles des PR (Actions), images du serveur (ghcr.io), Dependabot | du code d'un autre mis en ligne au prochain `make deploy` | toi (propriétaire) ; Claude Code avec ta session `gh` sur ta machine ; le serveur lit les images avec `GHCR_TOKEN` (§ 9 quinquies) | gratuit : 2 000 minutes d'Actions par mois, 500 Mo d'images (`docs/claude/recherches/perf-5c-images-et-minutes-2026-10-16.md`) | [x] |
 | Sentry | erreurs du serveur | plus d'alerte (rien ne s'arrête) | toi | gratuit | [x] |
 | Healthchecks.io | alerte si la sauvegarde de la nuit manque | plus d'alerte (rien ne s'arrête) | toi | gratuit | [x] |
 | UptimeRobot | alerte si le site ne répond plus (toutes les 5 min) | plus d'alerte (rien ne s'arrête) | toi | gratuit | [x] |
