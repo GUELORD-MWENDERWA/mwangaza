@@ -18179,7 +18179,13 @@ components:
           type: string
           description: Ex. class_overloaded, teacher_over_max.
         level:
-          $ref: '#/components/schemas/LevelEnum'
+          allOf:
+          - $ref: '#/components/schemas/CheckLevelEnum'
+          description: |-
+            error : rouge ; warning : orange.
+
+            * `error` - error
+            * `warning` - warning
         subject:
           type: string
           description: Classe, enseignant, cours, salle, ou type de salle (code).
@@ -18208,6 +18214,14 @@ components:
       - class_group
       - teacher
       - room
+    CheckLevelEnum:
+      enum:
+      - error
+      - warning
+      type: string
+      description: |-
+        * `error` - error
+        * `warning` - warning
     Checks:
       type: object
       properties:
@@ -23329,14 +23343,6 @@ components:
       - order
       - has_state_exam
       - pass_rules
-    LevelEnum:
-      enum:
-      - error
-      - warning
-      type: string
-      description: |-
-        * `error` - error
-        * `warning` - warning
     LevelPassRulesRequest:
       type: object
       description: |-

@@ -1,6 +1,7 @@
 // Charges des enseignants (8.1, maquette `charges-enseignants`) : heures par semaine des cours de
 // l'année en cours attribués à chaque membre du personnel, et cours sans enseignant. Lecture
-// seule : l'attribution se fait dans « Cours et maxima ». Droit `courses.configure`.
+// seule : l'attribution se fait dans « Cours et maxima ». Droit `courses.configure`. Avec
+// `timetable.manage` (EDT.1b) : charge au plus et absences de chacun, réglées dans une fenêtre.
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Button,
@@ -16,11 +17,17 @@ import {
   Table,
   cn,
 } from "@mwangaza/ui";
+import { useState } from "react";
 import { Link } from "react-router";
 
 import { fullName } from "../../lib/people";
+import { can } from "../../lib/permissions";
+import { useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
+import { describe } from "../timetable/availability";
+import { AvailabilityDialog, dayKey } from "../timetable/AvailabilityDialog";
+import { useGrids, useTeacherProfiles, useTimetableRules } from "../timetable/data";
 import { useTeachingLoads } from "./data";
 
 // Le reste se voit classe par classe dans « Cours et maxima ».
@@ -30,6 +37,11 @@ export function TeachingLoadsPage() {
   const { t, i18n } = useTranslation();
   const years = useYears();
   const loads = useTeachingLoads();
+  const canPlace = can(useCurrentMe(), ["timetable.manage"]);
+  const profiles = useTeacherProfiles(canPlace);
+  const grids = useGrids(canPlace);
+  const rules = useTimetableRules(canPlace);
+  const [editing, setEditing] = useState<{ id: string; name: string; hours: string } | null>(null);
 
   if (loads.isPending || years.isPending) return <Skeleton label={t("common.loading")} />;
   if (loads.isError) return <LoadError error={loads.error} onRetry={() => void loads.refetch()} />;
@@ -44,6 +56,8 @@ export function TeachingLoadsPage() {
     unassigned_hours: unassignedHours,
   } = loads.data;
   const assignedHours = teaching.reduce((sum, load) => sum + load.hours, 0);
+  const profileOf = (id: string) => profiles.data?.find((profile) => profile.teacher === id);
+  const dayName = (weekday: number) => t(`timetable.days.${dayKey(weekday)}`).toLowerCase();
 
   return (
     <>
@@ -65,44 +79,84 @@ export function TeachingLoadsPage() {
                 <th>{t("courses.loads.courses")}</th>
                 <th className="text-right max-[600px]:hidden">{t("courses.loads.count")}</th>
                 <th className="text-right">{t("courses.loads.hours")}</th>
+                {canPlace && <th>{t("timetable.availability.column")}</th>}
               </tr>
             </thead>
             <tbody>
               {teaching.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="text-center text-ink-2">
+                  <td colSpan={canPlace ? 5 : 4} className="text-center text-ink-2">
                     {t("courses.loads.empty")}
                   </td>
                 </tr>
               )}
-              {teaching.map((load) => (
-                <tr key={load.teacher.id}>
-                  <td className="font-bold" data-wrap>
-                    {fullName(load.teacher)}
-                  </td>
-                  <td data-wrap>
-                    <ul className="flex flex-col gap-0.5 text-sm">
-                      {load.courses.map((course) => (
-                        <li key={course.id}>
-                          <span className="text-ink-2">{course.class_name}</span> · {course.name}
-                          {course.weekly_hours ? (
-                            <span className="whitespace-nowrap">
-                              {" "}
-                              · {hours(course.weekly_hours)}
-                            </span>
-                          ) : null}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                  <td className="text-right tabular-nums max-[600px]:hidden">
-                    {load.courses.length}
-                  </td>
-                  <td className="text-right font-bold whitespace-nowrap tabular-nums">
-                    {hours(load.hours)}
-                  </td>
-                </tr>
-              ))}
+              {teaching.map((load) => {
+                const profile = profileOf(load.teacher.id);
+                const max = profile?.max_week_hours ?? null;
+                const absences = describe(profile?.unavailable ?? [], dayName);
+                return (
+                  <tr key={load.teacher.id}>
+                    <td className="font-bold" data-wrap>
+                      {fullName(load.teacher)}
+                    </td>
+                    <td data-wrap>
+                      <ul className="flex flex-col gap-0.5 text-sm">
+                        {load.courses.map((course) => (
+                          <li key={course.id}>
+                            <span className="text-ink-2">{course.class_name}</span> · {course.name}
+                            {course.weekly_hours ? (
+                              <span className="whitespace-nowrap">
+                                {" "}
+                                · {hours(course.weekly_hours)}
+                              </span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    </td>
+                    <td className="text-right tabular-nums max-[600px]:hidden">
+                      {load.courses.length}
+                    </td>
+                    <td className="text-right whitespace-nowrap tabular-nums">
+                      <b className={cn(max !== null && load.hours > max && "text-due")}>
+                        {hours(load.hours)}
+                      </b>
+                      {max !== null && (
+                        <div className="text-xs text-ink-2">
+                          {t("timetable.availability.atMost", { count: max })}
+                        </div>
+                      )}
+                    </td>
+                    {canPlace && (
+                      <td data-wrap>
+                        <div className="flex flex-wrap items-center gap-2 text-sm">
+                          <span className={cn(absences.length === 0 && "text-ink-2")}>
+                            {absences.length > 0
+                              ? t("timetable.availability.summary", { list: absences.join(", ") })
+                              : t("timetable.availability.always")}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            aria-label={t("timetable.availability.setFor", {
+                              name: fullName(load.teacher),
+                            })}
+                            onClick={() =>
+                              setEditing({
+                                id: load.teacher.id,
+                                name: fullName(load.teacher),
+                                hours: hours(load.hours),
+                              })
+                            }
+                          >
+                            {t("timetable.availability.set")}
+                          </Button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
             {teaching.length > 0 && (
               <tfoot>
@@ -114,6 +168,7 @@ export function TeachingLoadsPage() {
                   <td className="text-right whitespace-nowrap tabular-nums">
                     {hours(assignedHours)}
                   </td>
+                  {canPlace && <td />}
                 </tr>
               </tfoot>
             )}
@@ -177,6 +232,16 @@ export function TeachingLoadsPage() {
           )}
         </div>
       </div>
+      {editing && (
+        <AvailabilityDialog
+          teacher={editing}
+          hours={editing.hours}
+          profile={profileOf(editing.id)}
+          grids={grids.data ?? []}
+          schoolMaxDay={rules.data?.teacher_max_day_hours ?? 6}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </>
   );
 }

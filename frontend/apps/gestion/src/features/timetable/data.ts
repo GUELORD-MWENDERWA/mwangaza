@@ -1,5 +1,6 @@
-// Emploi du temps (EDT.1a) : grilles horaires, classes et places, salles, règles générales. Droit
-// `timetable.manage`, module `timetable` ; en ligne.
+// Emploi du temps (EDT.1a) : grilles horaires, classes et places, salles, règles générales ;
+// EDT.1b : disponibilités des enseignants, contrôles avant le calcul. Droit `timetable.manage`,
+// module `timetable` ; en ligne.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -10,6 +11,9 @@ export type ClassRow = Schemas["TimetableClass"];
 export type Room = Schemas["Room"];
 export type RoomKind = Schemas["RoomKindEnum"];
 export type Rules = Schemas["TimetableRules"];
+export type TeacherProfile = Schemas["TeacherProfile"];
+export type Checks = Schemas["Checks"];
+export type CheckIssue = Schemas["CheckIssue"];
 
 export const ROOM_KINDS: RoomKind[] = [
   "classroom",
@@ -20,8 +24,9 @@ export const ROOM_KINDS: RoomKind[] = [
   "other",
 ];
 
-export function useGrids() {
+export function useGrids(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: [...keys.timetable, "grids"],
     queryFn: () => call(api.GET("/api/timetable/grids/")),
   });
@@ -34,17 +39,34 @@ export function useTimetableClasses() {
   });
 }
 
-export function useRooms() {
+export function useRooms(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: [...keys.timetable, "rooms"],
     queryFn: () => call(api.GET("/api/timetable/rooms/")),
   });
 }
 
-export function useTimetableRules() {
+export function useTimetableRules(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: [...keys.timetable, "rules"],
     queryFn: () => call(api.GET("/api/timetable/rules/")),
+  });
+}
+
+export function useTeacherProfiles(enabled = true) {
+  return useQuery({
+    queryKey: [...keys.timetable, "teachers"],
+    queryFn: () => call(api.GET("/api/timetable/teachers/")),
+    enabled,
+  });
+}
+
+export function useTimetableChecks() {
+  return useQuery({
+    queryKey: [...keys.timetable, "checks"],
+    queryFn: () => call(api.GET("/api/timetable/checks/")),
   });
 }
 

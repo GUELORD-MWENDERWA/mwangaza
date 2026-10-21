@@ -141,6 +141,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "teaching-loads",
       "time-grid",
       "rooms",
+      "timetable-checks",
       "unpaid",
       "unpaid/export",
       "cash-closings/register",
@@ -167,6 +168,23 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     ];
     for (const path of pages)
       await visit(head, `${ITIG}${path}`, "gestion", path.replace(/\//g, "-") || "accueil");
+    // Emploi du temps (EDT.1b) : vue « Emploi du temps » des cours, fenêtre des disponibilités.
+    await visit(head, `${ITIG}courses`, "gestion", "courses-placement", async (page) => {
+      await page.getByRole("radio", { name: "Emploi du temps" }).click();
+    });
+    await visit(
+      head,
+      `${ITIG}teaching-loads`,
+      "gestion",
+      "teaching-loads-disponibilites",
+      async (page) => {
+        await page
+          .getByRole("button", { name: /^Régler les disponibilités/ })
+          .first()
+          .click();
+        await page.getByRole("dialog").waitFor();
+      },
+    );
     const { results } = await json<{ results: { id: string }[] }>(
       head,
       "/api/students/?page_size=1",

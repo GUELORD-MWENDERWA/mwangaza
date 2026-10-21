@@ -21,6 +21,7 @@ from apps.timetable.models import Room, TeacherTimetableProfile, TimeGrid, TimeS
 from apps.timetable.services import grids, rules_of
 
 ERROR, WARNING = "error", "warning"
+LEVELS = [ERROR, WARNING]
 # Contrôles de la spec (§ 6) : 1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets.
 CLASSES, TEACHERS, COURSES, ROOMS, INCOMPLETE = 1, 2, 3, 4, 5
 # Noms de cours montrés dans une ligne qui en regroupe plusieurs.

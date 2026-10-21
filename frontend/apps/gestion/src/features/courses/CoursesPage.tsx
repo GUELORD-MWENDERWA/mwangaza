@@ -1,7 +1,8 @@
 // Cours et maxima (8.1, maquette `cours-maxima`) : la grille de la classe choisie (cours, domaine,
 // maximum par période, examen, heures, enseignant) s'enregistre d'un seul envoi ; un modèle
 // officiel la pré-remplit, « Copier » la donne à d'autres classes. Droit `courses.configure`,
-// en ligne seulement. Examen et T.G. calculés (`grid.ts`), jamais saisis.
+// en ligne seulement. Vue « Emploi du temps » (EDT.1b, `PlacementTable`) avec le droit
+// `timetable.manage` : le placement de chaque cours part dans le même envoi. Examen et T.G. calculés (`grid.ts`), jamais saisis.
 import { ApiError, api, call } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
@@ -21,6 +22,7 @@ import {
   Input,
   List,
   PageHeader,
+  Segmented,
   Select,
   Skeleton,
   StatusPill,
@@ -30,13 +32,15 @@ import {
 } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { errorMessage, fieldMessage } from "../../lib/errors";
 import { fullName } from "../../lib/people";
-import { keys } from "../../lib/queries";
+import { can } from "../../lib/permissions";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { type ClassGroup, useClasses, useYears, type Year } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
+import { useRooms, useTimetableRules } from "../timetable/data";
 import {
   type Course,
   type OfficialGrid,
@@ -45,6 +49,14 @@ import {
   useTeachingLoads,
 } from "./data";
 import { examMax, type GridRow, gridSummary, termCounts, yearMax } from "./grid";
+import {
+  EMPTY_PLACEMENT,
+  patternProblem,
+  placementBody,
+  placementDraft,
+  type PlacementDraft,
+} from "./placement";
+import { PlacementTable } from "./PlacementTable";
 
 /** Cours en cours de saisie ; `key` : repère local (un nouveau cours n'a pas encore d'`id`). */
 type GradeEntry = Course["grade_entry"];
@@ -63,7 +75,10 @@ type Draft = {
   category: Category;
   weekly_hours: string;
   teacher_id: string;
+  placement: PlacementDraft;
 };
+
+type View = "report" | "timetable";
 
 let lastKey = 0;
 const newKey = () => `new-${++lastKey}`;
@@ -80,6 +95,7 @@ const toDraft = (course: Course): Draft => ({
   category: course.category,
   weekly_hours: course.weekly_hours ? String(course.weekly_hours) : "",
   teacher_id: course.teacher?.id ?? "",
+  placement: placementDraft(course.placement),
 });
 
 const toRow = (draft: Draft): GridRow => ({
@@ -100,6 +116,7 @@ const blank = (): Draft => ({
   category: "general",
   weekly_hours: "",
   teacher_id: "",
+  placement: EMPTY_PLACEMENT,
 });
 
 /** Un modèle officiel remplace les lignes ; un cours du même nom garde son `id` et son
@@ -120,6 +137,7 @@ function fromGrid(grid: OfficialGrid, current: Draft[]): Draft[] {
       category: course.category,
       weekly_hours: course.weekly_hours ? String(course.weekly_hours) : (kept?.weekly_hours ?? ""),
       teacher_id: kept?.teacher_id ?? "",
+      placement: kept?.placement ?? EMPTY_PLACEMENT,
     };
   });
 }
@@ -129,7 +147,9 @@ export function CoursesPage() {
   const years = useYears();
   const year = years.data?.find((item) => item.is_current) ?? years.data?.[0];
   const classes = useClasses(year?.id ?? "");
-  const [chosen, setChosen] = useState<string | null>(null);
+  // `?class=` : ouvert depuis les contrôles avant le calcul (EDT.1b).
+  const [params] = useSearchParams();
+  const [chosen, setChosen] = useState<string | null>(params.get("class"));
 
   if (years.isPending || (year && classes.isPending)) {
     return <Skeleton label={t("common.loading")} />;
@@ -171,6 +191,10 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
   const courses = useCourses(group.id);
   const staff = useTeachingLoads();
   const grids = useOfficialGrids();
+  const canPlace = can(useCurrentMe(), ["timetable.manage"]);
+  const rooms = useRooms(canPlace);
+  const rules = useTimetableRules(canPlace);
+  const [view, setView] = useState<View>("report");
   // `null` : rien de changé depuis la dernière lecture.
   const [drafts, setDrafts] = useState<Draft[] | null>(null);
   const [leaving, setLeaving] = useState<string | null>(null);
@@ -194,6 +218,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
               category: draft.category,
               weekly_hours: draft.weekly_hours ? Number(draft.weekly_hours) : null,
               teacher_id: draft.teacher_id || null,
+              ...(canPlace ? { placement: placementBody(draft.placement) } : {}),
             })),
           },
         }),
@@ -237,6 +262,9 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
       "is_taught",
       "grade_entry",
       "category",
+      "placement.lesson_pattern",
+      "placement.max_per_day",
+      "placement.room_id",
     ]
       .flatMap((field) => fields[`courses.${index}.${field}`] ?? [])
       .map((error) => fieldMessage(error.code, t));
@@ -272,6 +300,12 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
     );
   };
   const placed = Object.keys(fields).some((path) => /^courses\.\d+\./.test(path));
+  // Séances qui ne font pas les heures : dit dans la ligne, l'envoi attend la correction.
+  const unplaceable =
+    canPlace &&
+    rows.some((draft) =>
+      patternProblem(draft.placement.lesson_pattern, Number(draft.weekly_hours) || 0),
+    );
   const choose = (id: string) => (dirty ? setLeaving(id) : onChoose(id));
 
   return (
@@ -301,7 +335,10 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
             >
               {t("courses.copy.open")}
             </Button>
-            <Button disabled={!dirty || save.isPending} onClick={() => save.mutate(rows)}>
+            <Button
+              disabled={!dirty || save.isPending || unplaceable}
+              onClick={() => save.mutate(rows)}
+            >
               {t("courses.save")}
             </Button>
           </>
@@ -420,200 +457,230 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
           </CardFooter>
         </Card>
       </div>
+      {canPlace && (
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <Segmented<View>
+            label={t("timetable.placement.view")}
+            value={view}
+            onValueChange={setView}
+            options={[
+              { value: "report", label: t("timetable.placement.report") },
+              { value: "timetable", label: t("timetable.placement.timetable") },
+            ]}
+            className="max-[600px]:w-full"
+          />
+          <p className="text-sm text-ink-2">
+            {t("timetable.placement.viewHelp")}{" "}
+            <Link to="/timetable-checks" className="font-bold underline">
+              {t("timetable.placement.checksLink")}
+            </Link>
+          </p>
+        </div>
+      )}
       <Card>
-        <Table>
-          <thead>
-            <tr>
-              <th>{t("courses.columns.name")}</th>
-              <th>{t("courses.columns.domain")}</th>
-              <th className="text-right">{t("courses.columns.periodMax")}</th>
-              <th>{t("courses.columns.exam")}</th>
-              <th className="text-right">{t("courses.columns.examMax")}</th>
-              <th className="text-right">{t("courses.columns.year")}</th>
-              <th>{t("courses.columns.taught")}</th>
-              <th>{t("courses.columns.entry")}</th>
-              <th>{t("courses.columns.category")}</th>
-              <th className="text-right">{t("courses.columns.hours")}</th>
-              <th>{t("courses.columns.teacher")}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
+        {view === "timetable" && canPlace ? (
+          <PlacementTable
+            rows={rows}
+            rooms={rooms.data ?? []}
+            schoolMaxPerDay={rules.data?.max_same_course_per_day ?? 2}
+            errorsOf={errorsOf}
+            onChange={update}
+          />
+        ) : (
+          <Table>
+            <thead>
               <tr>
-                <td colSpan={11} className="text-center text-ink-2">
-                  {t("courses.empty")}
-                </td>
+                <th>{t("courses.columns.name")}</th>
+                <th>{t("courses.columns.domain")}</th>
+                <th className="text-right">{t("courses.columns.periodMax")}</th>
+                <th>{t("courses.columns.exam")}</th>
+                <th className="text-right">{t("courses.columns.examMax")}</th>
+                <th className="text-right">{t("courses.columns.year")}</th>
+                <th>{t("courses.columns.taught")}</th>
+                <th>{t("courses.columns.entry")}</th>
+                <th>{t("courses.columns.category")}</th>
+                <th className="text-right">{t("courses.columns.hours")}</th>
+                <th>{t("courses.columns.teacher")}</th>
+                <th />
               </tr>
-            )}
-            {rows.map((draft, index) => {
-              const row = toRow(draft);
-              const label = draft.name || t("courses.newCourse");
-              const errors = errorsOf(index);
-              const band = bands.get(index);
-              return (
-                <Fragment key={draft.key}>
-                  {band && (
-                    <tr className="[&_td]:bg-lake-50">
-                      <td colSpan={12} className="text-sm font-bold text-lake-700">
-                        {t("courses.band", {
-                          domain: band.domain,
-                          count: band.count,
-                          period: number(band.period),
-                        })}
+            </thead>
+            <tbody>
+              {rows.length === 0 && (
+                <tr>
+                  <td colSpan={11} className="text-center text-ink-2">
+                    {t("courses.empty")}
+                  </td>
+                </tr>
+              )}
+              {rows.map((draft, index) => {
+                const row = toRow(draft);
+                const label = draft.name || t("courses.newCourse");
+                const errors = errorsOf(index);
+                const band = bands.get(index);
+                return (
+                  <Fragment key={draft.key}>
+                    {band && (
+                      <tr className="[&_td]:bg-lake-50">
+                        <td colSpan={12} className="text-sm font-bold text-lake-700">
+                          {t("courses.band", {
+                            domain: band.domain,
+                            count: band.count,
+                            period: number(band.period),
+                          })}
+                        </td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td>
+                        <Input
+                          aria-label={t("courses.columns.name")}
+                          value={draft.name}
+                          onChange={(event) => update(draft, { name: event.target.value })}
+                          className="min-w-[220px] font-bold"
+                        />
+                        {errors.map((error) => (
+                          <p key={error} role="alert" className="mt-1 text-xs text-due">
+                            {error}
+                          </p>
+                        ))}
+                      </td>
+                      <td>
+                        <Input
+                          aria-label={`${t("courses.columns.domain")} — ${label}`}
+                          list="course-domains"
+                          value={draft.domain}
+                          onChange={(event) => update(draft, { domain: event.target.value })}
+                          className="min-w-[120px]"
+                        />
+                      </td>
+                      <td className="text-right">
+                        <Input
+                          aria-label={`${t("courses.columns.periodMax")} — ${label}`}
+                          inputMode="numeric"
+                          value={draft.period_max}
+                          onChange={(event) =>
+                            update(draft, { period_max: event.target.value.replace(/\D/g, "") })
+                          }
+                          className="ml-auto w-[76px] text-right"
+                        />
+                      </td>
+                      <td>
+                        <Switch
+                          aria-label={`${t("courses.columns.exam")} — ${label}`}
+                          checked={draft.has_exam}
+                          onCheckedChange={(checked) => update(draft, { has_exam: checked })}
+                        />
+                      </td>
+                      <td className="text-right whitespace-nowrap tabular-nums">
+                        {row.period_max ? (
+                          row.has_exam ? (
+                            number(examMax(row)!)
+                          ) : (
+                            <span className="text-ink-2">{t("courses.noExam")}</span>
+                          )
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td className="text-right font-bold tabular-nums">
+                        {row.period_max && counts.periods ? number(yearMax(row, counts)) : "—"}
+                      </td>
+                      <td>
+                        <Switch
+                          aria-label={`${t("courses.columns.taught")} — ${label}`}
+                          checked={draft.is_taught}
+                          onCheckedChange={(checked) => update(draft, { is_taught: checked })}
+                        />
+                      </td>
+                      <td>
+                        <Select
+                          aria-label={`${t("courses.columns.entry")} — ${label}`}
+                          value={draft.grade_entry}
+                          onChange={(event) =>
+                            update(draft, { grade_entry: event.target.value as GradeEntry })
+                          }
+                          className="min-w-[150px]"
+                        >
+                          <option value="">{t("courses.entry.school")}</option>
+                          <option value="detailed">{t("courses.entry.detailed")}</option>
+                          <option value="totals">{t("courses.entry.totals")}</option>
+                        </Select>
+                      </td>
+                      <td>
+                        <Select
+                          aria-label={`${t("courses.columns.category")} — ${label}`}
+                          value={draft.category}
+                          onChange={(event) =>
+                            update(draft, { category: event.target.value as Category })
+                          }
+                          className="min-w-[130px]"
+                        >
+                          {CATEGORIES.map((category) => (
+                            <option key={category} value={category}>
+                              {t(`courses.category.${category}`)}
+                            </option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td className="text-right">
+                        <Input
+                          aria-label={`${t("courses.columns.hours")} — ${label}`}
+                          inputMode="numeric"
+                          value={draft.weekly_hours}
+                          onChange={(event) =>
+                            update(draft, { weekly_hours: event.target.value.replace(/\D/g, "") })
+                          }
+                          className="ml-auto w-[64px] text-right"
+                        />
+                      </td>
+                      <td>
+                        <Select
+                          aria-label={`${t("courses.columns.teacher")} — ${label}`}
+                          value={draft.teacher_id}
+                          onChange={(event) => update(draft, { teacher_id: event.target.value })}
+                          className="min-w-[180px]"
+                        >
+                          <option value="">{t("courses.unassigned")}</option>
+                          {staff.data.loads.map(({ teacher }) => (
+                            <option key={teacher.id} value={teacher.id}>
+                              {fullName(teacher)}
+                            </option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td className="w-10">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          aria-label={t("courses.remove", { name: label })}
+                          onClick={() => edit(rows.filter((other) => other !== draft))}
+                        >
+                          <Icon name="x" size={16} />
+                        </Button>
                       </td>
                     </tr>
-                  )}
-                  <tr>
-                    <td>
-                      <Input
-                        aria-label={t("courses.columns.name")}
-                        value={draft.name}
-                        onChange={(event) => update(draft, { name: event.target.value })}
-                        className="min-w-[220px] font-bold"
-                      />
-                      {errors.map((error) => (
-                        <p key={error} role="alert" className="mt-1 text-xs text-due">
-                          {error}
-                        </p>
-                      ))}
-                    </td>
-                    <td>
-                      <Input
-                        aria-label={`${t("courses.columns.domain")} — ${label}`}
-                        list="course-domains"
-                        value={draft.domain}
-                        onChange={(event) => update(draft, { domain: event.target.value })}
-                        className="min-w-[120px]"
-                      />
-                    </td>
-                    <td className="text-right">
-                      <Input
-                        aria-label={`${t("courses.columns.periodMax")} — ${label}`}
-                        inputMode="numeric"
-                        value={draft.period_max}
-                        onChange={(event) =>
-                          update(draft, { period_max: event.target.value.replace(/\D/g, "") })
-                        }
-                        className="ml-auto w-[76px] text-right"
-                      />
-                    </td>
-                    <td>
-                      <Switch
-                        aria-label={`${t("courses.columns.exam")} — ${label}`}
-                        checked={draft.has_exam}
-                        onCheckedChange={(checked) => update(draft, { has_exam: checked })}
-                      />
-                    </td>
-                    <td className="text-right whitespace-nowrap tabular-nums">
-                      {row.period_max ? (
-                        row.has_exam ? (
-                          number(examMax(row)!)
-                        ) : (
-                          <span className="text-ink-2">{t("courses.noExam")}</span>
-                        )
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="text-right font-bold tabular-nums">
-                      {row.period_max && counts.periods ? number(yearMax(row, counts)) : "—"}
-                    </td>
-                    <td>
-                      <Switch
-                        aria-label={`${t("courses.columns.taught")} — ${label}`}
-                        checked={draft.is_taught}
-                        onCheckedChange={(checked) => update(draft, { is_taught: checked })}
-                      />
-                    </td>
-                    <td>
-                      <Select
-                        aria-label={`${t("courses.columns.entry")} — ${label}`}
-                        value={draft.grade_entry}
-                        onChange={(event) =>
-                          update(draft, { grade_entry: event.target.value as GradeEntry })
-                        }
-                        className="min-w-[150px]"
-                      >
-                        <option value="">{t("courses.entry.school")}</option>
-                        <option value="detailed">{t("courses.entry.detailed")}</option>
-                        <option value="totals">{t("courses.entry.totals")}</option>
-                      </Select>
-                    </td>
-                    <td>
-                      <Select
-                        aria-label={`${t("courses.columns.category")} — ${label}`}
-                        value={draft.category}
-                        onChange={(event) =>
-                          update(draft, { category: event.target.value as Category })
-                        }
-                        className="min-w-[130px]"
-                      >
-                        {CATEGORIES.map((category) => (
-                          <option key={category} value={category}>
-                            {t(`courses.category.${category}`)}
-                          </option>
-                        ))}
-                      </Select>
-                    </td>
-                    <td className="text-right">
-                      <Input
-                        aria-label={`${t("courses.columns.hours")} — ${label}`}
-                        inputMode="numeric"
-                        value={draft.weekly_hours}
-                        onChange={(event) =>
-                          update(draft, { weekly_hours: event.target.value.replace(/\D/g, "") })
-                        }
-                        className="ml-auto w-[64px] text-right"
-                      />
-                    </td>
-                    <td>
-                      <Select
-                        aria-label={`${t("courses.columns.teacher")} — ${label}`}
-                        value={draft.teacher_id}
-                        onChange={(event) => update(draft, { teacher_id: event.target.value })}
-                        className="min-w-[180px]"
-                      >
-                        <option value="">{t("courses.unassigned")}</option>
-                        {staff.data.loads.map(({ teacher }) => (
-                          <option key={teacher.id} value={teacher.id}>
-                            {fullName(teacher)}
-                          </option>
-                        ))}
-                      </Select>
-                    </td>
-                    <td className="w-10">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        aria-label={t("courses.remove", { name: label })}
-                        onClick={() => edit(rows.filter((other) => other !== draft))}
-                      >
-                        <Icon name="x" size={16} />
-                      </Button>
-                    </td>
-                  </tr>
-                </Fragment>
-              );
-            })}
-          </tbody>
-          {rows.length > 0 && (
-            <tfoot>
-              <tr className="font-bold [&_td]:bg-table-head">
-                <td colSpan={2}>{t("courses.totals")}</td>
-                <td className="text-right tabular-nums">{number(summary.period)}</td>
-                <td />
-                <td className="text-right tabular-nums">{number(summary.exam)}</td>
-                <td className="text-right tabular-nums">
-                  {counts.periods ? number(summary.year) : "—"}
-                </td>
-                <td colSpan={3} />
-                <td className="text-right tabular-nums">{number(summary.hours)}</td>
-                <td colSpan={2} />
-              </tr>
-            </tfoot>
-          )}
-        </Table>
+                  </Fragment>
+                );
+              })}
+            </tbody>
+            {rows.length > 0 && (
+              <tfoot>
+                <tr className="font-bold [&_td]:bg-table-head">
+                  <td colSpan={2}>{t("courses.totals")}</td>
+                  <td className="text-right tabular-nums">{number(summary.period)}</td>
+                  <td />
+                  <td className="text-right tabular-nums">{number(summary.exam)}</td>
+                  <td className="text-right tabular-nums">
+                    {counts.periods ? number(summary.year) : "—"}
+                  </td>
+                  <td colSpan={3} />
+                  <td className="text-right tabular-nums">{number(summary.hours)}</td>
+                  <td colSpan={2} />
+                </tr>
+              </tfoot>
+            )}
+          </Table>
+        )}
         <datalist id="course-domains">
           {domains.map((domain) => (
             <option key={domain} value={domain} />

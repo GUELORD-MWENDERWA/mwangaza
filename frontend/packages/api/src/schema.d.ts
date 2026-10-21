@@ -5982,7 +5982,13 @@ export interface components {
             check: number;
             /** @description Ex. class_overloaded, teacher_over_max. */
             code: string;
-            level: components["schemas"]["LevelEnum"];
+            /**
+             * @description error : rouge ; warning : orange.
+             *
+             *     * `error` - error
+             *     * `warning` - warning
+             */
+            level: components["schemas"]["CheckLevelEnum"];
             /** @description Classe, enseignant, cours, salle, ou type de salle (code). */
             subject: string;
             /** @description Chiffres et noms de la phrase. */
@@ -5996,6 +6002,12 @@ export interface components {
             /** Format: uuid */
             room: string | null;
         };
+        /**
+         * @description * `error` - error
+         *     * `warning` - warning
+         * @enum {string}
+         */
+        CheckLevelEnum: "error" | "warning";
         Checks: {
             errors: number;
             warnings: number;
@@ -8335,12 +8347,6 @@ export interface components {
             /** Passing rules */
             readonly pass_rules: unknown;
         };
-        /**
-         * @description * `error` - error
-         *     * `warning` - warning
-         * @enum {string}
-         */
-        LevelEnum: "error" | "warning";
         /**
          * @description Règles propres à un niveau : seulement les champs qui diffèrent de l'école ; `{}` : celles
          *     de l'école.

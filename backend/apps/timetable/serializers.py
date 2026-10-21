@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
+from apps.timetable.checks import LEVELS
 from apps.timetable.models import (
     MAX_LESSON_MINUTES,
     MAX_LESSONS_PER_DAY,
@@ -182,7 +183,7 @@ class CheckIssueSerializer(serializers.Serializer):
         help_text="1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets."
     )
     code = serializers.CharField(help_text="Ex. class_overloaded, teacher_over_max.")
-    level = serializers.ChoiceField(choices=["error", "warning"])
+    level = serializers.ChoiceField(choices=LEVELS, help_text="error : rouge ; warning : orange.")
     subject = serializers.CharField(
         help_text="Classe, enseignant, cours, salle, ou type de salle (code)."
     )
