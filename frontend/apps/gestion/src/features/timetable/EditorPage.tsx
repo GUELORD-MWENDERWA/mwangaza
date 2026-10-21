@@ -278,7 +278,7 @@ export function EditorPage() {
         <>
           <Select
             aria-label={t("timetable.editor.draft")}
-            className="w-auto min-w-0 max-w-full"
+            className="w-full min-w-0 sm:w-auto"
             value={state.id}
             onChange={(event) =>
               setParams((current) => {
@@ -308,34 +308,36 @@ export function EditorPage() {
       )}
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            aria-label={t("timetable.editor.previous")}
-            disabled={position <= 0}
-            onClick={() => showClass(classList[position - 1]?.id)}
-          >
-            <Icon name="back" />
-          </Button>
-          <Select
-            aria-label={t("timetable.editor.class")}
-            className="w-auto min-w-0 font-bold"
-            value={classId}
-            onChange={(event) => showClass(event.target.value)}
-          >
-            {classList.map((row) => (
-              <option key={row.id} value={row.id}>
-                {row.name}
-              </option>
-            ))}
-          </Select>
-          <Button
-            variant="outline"
-            aria-label={t("timetable.editor.next")}
-            disabled={position >= classList.length - 1}
-            onClick={() => showClass(classList[position + 1]?.id)}
-          >
-            <Icon name="chevron" />
-          </Button>
+          <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
+            <Button
+              variant="outline"
+              aria-label={t("timetable.editor.previous")}
+              disabled={position <= 0}
+              onClick={() => showClass(classList[position - 1]?.id)}
+            >
+              <Icon name="back" />
+            </Button>
+            <Select
+              aria-label={t("timetable.editor.class")}
+              className="w-auto min-w-0 flex-1 font-bold"
+              value={classId}
+              onChange={(event) => showClass(event.target.value)}
+            >
+              {classList.map((row) => (
+                <option key={row.id} value={row.id}>
+                  {row.name}
+                </option>
+              ))}
+            </Select>
+            <Button
+              variant="outline"
+              aria-label={t("timetable.editor.next")}
+              disabled={position >= classList.length - 1}
+              onClick={() => showClass(classList[position + 1]?.id)}
+            >
+              <Icon name="chevron" />
+            </Button>
+          </div>
           {load && (
             <StatusPill tone="info">
               {t("timetable.editor.placedOfDue", { placed: load.placed, due: load.due })}
@@ -407,7 +409,7 @@ export function EditorPage() {
             <Tabs value={String(shownDay)} onValueChange={(value) => setDay(Number(value))}>
               <TabsList aria-label={t("timetable.editor.days")}>
                 {weekdays.map((weekday) => (
-                  <TabsTrigger key={weekday} value={String(weekday)}>
+                  <TabsTrigger key={weekday} value={String(weekday)} className="px-2">
                     {shortDay(weekday, i18n.language)}
                   </TabsTrigger>
                 ))}
@@ -832,7 +834,8 @@ function Lesson({
 }) {
   const { t } = useTranslation();
   const course = board.courses.get(entry.course);
-  const room = entry.room ? board.rooms.get(entry.room)?.name : t("timetable.editor.roomToChoose");
+  // Sans salle : « Salle à choisir » vient de la ligne du conflit (orange) quand un type est exigé.
+  const room = entry.room ? board.rooms.get(entry.room)?.name : undefined;
   const details = [course?.teacher_name, room].filter(Boolean).join(" · ");
   return (
     <button

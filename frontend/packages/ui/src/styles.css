@@ -109,17 +109,6 @@
   --color-chart-1: var(--color-lake);
   --color-chart-2: #c47f00;
   --color-chart-grid: #e2e8f0;
-  /* Couleur de chaque cours dans l'emploi du temps (EDT.2a) : dix teintes distinctes, en filet. */
-  --color-course-1: var(--color-lake);
-  --color-course-2: #7c3aed;
-  --color-course-3: #b45309;
-  --color-course-4: #db2777;
-  --color-course-5: #16a34a;
-  --color-course-6: #0891b2;
-  --color-course-7: #ea580c;
-  --color-course-8: #ca8a04;
-  --color-course-9: #0f766e;
-  --color-course-10: #64748b;
   /* En-tête et pied de tableau ; voile sous un tiroir ou une fenêtre. */
   --color-table-head: #f7f9fc;
   --color-scrim: rgba(11, 28, 53, 0.55);
@@ -171,6 +160,21 @@
       transform: translateY(8px) scale(0.985);
     }
   }
+}
+
+/* Couleur de chaque cours dans l'emploi du temps (EDT.2a) : dix teintes distinctes, en filet. Hors
+   de @theme : lues par `style` (une couleur par nom de cours), jamais par une classe. */
+:root {
+  --color-course-1: var(--color-lake);
+  --color-course-2: #7c3aed;
+  --color-course-3: #b45309;
+  --color-course-4: #db2777;
+  --color-course-5: #16a34a;
+  --color-course-6: #0891b2;
+  --color-course-7: #ea580c;
+  --color-course-8: #ca8a04;
+  --color-course-9: #0f766e;
+  --color-course-10: #64748b;
 }
 
 @layer base {

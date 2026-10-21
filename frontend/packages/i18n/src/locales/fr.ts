@@ -1837,7 +1837,6 @@ export const fr = {
       none: "—",
       span: "{{first}}–{{last}}",
       locked: "Verrouillée",
-      roomToChoose: "Salle à choisir",
       tint: {
         fits: "Possible ici",
         short: "Ne tient pas",

@@ -1815,7 +1815,6 @@ export const en: Messages<typeof fr> = {
       none: "—",
       span: "{{first}}–{{last}}",
       locked: "Locked",
-      roomToChoose: "Room to choose",
       tint: {
         fits: "Possible here",
         short: "Does not fit",
