@@ -5,13 +5,14 @@ Claude ne peut pas : installer avec `sudo`, fusionner une PR, parler à l'ITIG, 
 
 Ce qui manque en détail (maquettes, informations ITIG, décisions) : [`docs/07-a-fournir.md`](docs/07-a-fournir.md). Ici : **quoi faire, dans quel ordre, avec quelles commandes**.
 
-Dernière mise à jour : 2026-10-17 (étapes de sécurité faites et cochées ; mise en ligne de `main` à faire : 6 duodecies ; L.6).
+Dernière mise à jour : 2026-10-21 (contrôles GitHub bloqués par la facturation : 0 ter).
 
 ## Maintenant
 
 | # | Action | Temps | Fait |
 |:-:|---|---|:-:|
 | 0 | **Consommation de tokens (2026-10-19)** : dans le terminal, taper `/config` et régler l'effort sur **high** (il est sur « xhigh », la réflexion la plus chère) ; puis `/plugin` et **désactiver `typescript-lsp` et `pyright-lsp`** (leurs messages d'erreur, souvent faux, ajoutent des milliers de tokens après chaque modification ; `make lint` et `pnpm typecheck` font le même contrôle). Prendre Sonnet (`/model`) pour les tâches simples. Aussi : `~/.claude/settings.json` contient un **mot de passe en clair** (règle `curl … /auth/login` du projet SITE-DTMS) : supprimer cette ligne et changer ce mot de passe | 5 min | [ ] |
+| 0 ter | **Contrôles GitHub bloqués (2026-10-21, urgent)** : depuis que le dépôt est privé, GitHub ne lance plus les contrôles des PR (« recent account payments have failed or your spending limit needs to be increased »). Sur GitHub : ta photo → *Settings* → *Billing and plans* : vérifier le moyen de paiement et la limite de dépenses d'Actions, et les minutes utilisées (*Usage* ; 2 000 gratuites par mois, § 9 quinquies point 4). Ensuite, sur la PR #372, *Checks* → *Re-run all jobs* ; ou repasser le dépôt en public le temps de régler la facturation | 5 minutes | [ ] |
 | 0 bis | **Emploi du temps (2026-10-20)** : relire la PR « EDT.0 » (spécification `docs/specs/emploi-du-temps.md` et nouvel ordre de la file), la fusionner, puis répondre à **Q16** de `docs/06-suivi.md` (durée d'une heure, heures par jour, récréations, au plus 2 h du même cours par jour) ; ensuite, dans le terminal : `/clear` puis `/tache EDT.1a` | 20 min | [ ] |
 | 1 | ~~Relire et fusionner la PR « L.0 — plan révisé »~~ : fait (2026-10-13) ; la file des tâches est dans `docs/05-plan-de-travail.md` § 2 | | [x] |
 | 2 | ~~Sauvegardes hors du serveur, alertes, suivi d'erreurs (UptimeRobot, copie des clés)~~ : fait (L.1, vérifié le 2026-10-13) | | [x] |
