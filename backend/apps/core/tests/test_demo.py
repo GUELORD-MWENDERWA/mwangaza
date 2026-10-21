@@ -37,7 +37,7 @@ from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
 from apps.timetable import checks
-from apps.timetable.models import Room, TeacherTimetableProfile
+from apps.timetable.models import Room, TeacherTimetableProfile, TimetableRule
 from apps.timetable.services import class_rows
 from tests.factories import SchoolFactory, enable_totp
 
@@ -99,6 +99,12 @@ def created(demo) -> None:
         assert TeacherTimetableProfile.objects.count() == 2
         report = checks.run(AcademicYear.objects.get(is_current=True))
         assert "class_overloaded" in {issue["code"] for issue in report["issues"]}
+        # EDT.1c : des règles, dont l'atelier de la 2HT Électricité A verrouillé le lundi, sans
+        # contradiction ni conflit de verrou.
+        assert report["rules"] == 7
+        lock = TimetableRule.objects.get(kind="fixed_lesson")
+        assert (lock.params["weekday"], lock.params["first"], lock.params["last"]) == (1, 2, 7)
+        assert not [issue for issue in report["issues"] if issue["check"] in (6, 7)]
     # Reprise des résultats (8.4.7) : la 8EB C sans aucune note, la moitié de ses élèves repris.
     with use_school(itig):
         paper = Deliberation.objects.get(class_group__level__name="8EB", class_group__section="C")

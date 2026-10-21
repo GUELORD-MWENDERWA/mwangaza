@@ -102,6 +102,8 @@ Une règle = une ligne `TimetableRule` [T] : `kind` (liste fermée ci-dessous), 
 
 Liste **fermée** : une consigne qui n'entre dans aucun kind est refusée avec la raison (l'IA ne peut pas inventer de règle que le solveur ne sait pas lire). Un nouveau kind = du code, des tests, une ligne ici.
 
+**Fait en EDT.1c** (`timetable/constraints.py`, écran « Règles et contrôles ») : 9 kinds sont des lignes `TimetableRule` — `fixed_lesson` (`course`, `weekday`, `first`, `last`, `room` facultative ; toujours obligatoire), `course_not_slot` (cours visés, `weekday` ou tous les jours, numéros d'heure `lessons` et/ou `last` ; un jour sans heure = toute la journée), `course_part_of_day` (cours visés, `part` matin / après-midi — avant ou après midi —, `weekday` facultatif), `parallel_courses` et `joint_courses` (`courses`, 2 à 6 ; toujours obligatoires ; un cours n'est que dans un groupe actif), `room_unavailable` (`room`, `weekday`, `start`–`end` facultatifs), `spread_over_week` (cours visés, `no_consecutive_days`), `teacher_compact` (`teacher` ou tous ; souhait seulement), `teacher_free_day` (`teacher`, `weekday` ou un jour peu importe). « Cours visés » : tous, une catégorie, tous ceux d'un nom, ou le cours d'une classe. `max_course_per_day`, `teacher_max_per_day`, `teacher_max_week` et `class_no_gap` restent où l'école les règle (règles générales de la grille, cours, disponibilités) : jamais deux sources pour un même réglage ; `stability` viendra avec le calcul (EDT.3).
+
 ## 6. Contrôles avant le calcul (EDT.1b : 1 à 5 ; EDT.1c : 6 et 7) — le « diagnostic »
 
 Calcul Python pur, quelques millisecondes, **sans solveur ni IA**, montré en permanence dans un panneau « À régler avant le calcul » (rouge = impossible, orange = risqué) :
@@ -111,8 +113,8 @@ Calcul Python pur, quelques millisecondes, **sans solveur ni IA**, montré en pe
 3. **Cours impossible à étaler** : `weekly_hours` > `max_per_day` × jours possibles ; séance plus longue que la plus longue suite d'heures d'un jour.
 4. **Salle demandée par trop de cours** : somme des heures qui exigent une salle (ou un type) > ses cases disponibles.
 5. **Cours sans enseignant**, sans heures, ou enseignant désactivé.
-6. **Verrous en conflit** : deux heures verrouillées au même enseignant, à la même classe ou à la même salle.
-7. **Règles qui se contredisent** directement (verrou sur une indisponibilité, etc.).
+6. **Verrous en conflit** : deux heures verrouillées qui se chevauchent pour la même classe (sauf groupes en parallèle), le même enseignant ou la même salle (sauf cours commun ; le sport en reçoit plusieurs).
+7. **Règles qui se contredisent** directement : verrou hors de la grille de la classe, par-dessus une récréation que le cours ne passe pas, qui n'est pas une de ses séances, sur une absence de l'enseignant, sur une salle fermée, contre une règle obligatoire (heures ou moment interdits, jour libre) ; groupes en parallèle au même enseignant, cours commun sans le même enseignant, heures différentes dans un groupe ; règle sans objet cette année (orange). Groupes en parallèle et cours communs comptent une fois dans les contrôles 1 et 2 (EDT.1c).
 
 Chaque ligne dit **quoi**, **combien** et **où corriger** (lien vers l'écran). C'est aussi ce que l'IA reçoit pour expliquer (§ 9) : les chiffres viennent du code, jamais de l'IA. Le bouton « Calculer » reste grisé tant qu'il y a du rouge.
 

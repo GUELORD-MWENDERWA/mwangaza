@@ -1,7 +1,7 @@
-"""API des paramètres de l'emploi du temps (EDT.1a) : grilles horaires, grille et salle des
-classes, salles, règles générales. Module `timetable`, droit `timetable.manage` ; en ligne
-seulement. Listes courtes (quelques grilles, au plus 300 salles, classes de l'année) : pas de
-pagination."""
+"""API des paramètres de l'emploi du temps : grilles horaires, grille et salle des classes, salles,
+règles générales (EDT.1a) ; disponibilités, contrôles (EDT.1b) ; règles (EDT.1c). Module
+`timetable`, droit `timetable.manage` ; en ligne seulement. Listes courtes (quelques grilles, au
+plus 300 salles, 500 règles, classes de l'année) : pas de pagination."""
 
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema
@@ -16,20 +16,23 @@ from apps.core.errors import ErrorSerializer
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, services
-from apps.timetable.models import Room, TimeGrid
+from apps.timetable import checks, constraints, services
+from apps.timetable.models import Room, TimeGrid, TimetableRule
 from apps.timetable.serializers import (
     ChecksSerializer,
     RoomCreateSerializer,
     RoomSerializer,
     RoomUpdateSerializer,
+    RuleChoicesSerializer,
     TeacherProfileSerializer,
     TimeGridCreateSerializer,
     TimeGridSerializer,
     TimeGridWriteSerializer,
     TimetableClassSerializer,
     TimetableClassUpdateSerializer,
+    TimetableRuleSerializer,
     TimetableRulesSerializer,
+    TimetableRuleWriteSerializer,
 )
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
@@ -192,3 +195,53 @@ class ChecksView(_TimetableView):
         """Contrôles avant le calcul de l'horaire (année en cours) : classes, enseignants et
         salles surchargés, cours impossibles à étaler, cours incomplets ; rouge d'abord."""
         return Response(ChecksSerializer(checks.run(organisation.current_year())).data)
+
+
+@extend_schema(tags=["timetable"])
+class ConstraintsView(_TimetableView):
+    @extend_schema(responses={200: TimetableRuleSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Règles de l'horaire de l'école (liste fermée de kinds), actives d'abord."""
+        return Response(TimetableRuleSerializer(constraints.rules(), many=True).data)
+
+    @extend_schema(
+        request=TimetableRuleWriteSerializer,
+        responses={201: TimetableRuleSerializer, **WRITE_ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        """Ajoute une règle : paramètres vérifiés par le schéma de son kind ; cours, salles et
+        enseignants de l'école seulement ; un cours dans un seul groupe ; au plus 500 règles."""
+        data = TimetableRuleWriteSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        rule = constraints.create_rule(actor=request.user, **data.validated_data)
+        return Response(TimetableRuleSerializer(rule).data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(tags=["timetable"])
+class ConstraintView(_TimetableView):
+    @extend_schema(
+        request=TimetableRuleWriteSerializer,
+        responses={200: TimetableRuleSerializer, **WRITE_ERRORS},
+    )
+    def put(self, request: Request, pk) -> Response:
+        """Remplace une règle (kind compris) ; ce qui change va dans le journal."""
+        rule = get_object_or_404(TimetableRule, pk=pk)
+        data = TimetableRuleWriteSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        rule = constraints.update_rule(rule, actor=request.user, **data.validated_data)
+        return Response(TimetableRuleSerializer(rule).data)
+
+    @extend_schema(responses={204: None, **ERRORS})
+    def delete(self, request: Request, pk) -> Response:
+        """Supprime une règle (journal) ; la désactiver la garde sans la compter."""
+        constraints.delete_rule(get_object_or_404(TimetableRule, pk=pk), actor=request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["timetable"])
+class ConstraintChoicesView(_TimetableView):
+    @extend_schema(responses={200: RuleChoicesSerializer, **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Ce que l'éditeur des règles propose : kinds (forces permises, poids par défaut), cours
+        enseignés cette année et leurs enseignants."""
+        return Response(RuleChoicesSerializer(constraints.choices()).data)

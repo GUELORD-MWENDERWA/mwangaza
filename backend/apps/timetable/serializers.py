@@ -1,7 +1,7 @@
-from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from apps.timetable.checks import LEVELS
+from apps.timetable.constraints import UnavailableSerializer, clean
 from apps.timetable.models import (
     MAX_LESSON_MINUTES,
     MAX_LESSONS_PER_DAY,
@@ -11,6 +11,7 @@ from apps.timetable.models import (
     Room,
     TimeGrid,
     TimeSlot,
+    TimetableRule,
 )
 
 # 7 jours de 12 heures et 11 récréations au plus.
@@ -139,28 +140,6 @@ class TimetableRulesSerializer(serializers.Serializer):
     main_courses_early = serializers.BooleanField()
 
 
-class UnavailableSerializer(serializers.Serializer):
-    """Une absence : un jour entier, ou une plage horaire de ce jour (début et fin)."""
-
-    weekday = serializers.IntegerField(min_value=1, max_value=7, help_text="1 = lundi.")
-    start = serializers.TimeField(required=False, format="%H:%M")
-    end = serializers.TimeField(required=False, format="%H:%M")
-
-    def validate(self, attrs: dict) -> dict:
-        start, end = attrs.get("start"), attrs.get("end")
-        if (start is None) != (end is None):
-            raise serializers.ValidationError(
-                _("Give both the start and the end, or neither for the whole day."),
-                code="incomplete_range",
-            )
-        if start is not None and start >= end:
-            raise serializers.ValidationError(_("The end comes after the start."), code="bad_range")
-        row = {"weekday": attrs["weekday"]}
-        if start is not None:
-            row |= {"start": start.strftime("%H:%M"), "end": end.strftime("%H:%M")}
-        return row
-
-
 class TeacherProfileSerializer(serializers.Serializer):
     teacher = serializers.UUIDField(source="teacher_id", read_only=True)
     max_week_hours = serializers.IntegerField(
@@ -180,7 +159,10 @@ class TeacherProfileSerializer(serializers.Serializer):
 
 class CheckIssueSerializer(serializers.Serializer):
     check = serializers.IntegerField(
-        help_text="1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets."
+        help_text=(
+            "1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets, 6 verrous en "
+            "conflit, 7 règles qui se contredisent ou sans objet."
+        )
     )
     code = serializers.CharField(help_text="Ex. class_overloaded, teacher_over_max.")
     level = serializers.ChoiceField(choices=LEVELS, help_text="error : rouge ; warning : orange.")
@@ -191,6 +173,7 @@ class CheckIssueSerializer(serializers.Serializer):
     class_group = serializers.UUIDField(allow_null=True)
     teacher = serializers.UUIDField(allow_null=True)
     room = serializers.UUIDField(allow_null=True)
+    rule = serializers.UUIDField(allow_null=True, help_text="La règle à modifier (contrôles 6, 7).")
 
 
 class ChecksSerializer(serializers.Serializer):
@@ -199,4 +182,69 @@ class ChecksSerializer(serializers.Serializer):
     classes = serializers.IntegerField()
     teachers = serializers.IntegerField()
     rooms = serializers.IntegerField()
+    rules = serializers.IntegerField(help_text="Règles actives.")
     issues = CheckIssueSerializer(many=True)
+
+
+class TimetableRuleSerializer(serializers.ModelSerializer):
+    params = serializers.DictField(help_text="Paramètres, selon le kind (spec § 5).")
+
+    class Meta:
+        model = TimetableRule
+        fields = [
+            "id",
+            "kind",
+            "params",
+            "strength",
+            "weight",
+            "active",
+            "source",
+            "text",
+            "updated_at",
+        ]
+
+
+class TimetableRuleWriteSerializer(serializers.Serializer):
+    kind = serializers.ChoiceField(choices=TimetableRule.Kind.choices)
+    params = serializers.DictField(help_text="Vérifiés par le schéma du kind.")
+    strength = serializers.ChoiceField(
+        choices=TimetableRule.Strength.choices, required=False, help_text="Vide : celle du kind."
+    )
+    weight = serializers.IntegerField(
+        min_value=1, max_value=10, required=False, help_text="Souhait : 1 à 10 ; vide : du kind."
+    )
+    active = serializers.BooleanField(default=True)
+
+    def validate(self, attrs: dict) -> dict:
+        return clean(attrs)
+
+
+class RuleKindSerializer(serializers.Serializer):
+    kind = serializers.ChoiceField(choices=TimetableRule.Kind.choices)
+    strengths = serializers.ListField(
+        child=serializers.ChoiceField(choices=TimetableRule.Strength.choices)
+    )
+    strength = serializers.ChoiceField(choices=TimetableRule.Strength.choices)
+    weight = serializers.IntegerField()
+
+
+class RuleCourseSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    category = serializers.CharField()
+    class_group = serializers.UUIDField()
+    class_name = serializers.CharField()
+    teacher = serializers.UUIDField(allow_null=True)
+    weekly_hours = serializers.IntegerField()
+    sessions = serializers.ListField(child=serializers.IntegerField())
+
+
+class RuleTeacherSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+
+
+class RuleChoicesSerializer(serializers.Serializer):
+    kinds = RuleKindSerializer(many=True)
+    courses = RuleCourseSerializer(many=True)
+    teachers = RuleTeacherSerializer(many=True)

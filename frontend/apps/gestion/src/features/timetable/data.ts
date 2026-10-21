@@ -1,6 +1,6 @@
 // Emploi du temps (EDT.1a) : grilles horaires, classes et places, salles, règles générales ;
-// EDT.1b : disponibilités des enseignants, contrôles avant le calcul. Droit `timetable.manage`,
-// module `timetable` ; en ligne.
+// EDT.1b : disponibilités des enseignants, contrôles avant le calcul ; EDT.1c : règles de
+// l'horaire et ce que leur éditeur propose. Droit `timetable.manage`, module `timetable` ; en ligne.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery } from "@tanstack/react-query";
 
@@ -14,6 +14,11 @@ export type Rules = Schemas["TimetableRules"];
 export type TeacherProfile = Schemas["TeacherProfile"];
 export type Checks = Schemas["Checks"];
 export type CheckIssue = Schemas["CheckIssue"];
+export type Rule = Schemas["TimetableRule"];
+export type RuleKind = Schemas["TimetableRuleKindEnum"];
+export type RuleStrength = Schemas["RuleStrengthEnum"];
+export type RuleChoices = Schemas["RuleChoices"];
+export type RuleCourse = Schemas["RuleCourse"];
 
 export const ROOM_KINDS: RoomKind[] = [
   "classroom",
@@ -67,6 +72,20 @@ export function useTimetableChecks() {
   return useQuery({
     queryKey: [...keys.timetable, "checks"],
     queryFn: () => call(api.GET("/api/timetable/checks/")),
+  });
+}
+
+export function useRules() {
+  return useQuery({
+    queryKey: [...keys.timetable, "constraints"],
+    queryFn: () => call(api.GET("/api/timetable/constraints/")),
+  });
+}
+
+export function useRuleChoices() {
+  return useQuery({
+    queryKey: [...keys.timetable, "constraint-choices"],
+    queryFn: () => call(api.GET("/api/timetable/constraints/choices/")),
   });
 }
 

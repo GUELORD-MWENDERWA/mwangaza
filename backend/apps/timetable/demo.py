@@ -3,8 +3,9 @@ l'ITIG ses ateliers, son laboratoire, sa salle informatique et son terrain. `vol
 deux vacations : grille du matin et grille de l'après-midi, une salle pour deux classes. EDT.1b :
 les ateliers exigent un atelier et se donnent en deux séances, le laboratoire, l'informatique et le
 sport leur salle (quand l'école en a une), les cours principaux le matin ; l'enseignant des deux
-écoles a ses absences et un maximum dans chacune. Rejouable : grilles, salles et disponibilités de
-l'espace sont refaites (espace de démonstration seulement)."""
+écoles a ses absences et un maximum dans chacune. EDT.1c : les règles de l'ITIG (`_rules`).
+Rejouable : grilles, salles, disponibilités et règles de l'espace sont refaites (espace de
+démonstration seulement)."""
 
 from datetime import time
 
@@ -16,7 +17,14 @@ from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.timetable.models import Room, TeacherTimetableProfile, TimeGrid, TimeSlot
+from apps.timetable import constraints
+from apps.timetable.models import (
+    Room,
+    TeacherTimetableProfile,
+    TimeGrid,
+    TimeSlot,
+    TimetableRule,
+)
 from apps.timetable.services import PRESET_LESSON_MINUTES, PRESET_START, week_shape
 
 WORKSHOP, LAB, COMPUTER, SPORTS = (
@@ -81,6 +89,7 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
             Course.objects.filter(room__isnull=False).update(room=None)
             Room.objects.all().delete()
             TeacherTimetableProfile.objects.all().delete()
+            TimetableRule.objects.all().delete()
             groups = list(
                 ClassGroup.objects.filter(academic_year=current_year()).select_related(
                     "level", "track"
@@ -111,6 +120,8 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
             for phone, fields in PROFILES.get(space.profile, {}).items():
                 teacher = User.objects.get(phone=space.numbers.of(phone))
                 TeacherTimetableProfile.objects.create(teacher=teacher, **fields)
+            if space.profile == "itig":
+                _rules()
 
 
 def _place_courses(kinds: set[str]) -> None:
@@ -134,3 +145,45 @@ def _place_courses(kinds: set[str]) -> None:
         if course.category == MAIN:
             course.preferred_part = MORNING
     Course.objects.bulk_update(courses, ["room_kind", "lesson_pattern", "preferred_part"])
+
+
+def _rules() -> None:
+    """L'atelier de la 2HT Électricité A verrouillé le lundi de la 2e à la 7e heure (une séance de
+    6 h), les groupes en parallèle de la 1HT Électricité A (atelier et laboratoire), le laboratoire
+    fermé le samedi, et quelques souhaits. Vérifiées comme par l'API (`constraints.clean`)."""
+    courses = {
+        (course.class_group.name, course.name): course
+        for course in Course.objects.filter(
+            class_group__academic_year=current_year(), is_taught=True
+        ).select_related("class_group__level", "class_group__track")
+    }
+    workshop = courses[("2HT ÉLECTRICITÉ A", "Atelier électrique")]
+    workshop.lesson_pattern = "6+1"
+    workshop.save(update_fields=["lesson_pattern"])
+    pair = [
+        courses[("1HT ÉLECTRICITÉ A", name)]
+        for name in ("Atelier électrique", "Laboratoire électrique")
+    ]
+    lab = Room.objects.get(name="Laboratoire de sciences")
+    every = {"scope": constraints.ALL, "value": ""}
+    rows = [
+        ("fixed_lesson", {"course": str(workshop.pk), "weekday": 1, "first": 2, "last": 7}, {}),
+        ("parallel_courses", {"courses": [str(course.pk) for course in pair]}, {}),
+        ("room_unavailable", {"room": str(lab.pk), "weekday": 6}, {}),
+        (
+            "course_not_slot",
+            {"target": {"scope": constraints.NAME, "value": "Éducation physique"}, "lessons": [1]},
+            {"weight": 6},
+        ),
+        (
+            "course_not_slot",
+            {"target": {"scope": constraints.NAME, "value": "Mathématique"}, "last": True},
+            {"weight": 4},
+        ),
+        ("spread_over_week", {"target": every}, {}),
+        ("teacher_compact", {}, {}),
+    ]
+    TimetableRule.objects.bulk_create(
+        TimetableRule(**constraints.clean({"kind": kind, "params": params, **extra}))
+        for kind, params, extra in rows
+    )

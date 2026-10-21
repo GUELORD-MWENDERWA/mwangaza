@@ -1,6 +1,7 @@
-// Contrôles avant le calcul (EDT.1b, maquette `controles-emploi-du-temps`) : ce qui rendra
-// l'horaire impossible (rouge) ou incomplet (orange), recalculé par le serveur à chaque ouverture.
-// Chaque ligne dit quoi, combien, et mène à l'écran où corriger. Droit `timetable.manage`.
+// Règles et contrôles (EDT.1b et EDT.1c, maquettes `controles-emploi-du-temps` et
+// `regle-emploi-du-temps`) : ce qui rendra l'horaire impossible (rouge) ou incomplet (orange),
+// recalculé par le serveur à chaque ouverture, et les règles de l'horaire. Chaque ligne dit quoi,
+// combien, et mène à l'écran où corriger (ou à la règle en cause). Droit `timetable.manage`.
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
@@ -16,19 +17,36 @@ import {
   Skeleton,
   StatusPill,
 } from "@mwangaza/ui";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
-import { type CheckIssue, ROOM_KINDS, type RoomKind, useTimetableChecks } from "./data";
+import {
+  type CheckIssue,
+  ROOM_KINDS,
+  type RoomKind,
+  type Rule,
+  type RuleKind,
+  useGrids,
+  useRooms,
+  useRuleChoices,
+  useRules,
+  useTimetableChecks,
+  useTimetableRules,
+} from "./data";
+import { RuleDialog } from "./RuleDialog";
+import { RulesCard } from "./RulesCard";
+import { dayName, hoursText, lookupOf } from "./rules";
 
 type Filter = "all" | "errors";
-const CHECKS = [1, 2, 3, 4, 5] as const;
+const CHECKS = [1, 2, 3, 4, 5, 6, 7] as const;
 const KIND_CODES = new Set(["room_kind_missing", "room_kind_overloaded"]);
 
-/** Où corriger : la grille de cours de la classe, les disponibilités, ou les salles. */
-function fixOf(issue: CheckIssue): { to: string; key: "class" | "teacher" | "room" } {
+/** Où corriger : la règle en cause, la grille de cours de la classe, les disponibilités, ou les
+ *  salles. */
+function fixOf(issue: CheckIssue): { to: string; key: "class" | "teacher" | "room" | "rule" } {
+  if (issue.rule) return { to: "", key: "rule" };
   if (issue.class_group) return { to: `/courses?class=${issue.class_group}`, key: "class" };
   if (issue.teacher) return { to: "/teaching-loads", key: "teacher" };
   return { to: "/rooms", key: "room" };
@@ -38,30 +56,58 @@ export function ChecksPage() {
   const { t, i18n } = useTranslation();
   const years = useYears();
   const checks = useTimetableChecks();
+  const rules = useRules();
+  const choices = useRuleChoices();
+  const rooms = useRooms();
+  const grids = useGrids();
+  const general = useTimetableRules();
   const [filter, setFilter] = useState<Filter>("all");
+  const [editing, setEditing] = useState<Rule | "new" | null>(null);
+  const lookup = useMemo(() => lookupOf(choices.data, rooms.data), [choices.data, rooms.data]);
+  const lessons = (grids.data ?? []).flatMap((grid) =>
+    grid.slots.filter((slot) => slot.kind === "lesson"),
+  );
+  const days = [...new Set(lessons.map((slot) => slot.weekday))].sort((a, b) => a - b);
+  const maxLessons = Math.max(0, ...lessons.map((slot) => slot.index ?? 0)) || 12;
 
-  if (checks.isPending || years.isPending) return <Skeleton label={t("common.loading")} />;
-  if (checks.isError) {
-    return <LoadError error={checks.error} onRetry={() => void checks.refetch()} />;
+  if (checks.isPending || years.isPending || rules.isPending || choices.isPending) {
+    return <Skeleton label={t("common.loading")} />;
+  }
+  const failed = [checks, rules, choices].find((query) => query.isError);
+  if (failed) {
+    return <LoadError error={failed.error} onRetry={() => void failed.refetch()} />;
   }
   const report = checks.data;
+  if (!report || !rules.data || !choices.data) return null;
+  const ruleOf = (id: string | null | undefined) => rules.data.find((rule) => rule.id === id);
   const number = (value: number) => new Intl.NumberFormat(i18n.language).format(value);
   const year = years.data?.find((item) => item.is_current);
   const shown = report.issues.filter((issue) => filter === "all" || issue.level === "error");
   const byCheck = (check: number) => report.issues.filter((issue) => issue.check === check);
 
-  const subject = (issue: CheckIssue) =>
-    KIND_CODES.has(issue.code) && ROOM_KINDS.includes(issue.subject as RoomKind)
+  const subject = (issue: CheckIssue) => {
+    if (issue.code === "rule_without_object") {
+      return t(`timetable.constraints.kinds.${issue.subject as RuleKind}`);
+    }
+    return KIND_CODES.has(issue.code) && ROOM_KINDS.includes(issue.subject as RoomKind)
       ? t("timetable.checks.kindSubject", {
           kind: t(`timetable.kinds.${issue.subject as RoomKind}`),
         })
       : issue.subject;
+  };
   const message = (issue: CheckIssue) => {
     const values = issue.values as Record<string, number | string>;
-    const extra =
-      issue.code === "class_overloaded"
+    // Contrôles 6 et 7 : jour, heures et type de règle en mots.
+    const extra = {
+      ...(issue.code === "class_overloaded"
         ? { over: Number(values.hours) - Number(values.capacity) }
-        : {};
+        : {}),
+      ...(values.day ? { day: dayName(Number(values.day), i18n.language) } : {}),
+      ...(values.first ? { hours: hoursText(Number(values.first), Number(values.last), t) } : {}),
+      ...(values.other
+        ? { other: t(`timetable.constraints.kinds.${values.other as RuleKind}`) }
+        : {}),
+    };
     const text = t(`timetable.checks.codes.${issue.code as "no_hours"}`, {
       ...values,
       ...extra,
@@ -108,7 +154,7 @@ export function ChecksPage() {
         />
         <Kpi
           label={t("timetable.checks.checked")}
-          value={`${number(report.classes)} · ${number(report.teachers)} · ${number(report.rooms)}`}
+          value={`${number(report.classes)} · ${number(report.teachers)} · ${number(report.rooms)} · ${number(report.rules)}`}
           icon="check"
           chip="ok"
           sub={t("timetable.checks.checkedHelp")}
@@ -158,9 +204,19 @@ export function ChecksPage() {
                         </span>
                         <span className="text-sm text-ink-2">{message(issue)}</span>
                       </div>
-                      <Button asChild variant="outline" size="sm">
-                        <Link to={fix.to}>{t(`timetable.checks.fix.${fix.key}`)}</Link>
-                      </Button>
+                      {fix.key === "rule" ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setEditing(ruleOf(issue.rule) ?? null)}
+                        >
+                          {t("timetable.checks.fix.rule")}
+                        </Button>
+                      ) : (
+                        <Button asChild variant="outline" size="sm">
+                          <Link to={fix.to}>{t(`timetable.checks.fix.${fix.key}`)}</Link>
+                        </Button>
+                      )}
                     </li>
                   );
                 })}
@@ -168,28 +224,47 @@ export function ChecksPage() {
             )}
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("timetable.checks.whatTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <List className="text-sm">
-              {CHECKS.map((check) => {
-                const found = byCheck(check);
-                const errors = found.some((issue) => issue.level === "error");
-                return (
-                  <div key={check}>
-                    <span>{t(`timetable.checks.what.c${check}`)}</span>
-                    <StatusPill tone={found.length === 0 ? "ok" : errors ? "due" : "warn"}>
-                      {number(found.length)}
-                    </StatusPill>
-                  </div>
-                );
-              })}
-            </List>
-          </CardContent>
-        </Card>
+        <div className="flex min-w-0 flex-col gap-4">
+          <RulesCard
+            rules={rules.data}
+            lookup={lookup}
+            general={general.data}
+            onAdd={() => setEditing("new")}
+            onEdit={setEditing}
+          />
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("timetable.checks.whatTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <List className="text-sm">
+                {CHECKS.map((check) => {
+                  const found = byCheck(check);
+                  const errors = found.some((issue) => issue.level === "error");
+                  return (
+                    <div key={check}>
+                      <span>{t(`timetable.checks.what.c${check}`)}</span>
+                      <StatusPill tone={found.length === 0 ? "ok" : errors ? "due" : "warn"}>
+                        {number(found.length)}
+                      </StatusPill>
+                    </div>
+                  );
+                })}
+              </List>
+            </CardContent>
+          </Card>
+        </div>
       </div>
+      {editing && (
+        <RuleDialog
+          rule={editing === "new" ? null : editing}
+          choices={choices.data}
+          rooms={rooms.data ?? []}
+          days={days.length ? days : [1, 2, 3, 4, 5, 6]}
+          maxLessons={maxLessons}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </>
   );
 }
