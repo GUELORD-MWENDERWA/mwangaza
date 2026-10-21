@@ -16,13 +16,15 @@ from django.db.models import ProtectedError
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.academics.models import GENERAL, Course, Evaluation
+from apps.academics.models import ANY_TIME, GENERAL, Course, Evaluation
 from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
 from apps.schools.models import AcademicYear, ClassGroup, Term
+from apps.timetable import placement as placing
+from apps.timetable.models import Room
 
 COURSE_IN_USE = ApiError("course_in_use", _("A removed course is already used."), 409)
 EXAM_GRADED = ApiError(
@@ -47,6 +49,16 @@ FIELDS = (
     "weekly_hours",
     "teacher_id",
 )
+# Placement dans l'horaire (EDT.1b) : envoyé dans `CourseInput.placement`, avec le droit
+# `timetable.manage` (vérifié par l'API) ; absent, gardé.
+PLACEMENT = (
+    "lesson_pattern",
+    "max_per_day",
+    "room_id",
+    "room_kind",
+    "can_span_break",
+    "preferred_part",
+)
 
 
 @dataclass(frozen=True)
@@ -63,6 +75,8 @@ class CourseInput:
     weekly_hours: int | None = None
     teacher_id: UUID | None = None
     id: UUID | None = None
+    # Clés de `PLACEMENT` ; None : le placement du cours ne change pas.
+    placement: dict | None = None
 
 
 def active_staff():
@@ -78,9 +92,9 @@ def _invalid(path: str, message, code: str) -> ValidationError:
     return ValidationError({path: ValidationError(message, code=code)})
 
 
-def _check(group: ClassGroup, items: list[CourseInput]) -> dict[UUID, User]:
+def _check(group: ClassGroup, items: list[CourseInput]) -> tuple[dict[UUID, User], dict]:
     """Tout est vérifié avant d'écrire : un refus ne laisse pas une grille à moitié changée.
-    Renvoie les enseignants de la grille, lus d'un coup."""
+    Renvoie les enseignants et les salles exigées de la grille, lus d'un coup."""
     if len(items) > MAX_COURSES:
         raise _invalid(
             "courses",
@@ -111,11 +125,72 @@ def _check(group: ClassGroup, items: list[CourseInput]) -> dict[UUID, User]:
                 _("Choose a member of the school's staff."),
                 "not_staff",
             )
-    return staff
+    return staff, _check_placement(group, items)
+
+
+def _check_placement(group: ClassGroup, items: list[CourseInput]) -> dict[UUID, Room]:
+    """Séances = heures, au plus par jour ≥ la plus longue séance, une salle de l'école en
+    service (ou celle que le cours avait déjà) ou un type de salle, pas les deux."""
+    placed = [(index, item) for index, item in enumerate(items) if item.placement is not None]
+    kept = dict(group.courses.values_list("pk", "room_id"))
+    wanted = {item.placement["room_id"] for _index, item in placed if item.placement["room_id"]}
+    rooms = Room.objects.in_bulk(wanted)
+    for index, item in placed:
+        path = f"courses.{index}.placement"
+        data = item.placement
+        pattern = placing.parse_pattern(data["lesson_pattern"])
+        if pattern is None:
+            raise _invalid(
+                f"{path}.lesson_pattern",
+                _("Write the lessons as numbers joined by +, for example 2+2+1."),
+                "bad_pattern",
+            )
+        if pattern and sum(pattern) != (item.weekly_hours or 0):
+            raise _invalid(
+                f"{path}.lesson_pattern",
+                _("The lessons add up to %(sum)d h for %(hours)d h of this course.")
+                % {"sum": sum(pattern), "hours": item.weekly_hours or 0},
+                "pattern_hours",
+            )
+        if pattern and data["max_per_day"] and data["max_per_day"] < max(pattern):
+            raise _invalid(
+                f"{path}.max_per_day",
+                _("A lesson lasts %(longest)d h: allow at least that much per day.")
+                % {"longest": max(pattern)},
+                "below_longest_lesson",
+            )
+        room_id = data["room_id"]
+        if room_id and data["room_kind"]:
+            raise _invalid(
+                f"{path}.room_id", _("Choose a room or a type of room, not both."), "room_or_kind"
+            )
+        if room_id:
+            room = rooms.get(room_id)
+            if room is None:
+                raise _invalid(f"{path}.room_id", _("This room does not exist."), "unknown_room")
+            if not room.is_active and kept.get(item.id) != room_id:
+                raise _invalid(
+                    f"{path}.room_id", _("This room is no longer in use."), "room_retired"
+                )
+    return rooms
+
+
+def _placement_row(course: Course) -> dict:
+    """Ce que le journal garde du placement : seulement ce qui est réglé."""
+    row = {
+        "lesson_pattern": course.lesson_pattern,
+        "max_per_day": course.max_per_day,
+        "room": str(course.room) if course.room_id else None,
+        "room_kind": course.room_kind,
+        "can_span_break": course.can_span_break,
+        "preferred_part": course.preferred_part if course.preferred_part != ANY_TIME else None,
+    }
+    return {key: value for key, value in row.items() if value not in ("", None)}
 
 
 def _snapshot(course: Course) -> dict:
     teacher = course.teacher
+    placement = _placement_row(course)
     return {
         "name": course.name,
         "domain": course.domain,
@@ -126,11 +201,12 @@ def _snapshot(course: Course) -> dict:
         "category": course.category,
         "weekly_hours": course.weekly_hours,
         "teacher": str(teacher) if teacher else None,
+        **({"placement": placement} if placement else {}),
     }
 
 
 def courses_of(group: ClassGroup):
-    return group.courses.select_related("teacher").order_by("order")
+    return group.courses.select_related("teacher", "room").order_by("order")
 
 
 def set_courses(
@@ -140,7 +216,7 @@ def set_courses(
     dans l'ordre reçu. Un cours retiré qui sert déjà (notes, 8.2) : 409 `course_in_use` ; un
     cours qui perd son examen alors qu'il y est noté : 409 `exam_graded` ; le maximum d'un cours
     déjà noté ne change qu'avec `may_validate` (droit `grades.validate`) : 409 `max_graded`."""
-    staff = _check(group, items)
+    staff, rooms = _check(group, items)
     with transaction.atomic():
         existing = {course.pk: course for course in courses_of(group)}
         no_more_exam = [
@@ -184,15 +260,28 @@ def set_courses(
             course.is_taught = item.is_taught
             course.grade_entry = item.grade_entry
             course.category = item.category
+            hours_changed = course.weekly_hours != item.weekly_hours
             course.weekly_hours = item.weekly_hours
             course.teacher = staff.get(item.teacher_id) if item.teacher_id else None
+            if item.placement is not None:
+                data = item.placement
+                course.lesson_pattern = data["lesson_pattern"].replace(" ", "")
+                course.max_per_day = data["max_per_day"]
+                course.room = rooms.get(data["room_id"]) if data["room_id"] else None
+                course.room_kind = data["room_kind"]
+                course.can_span_break = data["can_span_break"]
+                course.preferred_part = data["preferred_part"]
+            elif hours_changed and course.lesson_pattern:
+                # Heures changées sans le placement (droit ou module absent) : les séances
+                # données ne tombent plus juste, elles redeviennent calculées.
+                course.lesson_pattern = ""
             course.order = order
             final.append(course)
             if course.pk in before and before[course.pk] != (_snapshot(course), order):
                 course.updated_at = now
                 updated.append(course)
         Course.objects.bulk_create(created)
-        Course.objects.bulk_update(updated, [*FIELDS, "order", "updated_at"])
+        Course.objects.bulk_update(updated, [*FIELDS, *PLACEMENT, "order", "updated_at"])
         # Journal : ce qui change sur le bulletin, pas l'ordre des lignes.
         old_rows = {pk: row for pk, (row, _order) in before.items()}
         after = {course.pk: _snapshot(course) for course in final}
@@ -224,6 +313,7 @@ def copy_courses(
             grade_entry=course.grade_entry,
             category=course.category,
             weekly_hours=course.weekly_hours,
+            placement={field: getattr(course, field) for field in PLACEMENT},
         )
         for course in courses_of(source)
     ]
@@ -251,7 +341,11 @@ def copy_year_courses(pairs: list[tuple[ClassGroup, ClassGroup]], *, actor: User
         Course(
             class_group=by_source[course.class_group_id],
             created_by=actor,
-            **{field: getattr(course, field) for field in FIELDS if field != "teacher_id"},
+            **{
+                field: getattr(course, field)
+                for field in (*FIELDS, *PLACEMENT)
+                if field != "teacher_id"
+            },
             order=course.order,
         )
         for course in Course.objects.filter(class_group__in=list(by_source))

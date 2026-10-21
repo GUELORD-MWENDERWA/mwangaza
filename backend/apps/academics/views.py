@@ -47,6 +47,7 @@ from apps.accounts.roles import (
     GRADES_ENTER,
     GRADES_ENTER_ANY,
     GRADES_VALIDATE,
+    TIMETABLE_MANAGE,
 )
 from apps.audit import services as audit
 from apps.audit.actions import Action
@@ -101,9 +102,17 @@ class ClassCoursesView(_CoursesView):
         group = self.group(pk)
         serializer = CoursesUpdateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        courses.set_courses(
-            group, serializer.items(), actor=request.user, may_validate=self.may_validate()
-        )
+        items = serializer.items()
+        # Le placement dans l'horaire appartient au module « Emploi du temps » (EDT.1b).
+        if any(item.placement is not None for item in items) and not (
+            request.school.has_module("timetable")
+            and TIMETABLE_MANAGE in school_access(request).permissions
+        ):
+            raise PermissionDenied(
+                _("Placing courses in the timetable needs the timetable right."),
+                code="placement_forbidden",
+            )
+        courses.set_courses(group, items, actor=request.user, may_validate=self.may_validate())
         return Response(CourseSerializer(courses.courses_of(group), many=True).data)
 
 

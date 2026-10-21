@@ -7,10 +7,12 @@ from apps.academics import board, gradebook, official
 from apps.academics.courses import CourseInput
 from apps.academics.grades import MAX_EVALUATIONS, EvaluationInput, GradeInput, term_label
 from apps.academics.models import (
+    ANY_TIME,
     CATEGORIES,
     GENERAL,
     MAX_PERIOD_MAX,
     MAX_WEEKLY_HOURS,
+    MORNING,
     SCORE_DECIMALS,
     SCORE_DIGITS,
     Course,
@@ -22,10 +24,33 @@ from apps.schools import grading
 from apps.schools.models import AcademicYear, ClassGroup, Term
 from apps.schools.serializers import PersonSerializer, TermSerializer
 from apps.students.models import Enrollment
+from apps.timetable.models import Room
+
+PARTS = [ANY_TIME, MORNING]
+
+
+class CoursePlacementSerializer(serializers.ModelSerializer):
+    """Placement dans l'horaire (EDT.1b) : vide = calculé ou règle de l'école."""
+
+    room_kind = serializers.ChoiceField(choices=Room.Kind.choices, allow_blank=True)
+    preferred_part = serializers.ChoiceField(choices=PARTS)
+
+    class Meta:
+        model = Course
+        fields = [
+            "lesson_pattern",
+            "max_per_day",
+            "room",
+            "room_kind",
+            "can_span_break",
+            "preferred_part",
+        ]
+        read_only_fields = fields
 
 
 class CourseSerializer(serializers.ModelSerializer):
     teacher = PersonSerializer(read_only=True, allow_null=True)
+    placement = CoursePlacementSerializer(source="*", read_only=True)
     grade_entry = serializers.ChoiceField(
         choices=grading.ENTRIES,
         allow_blank=True,
@@ -46,8 +71,35 @@ class CourseSerializer(serializers.ModelSerializer):
             "category",
             "weekly_hours",
             "teacher",
+            "placement",
         ]
         read_only_fields = fields
+
+
+class CoursePlacementInputSerializer(serializers.Serializer):
+    lesson_pattern = serializers.CharField(
+        max_length=40,
+        allow_blank=True,
+        default="",
+        help_text="Séances, ex. « 2+2+1 » ; somme = heures du cours ; vide = calculé.",
+    )
+    max_per_day = serializers.IntegerField(
+        min_value=1,
+        max_value=12,
+        allow_null=True,
+        default=None,
+        help_text="Vide : règle de l'école.",
+    )
+    room_id = serializers.UUIDField(
+        allow_null=True, default=None, help_text="Salle exigée (une salle de l'école en service)."
+    )
+    room_kind = serializers.ChoiceField(
+        choices=Room.Kind.choices, allow_blank=True, default="", help_text="Ou un type de salle."
+    )
+    can_span_break = serializers.BooleanField(
+        allow_null=True, default=None, help_text="Vide : oui pour un cours pratique."
+    )
+    preferred_part = serializers.ChoiceField(choices=PARTS, default=ANY_TIME)
 
 
 class CourseInputSerializer(serializers.Serializer):
@@ -82,6 +134,13 @@ class CourseInputSerializer(serializers.Serializer):
         allow_null=True,
         default=None,
         help_text="`id` du compte de l'enseignant : le personnel actif de l'école.",
+    )
+    placement = CoursePlacementInputSerializer(
+        required=False,
+        allow_null=True,
+        default=None,
+        help_text="Placement dans l'horaire (droit `timetable.manage`, module `timetable`) ; "
+        "absent : gardé.",
     )
 
 

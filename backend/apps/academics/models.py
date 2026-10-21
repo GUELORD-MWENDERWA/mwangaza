@@ -17,6 +17,8 @@ SCORE_DIGITS, SCORE_DECIMALS = 5, 1
 # Points d'une infraction : de 1 à 100 (l'exclusion se décide autrement qu'avec des points).
 MAX_RULE_POINTS = 100
 GENERAL, MAIN, OPTION, PRACTICAL = "general", "main", "option", "practical"
+# Moment souhaité d'un cours dans la journée (EDT.1b).
+ANY_TIME, MORNING = "any", "morning"
 CATEGORIES = (GENERAL, MAIN, OPTION, PRACTICAL)
 
 
@@ -81,6 +83,34 @@ class Course(TenantModel):
         verbose_name=_("teacher"),
     )
     order = models.PositiveSmallIntegerField(_("order"), default=0)
+    # Placement dans l'horaire (EDT.1b, spec emploi du temps § 4), lu par les contrôles et le
+    # calcul. Séances : « 2+2+1 », somme = heures ; vide = calculé (`timetable.placement`).
+    lesson_pattern = models.CharField(_("lessons"), max_length=40, blank=True)
+    # Vide = règle de l'école (`School.settings["timetable"]`).
+    max_per_day = models.PositiveSmallIntegerField(
+        _("at most per day"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(12)],
+    )
+    # Une salle précise, ou un type de salle (`Room.Kind`), ou rien : la salle de la classe.
+    room = models.ForeignKey(
+        "timetable.Room",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("required room"),
+    )
+    room_kind = models.CharField(_("required room type"), max_length=10, blank=True)
+    # Une séance de 2 h et plus peut passer la récréation ; vide = oui pour un cours pratique.
+    can_span_break = models.BooleanField(_("may span a break"), null=True, blank=True)
+    preferred_part = models.CharField(
+        _("preferred time"),
+        max_length=10,
+        choices=[(ANY_TIME, _("Any time")), (MORNING, _("Morning"))],
+        default=ANY_TIME,
+    )
 
     class Meta:
         ordering = ["class_group", "order"]

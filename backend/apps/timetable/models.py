@@ -1,8 +1,10 @@
 """Emploi du temps (bloc EDT, `docs/specs/emploi-du-temps.md` § 13). EDT.1a : grilles horaires,
-leurs cases (heures de cours et récréations) et les salles. Une classe suit une grille
+leurs cases (heures de cours et récréations) et les salles ; EDT.1b : disponibilité des
+enseignants. Une classe suit une grille
 (`ClassGroup.time_grid`, vide = grille par défaut) et peut avoir une salle habituelle
 (`ClassGroup.home_room`)."""
 
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.functions import Lower
@@ -16,6 +18,9 @@ MAX_LESSON_MINUTES = 90
 MIN_SLOT_MINUTES = 5
 MAX_SLOT_MINUTES = 240
 MAX_LESSONS_PER_DAY = 12
+MAX_TEACHER_WEEK_HOURS = 60
+# Au-delà, c'est une erreur de saisie.
+MAX_UNAVAILABLE = 60
 # 1 = lundi … 7 = dimanche (ISO 8601).
 WEEKDAYS = range(1, 8)
 
@@ -130,3 +135,43 @@ class Room(TenantModel):
 
     def __str__(self) -> str:
         return self.name
+
+
+class TeacherTimetableProfile(TenantModel):
+    """Disponibilité d'un enseignant pour l'horaire (EDT.1b) [T] : charge au plus par semaine
+    (contrat), heures au plus par jour, absences. Une absence est un jour entier (`{"weekday":
+    5}`) ou une plage horaire (`{"weekday": 2, "start": "07:30", "end": "10:00"}`) : en heures et
+    non en numéros d'heure, elle vaut pour toutes les grilles (deux vacations). Un enseignant
+    partagé avec une autre école se règle ici : on ne lit jamais l'horaire de l'autre école."""
+
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("teacher"),
+    )
+    max_week_hours = models.PositiveSmallIntegerField(
+        _("hours per week at most"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(MAX_TEACHER_WEEK_HOURS)],
+    )
+    max_day_hours = models.PositiveSmallIntegerField(
+        _("hours per day at most"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(MAX_LESSONS_PER_DAY)],
+    )
+    unavailable = models.JSONField(_("unavailable"), default=list, blank=True)
+
+    class Meta:
+        verbose_name = _("teacher timetable profile")
+        verbose_name_plural = _("teacher timetable profiles")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "teacher"], name="teacher_profile_unique_per_school"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.teacher)

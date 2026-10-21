@@ -1,8 +1,11 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from apps.timetable.models import (
     MAX_LESSON_MINUTES,
     MAX_LESSONS_PER_DAY,
+    MAX_TEACHER_WEEK_HOURS,
+    MAX_UNAVAILABLE,
     MIN_LESSON_MINUTES,
     Room,
     TimeGrid,
@@ -133,3 +136,66 @@ class TimetableRulesSerializer(serializers.Serializer):
     teacher_max_day_hours = serializers.IntegerField(min_value=1, max_value=MAX_LESSONS_PER_DAY)
     no_gaps = serializers.BooleanField()
     main_courses_early = serializers.BooleanField()
+
+
+class UnavailableSerializer(serializers.Serializer):
+    """Une absence : un jour entier, ou une plage horaire de ce jour (début et fin)."""
+
+    weekday = serializers.IntegerField(min_value=1, max_value=7, help_text="1 = lundi.")
+    start = serializers.TimeField(required=False, format="%H:%M")
+    end = serializers.TimeField(required=False, format="%H:%M")
+
+    def validate(self, attrs: dict) -> dict:
+        start, end = attrs.get("start"), attrs.get("end")
+        if (start is None) != (end is None):
+            raise serializers.ValidationError(
+                _("Give both the start and the end, or neither for the whole day."),
+                code="incomplete_range",
+            )
+        if start is not None and start >= end:
+            raise serializers.ValidationError(_("The end comes after the start."), code="bad_range")
+        row = {"weekday": attrs["weekday"]}
+        if start is not None:
+            row |= {"start": start.strftime("%H:%M"), "end": end.strftime("%H:%M")}
+        return row
+
+
+class TeacherProfileSerializer(serializers.Serializer):
+    teacher = serializers.UUIDField(source="teacher_id", read_only=True)
+    max_week_hours = serializers.IntegerField(
+        min_value=1,
+        max_value=MAX_TEACHER_WEEK_HOURS,
+        allow_null=True,
+        help_text="Charge au plus par semaine (contrat) ; vide : pas de limite.",
+    )
+    max_day_hours = serializers.IntegerField(
+        min_value=1,
+        max_value=MAX_LESSONS_PER_DAY,
+        allow_null=True,
+        help_text="Vide : règle de l'école.",
+    )
+    unavailable = UnavailableSerializer(many=True, max_length=MAX_UNAVAILABLE)
+
+
+class CheckIssueSerializer(serializers.Serializer):
+    check = serializers.IntegerField(
+        help_text="1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets."
+    )
+    code = serializers.CharField(help_text="Ex. class_overloaded, teacher_over_max.")
+    level = serializers.ChoiceField(choices=["error", "warning"])
+    subject = serializers.CharField(
+        help_text="Classe, enseignant, cours, salle, ou type de salle (code)."
+    )
+    values = serializers.DictField(help_text="Chiffres et noms de la phrase.")
+    class_group = serializers.UUIDField(allow_null=True)
+    teacher = serializers.UUIDField(allow_null=True)
+    room = serializers.UUIDField(allow_null=True)
+
+
+class ChecksSerializer(serializers.Serializer):
+    errors = serializers.IntegerField()
+    warnings = serializers.IntegerField()
+    classes = serializers.IntegerField()
+    teachers = serializers.IntegerField()
+    rooms = serializers.IntegerField()
+    issues = CheckIssueSerializer(many=True)

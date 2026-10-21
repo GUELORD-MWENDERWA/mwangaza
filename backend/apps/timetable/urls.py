@@ -10,4 +10,7 @@ urlpatterns = [
     path("timetable/rooms/", views.RoomsView.as_view()),
     path("timetable/rooms/<uuid:pk>/", views.RoomView.as_view()),
     path("timetable/rules/", views.RulesView.as_view()),
+    path("timetable/teachers/", views.TeachersView.as_view()),
+    path("timetable/teachers/<uuid:pk>/", views.TeacherView.as_view()),
+    path("timetable/checks/", views.ChecksView.as_view()),
 ]
