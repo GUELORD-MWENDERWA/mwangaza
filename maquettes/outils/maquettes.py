@@ -170,6 +170,7 @@ ACTIVE_FOR = {
     "cours-placement.html": "notes-saisie.html",
     "disponibilites-enseignant.html": "notes-saisie.html",
     "controles-emploi-du-temps.html": "notes-saisie.html",
+    "emploi-du-temps-classe.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
 }
 
@@ -367,6 +368,7 @@ GESTION = [
     ("cours-placement", "Cours : placement dans l'horaire", "V1.2", "Plus tard · EDT.1b", True),
     ("disponibilites-enseignant", "Disponibilités d'un enseignant", "V1.2", "Plus tard · EDT.1b", True),
     ("controles-emploi-du-temps", "Contrôles avant le calcul de l'horaire", "V1.2", "Plus tard · EDT.1b", True),
+    ("emploi-du-temps-classe", "Emploi du temps : éditeur par classe", "V1.2", "Plus tard · EDT.2a", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),
     ("bulletin-education-de-base", "Bulletin officiel — 7e-8e EB", "V1.2", "Plus tard · 6.3", True),
 ]

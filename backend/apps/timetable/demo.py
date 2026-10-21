@@ -7,6 +7,7 @@ sport leur salle (quand l'école en a une), les cours principaux le matin ; l'en
 Rejouable : grilles, salles, disponibilités et règles de l'espace sont refaites (espace de
 démonstration seulement)."""
 
+from collections import Counter, defaultdict
 from datetime import time
 
 from django.db.models import Q
@@ -17,12 +18,15 @@ from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.timetable import constraints
+from apps.timetable import checks, constraints
+from apps.timetable import placement as placing
 from apps.timetable.models import (
     Room,
     TeacherTimetableProfile,
     TimeGrid,
     TimeSlot,
+    Timetable,
+    TimetableEntry,
     TimetableRule,
 )
 from apps.timetable.services import PRESET_LESSON_MINUTES, PRESET_START, week_shape
@@ -82,6 +86,7 @@ def _grid(name: str, *, is_default: bool, lesson_minutes: int, start: time, **sh
 def create_demo_timetable(spaces: list[DemoSpace]) -> None:
     for space in spaces:
         with use_school(space.school):
+            Timetable.objects.all().delete()
             ClassGroup.objects.filter(
                 Q(time_grid__isnull=False) | Q(home_room__isnull=False)
             ).update(time_grid=None, home_room=None)
@@ -122,6 +127,7 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
                 TeacherTimetableProfile.objects.create(teacher=teacher, **fields)
             if space.profile == "itig":
                 _rules()
+                _draft()
 
 
 def _place_courses(kinds: set[str]) -> None:
@@ -187,3 +193,86 @@ def _rules() -> None:
         TimetableRule(**constraints.clean({"kind": kind, "params": params, **extra}))
         for kind, params, extra in rows
     )
+
+
+def _draft() -> None:
+    """Un brouillon de l'ITIG (EDT.2a) : les heures verrouillées des règles, puis les séances de
+    la classe de l'atelier verrouillé placées une à une à la première heure libre pour la classe
+    et l'enseignant, sans dépasser le maximum du jour ; ce qui ne tient pas reste « à placer »
+    (ses classes techniques ont plus d'heures que de places, EDT.3)."""
+    year = current_year()
+    locks, rooms = checks.fixed_locks(year)
+    ctx = checks.context(year)
+    draft = Timetable.objects.create(academic_year=year, name="Brouillon de démonstration")
+    rows = [
+        TimetableEntry(
+            timetable=draft,
+            course=lock.course,
+            weekday=lock.weekday,
+            first=lock.first,
+            length=lock.last - lock.first + 1,
+            room=rooms.get(lock.room),
+            locked=True,
+        )
+        for lock in locks
+    ]
+    group = ctx.by_group[locks[0].course.class_group_id]
+    week = ctx.week_of[group.pk]
+    # (jour, heure) déjà pris, par classe et par enseignant.
+    taken: dict = defaultdict(set)
+
+    def book(row: TimetableEntry) -> None:
+        hours = {(row.weekday, index) for index in range(row.first, row.first + row.length)}
+        for owner in (row.course.class_group_id, row.course.teacher_id):
+            if owner:
+                taken[owner] |= hours
+
+    def free_spot(course: Course, length: int, per_day: Counter, most: int):
+        for weekday, day in sorted(week.days.items()):
+            if per_day[weekday] + length > most:
+                continue
+            for slot in day:
+                if slot.kind != TimeSlot.Kind.LESSON:
+                    continue
+                last = slot.index + length - 1
+                if isinstance(
+                    week.span(weekday, slot.index, last, placing.spans_break(course)), str
+                ):
+                    continue
+                hours = {(weekday, index) for index in range(slot.index, last + 1)}
+                if not any(
+                    hours & taken[owner] for owner in (group.pk, course.teacher_id) if owner
+                ):
+                    return weekday, slot.index
+        return None
+
+    for row in rows:
+        book(row)
+    school_max = ctx.school_rules["max_same_course_per_day"]
+    mine = [course for course in ctx.courses if course.class_group_id == group.pk]
+    for course in sorted(mine, key=lambda course: -(course.weekly_hours or 0)):
+        already = [row for row in rows if row.course.pk == course.pk]
+        placed = Counter(row.length for row in already)
+        per_day = Counter()
+        for row in already:
+            per_day[row.weekday] += row.length
+        most = placing.max_per_day(course, school_max)
+        for length in sorted((Counter(placing.sessions(course)) - placed).elements(), reverse=True):
+            spot = free_spot(course, length, per_day, most)
+            if spot is None:
+                continue
+            room = rooms.get(course.room_id) or (
+                None if course.room_kind else rooms.get(group.home_room_id)
+            )
+            row = TimetableEntry(
+                timetable=draft,
+                course=course,
+                weekday=spot[0],
+                first=spot[1],
+                length=length,
+                room=room,
+            )
+            rows.append(row)
+            book(row)
+            per_day[spot[0]] += length
+    TimetableEntry.objects.bulk_create(rows)

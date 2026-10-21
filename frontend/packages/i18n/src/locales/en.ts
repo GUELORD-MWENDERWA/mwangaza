@@ -2633,6 +2633,9 @@ export const en: Messages<typeof fr> = {
         teacher_changed: "Teacher availability changed",
         rule_changed: "Timetable rule saved",
         rule_deleted: "Timetable rule deleted",
+        draft_created: "Timetable draft created",
+        draft_deleted: "Timetable draft deleted",
+        lock_changed: "Lesson locked or unlocked",
       },
       discipline: {
         rule_changed: "Offence list changed",

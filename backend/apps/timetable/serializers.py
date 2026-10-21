@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from apps.timetable.checks import LEVELS
@@ -11,6 +12,8 @@ from apps.timetable.models import (
     Room,
     TimeGrid,
     TimeSlot,
+    Timetable,
+    TimetableEntry,
     TimetableRule,
 )
 
@@ -174,6 +177,7 @@ class CheckIssueSerializer(serializers.Serializer):
     teacher = serializers.UUIDField(allow_null=True)
     room = serializers.UUIDField(allow_null=True)
     rule = serializers.UUIDField(allow_null=True, help_text="La règle à modifier (contrôles 6, 7).")
+    entry = serializers.UUIDField(allow_null=True, help_text="La séance d'un brouillon (EDT.2a).")
 
 
 class ChecksSerializer(serializers.Serializer):
@@ -248,3 +252,109 @@ class RuleChoicesSerializer(serializers.Serializer):
     kinds = RuleKindSerializer(many=True)
     courses = RuleCourseSerializer(many=True)
     teachers = RuleTeacherSerializer(many=True)
+
+
+# Brouillons de l'horaire (EDT.2a)
+
+
+class DraftSerializer(serializers.ModelSerializer):
+    hours = serializers.IntegerField(help_text="Heures placées.")
+
+    class Meta:
+        model = Timetable
+        fields = ["id", "name", "status", "based_on", "hours", "updated_at"]
+
+
+class DraftCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=80)
+    based_on = serializers.UUIDField(
+        allow_null=True, default=None, help_text="Brouillon à copier ; vide : verrous des règles."
+    )
+
+
+class EntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimetableEntry
+        fields = ["id", "course", "weekday", "first", "length", "room", "locked"]
+
+
+class LeftSerializer(serializers.Serializer):
+    course = serializers.UUIDField()
+    lengths = serializers.ListField(
+        child=serializers.IntegerField(), help_text="Séances restant à placer (heures)."
+    )
+
+
+class ClassLoadSerializer(serializers.Serializer):
+    class_group = serializers.UUIDField()
+    placed = serializers.IntegerField()
+    due = serializers.IntegerField()
+
+
+class TeacherLoadSerializer(serializers.Serializer):
+    teacher = serializers.UUIDField()
+    name = serializers.CharField()
+    placed = serializers.IntegerField()
+    due = serializers.IntegerField()
+    max = serializers.IntegerField(allow_null=True, help_text="Maximum de son contrat.")
+
+
+class DraftStateSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    status = serializers.ChoiceField(choices=Timetable.Status.choices)
+    based_on = serializers.UUIDField(allow_null=True)
+    can_undo = serializers.BooleanField()
+    errors = serializers.IntegerField()
+    warnings = serializers.IntegerField()
+    entries = EntrySerializer(many=True)
+    left = LeftSerializer(many=True)
+    classes = ClassLoadSerializer(many=True)
+    teachers = TeacherLoadSerializer(many=True)
+    issues = CheckIssueSerializer(many=True)
+
+
+class PlaceSerializer(serializers.Serializer):
+    course = serializers.UUIDField()
+    weekday = serializers.IntegerField(min_value=1, max_value=7)
+    first = serializers.IntegerField(min_value=1, max_value=MAX_LESSONS_PER_DAY)
+    length = serializers.IntegerField(min_value=1, max_value=MAX_LESSONS_PER_DAY)
+
+
+class EntryChangeSerializer(serializers.Serializer):
+    """Un seul geste : déplacer (`weekday` et `first`), salle (`room`, vide : à choisir) ou
+    verrou (`locked`)."""
+
+    weekday = serializers.IntegerField(min_value=1, max_value=7, required=False)
+    first = serializers.IntegerField(min_value=1, max_value=MAX_LESSONS_PER_DAY, required=False)
+    room = serializers.UUIDField(allow_null=True, required=False)
+    locked = serializers.BooleanField(required=False)
+
+    def validate(self, attrs: dict) -> dict:
+        move = "weekday" in attrs or "first" in attrs
+        gestures = move + ("room" in attrs) + ("locked" in attrs)
+        if gestures != 1 or (move and not ("weekday" in attrs and "first" in attrs)):
+            raise serializers.ValidationError(
+                _("One change at a time: a move (day and first lesson), a room or the lock."),
+                code="one_change",
+            )
+        return attrs
+
+
+class SwapSerializer(serializers.Serializer):
+    entry = serializers.UUIDField()
+    other = serializers.UUIDField()
+
+
+class TimetableCourseSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    category = serializers.CharField()
+    class_group = serializers.UUIDField()
+    teacher = serializers.UUIDField(allow_null=True)
+    teacher_name = serializers.CharField()
+    sessions = serializers.ListField(child=serializers.IntegerField())
+    room = serializers.UUIDField(allow_null=True)
+    room_kind = serializers.CharField()
+    spans_break = serializers.BooleanField()
+    max_per_day = serializers.IntegerField()

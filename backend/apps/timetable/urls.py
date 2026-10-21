@@ -16,4 +16,11 @@ urlpatterns = [
     path("timetable/constraints/", views.ConstraintsView.as_view()),
     path("timetable/constraints/choices/", views.ConstraintChoicesView.as_view()),
     path("timetable/constraints/<uuid:pk>/", views.ConstraintView.as_view()),
+    path("timetable/courses/", views.TimetableCoursesView.as_view()),
+    path("timetable/drafts/", views.DraftsView.as_view()),
+    path("timetable/drafts/<uuid:pk>/", views.DraftView.as_view()),
+    path("timetable/drafts/<uuid:pk>/entries/", views.DraftEntriesView.as_view()),
+    path("timetable/drafts/<uuid:pk>/entries/<uuid:entry>/", views.DraftEntryView.as_view()),
+    path("timetable/drafts/<uuid:pk>/swap/", views.DraftSwapView.as_view()),
+    path("timetable/drafts/<uuid:pk>/undo/", views.DraftUndoView.as_view()),
 ]

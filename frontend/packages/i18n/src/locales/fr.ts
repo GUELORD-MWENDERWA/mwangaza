@@ -2662,6 +2662,9 @@ export const fr = {
         teacher_changed: "Disponibilités d'un enseignant modifiées",
         rule_changed: "Règle de l'horaire enregistrée",
         rule_deleted: "Règle de l'horaire supprimée",
+        draft_created: "Brouillon d'horaire créé",
+        draft_deleted: "Brouillon d'horaire supprimé",
+        lock_changed: "Heure verrouillée ou déverrouillée",
       },
       discipline: {
         rule_changed: "Liste des infractions modifiée",
