@@ -13,4 +13,7 @@ urlpatterns = [
     path("timetable/teachers/", views.TeachersView.as_view()),
     path("timetable/teachers/<uuid:pk>/", views.TeacherView.as_view()),
     path("timetable/checks/", views.ChecksView.as_view()),
+    path("timetable/constraints/", views.ConstraintsView.as_view()),
+    path("timetable/constraints/choices/", views.ConstraintChoicesView.as_view()),
+    path("timetable/constraints/<uuid:pk>/", views.ConstraintView.as_view()),
 ]

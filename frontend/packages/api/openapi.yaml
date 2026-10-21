@@ -781,6 +781,8 @@ paths:
           - timetable.class_changed
           - timetable.rules_changed
           - timetable.teacher_changed
+          - timetable.rule_changed
+          - timetable.rule_deleted
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -918,6 +920,8 @@ paths:
           * `timetable.class_changed` - Time grid or room of a class changed
           * `timetable.rules_changed` - Timetable rules changed
           * `timetable.teacher_changed` - Teacher availability changed
+          * `timetable.rule_changed` - Timetable rule saved
+          * `timetable.rule_deleted` - Timetable rule deleted
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1236,6 +1240,8 @@ paths:
           - timetable.class_changed
           - timetable.rules_changed
           - timetable.teacher_changed
+          - timetable.rule_changed
+          - timetable.rule_deleted
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1373,6 +1379,8 @@ paths:
           * `timetable.class_changed` - Time grid or room of a class changed
           * `timetable.rules_changed` - Timetable rules changed
           * `timetable.teacher_changed` - Teacher availability changed
+          * `timetable.rule_changed` - Timetable rule saved
+          * `timetable.rule_deleted` - Timetable rule deleted
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -15591,6 +15599,204 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/constraints/:
+    get:
+      operationId: timetable_constraints_list
+      description: Règles de l'horaire de l'école (liste fermée de kinds), actives
+        d'abord.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableRule'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_constraints_create
+      description: |-
+        Ajoute une règle : paramètres vérifiés par le schéma de son kind ; cours, salles et
+        enseignants de l'école seulement ; un cours dans un seul groupe ; au plus 500 règles.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableRuleWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimetableRuleWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimetableRuleWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableRule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/constraints/{id}/:
+    put:
+      operationId: timetable_constraints_update
+      description: Remplace une règle (kind compris) ; ce qui change va dans le journal.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimetableRuleWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TimetableRuleWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TimetableRuleWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimetableRule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: timetable_constraints_destroy
+      description: Supprime une règle (journal) ; la désactiver la garde sans la compter.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/constraints/choices/:
+    get:
+      operationId: timetable_constraints_choices_retrieve
+      description: |-
+        Ce que l'éditeur des règles propose : kinds (forces permises, poids par défaut), cours
+        enseignés cette année et leurs enseignants.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleChoices'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/grids/:
     get:
       operationId: timetable_grids_list
@@ -16816,6 +17022,8 @@ components:
       - timetable.class_changed
       - timetable.rules_changed
       - timetable.teacher_changed
+      - timetable.rule_changed
+      - timetable.rule_deleted
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -16952,6 +17160,8 @@ components:
         * `timetable.class_changed` - Time grid or room of a class changed
         * `timetable.rules_changed` - Timetable rules changed
         * `timetable.teacher_changed` - Teacher availability changed
+        * `timetable.rule_changed` - Timetable rule saved
+        * `timetable.rule_deleted` - Timetable rule deleted
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -18174,7 +18384,8 @@ components:
       properties:
         check:
           type: integer
-          description: 1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets.
+          description: 1 classes, 2 enseignants, 3 cours, 4 salles, 5 cours incomplets,
+            6 verrous en conflit, 7 règles qui se contredisent ou sans objet.
         code:
           type: string
           description: Ex. class_overloaded, teacher_over_max.
@@ -18205,6 +18416,11 @@ components:
           type: string
           format: uuid
           nullable: true
+        rule:
+          type: string
+          format: uuid
+          nullable: true
+          description: La règle à modifier (contrôles 6, 7).
       required:
       - check
       - code
@@ -18214,6 +18430,7 @@ components:
       - class_group
       - teacher
       - room
+      - rule
     CheckLevelEnum:
       enum:
       - error
@@ -18235,6 +18452,9 @@ components:
           type: integer
         rooms:
           type: integer
+        rules:
+          type: integer
+          description: Règles actives.
         issues:
           type: array
           items:
@@ -18245,6 +18465,7 @@ components:
       - classes
       - teachers
       - rooms
+      - rules
       - issues
     Child:
       type: object
@@ -28354,6 +28575,59 @@ components:
       - label
       - points
       - is_active
+    RuleChoices:
+      type: object
+      properties:
+        kinds:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleKind'
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleCourse'
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleTeacher'
+      required:
+      - kinds
+      - courses
+      - teachers
+    RuleCourse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          type: string
+        class_group:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+        teacher:
+          type: string
+          format: uuid
+          nullable: true
+        weekly_hours:
+          type: integer
+        sessions:
+          type: array
+          items:
+            type: integer
+      required:
+      - id
+      - name
+      - category
+      - class_group
+      - class_name
+      - teacher
+      - weekly_hours
+      - sessions
     RuleCreateRequest:
       type: object
       properties:
@@ -28416,6 +28690,51 @@ components:
         * `application_me` - application_me
         * `no_grades` - no_grades
         * `missing_grades` - missing_grades
+    RuleKind:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/TimetableRuleKindEnum'
+        strengths:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleStrengthEnum'
+        strength:
+          $ref: '#/components/schemas/RuleStrengthEnum'
+        weight:
+          type: integer
+      required:
+      - kind
+      - strengths
+      - strength
+      - weight
+    RuleSourceEnum:
+      enum:
+      - manual
+      - ai
+      type: string
+      description: |-
+        * `manual` - Entered by hand
+        * `ai` - Proposed by the assistant
+    RuleStrengthEnum:
+      enum:
+      - hard
+      - soft
+      type: string
+      description: |-
+        * `hard` - Required
+        * `soft` - Wish
+    RuleTeacher:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
     Rules:
       type: object
       properties:
@@ -29246,14 +29565,6 @@ components:
       - config
       - enrollments
       - next
-    SourceEnum:
-      enum:
-      - rule
-      - custom
-      type: string
-      description: |-
-        * `rule` - Fee rule
-        * `custom` - Custom schedule
     Staff:
       type: object
       description: |-
@@ -29622,7 +29933,7 @@ components:
           format: date
           title: Due date
         source:
-          $ref: '#/components/schemas/SourceEnum'
+          $ref: '#/components/schemas/StudentChargeSourceEnum'
         status:
           $ref: '#/components/schemas/StudentChargeStatusEnum'
         discount_minor:
@@ -29666,6 +29977,14 @@ components:
       - paid_minor
       - remaining_minor
       - state
+    StudentChargeSourceEnum:
+      enum:
+      - rule
+      - custom
+      type: string
+      description: |-
+        * `rule` - Fee rule
+        * `custom` - Custom schedule
     StudentChargeStateEnum:
       enum:
       - paid
@@ -31395,6 +31714,97 @@ components:
       - course_hours
       - missing_hours
       - capacity
+    TimetableRule:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/TimetableRuleKindEnum'
+        params:
+          type: object
+          additionalProperties: {}
+          description: Paramètres, selon le kind (spec § 5).
+        strength:
+          $ref: '#/components/schemas/RuleStrengthEnum'
+        weight:
+          type: integer
+          maximum: 10
+          minimum: 1
+        active:
+          type: boolean
+        source:
+          $ref: '#/components/schemas/RuleSourceEnum'
+        text:
+          type: string
+          title: Original sentence
+          maxLength: 500
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - kind
+      - params
+      - strength
+      - weight
+      - active
+      - source
+      - text
+      - updated_at
+    TimetableRuleKindEnum:
+      enum:
+      - fixed_lesson
+      - course_not_slot
+      - course_part_of_day
+      - parallel_courses
+      - joint_courses
+      - room_unavailable
+      - spread_over_week
+      - teacher_compact
+      - teacher_free_day
+      type: string
+      description: |-
+        * `fixed_lesson` - Locked hours
+        * `course_not_slot` - Course kept away from some hours
+        * `course_part_of_day` - Part of the day
+        * `parallel_courses` - Parallel groups
+        * `joint_courses` - Joint course
+        * `room_unavailable` - Room closed
+        * `spread_over_week` - Spread over the week
+        * `teacher_compact` - Compact day for teachers
+        * `teacher_free_day` - Free day
+    TimetableRuleWriteRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/TimetableRuleKindEnum'
+        params:
+          type: object
+          additionalProperties: {}
+          description: Vérifiés par le schéma du kind.
+        strength:
+          allOf:
+          - $ref: '#/components/schemas/RuleStrengthEnum'
+          description: |-
+            Vide : celle du kind.
+
+            * `hard` - Required
+            * `soft` - Wish
+        weight:
+          type: integer
+          maximum: 10
+          minimum: 1
+          description: 'Souhait : 1 à 10 ; vide : du kind.'
+        active:
+          type: boolean
+          default: true
+      required:
+      - kind
+      - params
     TimetableRules:
       type: object
       properties:

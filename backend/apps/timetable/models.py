@@ -175,3 +175,59 @@ class TeacherTimetableProfile(TenantModel):
 
     def __str__(self) -> str:
         return str(self.teacher)
+
+
+MAX_WEIGHT = 10
+
+
+class TimetableRule(TenantModel):
+    """Règle de l'horaire (EDT.1c, spec § 5) [T] : un kind de la liste fermée, ses paramètres
+    (vérifiés par le schéma de ce kind, `constraints.py`), obligatoire ou souhait avec un poids.
+    Les cours, enseignants et salles sont nommés par leur identifiant dans `params` : une règle
+    dont l'objet a disparu reste, signalée par les contrôles (« sans objet »)."""
+
+    class Kind(models.TextChoices):
+        FIXED_LESSON = "fixed_lesson", _("Locked hours")
+        COURSE_NOT_SLOT = "course_not_slot", _("Course kept away from some hours")
+        COURSE_PART_OF_DAY = "course_part_of_day", _("Part of the day")
+        PARALLEL_COURSES = "parallel_courses", _("Parallel groups")
+        JOINT_COURSES = "joint_courses", _("Joint course")
+        ROOM_UNAVAILABLE = "room_unavailable", _("Room closed")
+        SPREAD_OVER_WEEK = "spread_over_week", _("Spread over the week")
+        TEACHER_COMPACT = "teacher_compact", _("Compact day for teachers")
+        TEACHER_FREE_DAY = "teacher_free_day", _("Free day")
+
+    class Strength(models.TextChoices):
+        HARD = "hard", _("Required")
+        SOFT = "soft", _("Wish")
+
+    class Source(models.TextChoices):
+        MANUAL = "manual", _("Entered by hand")
+        AI = "ai", _("Proposed by the assistant")
+
+    kind = models.CharField(_("kind"), max_length=30, choices=Kind.choices)
+    params = models.JSONField(_("parameters"), default=dict)
+    strength = models.CharField(_("strength"), max_length=4, choices=Strength.choices)
+    weight = models.PositiveSmallIntegerField(
+        _("weight"), default=5, validators=[MinValueValidator(1), MaxValueValidator(MAX_WEIGHT)]
+    )
+    active = models.BooleanField(_("active"), default=True)
+    source = models.CharField(
+        _("source"), max_length=6, choices=Source.choices, default=Source.MANUAL
+    )
+    # La phrase d'origine, quand l'assistant l'a traduite en règle (IA.2a).
+    text = models.CharField(_("original sentence"), max_length=500, blank=True)
+
+    class Meta:
+        ordering = ["-active", "created_at"]
+        verbose_name = _("timetable rule")
+        verbose_name_plural = _("timetable rules")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(weight__gte=1, weight__lte=MAX_WEIGHT),
+                name="timetable_rule_weight_1_to_10",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.get_kind_display()
