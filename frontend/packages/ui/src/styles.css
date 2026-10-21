@@ -162,6 +162,21 @@
   }
 }
 
+/* Couleur de chaque cours dans l'emploi du temps (EDT.2a) : dix teintes distinctes, en filet. Hors
+   de @theme : lues par `style` (une couleur par nom de cours), jamais par une classe. */
+:root {
+  --color-course-1: var(--color-lake);
+  --color-course-2: #7c3aed;
+  --color-course-3: #b45309;
+  --color-course-4: #db2777;
+  --color-course-5: #16a34a;
+  --color-course-6: #0891b2;
+  --color-course-7: #ea580c;
+  --color-course-8: #ca8a04;
+  --color-course-9: #0f766e;
+  --color-course-10: #64748b;
+}
+
 @layer base {
   html {
     font-size: 15px;

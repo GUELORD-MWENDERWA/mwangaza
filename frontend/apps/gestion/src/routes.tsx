@@ -67,6 +67,7 @@ import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
 import { ChecksPage } from "./features/timetable/ChecksPage";
 import { RoomsPage } from "./features/timetable/RoomsPage";
+import { EditorPage } from "./features/timetable/EditorPage";
 import { TimeGridPage } from "./features/timetable/TimeGridPage";
 import { UnpaidExportPage } from "./features/unpaid/UnpaidExportPage";
 import { UnpaidPage } from "./features/unpaid/UnpaidPage";
@@ -82,6 +83,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   timeGrid: <TimeGridPage />,
   rooms: <RoomsPage />,
   timetableChecks: <ChecksPage />,
+  timetable: <EditorPage />,
   grades: <GradesPage />,
   gradeValidation: <GradeValidationPage />,
   homeroom: <HomeroomPage />,

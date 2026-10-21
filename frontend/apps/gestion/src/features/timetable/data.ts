@@ -5,6 +5,7 @@ import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { keys } from "../../lib/queries";
+import type { Gesture } from "./editor";
 
 export type TimeGrid = Schemas["TimeGrid"];
 export type ClassRow = Schemas["TimetableClass"];
@@ -19,6 +20,8 @@ export type RuleKind = Schemas["TimetableRuleKindEnum"];
 export type RuleStrength = Schemas["RuleStrengthEnum"];
 export type RuleChoices = Schemas["RuleChoices"];
 export type RuleCourse = Schemas["RuleCourse"];
+export type Draft = Schemas["Draft"];
+export type DraftState = Schemas["DraftState"];
 
 export const ROOM_KINDS: RoomKind[] = [
   "classroom",
@@ -99,4 +102,81 @@ export function gapOf(
   if (row.missing_hours > 0) return { tone: "warn", key: "missing", count: row.missing_hours };
   if (over === 0) return { tone: "ok", key: "full", count: 0 };
   return { tone: "ok", key: "free", count: -over };
+}
+
+// Brouillons de l'horaire (EDT.2a). Liste et brouillon sous des clés distinctes : un geste remplace
+// l'état du brouillon sans relire la liste.
+export const draftListKey = [...keys.timetable, "draftList"];
+export const draftKey = (id: string) => [...keys.timetable, "draft", id];
+
+export function useTimetableCourses() {
+  return useQuery({
+    queryKey: [...keys.timetable, "courses"],
+    queryFn: () => call(api.GET("/api/timetable/courses/")),
+  });
+}
+
+export function useDrafts() {
+  return useQuery({
+    queryKey: draftListKey,
+    queryFn: () => call(api.GET("/api/timetable/drafts/")),
+  });
+}
+
+export function useDraft(id: string | undefined) {
+  return useQuery({
+    enabled: Boolean(id),
+    queryKey: draftKey(id ?? ""),
+    queryFn: () =>
+      call(api.GET("/api/timetable/drafts/{id}/", { params: { path: { id: id ?? "" } } })),
+  });
+}
+
+/** Envoie un geste de l'éditeur ; le serveur renvoie l'état du brouillon (conflits recalculés). */
+export function sendGesture(id: string, gesture: Gesture): Promise<DraftState> {
+  const entry = (entryId: string) => ({ params: { path: { id, entry: entryId } } });
+  const draft = { params: { path: { id } } };
+  switch (gesture.kind) {
+    case "place": {
+      const { course, weekday, first, length } = gesture;
+      return call(
+        api.POST("/api/timetable/drafts/{id}/entries/", {
+          ...draft,
+          body: { course, weekday, first, length },
+        }),
+      );
+    }
+    case "move":
+      return call(
+        api.PATCH("/api/timetable/drafts/{id}/entries/{entry}/", {
+          ...entry(gesture.entry),
+          body: { weekday: gesture.weekday, first: gesture.first },
+        }),
+      );
+    case "room":
+      return call(
+        api.PATCH("/api/timetable/drafts/{id}/entries/{entry}/", {
+          ...entry(gesture.entry),
+          body: { room: gesture.room },
+        }),
+      );
+    case "lock":
+      return call(
+        api.PATCH("/api/timetable/drafts/{id}/entries/{entry}/", {
+          ...entry(gesture.entry),
+          body: { locked: gesture.locked },
+        }),
+      );
+    case "remove":
+      return call(api.DELETE("/api/timetable/drafts/{id}/entries/{entry}/", entry(gesture.entry)));
+    case "swap":
+      return call(
+        api.POST("/api/timetable/drafts/{id}/swap/", {
+          ...draft,
+          body: { entry: gesture.entry, other: gesture.other },
+        }),
+      );
+    case "undo":
+      return call(api.POST("/api/timetable/drafts/{id}/undo/", draft));
+  }
 }

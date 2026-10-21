@@ -231,3 +231,110 @@ class TimetableRule(TenantModel):
 
     def __str__(self) -> str:
         return self.get_kind_display()
+
+
+# Gestes gardés pour « Annuler » (EDT.2a).
+HISTORY_LIMIT = 50
+
+
+class Timetable(TenantModel):
+    """Version de l'horaire d'une année (EDT.2a, spec § 10) [T] : brouillon, publiée ou archivée.
+    Un brouillon se modifie geste par geste ; `history` garde, pour chacun des derniers gestes,
+    l'état d'avant des heures touchées (« Annuler »). Publication : EDT.4."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", _("Draft")
+        PUBLISHED = "published", _("Published")
+        ARCHIVED = "archived", _("Archived")
+
+    academic_year = models.ForeignKey(
+        "schools.AcademicYear",
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("school year"),
+    )
+    name = models.CharField(_("name"), max_length=80)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.DRAFT
+    )
+    valid_from = models.DateField(_("in force from"), null=True, blank=True)
+    published_at = models.DateTimeField(_("published on"), null=True, blank=True)
+    published_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("published by"),
+    )
+    based_on = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("copied from"),
+    )
+    history = models.JSONField(_("undo history"), default=list, blank=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+        verbose_name = _("timetable")
+        verbose_name_plural = _("timetables")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "academic_year"],
+                condition=models.Q(status="published"),
+                name="one_published_timetable_per_year",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class TimetableEntry(TenantModel):
+    """Une séance placée (EDT.2a) [T] : le cours, le jour, sa 1re heure (numéro dans la grille de
+    la classe) et sa longueur. Pas de clé vers `TimeSlot` : l'enregistrement d'une grille réécrit
+    ses cases ; une séance qui n'y tient plus est un conflit, pas une perte. Salle vide : à
+    choisir (type exigé par le cours). Verrouillée : ne bouge plus, ni à la main ni au calcul."""
+
+    timetable = models.ForeignKey(
+        Timetable, on_delete=models.CASCADE, related_name="entries", verbose_name=_("timetable")
+    )
+    course = models.ForeignKey(
+        "academics.Course", on_delete=models.CASCADE, related_name="+", verbose_name=_("course")
+    )
+    weekday = models.PositiveSmallIntegerField(
+        _("day"), validators=[MinValueValidator(1), MaxValueValidator(7)]
+    )
+    first = models.PositiveSmallIntegerField(
+        _("first lesson"), validators=[MinValueValidator(1), MaxValueValidator(MAX_LESSONS_PER_DAY)]
+    )
+    length = models.PositiveSmallIntegerField(
+        _("hours"), validators=[MinValueValidator(1), MaxValueValidator(MAX_LESSONS_PER_DAY)]
+    )
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("room"),
+    )
+    locked = models.BooleanField(_("locked"), default=False)
+
+    class Meta:
+        ordering = ["weekday", "first"]
+        verbose_name = _("timetable entry")
+        verbose_name_plural = _("timetable entries")
+        indexes = [models.Index(fields=["school", "timetable"], name="timetable_entry_by_version")]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(weekday__gte=1, weekday__lte=7, first__gte=1, length__gte=1),
+                name="timetable_entry_position",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.weekday} {self.first}+{self.length}"

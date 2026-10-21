@@ -37,7 +37,7 @@ from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
 from apps.timetable import checks
-from apps.timetable.models import Room, TeacherTimetableProfile, TimetableRule
+from apps.timetable.models import Room, TeacherTimetableProfile, Timetable, TimetableRule
 from apps.timetable.services import class_rows
 from tests.factories import SchoolFactory, enable_totp
 
@@ -105,6 +105,15 @@ def created(demo) -> None:
         lock = TimetableRule.objects.get(kind="fixed_lesson")
         assert (lock.params["weekday"], lock.params["first"], lock.params["last"]) == (1, 2, 7)
         assert not [issue for issue in report["issues"] if issue["check"] in (6, 7)]
+        # EDT.2a : un brouillon avec l'atelier verrouillé et sa classe placée, sans conflit.
+        draft = checks.draft(Timetable.objects.get())
+        [locked] = [entry for entry in draft["entries"] if entry.locked]
+        assert (locked.weekday, locked.first, locked.length) == (1, 2, 6)
+        group = Course.objects.get(pk=locked.course_id).class_group_id
+        load = next(row for row in draft["classes"] if row["class_group"] == group)
+        assert load["placed"] >= 30
+        overlaps = {"same_class", "same_teacher", "same_room", "course_day_over", "lock_missing"}
+        assert not overlaps & {issue["code"] for issue in draft["issues"]}
     # Reprise des résultats (8.4.7) : la 8EB C sans aucune note, la moitié de ses élèves repris.
     with use_school(itig):
         paper = Deliberation.objects.get(class_group__level__name="8EB", class_group__section="C")

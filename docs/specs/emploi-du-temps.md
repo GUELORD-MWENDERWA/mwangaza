@@ -155,6 +155,8 @@ Chaque ligne dit **quoi**, **combien** et **où corriger** (lien vers l'écran).
 - **Charges visibles** : pour chaque enseignant, heures placées / heures dues / maximum ; pour chaque classe, heures placées / heures dues, heures par jour.
 - Une écriture par geste (pas d'enregistrement à chaque survol) ; le brouillon garde son historique de gestes pour « Annuler ».
 
+**Fait en EDT.2a** (`timetable/drafts.py`, `checks.draft`, écran `/timetable`, maquette `gestion/emploi-du-temps-classe`) : brouillons (vide avec les verrous des règles, ou copie), vue par classe ; placer, déplacer, échanger, salle, verrou, retirer, annuler (50 gestes) ; chaque geste renvoie l'état (séances, reste à placer, heures placées / dues des classes et des enseignants, conflits). Conflits : O1 à O3 (`same_class`, `same_teacher`, `same_room`), O5 (`entry_outside_grid`, `entry_crosses_break`), O6 (`lock_missing`), O7 et règles obligatoires (`entry_on_absence`, `entry_on_closed_room`, `entry_against_rule`), O4 (`sessions_changed`), au plus par jour (`course_day_over`, `teacher_day_over`), charge de la semaine (`teacher_week_over`) ; orange : trou dans la journée d'une classe (`class_gap`), salle à choisir (`room_missing`), cours qui n'est plus donné. L'écran teinte les cases (classe, enseignant, salle déjà pris) sans connaître les groupes en parallèle : le serveur reste juge. Vues par enseignant, par salle et horaire général : EDT.2b.
+
 ## 9. Ce que fait l'IA (IA.2a, IA.2b)
 
 Usages du catalogue `ai/uses.py` (IA.1.1), module hôte `timetable`, permission hôte `timetable.manage`, toujours sur un **clic** du DE, jamais automatique ; chaque appel passe par les cinq verrous et les crédits de l'école.
@@ -206,8 +208,8 @@ Les vraies heures données demandent de savoir ce qui ne s'est pas passé comme 
 | `Course` (champs ajoutés) | EDT.1b | `lesson_pattern`, `max_per_day`, `room`, `room_kind`, `can_span_break`, `preferred_part` |
 | `TeacherTimetableProfile` [T] | EDT.1b | `member` (personnel), `max_week_hours`, `max_day_hours`, `unavailable` (liste de cases ou jours, validée) |
 | `TimetableRule` [T] | EDT.1c | `kind`, `params` (schéma par kind), `strength`, `weight`, `active`, `source`, `text`, `created_by` |
-| `Timetable` [T] | EDT.2 | `academic_year`, `name`, `status`, `valid_from`, `published_at`, `published_by`, `based_on` |
-| `TimetableEntry` [T] | EDT.2 | `timetable`, `course`, `slot`, `length`, `room`, `locked` ; index (`timetable`, `slot`) |
+| `Timetable` [T] | EDT.2a | `academic_year`, `name`, `status`, `valid_from`, `published_at`, `published_by`, `based_on` |
+| `TimetableEntry` [T] | EDT.2a | `timetable`, `course`, `weekday`, `first` (numéro de la 1re heure), `length`, `room`, `locked` ; pas de clé vers `TimeSlot` (une grille réécrit ses cases) ; index (`school`, `timetable`) |
 | `TimetableRun` [T] | EDT.3 | `request_id` (UUID v7, unique), `timetable`, `status`, `scope`, `time_limit`, `duration_ms`, `score`, `blocking` (JSON), `peak_mb` |
 | `LessonException` [T] | EDT.6 | `date`, `entry`, `kind`, `replacement`, `reason`, `created_by` |
 

@@ -142,6 +142,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "time-grid",
       "rooms",
       "timetable-checks",
+      "timetable",
       "unpaid",
       "unpaid/export",
       "cash-closings/register",

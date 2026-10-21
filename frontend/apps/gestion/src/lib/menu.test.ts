@@ -16,6 +16,7 @@ describe("menu selon les permissions (04 § 8)", () => {
       "timeGrid",
       "rooms",
       "timetableChecks",
+      "timetable",
       "promotion",
       "unpaid",
       "fees",

@@ -1,9 +1,11 @@
 """API des paramètres de l'emploi du temps : grilles horaires, grille et salle des classes, salles,
-règles générales (EDT.1a) ; disponibilités, contrôles (EDT.1b) ; règles (EDT.1c). Module
+règles générales (EDT.1a) ; disponibilités, contrôles (EDT.1b) ; règles (EDT.1c) ; brouillons de
+l'horaire (EDT.2a : un geste par requête, qui renvoie l'état du brouillon). Module
 `timetable`, droit `timetable.manage` ; en ligne seulement. Listes courtes (quelques grilles, au
 plus 300 salles, 500 règles, classes de l'année) : pas de pagination."""
 
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.request import Request
@@ -16,20 +18,27 @@ from apps.core.errors import ErrorSerializer
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, constraints, services
-from apps.timetable.models import Room, TimeGrid, TimetableRule
+from apps.timetable import checks, constraints, drafts, services
+from apps.timetable.models import Room, TimeGrid, Timetable, TimetableEntry, TimetableRule
 from apps.timetable.serializers import (
     ChecksSerializer,
+    DraftCreateSerializer,
+    DraftSerializer,
+    DraftStateSerializer,
+    EntryChangeSerializer,
+    PlaceSerializer,
     RoomCreateSerializer,
     RoomSerializer,
     RoomUpdateSerializer,
     RuleChoicesSerializer,
+    SwapSerializer,
     TeacherProfileSerializer,
     TimeGridCreateSerializer,
     TimeGridSerializer,
     TimeGridWriteSerializer,
     TimetableClassSerializer,
     TimetableClassUpdateSerializer,
+    TimetableCourseSerializer,
     TimetableRuleSerializer,
     TimetableRulesSerializer,
     TimetableRuleWriteSerializer,
@@ -245,3 +254,136 @@ class ConstraintChoicesView(_TimetableView):
         """Ce que l'éditeur des règles propose : kinds (forces permises, poids par défaut), cours
         enseignés cette année et leurs enseignants."""
         return Response(RuleChoicesSerializer(constraints.choices()).data)
+
+
+def _state(timetable: Timetable, code: int = status.HTTP_200_OK) -> Response:
+    return Response(DraftStateSerializer(drafts.state(timetable)).data, status=code)
+
+
+@extend_schema(tags=["timetable"])
+class TimetableCoursesView(_TimetableView):
+    @extend_schema(responses={200: TimetableCourseSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Cours enseignés cette année, tels que l'éditeur de l'horaire les place : séances, salle
+        ou type exigé, récréation traversable, au plus par jour."""
+        return Response(
+            TimetableCourseSerializer(
+                drafts.year_courses(organisation.current_year()), many=True
+            ).data
+        )
+
+
+@extend_schema(tags=["timetable"])
+class DraftsView(_TimetableView):
+    @extend_schema(responses={200: DraftSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Brouillons de l'horaire de l'année en cours, le plus récent d'abord."""
+        return Response(DraftSerializer(drafts.drafts(organisation.current_year()), many=True).data)
+
+    @extend_schema(
+        request=DraftCreateSerializer, responses={201: DraftStateSerializer, **WRITE_ERRORS}
+    )
+    def post(self, request: Request) -> Response:
+        """Nouveau brouillon : copie d'un brouillon de l'année, ou vide avec les heures
+        verrouillées des règles déjà placées (journal)."""
+        data = DraftCreateSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        year = organisation.current_year()
+        based_on = None
+        if data.validated_data["based_on"]:
+            based_on = drafts.drafts(year).filter(pk=data.validated_data["based_on"]).first()
+            if based_on is None:
+                return Response(
+                    {"based_on": [_("This draft does not exist.")]},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        timetable = drafts.create_draft(
+            year=year, name=data.validated_data["name"], based_on=based_on, actor=request.user
+        )
+        return _state(timetable, status.HTTP_201_CREATED)
+
+
+@extend_schema(tags=["timetable"])
+class DraftView(_TimetableView):
+    @extend_schema(responses={200: DraftStateSerializer, **ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        """Un brouillon : séances, conflits (recalculés), reste à placer, heures placées / dues."""
+        return _state(get_object_or_404(Timetable, pk=pk))
+
+    @extend_schema(responses={204: None, **WRITE_ERRORS})
+    def delete(self, request: Request, pk) -> Response:
+        """Supprime un brouillon et ses séances (journal)."""
+        drafts.delete_draft(get_object_or_404(Timetable, pk=pk), actor=request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@extend_schema(tags=["timetable"])
+class DraftEntriesView(_TimetableView):
+    @extend_schema(request=PlaceSerializer, responses={201: DraftStateSerializer, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Place une séance restant à placer ; refusée hors de la grille de la classe, sur une
+        récréation que le cours ne passe pas, ou si le cours n'a plus de séance de cette longueur.
+        Un conflit ne la refuse pas : il est montré."""
+        timetable = get_object_or_404(Timetable, pk=pk)
+        data = PlaceSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        return _state(
+            drafts.place(timetable, actor=request.user, **data.validated_data),
+            status.HTTP_201_CREATED,
+        )
+
+
+@extend_schema(tags=["timetable"])
+class DraftEntryView(_TimetableView):
+    @extend_schema(
+        request=EntryChangeSerializer, responses={200: DraftStateSerializer, **WRITE_ERRORS}
+    )
+    def patch(self, request: Request, pk, entry) -> Response:
+        """Un geste sur une séance : la déplacer, changer sa salle, la verrouiller ou la
+        déverrouiller (journal). Une séance verrouillée ne bouge ni ne change de salle."""
+        timetable = get_object_or_404(Timetable, pk=pk)
+        lesson = get_object_or_404(TimetableEntry, pk=entry, timetable=timetable)
+        data = EntryChangeSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        change = data.validated_data
+        if "locked" in change:
+            timetable = drafts.set_locked(
+                timetable, lesson, locked=change["locked"], actor=request.user
+            )
+        elif "room" in change:
+            timetable = drafts.set_room(timetable, lesson, room=change["room"])
+        else:
+            timetable = drafts.move(
+                timetable, lesson, weekday=change["weekday"], first=change["first"]
+            )
+        return _state(timetable)
+
+    @extend_schema(request=None, responses={200: DraftStateSerializer, **WRITE_ERRORS})
+    def delete(self, request: Request, pk, entry) -> Response:
+        """Retire une séance du brouillon : elle revient dans « À placer »."""
+        timetable = get_object_or_404(Timetable, pk=pk)
+        lesson = get_object_or_404(TimetableEntry, pk=entry, timetable=timetable)
+        return _state(drafts.remove(timetable, lesson))
+
+
+@extend_schema(tags=["timetable"])
+class DraftSwapView(_TimetableView):
+    @extend_schema(request=SwapSerializer, responses={200: DraftStateSerializer, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Échange les places de deux séances du brouillon (aucune verrouillée)."""
+        timetable = get_object_or_404(Timetable, pk=pk)
+        data = SwapSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        lessons = timetable.entries
+        entry = get_object_or_404(lessons, pk=data.validated_data["entry"])
+        other = get_object_or_404(lessons, pk=data.validated_data["other"])
+        return _state(drafts.swap(timetable, entry, other))
+
+
+@extend_schema(tags=["timetable"])
+class DraftUndoView(_TimetableView):
+    @extend_schema(request=None, responses={200: DraftStateSerializer, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Annule le dernier geste (50 derniers gardés)."""
+        timetable = get_object_or_404(Timetable, pk=pk)
+        return _state(drafts.undo(timetable, actor=request.user))

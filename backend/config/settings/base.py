@@ -259,6 +259,7 @@ SPECTACULAR_SETTINGS = {
         "CheckLevelEnum": "apps.timetable.checks.LEVELS",
         "TimetableRuleKindEnum": "apps.timetable.models.TimetableRule.Kind",
         "RuleStrengthEnum": "apps.timetable.models.TimetableRule.Strength",
+        "TimetableStatusEnum": "apps.timetable.models.Timetable.Status",
         "RuleSourceEnum": "apps.timetable.models.TimetableRule.Source",
         "ModulesEnum": "apps.accounts.modules.MODULE_CHOICES",
         "PlatformRoleEnum": "apps.accounts.platform_roles.ROLE_CHOICES",

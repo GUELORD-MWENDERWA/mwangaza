@@ -38,6 +38,7 @@ Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root
 | `field` | `#7A8699` | bordure de champ, case (3,7:1 sur blanc) |
 | `ok` / `due` / `warn` / `info` (+ `-50`, `-200`, `-900`) | `#127A48` / `#B42318` / `#985A06` / `#0B5FCC` | états, **toujours avec un texte** |
 | `chart-1` / `chart-2` / `chart-grid` | `lake` / `#C47F00` / `#E2E8F0` | séries de graphique (validées par la skill `dataviz`) / grille |
+| `--color-course-1` … `-10` | `lake`, `#7C3AED`, `#B45309`, `#DB2777`, `#16A34A`, `#0891B2`, `#EA580C`, `#CA8A04`, `#0F766E`, `#64748B` | couleur d'un cours dans l'emploi du temps (filet gauche de la carte, `colorOf(nom)`), dans `:root` hors `@theme` car lue par `style` |
 | `scrim` | nuit à 55 % | voile sous un tiroir ou une fenêtre |
 
 Rayons : cartes 14 px (`rounded-card`), fenêtres 16 px (`rounded-dialog`), champs et boutons 8 px, encadrés 10 px, pastilles 999 px. Ombres froides : `shadow-button` (boutons, champs), `shadow-card` (cartes : la bordure dessine, l'ombre décolle à peine), `shadow-raised` (survol, choix actif), `shadow-float` (fenêtres, tiroir, bulles). `apps/gestion/design.test.ts` refuse les couleurs et les tailles écrites en dur.

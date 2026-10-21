@@ -26,6 +26,8 @@ from apps.timetable.models import (
     TeacherTimetableProfile,
     TimeGrid,
     TimeSlot,
+    Timetable,
+    TimetableEntry,
     TimetableRule,
 )
 from apps.timetable.services import grids, rules_of
@@ -53,13 +55,15 @@ class Issue:
     teacher: UUID | None = None
     room: UUID | None = None
     rule: UUID | None = None
+    entry: UUID | None = None
 
 
 @dataclass
 class Lock:
-    """Heures verrouillées d'une règle `fixed_lesson`, placées dans la grille de la classe."""
+    """Heures verrouillées d'une règle `fixed_lesson`, ou séance d'un brouillon (`entry`), placées
+    dans la grille de la classe."""
 
-    rule: TimetableRule
+    rule: TimetableRule | None
     course: Course
     label: str
     weekday: int
@@ -70,6 +74,7 @@ class Lock:
     end: time
     slots: list[Slot]
     room: UUID | None
+    entry: UUID | None = None
 
 
 class Week:
@@ -85,6 +90,24 @@ class Week:
             for slot in slots
             if slot.kind == TimeSlot.Kind.LESSON
         ]
+
+    def span(self, weekday: int, first: int, last: int, span_break: bool) -> list[TimeSlot] | str:
+        """Les cases de la `first`e à la `last`e heure d'un jour, récréations comprises ; sinon la
+        raison : `outside_grid` (heure absente ce jour-là), `crosses_break` (récréation que le
+        cours ne passe pas)."""
+        day = self.days.get(weekday, [])
+        position = {
+            slot.index: place for place, slot in enumerate(day) if slot.kind == TimeSlot.Kind.LESSON
+        }
+        if any(index not in position for index in range(first, last + 1)):
+            return "outside_grid"
+        run = day[position[first] : position[last] + 1]
+        if not span_break and any(slot.kind == TimeSlot.Kind.BREAK for slot in run):
+            return "crosses_break"
+        return run
+
+    def lessons_on(self, weekday: int) -> int:
+        return sum(slot.kind == TimeSlot.Kind.LESSON for slot in self.days.get(weekday, []))
 
     def longest_run(self, span_break: bool) -> int:
         """La plus longue suite d'heures de cours d'une journée ; une récréation la coupe, sauf
@@ -124,8 +147,25 @@ def _names(courses: list[Course]) -> dict:
     }
 
 
-def run(year: AcademicYear | None) -> dict:
-    """Les contrôles 1 à 5 sur l'année : lignes rouges d'abord, puis orange."""
+@dataclass
+class Context:
+    """Ce que lisent les contrôles d'une année : huit requêtes, quelle que soit la taille."""
+
+    school_rules: dict
+    groups: list[ClassGroup]
+    week_of: dict[UUID, Week | None]
+    courses: list[Course]
+    staff: set[UUID]
+    profiles: dict[UUID, TeacherTimetableProfile]
+    rooms: dict[UUID, Room]
+    by_group: dict[UUID, ClassGroup]
+    rules: list[TimetableRule]
+    by_course: dict[UUID, Course]
+    parallel: list
+    joint: list
+
+
+def context(year: AcademicYear | None) -> Context:
     school_rules = rules_of(require_current_school())
     weeks: dict[UUID, Week] = {}
     default = None
@@ -152,7 +192,33 @@ def run(year: AcademicYear | None) -> dict:
     by_course = {course.pk: course for course in courses}
     parallel = _groups(rules, Kind.PARALLEL_COURSES, by_course)
     joint = _groups(rules, Kind.JOINT_COURSES, by_course)
+    return Context(
+        school_rules,
+        groups,
+        week_of,
+        courses,
+        staff,
+        profiles,
+        rooms,
+        by_group,
+        rules,
+        by_course,
+        parallel,
+        joint,
+    )
 
+
+def run(year: AcademicYear | None) -> dict:
+    """Les contrôles 1 à 7 sur l'année : lignes rouges d'abord, puis orange."""
+    ctx = context(year)
+    groups, courses, rules, rooms = ctx.groups, ctx.courses, ctx.rules, ctx.rooms
+    week_of, by_group, by_course, staff = ctx.week_of, ctx.by_group, ctx.by_course, ctx.staff
+    profiles, school_rules, parallel, joint = (
+        ctx.profiles,
+        ctx.school_rules,
+        ctx.parallel,
+        ctx.joint,
+    )
     issues: list[Issue] = []
     issues += _classes(groups, courses, week_of, parallel)
     issues += _teachers(courses, staff, profiles, week_of, school_rules, joint)
@@ -160,9 +226,10 @@ def run(year: AcademicYear | None) -> dict:
     issues += _rooms(courses, rooms, week_of, by_group)
     issues += _incomplete(courses, staff, by_group)
     locks, found = _locks(rules, by_course, week_of, by_group, rooms)
-    issues += _lock_conflicts(locks, parallel, joint, rooms, by_group)
+    issues += _lock_conflicts(locks, parallel, joint, rooms, by_group, "locks_")
     issues += found
-    issues += _contradictions(rules, locks, profiles, rooms, staff, by_course, by_group)
+    issues += _against(rules, locks, profiles, rooms, "lock_")
+    issues += _orphans(rules, rooms, staff, by_course)
     issues += _group_issues(parallel, joint, by_group)
     issues.sort(key=lambda issue: (issue.level != ERROR, issue.check))
     return {
@@ -192,15 +259,37 @@ def _shared_hours(members: list[Course]) -> int:
     return sum(hours) - max(hours) if len(hours) > 1 else 0
 
 
-def _classes(groups, courses, week_of, parallel) -> list[Issue]:
-    """1. Classe surchargée : heures des cours > places de sa grille ; des groupes en parallèle
-    ne comptent qu'une fois."""
+def _class_hours(courses, parallel) -> dict[UUID, int]:
+    """Heures dues de chaque classe ; des groupes en parallèle ne comptent qu'une fois."""
     hours: dict[UUID, int] = defaultdict(int)
     for course in courses:
         hours[course.class_group_id] += course.weekly_hours or 0
     for _rule, members in parallel:
         if members:
             hours[members[0].class_group_id] -= _shared_hours(members)
+    return hours
+
+
+def _teacher_loads(courses, staff, joint) -> tuple[dict[UUID, int], dict[UUID, str]]:
+    """Charge de chaque enseignant du personnel, et son nom ; un cours commun compte une fois."""
+    load: dict[UUID, int] = defaultdict(int)
+    names: dict[UUID, str] = {}
+    for course in courses:
+        if course.teacher_id not in staff or not course.weekly_hours:
+            continue
+        load[course.teacher_id] += course.weekly_hours
+        names[course.teacher_id] = str(course.teacher)
+    for _rule, members in joint:
+        mine = [course for course in members if course.teacher_id in load]
+        if mine and len({course.teacher_id for course in mine}) == 1:
+            load[mine[0].teacher_id] -= _shared_hours(mine)
+    return load, names
+
+
+def _classes(groups, courses, week_of, parallel) -> list[Issue]:
+    """1. Classe surchargée : heures des cours > places de sa grille ; des groupes en parallèle
+    ne comptent qu'une fois."""
+    hours = _class_hours(courses, parallel)
     issues = []
     for group in groups:
         week = week_of[group.pk]
@@ -225,21 +314,12 @@ def _teachers(courses, staff, profiles, week_of, school_rules, joint) -> list[Is
     """2. Enseignant au-delà de son maximum ; au-delà de ses heures libres (heures de cours des
     grilles de ses classes, absences retirées) ; au-delà de ce que ses jours permettent avec ses
     heures au plus par jour. Un cours commun à plusieurs classes compte une fois."""
-    load: dict[UUID, int] = defaultdict(int)
+    load, names = _teacher_loads(courses, staff, joint)
     slots: dict[UUID, set[Slot]] = defaultdict(set)
-    names: dict[UUID, str] = {}
     for course in courses:
-        if course.teacher_id not in staff or not course.weekly_hours:
-            continue
-        load[course.teacher_id] += course.weekly_hours
-        names[course.teacher_id] = str(course.teacher)
         week = week_of.get(course.class_group_id)
-        if week is not None:
+        if course.teacher_id in load and week is not None:
             slots[course.teacher_id].update(week.lessons)
-    for _rule, members in joint:
-        mine = [course for course in members if course.teacher_id in load]
-        if mine and len({course.teacher_id for course in mine}) == 1:
-            load[mine[0].teacher_id] -= _shared_hours(mine)
     issues = []
     for teacher, hours in load.items():
         profile = profiles.get(teacher)
@@ -446,10 +526,6 @@ def _locks(rules, by_course, week_of, by_group, rooms) -> tuple[list[Lock], list
         group = by_group[course.class_group_id]
         label = f"{course.name} · {group.name}"
         weekday, first, last = params["weekday"], params["first"], params["last"]
-        day = week.days.get(weekday, [])
-        position = {
-            slot.index: place for place, slot in enumerate(day) if slot.kind == TimeSlot.Kind.LESSON
-        }
 
         def issue(
             code,
@@ -470,14 +546,9 @@ def _locks(rules, by_course, week_of, by_group, rooms) -> tuple[list[Lock], list
                 rule=rule.pk,
             )
 
-        if any(index not in position for index in range(first, last + 1)):
-            issues.append(issue("lock_outside_grid", {"lessons": len(position)}))
-            continue
-        run = day[position[first] : position[last] + 1]
-        if not placing.spans_break(course) and any(
-            slot.kind == TimeSlot.Kind.BREAK for slot in run
-        ):
-            issues.append(issue("lock_crosses_break"))
+        run = week.span(weekday, first, last, placing.spans_break(course))
+        if isinstance(run, str):
+            issues.append(issue(f"lock_{run}", {"lessons": week.lessons_on(weekday)}))
             continue
         sessions = placing.sessions(course)
         length = last - first + 1
@@ -497,7 +568,7 @@ def _locks(rules, by_course, week_of, by_group, rooms) -> tuple[list[Lock], list
                 weekday,
                 first,
                 last,
-                last == max(position),
+                last == week.lessons_on(weekday),
                 run[0].start,
                 run[-1].end,
                 [(weekday, slot.start, slot.end) for slot in run if slot.kind == "lesson"],
@@ -507,9 +578,10 @@ def _locks(rules, by_course, week_of, by_group, rooms) -> tuple[list[Lock], list
     return locks, issues
 
 
-def _lock_conflicts(locks, parallel, joint, rooms, by_group) -> list[Issue]:
-    """6. Deux verrous qui se chevauchent pour une même classe (hors groupes en parallèle), un
-    même enseignant ou une même salle (hors cours commun ; le sport en reçoit plusieurs)."""
+def _lock_conflicts(locks, parallel, joint, rooms, by_group, prefix: str) -> list[Issue]:
+    """6. Deux verrous (`locks_…`) ou deux séances d'un brouillon (`same_…`, O1 à O3) en même
+    temps pour une même classe (hors groupes en parallèle), un même enseignant ou une même salle
+    (hors cours commun ; le sport en reçoit plusieurs)."""
     side_by_side = {course.pk: rule.pk for rule, members in parallel for course in members}
     together = {course.pk: rule.pk for rule, members in joint for course in members}
     by_day: dict[int, list[Lock]] = defaultdict(list)
@@ -525,6 +597,8 @@ def _lock_conflicts(locks, parallel, joint, rooms, by_group) -> list[Issue]:
                 return a.course.pk in groups and groups[a.course.pk] == groups.get(b.course.pk)
 
             pair = {"first": a.label, "second": b.label, "day": a.weekday}
+            if a.entry:
+                pair["entries"] = [str(a.entry), str(b.entry)]
             course_a, course_b = a.course, b.course
             if course_a.pk == course_b.pk or (
                 course_a.class_group_id == course_b.class_group_id and not same(side_by_side)
@@ -532,12 +606,13 @@ def _lock_conflicts(locks, parallel, joint, rooms, by_group) -> list[Issue]:
                 issues.append(
                     Issue(
                         LOCKS,
-                        "locks_same_class",
+                        f"{prefix}same_class",
                         ERROR,
                         by_group[course_a.class_group_id].name,
                         pair,
                         class_group=course_a.class_group_id,
-                        rule=b.rule.pk,
+                        rule=b.rule.pk if b.rule else None,
+                        entry=b.entry,
                     )
                 )
             elif (
@@ -548,12 +623,13 @@ def _lock_conflicts(locks, parallel, joint, rooms, by_group) -> list[Issue]:
                 issues.append(
                     Issue(
                         LOCKS,
-                        "locks_same_teacher",
+                        f"{prefix}same_teacher",
                         ERROR,
                         str(course_a.teacher),
                         pair,
                         teacher=course_a.teacher_id,
-                        rule=b.rule.pk,
+                        rule=b.rule.pk if b.rule else None,
+                        entry=b.entry,
                     )
                 )
             if (
@@ -566,12 +642,13 @@ def _lock_conflicts(locks, parallel, joint, rooms, by_group) -> list[Issue]:
                 issues.append(
                     Issue(
                         LOCKS,
-                        "locks_same_room",
+                        f"{prefix}same_room",
                         ERROR,
                         rooms[a.room].name,
                         pair,
                         room=a.room,
-                        rule=b.rule.pk,
+                        rule=b.rule.pk if b.rule else None,
+                        entry=b.entry,
                     )
                 )
     return issues
@@ -591,9 +668,10 @@ def _forbids(rule: TimetableRule, lock: Lock) -> bool:
     return any(index in hours for index in params["lessons"]) or (params["last"] and lock.is_last)
 
 
-def _contradictions(rules, locks, profiles, rooms, staff, by_course, by_group) -> list[Issue]:
-    """7. Verrou sur une absence de l'enseignant, sur une salle fermée, contre une règle
-    obligatoire (heures, moment, jour libre) ; règle sans objet."""
+def _against(rules, locks, profiles, rooms, prefix: str) -> list[Issue]:
+    """7. Verrou (`lock_…`) ou séance d'un brouillon (`entry_…`, O7) sur une absence de
+    l'enseignant, sur une salle fermée, contre une règle obligatoire (heures, moment, jour
+    libre)."""
     hard = [rule for rule in rules if rule.strength == HARD]
     closed: dict[UUID, list[dict]] = defaultdict(list)
     for rule in hard:
@@ -612,17 +690,18 @@ def _contradictions(rules, locks, profiles, rooms, staff, by_course, by_group) -
                 lock.label,
                 {"day": lock.weekday, "first": lock.first, "last": lock.last, **values},
                 class_group=lock.course.class_group_id,
-                rule=lock.rule.pk,
+                rule=lock.rule.pk if lock.rule else None,
+                entry=lock.entry,
                 **where,
             )
 
         profile = profiles.get(teacher)
         if profile and any(is_blocked(profile.unavailable, slot) for slot in lock.slots):
             issues.append(
-                issue("lock_on_absence", {"teacher": str(course.teacher)}, teacher=teacher)
+                issue(f"{prefix}on_absence", {"teacher": str(course.teacher)}, teacher=teacher)
             )
         if lock.room and any(is_blocked(closed[lock.room], slot) for slot in lock.slots):
-            issues.append(issue("lock_on_closed_room", {"room": rooms[lock.room].name}))
+            issues.append(issue(f"{prefix}on_closed_room", {"room": rooms[lock.room].name}))
         for rule in hard:
             against = (
                 rule.kind in (Kind.COURSE_NOT_SLOT, Kind.COURSE_PART_OF_DAY)
@@ -634,8 +713,14 @@ def _contradictions(rules, locks, profiles, rooms, staff, by_course, by_group) -
                 and rule.params["weekday"] == lock.weekday
             )
             if against:
-                issues.append(issue("lock_against_rule", {"other": rule.kind}))
+                issues.append(issue(f"{prefix}against_rule", {"other": rule.kind}))
                 break
+    return issues
+
+
+def _orphans(rules, rooms, staff, by_course) -> list[Issue]:
+    """7. Règle sans objet cette année."""
+    issues = []
     courses = list(by_course.values())
     for rule in rules:
         params = rule.params
@@ -701,3 +786,272 @@ def _group_issues(parallel, joint, by_group) -> list[Issue]:
                 hours_text = ", ".join(str(value) for value in hours)
                 issues.append(issue("group_hours_differ", {"hours": hours_text}))
     return issues
+
+
+def fixed_locks(year: AcademicYear) -> tuple[list[Lock], dict[UUID, Room]]:
+    """Les verrous des règles `fixed_lesson` qui tiennent dans la grille de leur classe : un
+    nouveau brouillon part de là (EDT.2a)."""
+    ctx = context(year)
+    locks, _issues = _locks(ctx.rules, ctx.by_course, ctx.week_of, ctx.by_group, ctx.rooms)
+    return locks, ctx.rooms
+
+
+def draft(timetable: Timetable) -> dict:
+    """Conflits d'un brouillon (EDT.2a, spec § 8) : les contrôles du diagnostic rejoués sur ses
+    séances (O1 à O3, O5 à O7), verrou d'une règle absent (O6), cours ou enseignant au-delà de
+    son maximum du jour, charge de la semaine dépassée, séances du cours changées depuis le
+    placement (O4), trou dans la journée d'une classe et salle à choisir (orange). Avec les
+    séances, ce qui reste à placer et les heures placées / dues de chaque classe et enseignant.
+    Neuf requêtes, quelle que soit la taille de l'école."""
+    ctx = context(timetable.academic_year)
+    entries = list(TimetableEntry.objects.filter(timetable=timetable))
+    issues: list[Issue] = []
+    placed: list[Lock] = []
+    lengths: dict[UUID, list[int]] = defaultdict(list)
+    gone = {entry.course_id for entry in entries if entry.course_id not in ctx.by_course}
+    gone_names = dict(Course.objects.filter(pk__in=gone).values_list("pk", "name")) if gone else {}
+    for entry in entries:
+        last = entry.first + entry.length - 1
+        where = {"day": entry.weekday, "first": entry.first, "last": last}
+        course = ctx.by_course.get(entry.course_id)
+        if course is None:
+            name = gone_names.get(entry.course_id, "")
+            issues.append(Issue(COURSES, "entry_course_gone", WARNING, name, where, entry=entry.pk))
+            continue
+        lengths[course.pk].append(entry.length)
+        label = f"{course.name} · {ctx.by_group[course.class_group_id].name}"
+        week = ctx.week_of.get(course.class_group_id)
+        run = (
+            week.span(entry.weekday, entry.first, last, placing.spans_break(course))
+            if week
+            else "outside_grid"
+        )
+
+        def issue(
+            check,
+            code,
+            level=ERROR,
+            values=None,
+            course=course,
+            label=label,
+            where=where,
+            pk=entry.pk,
+        ):
+            return Issue(
+                check,
+                code,
+                level,
+                label,
+                where | (values or {}),
+                class_group=course.class_group_id,
+                entry=pk,
+            )
+
+        if isinstance(run, str):
+            lessons = week.lessons_on(entry.weekday) if week else 0
+            issues.append(issue(RULES, f"entry_{run}", values={"lessons": lessons}))
+            continue
+        if entry.room_id is None and course.room_kind:
+            issues.append(issue(ROOMS, "room_missing", WARNING, {"kind": course.room_kind}))
+        placed.append(
+            Lock(
+                None,
+                course,
+                label,
+                entry.weekday,
+                entry.first,
+                last,
+                last == week.lessons_on(entry.weekday),
+                run[0].start,
+                run[-1].end,
+                [(entry.weekday, slot.start, slot.end) for slot in run if slot.kind == "lesson"],
+                entry.room_id,
+                entry.pk,
+            )
+        )
+    issues += _lock_conflicts(placed, ctx.parallel, ctx.joint, ctx.rooms, ctx.by_group, "")
+    issues += _against(ctx.rules, placed, ctx.profiles, ctx.rooms, "entry_")
+    issues += _missing_locks(ctx, placed)
+    issues += _day_overloads(ctx, placed)
+    left, changed = _left(ctx, lengths)
+    issues += changed
+    classes, teachers, gaps, over = _loads(ctx, placed)
+    issues += gaps + over
+    issues.sort(key=lambda issue: (issue.level != ERROR, issue.check))
+    return {
+        "errors": sum(issue.level == ERROR for issue in issues),
+        "warnings": sum(issue.level == WARNING for issue in issues),
+        "entries": entries,
+        "left": left,
+        "classes": classes,
+        "teachers": teachers,
+        "issues": [asdict(issue) for issue in issues],
+    }
+
+
+def _missing_locks(ctx: Context, placed: list[Lock]) -> list[Issue]:
+    """O6. Heures verrouillées par une règle sans la séance à sa place (ou dans sa salle)."""
+    at = {(lock.course.pk, lock.weekday, lock.first, lock.last): lock.room for lock in placed}
+    issues = []
+    for rule in ctx.rules:
+        if rule.kind != Kind.FIXED_LESSON:
+            continue
+        params = rule.params
+        course = ctx.by_course.get(UUID(params["course"]))
+        if course is None:
+            continue
+        key = (course.pk, params["weekday"], params["first"], params["last"])
+        wanted = UUID(params["room"]) if params.get("room") else None
+        if key not in at or (wanted and at[key] != wanted):
+            issues.append(
+                Issue(
+                    LOCKS,
+                    "lock_missing",
+                    ERROR,
+                    f"{course.name} · {ctx.by_group[course.class_group_id].name}",
+                    {"day": params["weekday"], "first": params["first"], "last": params["last"]},
+                    class_group=course.class_group_id,
+                    rule=rule.pk,
+                )
+            )
+    return issues
+
+
+def _day_overloads(ctx: Context, placed: list[Lock]) -> list[Issue]:
+    """Plus d'heures d'un cours dans la journée que son maximum ; plus d'heures d'un enseignant
+    dans la journée que son maximum (profil, sinon règle de l'école)."""
+    per_course: Counter = Counter()
+    per_teacher: dict[tuple[UUID, int], set] = defaultdict(set)
+    for lock in placed:
+        per_course[(lock.course.pk, lock.weekday)] += len(lock.slots)
+        if lock.course.teacher_id:
+            per_teacher[(lock.course.teacher_id, lock.weekday)].update(lock.slots)
+    issues = []
+    school_max = ctx.school_rules["max_same_course_per_day"]
+    for (course_id, weekday), hours in per_course.items():
+        course = ctx.by_course[course_id]
+        most = placing.max_per_day(course, school_max)
+        if hours > most:
+            issues.append(
+                Issue(
+                    COURSES,
+                    "course_day_over",
+                    ERROR,
+                    f"{course.name} · {ctx.by_group[course.class_group_id].name}",
+                    {"day": weekday, "hours": hours, "max": most},
+                    class_group=course.class_group_id,
+                )
+            )
+    names = {lock.course.teacher_id: str(lock.course.teacher) for lock in placed}
+    for (teacher, weekday), slots in per_teacher.items():
+        profile = ctx.profiles.get(teacher)
+        most = (profile.max_day_hours if profile else None) or ctx.school_rules[
+            "teacher_max_day_hours"
+        ]
+        if len(slots) > most:
+            issues.append(
+                Issue(
+                    TEACHERS,
+                    "teacher_day_over",
+                    ERROR,
+                    names[teacher],
+                    {"day": weekday, "hours": len(slots), "max": most},
+                    teacher=teacher,
+                )
+            )
+    return issues
+
+
+def _left(ctx: Context, lengths: dict[UUID, list[int]]) -> tuple[list[dict], list[Issue]]:
+    """Séances restant à placer pour chaque cours ; séances placées qui ne sont plus les siennes
+    (heures ou découpage changés après le placement)."""
+    left, issues = [], []
+    for course in ctx.courses:
+        sessions = Counter(placing.sessions(course))
+        mine = Counter(lengths.get(course.pk, []))
+        if mine - sessions:
+            issues.append(
+                Issue(
+                    COURSES,
+                    "sessions_changed",
+                    ERROR,
+                    f"{course.name} · {ctx.by_group[course.class_group_id].name}",
+                    {
+                        "placed": "+".join(str(n) for n in sorted(mine.elements(), reverse=True)),
+                        "sessions": "+".join(
+                            str(n) for n in sorted(sessions.elements(), reverse=True)
+                        )
+                        or "0",
+                    },
+                    class_group=course.class_group_id,
+                )
+            )
+        remaining = sorted((sessions - mine).elements(), reverse=True)
+        if remaining:
+            left.append({"course": course.pk, "lengths": remaining})
+    return left, issues
+
+
+def _loads(ctx: Context, placed: list[Lock]) -> tuple[list[dict], list[dict], list, list]:
+    """Heures placées / dues de chaque classe (heures de sa grille occupées) et de chaque
+    enseignant (heures où il enseigne), maximum de la semaine ; trous dans la journée d'une classe
+    quand l'école n'en veut pas (orange : le brouillon est en cours) ; charge dépassée."""
+    occupied: dict[UUID, set[tuple[int, int]]] = defaultdict(set)
+    teaching: dict[UUID, set[Slot]] = defaultdict(set)
+    for lock in placed:
+        occupied[lock.course.class_group_id].update(
+            (lock.weekday, index) for index in range(lock.first, lock.last + 1)
+        )
+        if lock.course.teacher_id:
+            teaching[lock.course.teacher_id].update(lock.slots)
+    due = _class_hours(ctx.courses, ctx.parallel)
+    classes = [
+        {"class_group": group.pk, "placed": len(occupied[group.pk]), "due": due[group.pk]}
+        for group in ctx.groups
+    ]
+    gaps = []
+    if ctx.school_rules["no_gaps"]:
+        for group in ctx.groups:
+            by_day: dict[int, set[int]] = defaultdict(set)
+            for weekday, index in occupied[group.pk]:
+                by_day[weekday].add(index)
+            for weekday, indexes in sorted(by_day.items()):
+                holes = sorted(set(range(1, max(indexes) + 1)) - indexes)
+                if holes:
+                    gaps.append(
+                        Issue(
+                            CLASSES,
+                            "class_gap",
+                            WARNING,
+                            group.name,
+                            {"day": weekday, "lessons": ", ".join(str(n) for n in holes)},
+                            class_group=group.pk,
+                        )
+                    )
+    load, names = _teacher_loads(ctx.courses, ctx.staff, ctx.joint)
+    teachers, over = [], []
+    for teacher in sorted(load, key=lambda pk: names[pk]):
+        profile = ctx.profiles.get(teacher)
+        most = profile.max_week_hours if profile else None
+        hours = len(teaching[teacher])
+        teachers.append(
+            {
+                "teacher": teacher,
+                "name": names[teacher],
+                "placed": hours,
+                "due": load[teacher],
+                "max": most,
+            }
+        )
+        if most and hours > most:
+            over.append(
+                Issue(
+                    TEACHERS,
+                    "teacher_week_over",
+                    ERROR,
+                    names[teacher],
+                    {"hours": hours, "max": most},
+                    teacher=teacher,
+                )
+            )
+    return classes, teachers, gaps, over
