@@ -181,7 +181,7 @@ Usages du catalogue `ai/uses.py` (IA.1.1), module hôte `timetable`, permission 
 
 - `Timetable` [T] : année scolaire, nom, état `draft` → `published` → `archived`, date d'effet, publié par, basé sur. **Une seule version publiée** par année à la fois ; publier archive la précédente (gardée, consultable, réimprimable).
 - `TimetableEntry` [T] : version, cours, case de départ, longueur (heures), salle, verrouillée, groupe. Une version publiée **ne se modifie plus** : un changement = un nouveau brouillon copié de la publiée, puis publication.
-- Publier : bloqué si une règle obligatoire est violée ; journal (`AuditLog` : publication, verrous et règles changés, car l'horaire publié sert à la paie) ; **notification** aux enseignants dont l'horaire change et, pour le Portail, aux parents des classes touchées (5.6), regroupée en une seule par personne.
+- Publier (EDT.4a, `timetable/versions.py`) : bloqué tant que le brouillon a du rouge (conflit ou règle obligatoire non tenue ; le reste à placer et l'orange ne bloquent pas : horaire provisoire possible) ; date d'effet dans l'année, pas avant celle de la version en vigueur ; « Annuler » vidé ; deux publications en même temps se suivent (verrou sur l'année) ; journal (`AuditLog` : publication, verrous et règles changés, car l'horaire publié sert à la paie) ; **notification** aux enseignants dont l'horaire change et, pour le Portail, aux parents des classes touchées (5.6), regroupée en une seule par personne.
 - **Lecture sans réseau** : la version publiée (de l'enseignant, de sa classe) part dans l'instantané de la Gestion ; l'édition et le calcul restent en ligne (`05` § 5 bis : configuration partagée).
 
 ## 11. Impressions (EDT.4, EDT.6)
