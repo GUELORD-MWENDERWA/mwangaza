@@ -109,6 +109,7 @@ export function gapOf(
 // l'état du brouillon sans relire la liste.
 export const draftListKey = [...keys.timetable, "draftList"];
 export const draftKey = (id: string) => [...keys.timetable, "draft", id];
+export const versionListKey = [...keys.timetable, "versionList"];
 
 export function useTimetableCourses() {
   return useQuery({
@@ -121,6 +122,14 @@ export function useDrafts() {
   return useQuery({
     queryKey: draftListKey,
     queryFn: () => call(api.GET("/api/timetable/drafts/")),
+  });
+}
+
+/** Version publiée puis anciennes versions de l'année (EDT.4a). */
+export function useVersions() {
+  return useQuery({
+    queryKey: versionListKey,
+    queryFn: () => call(api.GET("/api/timetable/versions/")),
   });
 }
 

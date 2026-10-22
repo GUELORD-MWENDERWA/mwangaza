@@ -786,6 +786,7 @@ paths:
           - timetable.draft_created
           - timetable.draft_deleted
           - timetable.lock_changed
+          - timetable.published
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -928,6 +929,7 @@ paths:
           * `timetable.draft_created` - Timetable draft created
           * `timetable.draft_deleted` - Timetable draft deleted
           * `timetable.lock_changed` - Lesson locked or unlocked
+          * `timetable.published` - Timetable published
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1251,6 +1253,7 @@ paths:
           - timetable.draft_created
           - timetable.draft_deleted
           - timetable.lock_changed
+          - timetable.published
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1393,6 +1396,7 @@ paths:
           * `timetable.draft_created` - Timetable draft created
           * `timetable.draft_deleted` - Timetable draft deleted
           * `timetable.lock_changed` - Lesson locked or unlocked
+          * `timetable.published` - Timetable published
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -15872,8 +15876,8 @@ paths:
     post:
       operationId: timetable_drafts_create
       description: |-
-        Nouveau brouillon : copie d'un brouillon de l'année, ou vide avec les heures
-        verrouillées des règles déjà placées (journal).
+        Nouveau brouillon : copie d'une version de l'année (brouillon, publiée ou archivée),
+        ou vide avec les heures verrouillées des règles déjà placées (journal).
       tags:
       - timetable
       requestBody:
@@ -15924,8 +15928,9 @@ paths:
   /api/timetable/drafts/{id}/:
     get:
       operationId: timetable_drafts_retrieve
-      description: 'Un brouillon : séances, conflits (recalculés), reste à placer,
-        heures placées / dues.'
+      description: |-
+        Un brouillon, ou une version publiée ou archivée (lecture seule) : séances, conflits
+        (recalculés), reste à placer, heures placées / dues.
       parameters:
       - in: path
         name: id
@@ -16142,6 +16147,67 @@ paths:
         required: true
       tags:
       - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftState'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/drafts/{id}/publish/:
+    post:
+      operationId: timetable_drafts_publish_create
+      description: |-
+        Publie le brouillon : il devient l'horaire de l'école dès `valid_from`, ne se modifie
+        plus, et la version en vigueur est archivée (journal). Refusé (409) tant que le brouillon
+        a des conflits ; le reste à placer ne bloque pas.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PublishRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PublishRequest'
+        required: true
       security:
       - cookieAuth: []
       responses:
@@ -16945,6 +17011,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/versions/:
+    get:
+      operationId: timetable_versions_list
+      description: Version publiée puis anciennes versions (archivées) de l'année
+        en cours.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Version'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/tracks/:
     get:
       operationId: tracks_list
@@ -17686,6 +17782,7 @@ components:
       - timetable.draft_created
       - timetable.draft_deleted
       - timetable.lock_changed
+      - timetable.published
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -17827,6 +17924,7 @@ components:
         * `timetable.draft_created` - Timetable draft created
         * `timetable.draft_deleted` - Timetable draft deleted
         * `timetable.lock_changed` - Lesson locked or unlocked
+        * `timetable.published` - Timetable published
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -22534,7 +22632,8 @@ components:
           type: string
           format: uuid
           nullable: true
-          description: 'Brouillon à copier ; vide : verrous des règles.'
+          description: 'Version de l''année à copier (brouillon, publiée, archivée)
+            ; vide : verrous des règles.'
       required:
       - name
     DraftState:
@@ -22553,6 +22652,19 @@ components:
           nullable: true
         can_undo:
           type: boolean
+        valid_from:
+          type: string
+          format: date
+          nullable: true
+          description: 'Version publiée : en vigueur dès.'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        published_by:
+          type: string
+          nullable: true
+          description: Nom de qui l'a publiée.
         errors:
           type: integer
         warnings:
@@ -22583,6 +22695,9 @@ components:
       - status
       - based_on
       - can_undo
+      - valid_from
+      - published_at
+      - published_by
       - errors
       - warnings
       - entries
@@ -27455,6 +27570,7 @@ components:
       - finance.view_reports
       - finance.import_prior_payments
       - timetable.manage
+      - timetable.publish
       - announcements.publish
       - audit.view
       type: string
@@ -27482,6 +27598,7 @@ components:
         * `finance.view_reports` - View financial reports
         * `finance.import_prior_payments` - Record what students paid before the school started here
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
+        * `timetable.publish` - Publish the timetable
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
     Person:
@@ -28768,6 +28885,16 @@ components:
         * `waiting` - waiting
         * `no_place` - no_place
         * `undecided` - undecided
+    PublishRequest:
+      type: object
+      properties:
+        valid_from:
+          type: string
+          format: date
+          description: 'En vigueur dès ce jour : dans l''année, pas avant la version
+            en vigueur.'
+      required:
+      - valid_from
     Pull:
       type: object
       properties:
@@ -33436,6 +33563,44 @@ components:
       - deadlines
       - term
       - classes
+    Version:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        status:
+          $ref: '#/components/schemas/TimetableStatusEnum'
+        valid_from:
+          type: string
+          format: date
+          nullable: true
+          title: In force from
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Published on
+        published_by:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Nom de qui l'a publiée.
+        hours:
+          type: integer
+          description: Heures placées.
+      required:
+      - id
+      - name
+      - status
+      - valid_from
+      - published_at
+      - published_by
+      - hours
     Year:
       type: object
       properties:

@@ -508,6 +508,7 @@ export const en: Messages<typeof fr> = {
       },
       timetable: {
         manage: "Configure the timetable: time grids, rooms and rules",
+        publish: "Publish the timetable: the draft becomes the school's timetable",
       },
       grades: {
         enter: "Enter the grades of one's courses and of one's homeroom class",
@@ -1785,6 +1786,48 @@ export const en: Messages<typeof fr> = {
       undo: "Undo last change",
       newDraft: "New draft",
       deleteDraft: "Delete draft",
+      subtitlePublished: "Published version · {{year}}. It can no longer be changed.",
+      subtitleArchived: "Former version · {{year}}. It can no longer be changed.",
+      drafts: "Drafts",
+      versions: "Published versions",
+      version: {
+        published: "{{name}} · published",
+        archived: "{{name}} · archived",
+      },
+      publish: "Publish",
+      copyVersion: "New draft from this version",
+      readOnlyHint: "Read only: no dragging, no placing",
+      publishedBy: "Published on {{date}} by {{name}}, in force since {{from}}.",
+      publishedOn: "Published on {{date}}, in force since {{from}}.",
+      publishedHelp:
+        "To change it: make a new draft from it, edit it, then publish it; this version will then be archived.",
+      archivedHelp:
+        "A newer version replaced it; it can still be viewed, and a new draft can start from it.",
+      publishing: {
+        title: "Publish “{{name}}”",
+        subtitle: "It becomes the school's timetable",
+        placed: "Lessons placed",
+        placedValue_one: "{{placed}} / {{due}} h · {{count}} class",
+        placedValue_other: "{{placed}} / {{due}} h · {{count}} classes",
+        conflicts: "Conflicts",
+        warnings: "To check (orange)",
+        warningCount_one: "{{count}} warning",
+        warningCount_other: "{{count}} warnings",
+        none: "None",
+        left_one:
+          "{{count}} h is still to place. A provisional timetable can be published and completed in a new draft.",
+        left_other:
+          "{{count}} h are still to place. A provisional timetable can be published and completed in a new draft.",
+        blocked:
+          "A timetable with conflicts cannot be published: a teacher, a class or a room would be in two places, or a mandatory rule would not be met. Correct them in the draft (“Conflicts” card), then publish.",
+        validFrom: "In force from",
+        validFromYear:
+          "Within the school year, from {{start}} to {{end}}. Hours worked will count this timetable from that day.",
+        validFromAfter:
+          "From {{start}} (start of the version in force) to {{end}}. Hours worked will count this timetable from that day.",
+        replaces: "The timetable in force, “{{name}}”, will be archived: kept and viewable.",
+        close: "Close",
+      },
       deleteTitle: "Delete “{{name}}”?",
       deleteText: "Its placed lessons go with it; the other drafts do not change.",
       noYear: "There is no current school year: create it first in the school organisation.",
@@ -1873,7 +1916,7 @@ export const en: Messages<typeof fr> = {
       place: "Place…",
       pick: "Choose {{course}} · {{length}} h",
       conflictsTitle: "Conflicts · {{count}}",
-      conflictsAll: "in the whole draft: {{count}}",
+      conflictsAll: "in the whole timetable: {{count}}",
       perDay: "Hours per day",
       dayLoad: "{{placed}}/{{lessons}}",
       short: {
@@ -2913,6 +2956,7 @@ export const en: Messages<typeof fr> = {
         draft_created: "Timetable draft created",
         draft_deleted: "Timetable draft deleted",
         lock_changed: "Lesson locked or unlocked",
+        published: "Timetable published",
       },
       discipline: {
         rule_changed: "Offence list changed",
@@ -5941,6 +5985,9 @@ export const en: Messages<typeof fr> = {
     unknown_room: "This room does not exist.",
     room_retired: "This room is no longer in use.",
     not_a_draft: "Only a draft can be changed.",
+    publish_conflicts: "This draft still has conflicts: correct them before publishing.",
+    valid_from_outside_year: "This date is not in the school year of the timetable.",
+    valid_from_before_current: "This date is before the start of the timetable in force.",
     entry_locked: "This lesson is locked: unlock it first.",
     nothing_to_undo: "There is nothing to undo.",
     not_due: "This course has no lesson of this length left to place.",

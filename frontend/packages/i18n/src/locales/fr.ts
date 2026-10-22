@@ -510,6 +510,7 @@ export const fr = {
       },
       timetable: {
         manage: "Régler l'emploi du temps : grilles horaires, salles et règles",
+        publish: "Publier l'emploi du temps : le brouillon devient celui de l'école",
       },
       grades: {
         enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
@@ -1806,6 +1807,48 @@ export const fr = {
       undo: "Annuler le dernier geste",
       newDraft: "Nouveau brouillon",
       deleteDraft: "Supprimer le brouillon",
+      subtitlePublished: "Version publiée · {{year}}. Elle ne se modifie plus.",
+      subtitleArchived: "Ancienne version · {{year}}. Elle ne se modifie plus.",
+      drafts: "Brouillons",
+      versions: "Versions publiées",
+      version: {
+        published: "{{name}} · publiée",
+        archived: "{{name}} · archivée",
+      },
+      publish: "Publier",
+      copyVersion: "Nouveau brouillon depuis cette version",
+      readOnlyHint: "Lecture seule : ni glisser, ni placer",
+      publishedBy: "Publiée le {{date}} par {{name}}, en vigueur depuis le {{from}}.",
+      publishedOn: "Publiée le {{date}}, en vigueur depuis le {{from}}.",
+      publishedHelp:
+        "Pour la changer : en faire un nouveau brouillon, le modifier, puis le publier ; elle sera alors archivée.",
+      archivedHelp:
+        "Une version plus récente l'a remplacée ; elle reste consultable, et on peut en repartir dans un nouveau brouillon.",
+      publishing: {
+        title: "Publier « {{name}} »",
+        subtitle: "Il devient l'horaire de l'école",
+        placed: "Heures placées",
+        placedValue_one: "{{placed}} / {{due}} h · {{count}} classe",
+        placedValue_other: "{{placed}} / {{due}} h · {{count}} classes",
+        conflicts: "Conflits",
+        warnings: "À vérifier (orange)",
+        warningCount_one: "{{count}} avertissement",
+        warningCount_other: "{{count}} avertissements",
+        none: "Aucun",
+        left_one:
+          "{{count}} h reste à placer. On peut publier un horaire provisoire et le compléter dans un nouveau brouillon.",
+        left_other:
+          "{{count}} h restent à placer. On peut publier un horaire provisoire et le compléter dans un nouveau brouillon.",
+        blocked:
+          "Un horaire avec des conflits ne se publie pas : un enseignant, une classe ou une salle serait à deux endroits, ou une règle obligatoire ne serait pas tenue. Les corriger dans le brouillon (carte « Conflits »), puis publier.",
+        validFrom: "En vigueur à partir du",
+        validFromYear:
+          "Dans l'année scolaire, du {{start}} au {{end}}. Les heures prestées compteront cet horaire à partir de ce jour.",
+        validFromAfter:
+          "Du {{start}} (début de la version en vigueur) au {{end}}. Les heures prestées compteront cet horaire à partir de ce jour.",
+        replaces: "L'horaire en vigueur, « {{name}} », sera archivé : gardé et consultable.",
+        close: "Fermer",
+      },
       deleteTitle: "Supprimer « {{name}} » ?",
       deleteText: "Ses heures placées partent avec lui ; les autres brouillons ne changent pas.",
       noYear: "Aucune année scolaire en cours : la créer d'abord dans l'organisation scolaire.",
@@ -1896,7 +1939,7 @@ export const fr = {
       place: "Placer…",
       pick: "Choisir {{course}} · {{length}} h",
       conflictsTitle: "Conflits · {{count}}",
-      conflictsAll: "dans tout le brouillon : {{count}}",
+      conflictsAll: "dans tout l'horaire : {{count}}",
       perDay: "Heures par jour",
       dayLoad: "{{placed}}/{{lessons}}",
       short: {
@@ -2947,6 +2990,7 @@ export const fr = {
         draft_created: "Brouillon d'horaire créé",
         draft_deleted: "Brouillon d'horaire supprimé",
         lock_changed: "Heure verrouillée ou déverrouillée",
+        published: "Horaire publié",
       },
       discipline: {
         rule_changed: "Liste des infractions modifiée",
@@ -6015,6 +6059,9 @@ export const fr = {
     unknown_room: "Cette salle n'existe pas.",
     room_retired: "Cette salle n'est plus utilisée.",
     not_a_draft: "Seul un brouillon se modifie.",
+    publish_conflicts: "Ce brouillon a encore des conflits : les corriger avant de publier.",
+    valid_from_outside_year: "Cette date n'est pas dans l'année scolaire de l'horaire.",
+    valid_from_before_current: "Cette date est avant le début de l'horaire en vigueur.",
     entry_locked: "Cette heure est verrouillée : la déverrouiller d'abord.",
     nothing_to_undo: "Rien à annuler.",
     not_due: "Ce cours n'a plus de séance de cette longueur à placer.",

@@ -173,6 +173,17 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Éditeur de l'horaire (EDT.2b) : vues par enseignant, par salle, horaire général.
     for (const view of ["teacher", "room", "all"])
       await visit(head, `${ITIG}timetable?view=${view}`, "gestion", `timetable-${view}`);
+    // Publication (EDT.4a) : la version publiée de make demo en lecture, la fenêtre « Publier ».
+    await visit(head, `${ITIG}timetable`, "gestion", "timetable-published", async (page) => {
+      const select = page.getByLabel("Brouillon");
+      const value = await select.locator("option", { hasText: "publiée" }).getAttribute("value");
+      await select.selectOption(value ?? "");
+      await page.getByText("Lecture seule").first().waitFor();
+    });
+    await visit(head, `${ITIG}timetable`, "gestion", "timetable-publish", async (page) => {
+      await page.getByRole("button", { name: "Publier", exact: true }).click();
+      await page.getByRole("dialog").waitFor();
+    });
     // Emploi du temps (EDT.1b) : vue « Emploi du temps » des cours, fenêtre des disponibilités.
     await visit(head, `${ITIG}courses`, "gestion", "courses-placement", async (page) => {
       await page.getByRole("radio", { name: "Emploi du temps" }).click();

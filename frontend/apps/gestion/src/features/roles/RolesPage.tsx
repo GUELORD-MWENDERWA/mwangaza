@@ -48,6 +48,7 @@ const GROUPS: {
     permissions: [
       "courses.configure",
       "timetable.manage",
+      "timetable.publish",
       "grades.enter",
       "grades.enter_any",
       "grades.validate",

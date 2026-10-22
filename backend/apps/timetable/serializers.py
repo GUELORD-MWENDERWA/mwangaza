@@ -272,7 +272,28 @@ class DraftSerializer(serializers.ModelSerializer):
 class DraftCreateSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=80)
     based_on = serializers.UUIDField(
-        allow_null=True, default=None, help_text="Brouillon à copier ; vide : verrous des règles."
+        allow_null=True,
+        default=None,
+        help_text="Version de l'année à copier (brouillon, publiée, archivée) ; vide : verrous des "
+        "règles.",
+    )
+
+
+class VersionSerializer(serializers.ModelSerializer):
+    hours = serializers.IntegerField(help_text="Heures placées.")
+    published_by = serializers.SerializerMethodField(help_text="Nom de qui l'a publiée.")
+
+    class Meta:
+        model = Timetable
+        fields = ["id", "name", "status", "valid_from", "published_at", "published_by", "hours"]
+
+    def get_published_by(self, timetable: Timetable) -> str | None:
+        return str(timetable.published_by) if timetable.published_by_id else None
+
+
+class PublishSerializer(serializers.Serializer):
+    valid_from = serializers.DateField(
+        help_text="En vigueur dès ce jour : dans l'année, pas avant la version en vigueur."
     )
 
 
@@ -309,6 +330,11 @@ class DraftStateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Timetable.Status.choices)
     based_on = serializers.UUIDField(allow_null=True)
     can_undo = serializers.BooleanField()
+    valid_from = serializers.DateField(
+        allow_null=True, help_text="Version publiée : en vigueur dès."
+    )
+    published_at = serializers.DateTimeField(allow_null=True)
+    published_by = serializers.CharField(allow_null=True, help_text="Nom de qui l'a publiée.")
     errors = serializers.IntegerField()
     warnings = serializers.IntegerField()
     entries = EntrySerializer(many=True)

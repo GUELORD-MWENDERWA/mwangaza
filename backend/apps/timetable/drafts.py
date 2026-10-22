@@ -5,7 +5,8 @@ geste et l'état d'avant des séances touchées part dans `Timetable.history` (5
 
 Un brouillon peut avoir des conflits (`checks.draft` les montre) ; seul ce qui ne peut pas exister
 est refusé : séance hors de la grille de la classe ou sur une récréation que le cours ne passe pas,
-séance que le cours n'a plus à placer, séance verrouillée qu'on bouge."""
+séance que le cours n'a plus à placer, séance verrouillée qu'on bouge.
+Publier : `versions` (EDT.4a)."""
 
 from collections import Counter
 from uuid import UUID
@@ -51,13 +52,17 @@ def drafts(year: AcademicYear | None) -> QuerySet[Timetable]:
 
 
 def state(timetable: Timetable) -> dict:
-    """Ce que montre l'éditeur après chaque geste : séances, conflits, reste à placer, heures."""
+    """Ce que montre l'éditeur après chaque geste : séances, conflits, reste à placer, heures ;
+    pour une version publiée ou archivée (EDT.4a), sa date d'effet et qui l'a publiée."""
     return {
         "id": timetable.pk,
         "name": timetable.name,
         "status": timetable.status,
         "based_on": timetable.based_on_id,
         "can_undo": bool(timetable.history),
+        "valid_from": timetable.valid_from,
+        "published_at": timetable.published_at,
+        "published_by": str(timetable.published_by) if timetable.published_by_id else None,
         **checks.draft(timetable),
     }
 
