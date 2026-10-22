@@ -1960,6 +1960,7 @@ export const en: Messages<typeof fr> = {
       noDraft: "No draft: create one in the timetable.",
       scope: "What is calculated",
       scopes: { all: "The whole timetable", class: "One class", teacher: "One teacher" },
+      scopeAll: "All",
       scopeHelp: "The rest of the timetable does not move.",
       classLabel: "Class",
       teacherLabel: "Teacher",

@@ -1984,6 +1984,7 @@ export const fr = {
       noDraft: "Aucun brouillon : créez-en un dans l'emploi du temps.",
       scope: "Ce qui est calculé",
       scopes: { all: "Tout l'horaire", class: "Une classe", teacher: "Un enseignant" },
+      scopeAll: "Tout",
       scopeHelp: "Le reste de l'horaire ne bouge pas.",
       classLabel: "Classe",
       teacherLabel: "Enseignant",

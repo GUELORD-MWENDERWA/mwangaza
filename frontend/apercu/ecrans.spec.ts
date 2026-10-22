@@ -143,6 +143,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "rooms",
       "timetable-checks",
       "timetable",
+      "timetable/calculate",
       "unpaid",
       "unpaid/export",
       "cash-closings/register",

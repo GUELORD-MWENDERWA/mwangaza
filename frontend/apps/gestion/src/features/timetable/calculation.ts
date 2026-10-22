@@ -67,7 +67,9 @@ export function blockingReason(
       return described
         ? {
             subject: described.subject,
-            text: t("timetable.calculation.blocking.rule", { rule: described.text }),
+            text: t("timetable.calculation.blocking.rule", {
+              rule: described.text.replace(/\.$/, ""),
+            }),
             fix,
           }
         : { subject, text: t("timetable.calculation.blocking.ruleGone"), fix };

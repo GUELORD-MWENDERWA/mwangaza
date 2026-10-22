@@ -445,7 +445,10 @@ export function CalculatePage() {
                   }}
                   options={SCOPES.map((value) => ({
                     value,
-                    label: t(`timetable.calculation.scopes.${value}`),
+                    label:
+                      value === "all"
+                        ? t("timetable.calculation.scopeAll")
+                        : t(`timetable.calculation.scopes.${value}`),
                   }))}
                   className="flex-wrap"
                 />
