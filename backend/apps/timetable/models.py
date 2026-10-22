@@ -11,6 +11,7 @@ from django.db.models.functions import Lower
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import TenantModel
+from apps.timetable.limits import MAX_RUN_SECONDS, MIN_RUN_SECONDS, RUN_SECONDS
 
 MIN_LESSON_MINUTES = 30
 MAX_LESSON_MINUTES = 90
@@ -338,10 +339,6 @@ class TimetableEntry(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.weekday} {self.first}+{self.length}"
-
-
-# Temps de calcul (secondes) : préréglage, bornes (spec § 7 ; réglable dans la console en EDT.3b).
-RUN_SECONDS, MIN_RUN_SECONDS, MAX_RUN_SECONDS = 60, 10, 180
 
 
 class TimetableRun(TenantModel):

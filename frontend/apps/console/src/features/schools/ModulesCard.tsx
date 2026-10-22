@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
   CheckboxField,
+  Segmented,
 } from "@mwangaza/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
@@ -98,13 +99,15 @@ export function ModulesCard({
 }) {
   const { t } = useTranslation();
   const [chosen, setChosen] = useState<Module[]>(school.modules);
+  // Temps de calcul de l'horaire au plus (EDT.3b) : serveur partagé, l'école choisit jusque-là.
+  const [seconds, setSeconds] = useState(school.timetable_max_seconds);
   const [saved, setSaved] = useState(false);
   const save = useMutation({
     mutationFn: () =>
       call(
         api.PATCH("/api/console/schools/{id}/", {
           params: { path: { id: school.id } },
-          body: { modules: chosen },
+          body: { modules: chosen, timetable_max_seconds: seconds },
         }),
       ),
     onSuccess: (data) => {
@@ -114,7 +117,11 @@ export function ModulesCard({
   });
   const changed =
     chosen.length !== school.modules.length ||
-    chosen.some((code) => !school.modules.includes(code));
+    chosen.some((code) => !school.modules.includes(code)) ||
+    seconds !== school.timetable_max_seconds;
+  const choices = [...new Set([30, 60, 120, 180, school.timetable_max_seconds])].sort(
+    (a, b) => a - b,
+  );
 
   return (
     <Card>
@@ -131,6 +138,31 @@ export function ModulesCard({
               setChosen(modules);
             }}
           />
+          {chosen.includes("timetable") && (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-sm font-bold text-ink-2">
+                {t("console.schools.timetableSeconds")}
+              </span>
+              <Segmented
+                label={t("console.schools.timetableSeconds")}
+                value={String(seconds)}
+                disabled={readOnly}
+                onValueChange={(next) => {
+                  setSaved(false);
+                  setSeconds(Number(next));
+                }}
+                options={choices.map((value) => ({
+                  value: String(value),
+                  label:
+                    value % 60 === 0
+                      ? t("console.schools.timetableSecondsChoice.min", { count: value / 60 })
+                      : t("console.schools.timetableSecondsChoice.s", { count: value }),
+                }))}
+                className="w-fit max-w-full flex-wrap"
+              />
+              <p className="text-sm text-ink-3">{t("console.schools.timetableSecondsHelp")}</p>
+            </div>
+          )}
           {save.isError && <Banner tone="due">{errorMessage(save.error, t)}</Banner>}
           {saved && !changed && (
             <Banner tone="ok" role="status">

@@ -5,7 +5,7 @@ from functools import cache
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.db.models.functions import Lower
@@ -26,6 +26,7 @@ from apps.schools import (
 )
 from apps.schools.logos import logo_path, monochrome_logo_path, validate_logo
 from apps.schools.signatures import head_signature_path, stamp_path
+from apps.timetable.limits import MAX_RUN_SECONDS, MIN_RUN_SECONDS, RUN_SECONDS
 
 # Le code est le sous-domaine de l'école : 2 à 30 caractères, minuscules, chiffres, tirets.
 CODE_PATTERN = r"^[a-z0-9][a-z0-9-]{0,28}[a-z0-9]$"
@@ -211,6 +212,13 @@ class School(BaseModel):
     )
     trial_ends_on = models.DateField(_("end of the trial"), null=True, blank=True)
     paid_until = models.DateField(_("paid until"), null=True, blank=True)
+    # Calcul de l'horaire (EDT.3b) : le plus long qu'un calcul de l'école peut durer, réglé par la
+    # plateforme (serveur partagé) ; l'école choisit jusqu'à ce temps.
+    timetable_max_seconds = models.PositiveSmallIntegerField(
+        _("longest timetable calculation (seconds)"),
+        default=RUN_SECONDS,
+        validators=[MinValueValidator(MIN_RUN_SECONDS), MaxValueValidator(MAX_RUN_SECONDS)],
+    )
     # Règles réglées par l'école : `receipt` (M5, `receipts.py`), plus tard les alertes (4.2).
     settings = models.JSONField(_("settings"), default=dict, blank=True)
     # Fin de la liste « Mise en route » (C4, `setup.py`) : ensuite elle n'est plus calculée.

@@ -5359,7 +5359,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Les 10 derniers calculs de l'année en cours, le plus récent d'abord. */
+        /**
+         * @description Les 10 derniers calculs de l'année en cours, le plus récent d'abord, et le temps de
+         *     calcul le plus long permis à l'école (une demande plus longue y est ramenée).
+         */
         get: operations["timetable_runs_list"];
         put?: never;
         /**
@@ -6881,6 +6884,8 @@ export interface components {
             trial_ends_on: string | null;
             /** Format: date */
             paid_until: string | null;
+            /** Longest timetable calculation (seconds) */
+            timetable_max_seconds: number;
             /** Currencies */
             readonly enabled_currencies: components["schemas"]["CurrencyEnum"][];
             /**
@@ -6954,6 +6959,8 @@ export interface components {
             trial_ends_on?: string | null;
             /** Format: date */
             paid_until?: string | null;
+            /** Longest timetable calculation (seconds) */
+            timetable_max_seconds?: number;
             /** @description Devises de l'école (au moins une). */
             enabled_currencies: components["schemas"]["CurrencyEnum"][];
             default_currency: components["schemas"]["CurrencyEnum"];
@@ -7002,6 +7009,8 @@ export interface components {
             trial_ends_on: string | null;
             /** Format: date */
             paid_until: string | null;
+            /** Longest timetable calculation (seconds) */
+            timetable_max_seconds: number;
             /** Currencies */
             readonly enabled_currencies: components["schemas"]["CurrencyEnum"][];
             /**
@@ -9839,6 +9848,8 @@ export interface components {
             trial_ends_on?: string | null;
             /** Format: date */
             paid_until?: string | null;
+            /** Longest timetable calculation (seconds) */
+            timetable_max_seconds?: number;
         };
         /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
         PatchedConsoleSiteBannerRequest: {
@@ -11341,6 +11352,11 @@ export interface components {
             target?: string | null;
             /** @default 60 */
             time_limit: number;
+        };
+        RunList: {
+            /** @description Temps de calcul le plus long permis à l'école, en secondes (réglé dans la console). */
+            time_limit_max: number;
+            runs: components["schemas"]["Run"][];
         };
         /**
          * @description * `queued` - Waiting
@@ -29562,7 +29578,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Run"][];
+                    "application/json": components["schemas"]["RunList"];
                 };
             };
             403: {

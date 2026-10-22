@@ -151,12 +151,18 @@ def test_runs_rights_isolation_repeats_and_refusals(small, school, other_school,
     assert teacher.get(RUNS).status_code == 403
     assert calculate(teacher, draft).status_code == 403
 
-    # La même demande renvoyée ne relance rien.
-    body = {"request_id": str(uuid7()), "timetable": draft["id"], "time_limit": 10}
+    # Jamais plus long que le maximum de l'école (console) ; la même demande ne relance rien.
+    school.timetable_max_seconds = 10
+    school.save(update_fields=["timetable_max_seconds"])
+    body = {"request_id": str(uuid7()), "timetable": draft["id"], "time_limit": 120}
     first = client.post(RUNS, body)
     repeat = client.post(RUNS, body)
     assert (first.status_code, repeat.status_code) == (202, 200)
-    assert repeat.json()["id"] == first.json()["id"]
+    assert repeat.json()["id"] == first.json()["id"] and first.json()["time_limit"] == 10
+    listed = client.get(RUNS).json()
+    assert listed["time_limit_max"] == 10 and [run["id"] for run in listed["runs"]] == [
+        first.json()["id"]
+    ]
     with use_school(school):
         assert TimetableRun.objects.count() == 1
     url = f"{RUNS}{first.json()['id']}/"
@@ -165,7 +171,7 @@ def test_runs_rights_isolation_repeats_and_refusals(small, school, other_school,
     # L'école B ne voit, n'annule ni ne calcule rien de A.
     beta = api(other_head, host="beta.localhost")
     classes(other_school, other_head)
-    assert beta.get(RUNS).json() == []
+    assert beta.get(RUNS).json() == {"time_limit_max": 60, "runs": []}
     assert beta.get(url).status_code == 404
     assert beta.post(f"{url}cancel/").status_code == 404
     assert calculate(beta, draft).status_code == 400

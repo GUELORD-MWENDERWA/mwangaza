@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 14:03+0200\n"
+"POT-Creation-Date: 2026-10-22 21:45+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -369,7 +369,7 @@ msgid "Give the reason for changing grades that are already sent."
 msgstr "Donnez le motif de la modification de notes déjà envoyées."
 
 #: apps/academics/grades.py:218 apps/notifications/models.py:82
-#: apps/schools/models.py:422
+#: apps/schools/models.py:430
 msgid "Exams"
 msgstr "Examens"
 
@@ -424,7 +424,7 @@ msgstr "Seul le titulaire de cette classe ouvre son espace."
 
 #: apps/academics/models.py:33 apps/academics/models.py:457
 #: apps/academics/models.py:546 apps/academics/models.py:693
-#: apps/notifications/models.py:129 apps/schools/models.py:602
+#: apps/notifications/models.py:129 apps/schools/models.py:610
 #: apps/students/models.py:173
 msgid "class"
 msgstr "classe"
@@ -432,11 +432,11 @@ msgstr "classe"
 #: apps/academics/models.py:35 apps/academics/models.py:156
 #: apps/accounts/models.py:162 apps/core/models.py:138
 #: apps/finance/models.py:35 apps/finance/models.py:371
-#: apps/schools/models.py:106 apps/schools/models.py:383
-#: apps/schools/models.py:441 apps/schools/models.py:480
-#: apps/schools/models.py:517 apps/sync/models.py:27
-#: apps/timetable/models.py:33 apps/timetable/models.py:118
-#: apps/timetable/models.py:256
+#: apps/schools/models.py:107 apps/schools/models.py:391
+#: apps/schools/models.py:449 apps/schools/models.py:488
+#: apps/schools/models.py:525 apps/sync/models.py:27
+#: apps/timetable/models.py:34 apps/timetable/models.py:119
+#: apps/timetable/models.py:257
 msgid "name"
 msgstr "nom"
 
@@ -492,13 +492,13 @@ msgstr "Pratique"
 msgid "hours per week"
 msgstr "heures par semaine"
 
-#: apps/academics/models.py:83 apps/timetable/models.py:151
+#: apps/academics/models.py:83 apps/timetable/models.py:152
 msgid "teacher"
 msgstr "enseignant"
 
 #: apps/academics/models.py:85 apps/academics/models.py:160
 #: apps/academics/models.py:285 apps/finance/models.py:130
-#: apps/schools/models.py:440 apps/schools/models.py:482
+#: apps/schools/models.py:448 apps/schools/models.py:490
 msgid "order"
 msgstr "ordre"
 
@@ -536,7 +536,7 @@ msgstr "Le matin"
 
 #: apps/academics/models.py:117 apps/academics/models.py:150
 #: apps/academics/models.py:219 apps/academics/models.py:494
-#: apps/timetable/models.py:306
+#: apps/timetable/models.py:307
 msgid "course"
 msgstr "cours"
 
@@ -547,7 +547,7 @@ msgstr "cours"
 #: apps/academics/models.py:154 apps/academics/models.py:222
 #: apps/academics/models.py:263 apps/academics/models.py:332
 #: apps/academics/models.py:392 apps/academics/models.py:427
-#: apps/academics/models.py:460 apps/schools/models.py:447
+#: apps/academics/models.py:460 apps/schools/models.py:455
 msgid "term"
 msgstr "période"
 
@@ -583,7 +583,7 @@ msgstr "note"
 msgid "grades"
 msgstr "notes"
 
-#: apps/academics/models.py:214 apps/timetable/models.py:246
+#: apps/academics/models.py:214 apps/timetable/models.py:247
 msgid "Draft"
 msgstr "Brouillon"
 
@@ -597,11 +597,11 @@ msgstr "Validée"
 
 #: apps/academics/models.py:225 apps/academics/models.py:559
 #: apps/academics/models.py:696 apps/finance/models.py:190
-#: apps/finance/models.py:638 apps/schools/models.py:206
-#: apps/schools/models.py:388 apps/students/models.py:176
+#: apps/finance/models.py:638 apps/schools/models.py:207
+#: apps/schools/models.py:396 apps/students/models.py:176
 #: apps/students/models.py:242 apps/students/models.py:290
-#: apps/sync/models.py:74 apps/timetable/models.py:258
-#: apps/timetable/models.py:380
+#: apps/sync/models.py:74 apps/timetable/models.py:259
+#: apps/timetable/models.py:377
 msgid "status"
 msgstr "statut"
 
@@ -2102,7 +2102,7 @@ msgstr "langue"
 
 #: apps/accounts/models.py:75 apps/accounts/models.py:206
 #: apps/finance/models.py:40 apps/finance/models.py:377
-#: apps/timetable/models.py:214
+#: apps/timetable/models.py:215
 msgid "active"
 msgstr "actif"
 
@@ -2151,7 +2151,7 @@ msgstr "rôle"
 
 #: apps/accounts/models.py:200 apps/core/models.py:52 apps/core/models.py:282
 #: apps/notifications/models.py:340 apps/schools/admin.py:59
-#: apps/schools/models.py:223 apps/schools/models.py:347
+#: apps/schools/models.py:231 apps/schools/models.py:355
 msgid "school"
 msgstr "école"
 
@@ -3539,7 +3539,7 @@ msgstr ""
 "Titres du site public, résultats de recherche, aperçus partagés sur "
 "WhatsApp. Un nom courant se perd dans les résultats : ajoutez-lui un mot."
 
-#: apps/core/models.py:157 apps/schools/models.py:110
+#: apps/core/models.py:157 apps/schools/models.py:111
 msgid "logo"
 msgstr "logo"
 
@@ -3596,11 +3596,11 @@ msgstr "adresse"
 msgid "Street, number, district."
 msgstr "Rue, numéro, quartier."
 
-#: apps/core/models.py:194 apps/core/models.py:283 apps/schools/models.py:147
+#: apps/core/models.py:194 apps/core/models.py:283 apps/schools/models.py:148
 msgid "town"
 msgstr "ville"
 
-#: apps/core/models.py:195 apps/schools/models.py:146
+#: apps/core/models.py:195 apps/schools/models.py:147
 msgid "province"
 msgstr "province"
 
@@ -3618,7 +3618,7 @@ msgstr "Directeur"
 
 #: apps/core/models.py:263 apps/finance/models.py:33 apps/finance/models.py:231
 #: apps/notifications/models.py:85 apps/students/models.py:63
-#: apps/timetable/models.py:116
+#: apps/timetable/models.py:117
 msgid "Other"
 msgstr "Autre"
 
@@ -3706,9 +3706,9 @@ msgstr "Prochainement"
 
 #: apps/core/models.py:317 apps/finance/models.py:247
 #: apps/notifications/models.py:93 apps/notifications/models.py:270
-#: apps/schools/models.py:430 apps/sync/models.py:26
-#: apps/timetable/models.py:80 apps/timetable/models.py:119
-#: apps/timetable/models.py:208
+#: apps/schools/models.py:438 apps/sync/models.py:26
+#: apps/timetable/models.py:81 apps/timetable/models.py:120
+#: apps/timetable/models.py:209
 msgid "kind"
 msgstr "type"
 
@@ -3772,12 +3772,12 @@ msgstr "En attente"
 msgid "Running"
 msgstr "En cours"
 
-#: apps/core/models.py:385 apps/timetable/models.py:356
+#: apps/core/models.py:385 apps/timetable/models.py:353
 msgid "Done"
 msgstr "Terminé"
 
-#: apps/core/models.py:386 apps/schools/models.py:344
-#: apps/students/models.py:227 apps/timetable/models.py:359
+#: apps/core/models.py:386 apps/schools/models.py:352
+#: apps/students/models.py:227 apps/timetable/models.py:356
 msgid "Failed"
 msgstr "Échec"
 
@@ -4202,7 +4202,7 @@ msgid "DRC"
 msgstr "RDC"
 
 #: apps/core/site.py:567 apps/notifications/models.py:172
-#: apps/schools/models.py:224
+#: apps/schools/models.py:232
 msgid "schools"
 msgstr "écoles"
 
@@ -5977,7 +5977,7 @@ msgstr ""
 msgid "%(platform)s — Parents"
 msgstr "%(platform)s — Parents"
 
-#: apps/finance/documents.py:35 apps/schools/models.py:379
+#: apps/finance/documents.py:35 apps/schools/models.py:387
 msgid "Open"
 msgstr "Ouverte"
 
@@ -6100,7 +6100,7 @@ msgid "more than %(days)s days late"
 msgstr "retard de plus de %(days)s jours"
 
 #: apps/finance/documents.py:372 apps/students/models.py:228
-#: apps/timetable/models.py:360
+#: apps/timetable/models.py:357
 msgid "Cancelled"
 msgstr "Annulé"
 
@@ -6281,7 +6281,7 @@ msgstr "Retiré"
 msgid "Replaced"
 msgstr "Remplacé"
 
-#: apps/finance/models.py:179 apps/timetable/models.py:216
+#: apps/finance/models.py:179 apps/timetable/models.py:217
 msgid "source"
 msgstr "origine"
 
@@ -6346,8 +6346,8 @@ msgstr "taux de change"
 msgid "exchange rates"
 msgstr "taux de change"
 
-#: apps/finance/models.py:373 apps/schools/models.py:90
-#: apps/schools/models.py:519
+#: apps/finance/models.py:373 apps/schools/models.py:91
+#: apps/schools/models.py:527
 msgid "code"
 msgstr "code"
 
@@ -7328,7 +7328,7 @@ msgstr "titre"
 msgid "recipients"
 msgstr "destinataires"
 
-#: apps/notifications/models.py:27 apps/schools/models.py:603
+#: apps/notifications/models.py:27 apps/schools/models.py:611
 msgid "classes"
 msgstr "classes"
 
@@ -7399,13 +7399,13 @@ msgstr "détails"
 msgid "shown to"
 msgstr "montré à"
 
-#: apps/notifications/models.py:97 apps/schools/models.py:384
-#: apps/schools/models.py:442 apps/timetable/models.py:78
+#: apps/notifications/models.py:97 apps/schools/models.py:392
+#: apps/schools/models.py:450 apps/timetable/models.py:79
 msgid "start"
 msgstr "début"
 
-#: apps/notifications/models.py:98 apps/schools/models.py:385
-#: apps/schools/models.py:443 apps/timetable/models.py:79
+#: apps/notifications/models.py:98 apps/schools/models.py:393
+#: apps/schools/models.py:451 apps/timetable/models.py:80
 msgid "end"
 msgstr "fin"
 
@@ -7571,8 +7571,8 @@ msgstr "Caisses encore ouvertes"
 msgid "job"
 msgstr "travail"
 
-#: apps/notifications/models.py:300 apps/timetable/models.py:74
-#: apps/timetable/models.py:309
+#: apps/notifications/models.py:300 apps/timetable/models.py:75
+#: apps/timetable/models.py:310
 msgid "day"
 msgstr "jour"
 
@@ -7874,15 +7874,15 @@ msgstr ""
 "Le texte n'est pas lisible sur cette couleur, ni en blanc ni en encre "
 "foncée. Couleur lisible proche : %(proposal)s."
 
-#: apps/schools/console_serializers.py:80
+#: apps/schools/console_serializers.py:81
 msgid "Use « Suspend » or « Stop » to close a school."
 msgstr "Utilisez « Suspendre » ou « Arrêter » pour fermer une école."
 
-#: apps/schools/console_serializers.py:83
+#: apps/schools/console_serializers.py:84
 msgid "Reactivate the school first."
 msgstr "Réactivez d'abord l'école."
 
-#: apps/schools/console_serializers.py:162
+#: apps/schools/console_serializers.py:163
 msgid "This phone number has no account yet: enter the name."
 msgstr "Ce numéro de téléphone n'a pas encore de compte : saisissez le nom."
 
@@ -7937,66 +7937,66 @@ msgid "Add the year, {AAAA} or {AA}: numbers start again at 1 each year."
 msgstr ""
 "Ajoutez l'année, {AAAA} ou {AA} : les numéros repartent de 1 chaque année."
 
-#: apps/schools/models.py:38
+#: apps/schools/models.py:39
 msgid "This code is reserved by the platform."
 msgstr "Ce code est réservé par la plateforme."
 
-#: apps/schools/models.py:49
+#: apps/schools/models.py:50
 msgid "Unknown time zone, e.g. Africa/Lubumbashi."
 msgstr "Fuseau horaire inconnu, ex. Africa/Lubumbashi."
 
-#: apps/schools/models.py:69
+#: apps/schools/models.py:70
 msgid "Live"
 msgstr "Réel"
 
-#: apps/schools/models.py:70
+#: apps/schools/models.py:71
 msgid "Sandbox"
 msgstr "Essai"
 
-#: apps/schools/models.py:71
+#: apps/schools/models.py:72
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: apps/schools/models.py:74
+#: apps/schools/models.py:75
 msgid "Public"
 msgstr "Public"
 
-#: apps/schools/models.py:75
+#: apps/schools/models.py:76
 msgid "Public, under convention"
 msgstr "Public, sous convention"
 
-#: apps/schools/models.py:76
+#: apps/schools/models.py:77
 msgid "Private, approved"
 msgstr "Privé agréé"
 
-#: apps/schools/models.py:79
+#: apps/schools/models.py:80
 msgid "Free trial"
 msgstr "Essai gratuit"
 
-#: apps/schools/models.py:80 apps/students/models.py:157
+#: apps/schools/models.py:81 apps/students/models.py:157
 msgid "Active"
 msgstr "Active"
 
-#: apps/schools/models.py:81
+#: apps/schools/models.py:82
 msgid "Suspended"
 msgstr "Suspendue"
 
-#: apps/schools/models.py:82
+#: apps/schools/models.py:83
 msgid "Stopped"
 msgstr "Arrêtée"
 
-#: apps/schools/models.py:84
+#: apps/schools/models.py:85
 msgid "Being deleted"
 msgstr "Suppression en cours"
 
-#: apps/schools/models.py:96
+#: apps/schools/models.py:97
 msgid ""
 "2 to 30 characters: lowercase letters, digits and hyphens (not at the ends)."
 msgstr ""
 "2 à 30 caractères : lettres minuscules, chiffres et tirets (pas aux "
 "extrémités)."
 
-#: apps/schools/models.py:101
+#: apps/schools/models.py:102
 #, python-brace-format
 msgid ""
 "Subdomain of the school: {code}.mwangaza.school. Changed by the platform "
@@ -8005,327 +8005,331 @@ msgstr ""
 "Sous-domaine de l'école : {code}.mwangaza.school. Changé par la plateforme "
 "seulement : l'ancienne adresse ne marche plus."
 
-#: apps/schools/models.py:108
+#: apps/schools/models.py:109
 msgid "official name"
 msgstr "nom officiel"
 
-#: apps/schools/models.py:114
+#: apps/schools/models.py:115
 msgid "PNG or JPEG, 1 MB at most."
 msgstr "PNG ou JPEG, 1 Mo au plus."
 
-#: apps/schools/models.py:118
+#: apps/schools/models.py:119
 msgid "black and white logo"
 msgstr "logo noir et blanc"
 
-#: apps/schools/models.py:122
+#: apps/schools/models.py:123
 msgid "For thermal receipts. PNG or JPEG, 1 MB at most."
 msgstr "Pour les reçus thermiques. PNG ou JPEG, 1 Mo au plus."
 
-#: apps/schools/models.py:125
+#: apps/schools/models.py:126
 msgid "school stamp"
 msgstr "cachet de l'école"
 
-#: apps/schools/models.py:126
+#: apps/schools/models.py:127
 msgid "name of the head"
 msgstr "nom du chef d'établissement"
 
-#: apps/schools/models.py:128
+#: apps/schools/models.py:129
 msgid "title of the head"
 msgstr "titre du chef d'établissement"
 
-#: apps/schools/models.py:131
+#: apps/schools/models.py:132
 msgid "Under the signature, e.g. Préfet des études."
 msgstr "Sous la signature, par exemple Préfet des études."
 
-#: apps/schools/models.py:134
+#: apps/schools/models.py:135
 msgid "signature of the head"
 msgstr "signature du chef d'établissement"
 
-#: apps/schools/models.py:139
+#: apps/schools/models.py:140
 msgid "EPST school code"
 msgstr "Code EPST de l'école"
 
-#: apps/schools/models.py:142
+#: apps/schools/models.py:143
 msgid "7 digits."
 msgstr "7 chiffres."
 
-#: apps/schools/models.py:143
+#: apps/schools/models.py:144
 msgid "Official code of the school, printed on report cards."
 msgstr "Code officiel de l'école, imprimé sur les bulletins."
 
-#: apps/schools/models.py:148
+#: apps/schools/models.py:149
 msgid "commune or territory"
 msgstr "commune ou territoire"
 
-#: apps/schools/models.py:150
+#: apps/schools/models.py:151
 msgid "school regime"
 msgstr "régime de l'école"
 
-#: apps/schools/models.py:153
+#: apps/schools/models.py:154
 msgid "colour"
 msgstr "couleur"
 
-#: apps/schools/models.py:157
+#: apps/schools/models.py:158
 msgid "Printed documents and the school badge, e.g. #0B5FCC."
 msgstr "Documents imprimés et badge de l'école, ex. #0B5FCC."
 
-#: apps/schools/models.py:160
+#: apps/schools/models.py:161
 msgid "time zone"
 msgstr "fuseau horaire"
 
-#: apps/schools/models.py:164
+#: apps/schools/models.py:165
 msgid "Dates and times of the school, e.g. Africa/Lubumbashi (Goma)."
 msgstr "Dates et heures de l'école, ex. Africa/Lubumbashi (Goma)."
 
-#: apps/schools/models.py:168
+#: apps/schools/models.py:169
 msgid "currencies"
 msgstr "devises"
 
-#: apps/schools/models.py:174
+#: apps/schools/models.py:175
 msgid "modules"
 msgstr "modules"
 
-#: apps/schools/models.py:179
+#: apps/schools/models.py:180
 msgid "main currency"
 msgstr "devise principale"
 
-#: apps/schools/models.py:183
+#: apps/schools/models.py:184
 msgid "Currency of the reports."
 msgstr "Devise des rapports."
 
-#: apps/schools/models.py:187
+#: apps/schools/models.py:188
 msgid "student number format"
 msgstr "format du matricule"
 
-#: apps/schools/models.py:191
+#: apps/schools/models.py:192
 #, python-brace-format
 msgid "e.g. ABC-{AAAA}-{0000}: year, number, option code {OPT}."
 msgstr "ex. ABC-{AAAA}-{0000} : année, numéro, code de l'option {OPT}."
 
-#: apps/schools/models.py:195
+#: apps/schools/models.py:196
 msgid "give student numbers automatically"
 msgstr "attribuer un matricule automatiquement"
 
-#: apps/schools/models.py:199
+#: apps/schools/models.py:200
 msgid "kind of space"
 msgstr "type d'espace"
 
-#: apps/schools/models.py:210
+#: apps/schools/models.py:211
 msgid "plan"
 msgstr "formule"
 
-#: apps/schools/models.py:210
+#: apps/schools/models.py:211
 msgid "e.g. Discovery, Standard."
 msgstr "ex. Découverte, Standard."
 
-#: apps/schools/models.py:212
+#: apps/schools/models.py:213
 msgid "end of the trial"
 msgstr "fin de l'essai"
 
-#: apps/schools/models.py:213
+#: apps/schools/models.py:214
 msgid "paid until"
 msgstr "payé jusqu'au"
 
-#: apps/schools/models.py:215
+#: apps/schools/models.py:218
+msgid "longest timetable calculation (seconds)"
+msgstr "temps de calcul de l'horaire, au plus (secondes)"
+
+#: apps/schools/models.py:223
 msgid "settings"
 msgstr "paramètres"
 
-#: apps/schools/models.py:218
+#: apps/schools/models.py:226
 msgid "setup finished at"
 msgstr "mise en route terminée le"
 
-#: apps/schools/models.py:249
+#: apps/schools/models.py:257
 msgid "Choose at least one currency."
 msgstr "Choisissez au moins une devise."
 
-#: apps/schools/models.py:252
+#: apps/schools/models.py:260
 msgid "The main currency must be one of the school's currencies."
 msgstr "La devise principale doit faire partie des devises de l'école."
 
-#: apps/schools/models.py:259
+#: apps/schools/models.py:267
 msgid "A currency used by a fee rule cannot be removed."
 msgstr "Une devise utilisée par un barème ne peut pas être retirée."
 
-#: apps/schools/models.py:338
+#: apps/schools/models.py:346
 msgid "Small school"
 msgstr "Petite école"
 
-#: apps/schools/models.py:339
+#: apps/schools/models.py:347
 msgid "Large school"
 msgstr "Grande école"
 
-#: apps/schools/models.py:342
+#: apps/schools/models.py:350
 msgid "Being filled"
 msgstr "Remplissage en cours"
 
-#: apps/schools/models.py:343
+#: apps/schools/models.py:351
 msgid "Ready"
 msgstr "Prêt"
 
-#: apps/schools/models.py:349
+#: apps/schools/models.py:357
 msgid "profile"
 msgstr "profil"
 
-#: apps/schools/models.py:351
+#: apps/schools/models.py:359
 msgid "block of numbers"
 msgstr "bloc de numéros"
 
-#: apps/schools/models.py:353
+#: apps/schools/models.py:361
 msgid "password"
 msgstr "mot de passe"
 
-#: apps/schools/models.py:355
+#: apps/schools/models.py:363
 msgid "state"
 msgstr "état"
 
-#: apps/schools/models.py:357
+#: apps/schools/models.py:365
 msgid "steps done"
 msgstr "étapes faites"
 
-#: apps/schools/models.py:358
+#: apps/schools/models.py:366
 msgid "steps"
 msgstr "étapes"
 
-#: apps/schools/models.py:360
+#: apps/schools/models.py:368
 msgid "reset requested"
 msgstr "remise à zéro demandée"
 
-#: apps/schools/models.py:363
+#: apps/schools/models.py:371
 msgid "demonstration space"
 msgstr "espace de démonstration"
 
-#: apps/schools/models.py:364
+#: apps/schools/models.py:372
 msgid "demonstration spaces"
 msgstr "espaces de démonstration"
 
-#: apps/schools/models.py:381
+#: apps/schools/models.py:389
 msgid "Closed"
 msgstr "Clôturée"
 
-#: apps/schools/models.py:386
+#: apps/schools/models.py:394
 msgid "current year"
 msgstr "année en cours"
 
-#: apps/schools/models.py:393 apps/schools/models.py:428
-#: apps/schools/models.py:556 apps/students/models.py:170
+#: apps/schools/models.py:401 apps/schools/models.py:436
+#: apps/schools/models.py:564 apps/students/models.py:170
 #: apps/students/models.py:205 apps/students/models.py:231
-#: apps/timetable/models.py:254
+#: apps/timetable/models.py:255
 msgid "school year"
 msgstr "année scolaire"
 
-#: apps/schools/models.py:394
+#: apps/schools/models.py:402
 msgid "school years"
 msgstr "années scolaires"
 
-#: apps/schools/models.py:419
+#: apps/schools/models.py:427
 msgid "Semester"
 msgstr "Semestre"
 
-#: apps/schools/models.py:420
+#: apps/schools/models.py:428
 msgid "Term (trimester)"
 msgstr "Trimestre"
 
-#: apps/schools/models.py:421
+#: apps/schools/models.py:429
 msgid "Period"
 msgstr "Période"
 
-#: apps/schools/models.py:437
+#: apps/schools/models.py:445
 msgid "semester or term"
 msgstr "semestre ou trimestre"
 
-#: apps/schools/models.py:448
+#: apps/schools/models.py:456
 msgid "terms"
 msgstr "périodes"
 
-#: apps/schools/models.py:473
+#: apps/schools/models.py:481
 msgid "Primary"
 msgstr "Primaire"
 
-#: apps/schools/models.py:474
+#: apps/schools/models.py:482
 msgid "Basic education (7th-8th)"
 msgstr "Éducation de base (7e-8e)"
 
-#: apps/schools/models.py:475
+#: apps/schools/models.py:483
 msgid "General secondary"
 msgstr "Humanités générales"
 
-#: apps/schools/models.py:476
+#: apps/schools/models.py:484
 msgid "Technical and vocational secondary"
 msgstr "Humanités techniques et professionnelles"
 
-#: apps/schools/models.py:477
+#: apps/schools/models.py:485
 msgid "Higher education"
 msgstr "Supérieur"
 
-#: apps/schools/models.py:478
+#: apps/schools/models.py:486
 msgid "Short vocational training"
 msgstr "Formation professionnelle courte"
 
-#: apps/schools/models.py:481
+#: apps/schools/models.py:489
 msgid "cycle"
 msgstr "cycle"
 
-#: apps/schools/models.py:485
+#: apps/schools/models.py:493
 msgid "report card title"
 msgstr "titre du bulletin"
 
-#: apps/schools/models.py:488
+#: apps/schools/models.py:496
 msgid "ends with the state exam"
 msgstr "finit par l'Examen d'État"
 
-#: apps/schools/models.py:490
+#: apps/schools/models.py:498
 msgid "The report card shows the state exam block instead of the resit exam."
 msgstr ""
 "Le bulletin montre le bloc de l'Examen d'État à la place de l'examen de "
 "repêchage."
 
-#: apps/schools/models.py:495
+#: apps/schools/models.py:503
 msgid "passing rules"
 msgstr "règles de réussite"
 
-#: apps/schools/models.py:499 apps/schools/models.py:559
+#: apps/schools/models.py:507 apps/schools/models.py:567
 msgid "level"
 msgstr "niveau"
 
-#: apps/schools/models.py:500
+#: apps/schools/models.py:508
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:523 apps/schools/serializers.py:519
+#: apps/schools/models.py:531 apps/schools/serializers.py:519
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
-#: apps/schools/models.py:526
+#: apps/schools/models.py:534
 #, python-brace-format
 msgid "Used in the student number ({OPT}), e.g. ELEC."
 msgstr "Sert dans le matricule ({OPT}), ex. ELEC."
 
-#: apps/schools/models.py:531 apps/schools/models.py:567
+#: apps/schools/models.py:539 apps/schools/models.py:575
 msgid "track"
 msgstr "option"
 
-#: apps/schools/models.py:532
+#: apps/schools/models.py:540
 msgid "tracks"
 msgstr "options"
 
-#: apps/schools/models.py:569
+#: apps/schools/models.py:577
 msgid "section"
 msgstr "section"
 
-#: apps/schools/models.py:571
+#: apps/schools/models.py:579
 msgid "capacity"
 msgstr "capacité"
 
-#: apps/schools/models.py:581 apps/timetable/models.py:43
-#: apps/timetable/models.py:71
+#: apps/schools/models.py:589 apps/timetable/models.py:44
+#: apps/timetable/models.py:72
 msgid "time grid"
 msgstr "grille horaire"
 
-#: apps/schools/models.py:589
+#: apps/schools/models.py:597
 msgid "home room"
 msgstr "salle habituelle"
 
-#: apps/schools/models.py:597
+#: apps/schools/models.py:605
 msgid "homeroom teacher"
 msgstr "titulaire"
 
@@ -8455,7 +8459,7 @@ msgstr ""
 msgid "This space is being deleted: it can no longer be changed."
 msgstr "Cet espace est en cours de suppression : il ne peut plus être modifié."
 
-#: apps/schools/services.py:246
+#: apps/schools/services.py:254
 msgid "Type the code of the space to confirm."
 msgstr "Tapez le code de l'espace pour confirmer."
 
@@ -8994,7 +8998,7 @@ msgstr "rapport"
 msgid "students created"
 msgstr "élèves créés"
 
-#: apps/students/models.py:247 apps/timetable/models.py:391
+#: apps/students/models.py:247 apps/timetable/models.py:388
 msgid "finished at"
 msgstr "terminé le"
 
@@ -9553,311 +9557,311 @@ msgstr "Ces heures ne sont pas dans la grille horaire de la classe."
 msgid "This course does not run across a break."
 msgstr "Ce cours ne passe pas une récréation."
 
-#: apps/timetable/models.py:35
+#: apps/timetable/models.py:36
 msgid "lesson length (minutes)"
 msgstr "durée d'une heure (minutes)"
 
-#: apps/timetable/models.py:38
+#: apps/timetable/models.py:39
 msgid "start of the first lesson"
 msgstr "début de la première heure"
 
-#: apps/timetable/models.py:39
+#: apps/timetable/models.py:40
 msgid "default grid"
 msgstr "grille par défaut"
 
-#: apps/timetable/models.py:44
+#: apps/timetable/models.py:45
 msgid "time grids"
 msgstr "grilles horaires"
 
-#: apps/timetable/models.py:67
+#: apps/timetable/models.py:68
 msgid "Lesson"
 msgstr "Heure de cours"
 
-#: apps/timetable/models.py:68
+#: apps/timetable/models.py:69
 msgid "Break"
 msgstr "Récréation"
 
-#: apps/timetable/models.py:77
+#: apps/timetable/models.py:78
 msgid "lesson number"
 msgstr "numéro de l'heure"
 
-#: apps/timetable/models.py:84
+#: apps/timetable/models.py:85
 msgid "time slot"
 msgstr "case horaire"
 
-#: apps/timetable/models.py:85
+#: apps/timetable/models.py:86
 msgid "time slots"
 msgstr "cases horaires"
 
-#: apps/timetable/models.py:111
+#: apps/timetable/models.py:112
 msgid "Classroom"
 msgstr "Salle de classe"
 
-#: apps/timetable/models.py:112
+#: apps/timetable/models.py:113
 msgid "Workshop"
 msgstr "Atelier"
 
-#: apps/timetable/models.py:113
+#: apps/timetable/models.py:114
 msgid "Laboratory"
 msgstr "Laboratoire"
 
-#: apps/timetable/models.py:114
+#: apps/timetable/models.py:115
 msgid "Computer room"
 msgstr "Salle informatique"
 
-#: apps/timetable/models.py:115
+#: apps/timetable/models.py:116
 msgid "Sports ground"
 msgstr "Terrain de sport"
 
-#: apps/timetable/models.py:121
+#: apps/timetable/models.py:122
 msgid "places"
 msgstr "places"
 
-#: apps/timetable/models.py:126
+#: apps/timetable/models.py:127
 msgid "in use"
 msgstr "utilisée"
 
-#: apps/timetable/models.py:130 apps/timetable/models.py:323
+#: apps/timetable/models.py:131 apps/timetable/models.py:324
 msgid "room"
 msgstr "salle"
 
-#: apps/timetable/models.py:131
+#: apps/timetable/models.py:132
 msgid "rooms"
 msgstr "salles"
 
-#: apps/timetable/models.py:154
+#: apps/timetable/models.py:155
 msgid "hours per week at most"
 msgstr "heures par semaine au plus"
 
-#: apps/timetable/models.py:160
+#: apps/timetable/models.py:161
 msgid "hours per day at most"
 msgstr "heures par jour au plus"
 
-#: apps/timetable/models.py:165
+#: apps/timetable/models.py:166
 msgid "unavailable"
 msgstr "absences"
 
-#: apps/timetable/models.py:168
+#: apps/timetable/models.py:169
 msgid "teacher timetable profile"
 msgstr "disponibilités d'un enseignant"
 
-#: apps/timetable/models.py:169
+#: apps/timetable/models.py:170
 msgid "teacher timetable profiles"
 msgstr "disponibilités des enseignants"
 
-#: apps/timetable/models.py:190
+#: apps/timetable/models.py:191
 msgid "Locked hours"
 msgstr "Heures verrouillées"
 
-#: apps/timetable/models.py:191
+#: apps/timetable/models.py:192
 msgid "Course kept away from some hours"
 msgstr "Cours à éviter à certaines heures"
 
-#: apps/timetable/models.py:192
+#: apps/timetable/models.py:193
 msgid "Part of the day"
 msgstr "Moment de la journée"
 
-#: apps/timetable/models.py:193
+#: apps/timetable/models.py:194
 msgid "Parallel groups"
 msgstr "Groupes en parallèle"
 
-#: apps/timetable/models.py:194
+#: apps/timetable/models.py:195
 msgid "Joint course"
 msgstr "Cours commun"
 
-#: apps/timetable/models.py:195
+#: apps/timetable/models.py:196
 msgid "Room closed"
 msgstr "Salle fermée"
 
-#: apps/timetable/models.py:196
+#: apps/timetable/models.py:197
 msgid "Spread over the week"
 msgstr "Étaler un cours dans la semaine"
 
-#: apps/timetable/models.py:197
+#: apps/timetable/models.py:198
 msgid "Compact day for teachers"
 msgstr "Journée compacte des enseignants"
 
-#: apps/timetable/models.py:198
+#: apps/timetable/models.py:199
 msgid "Free day"
 msgstr "Jour libre"
 
-#: apps/timetable/models.py:201
+#: apps/timetable/models.py:202
 msgid "Required"
 msgstr "Obligatoire"
 
-#: apps/timetable/models.py:202
+#: apps/timetable/models.py:203
 msgid "Wish"
 msgstr "Souhait"
 
-#: apps/timetable/models.py:205
+#: apps/timetable/models.py:206
 msgid "Entered by hand"
 msgstr "Saisie à la main"
 
-#: apps/timetable/models.py:206
+#: apps/timetable/models.py:207
 msgid "Proposed by the assistant"
 msgstr "Proposée par l'assistant"
 
-#: apps/timetable/models.py:209
+#: apps/timetable/models.py:210
 msgid "parameters"
 msgstr "paramètres"
 
-#: apps/timetable/models.py:210
+#: apps/timetable/models.py:211
 msgid "strength"
 msgstr "force"
 
-#: apps/timetable/models.py:212
+#: apps/timetable/models.py:213
 msgid "weight"
 msgstr "poids"
 
-#: apps/timetable/models.py:219
+#: apps/timetable/models.py:220
 msgid "original sentence"
 msgstr "phrase d'origine"
 
-#: apps/timetable/models.py:223
+#: apps/timetable/models.py:224
 msgid "timetable rule"
 msgstr "règle de l'horaire"
 
-#: apps/timetable/models.py:224
+#: apps/timetable/models.py:225
 msgid "timetable rules"
 msgstr "règles de l'horaire"
 
-#: apps/timetable/models.py:247
+#: apps/timetable/models.py:248
 msgid "Published"
 msgstr "Publié"
 
-#: apps/timetable/models.py:248
+#: apps/timetable/models.py:249
 msgid "Archived"
 msgstr "Archivé"
 
-#: apps/timetable/models.py:260
+#: apps/timetable/models.py:261
 msgid "in force from"
 msgstr "en vigueur à partir du"
 
-#: apps/timetable/models.py:261
+#: apps/timetable/models.py:262
 msgid "published on"
 msgstr "publié le"
 
-#: apps/timetable/models.py:268
+#: apps/timetable/models.py:269
 msgid "published by"
 msgstr "publié par"
 
-#: apps/timetable/models.py:276
+#: apps/timetable/models.py:277
 msgid "copied from"
 msgstr "copié de"
 
-#: apps/timetable/models.py:278
+#: apps/timetable/models.py:279
 msgid "undo history"
 msgstr "historique pour annuler"
 
-#: apps/timetable/models.py:282 apps/timetable/models.py:303
+#: apps/timetable/models.py:283 apps/timetable/models.py:304
 msgid "timetable"
 msgstr "horaire"
 
-#: apps/timetable/models.py:283
+#: apps/timetable/models.py:284
 msgid "timetables"
 msgstr "horaires"
 
-#: apps/timetable/models.py:312
+#: apps/timetable/models.py:313
 msgid "first lesson"
 msgstr "première heure"
 
-#: apps/timetable/models.py:315
+#: apps/timetable/models.py:316
 msgid "hours"
 msgstr "heures"
 
-#: apps/timetable/models.py:325
+#: apps/timetable/models.py:326
 msgid "locked"
 msgstr "verrouillée"
 
-#: apps/timetable/models.py:329
+#: apps/timetable/models.py:330
 msgid "timetable entry"
 msgstr "heure de l'horaire"
 
-#: apps/timetable/models.py:330
+#: apps/timetable/models.py:331
 msgid "timetable entries"
 msgstr "heures de l'horaire"
 
-#: apps/timetable/models.py:354
+#: apps/timetable/models.py:351
 msgid "Waiting"
 msgstr "En attente"
 
-#: apps/timetable/models.py:355
+#: apps/timetable/models.py:352
 msgid "Calculating"
 msgstr "Calcul en cours"
 
-#: apps/timetable/models.py:357
+#: apps/timetable/models.py:354
 msgid "Impossible"
 msgstr "Impossible"
 
-#: apps/timetable/models.py:358
+#: apps/timetable/models.py:355
 msgid "Not found in time"
 msgstr "Pas trouvé dans le temps"
 
-#: apps/timetable/models.py:363
+#: apps/timetable/models.py:360
 msgid "Whole timetable"
 msgstr "Tout l'horaire"
 
-#: apps/timetable/models.py:364
+#: apps/timetable/models.py:361
 msgid "One class"
 msgstr "Une classe"
 
-#: apps/timetable/models.py:365
+#: apps/timetable/models.py:362
 msgid "One teacher"
 msgstr "Un enseignant"
 
-#: apps/timetable/models.py:367
+#: apps/timetable/models.py:364
 msgid "request"
 msgstr "demande"
 
-#: apps/timetable/models.py:369
+#: apps/timetable/models.py:366
 msgid "draft"
 msgstr "brouillon"
 
-#: apps/timetable/models.py:377
+#: apps/timetable/models.py:374
 msgid "calculated draft"
 msgstr "brouillon calculé"
 
-#: apps/timetable/models.py:382
+#: apps/timetable/models.py:379
 msgid "scope"
 msgstr "portée"
 
-#: apps/timetable/models.py:384
+#: apps/timetable/models.py:381
 msgid "class or teacher"
 msgstr "classe ou enseignant"
 
-#: apps/timetable/models.py:386
+#: apps/timetable/models.py:383
 msgid "time limit (seconds)"
 msgstr "temps limite (secondes)"
 
-#: apps/timetable/models.py:390
+#: apps/timetable/models.py:387
 msgid "started at"
 msgstr "commencé le"
 
-#: apps/timetable/models.py:392
+#: apps/timetable/models.py:389
 msgid "duration (ms)"
 msgstr "durée (ms)"
 
-#: apps/timetable/models.py:393
+#: apps/timetable/models.py:390
 msgid "penalty"
 msgstr "pénalité"
 
-#: apps/timetable/models.py:394
+#: apps/timetable/models.py:391
 msgid "wishes not kept"
 msgstr "souhaits non tenus"
 
-#: apps/timetable/models.py:395
+#: apps/timetable/models.py:392
 msgid "blocking rules"
 msgstr "règles qui bloquent"
 
-#: apps/timetable/models.py:396
+#: apps/timetable/models.py:393
 msgid "memory peak (MB)"
 msgstr "pic de mémoire (Mo)"
 
-#: apps/timetable/models.py:400
+#: apps/timetable/models.py:397
 msgid "timetable calculation"
 msgstr "calcul de l'horaire"
 
-#: apps/timetable/models.py:401
+#: apps/timetable/models.py:398
 msgid "timetable calculations"
 msgstr "calculs de l'horaire"
 
@@ -9972,6 +9976,6 @@ msgstr "les heures sont numérotées 1, 2, 3… dans l'ordre."
 msgid "at most 12 lessons a day."
 msgstr "12 heures de cours par jour au plus."
 
-#: apps/timetable/views.py:307 apps/timetable/views.py:426
+#: apps/timetable/views.py:308 apps/timetable/views.py:432
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."

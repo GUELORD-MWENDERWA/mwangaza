@@ -78,8 +78,9 @@ export function useTimetableChecks() {
   });
 }
 
-export function useRules() {
+export function useRules(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: [...keys.timetable, "constraints"],
     queryFn: () => call(api.GET("/api/timetable/constraints/")),
   });
@@ -179,4 +180,19 @@ export function sendGesture(id: string, gesture: Gesture): Promise<DraftState> {
     case "undo":
       return call(api.POST("/api/timetable/drafts/{id}/undo/", draft));
   }
+}
+
+// Calcul automatique (EDT.3b) : les 10 derniers calculs et le temps permis à l'école, relus toutes
+// les 2 s seulement pendant un calcul.
+export const runsKey = [...keys.timetable, "runs"];
+
+export function useRuns() {
+  return useQuery({
+    queryKey: runsKey,
+    queryFn: () => call(api.GET("/api/timetable/runs/")),
+    refetchInterval: (query) =>
+      query.state.data?.runs.some((run) => run.status === "queued" || run.status === "running")
+        ? 2000
+        : false,
+  });
 }

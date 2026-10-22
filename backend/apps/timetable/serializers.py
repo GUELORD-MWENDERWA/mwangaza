@@ -429,3 +429,11 @@ class RunSerializer(serializers.ModelSerializer):
             "blocking",
             "peak_mb",
         ]
+
+
+class RunListSerializer(serializers.Serializer):
+    time_limit_max = serializers.IntegerField(
+        help_text="Temps de calcul le plus long permis à l'école, en secondes (réglé dans la "
+        "console)."
+    )
+    runs = RunSerializer(many=True)

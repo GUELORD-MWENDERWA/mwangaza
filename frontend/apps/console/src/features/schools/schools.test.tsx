@@ -25,6 +25,7 @@ const GAMMA = {
   plan: "Standard",
   trial_ends_on: null,
   paid_until: "2027-06-30",
+  timetable_max_seconds: 60,
   modules: ["students"],
   enabled_currencies: ["USD", "CDF"],
   default_currency: "USD",
@@ -102,7 +103,7 @@ describe("Écoles de la console", () => {
 
     expect(await screen.findByText("Modules enregistrés.")).toBeTruthy();
     const patch = requests.find((r) => r.method === "PATCH");
-    expect(patch?.body).toEqual({ modules: ["students", "finance"] });
+    expect(patch?.body).toEqual({ modules: ["students", "finance"], timetable_max_seconds: 60 });
   });
 
   it("ne suspend une école qu'après confirmation", async () => {
