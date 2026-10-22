@@ -184,9 +184,8 @@ def test_subscription_changes_go_to_the_platform_journal_only(api, platform_admi
     console = api(platform_admin, host=CONSOLE)
     detail = f"{SCHOOLS}{school.pk}/"
 
-    data = console.patch(
-        detail, {"name": "École Alpha", "plan": "Standard", "paid_until": "2026-12-31"}
-    ).json()
+    changes = {"plan": "Standard", "paid_until": "2026-12-31", "timetable_max_seconds": 120}
+    data = console.patch(detail, {"name": "École Alpha", **changes}).json()
 
     assert (data["name"], data["plan"], data["paid_until"]) == (
         "École Alpha",
@@ -199,7 +198,9 @@ def test_subscription_changes_go_to_the_platform_journal_only(api, platform_admi
     assert (entry.action, entry.after) == (Action.SCHOOL_UPDATED, {"name": "École Alpha"})
     log = PlatformAuditLog.objects.get()
     assert log.action == "school.updated"
-    assert log.after == {"name": "École Alpha", "plan": "Standard", "paid_until": "2026-12-31"}
+    assert log.after == {"name": "École Alpha", **changes}
+    # Temps de calcul de l'horaire : au plus 3 min (serveur partagé).
+    assert console.patch(detail, {"timetable_max_seconds": 600}).status_code == 400
     assert [entry["action"] for entry in console.get(detail).json()["history"]] == [
         "school.updated"
     ]

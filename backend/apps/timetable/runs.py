@@ -84,6 +84,8 @@ def request(
         raise BusinessError(NOT_A_DRAFT)
     year = timetable.academic_year
     _check_target(year, scope, target)
+    # Jamais plus long que ce que la plateforme permet à l'école (console).
+    time_limit = min(time_limit, timetable.school.timetable_max_seconds)
     with transaction.atomic():
         _lock_school()
         found = TimetableRun.objects.filter(request_id=request_id).first()

@@ -53,7 +53,15 @@ IDENTITY_FIELDS = (
     "regime",
 )
 # Ce que le journal de la plateforme garde en plus (`environment` : fixé à la création).
-SUBSCRIPTION_FIELDS = ("environment", "status", "plan", "trial_ends_on", "paid_until", "modules")
+SUBSCRIPTION_FIELDS = (
+    "environment",
+    "status",
+    "plan",
+    "trial_ends_on",
+    "paid_until",
+    "modules",
+    "timetable_max_seconds",
+)
 
 
 @dataclass(frozen=True)

@@ -16680,7 +16680,9 @@ paths:
   /api/timetable/runs/:
     get:
       operationId: timetable_runs_list
-      description: Les 10 derniers calculs de l'année en cours, le plus récent d'abord.
+      description: |-
+        Les 10 derniers calculs de l'année en cours, le plus récent d'abord, et le temps de
+        calcul le plus long permis à l'école (une demande plus longue y est ramenée).
       tags:
       - timetable
       security:
@@ -16690,9 +16692,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Run'
+                $ref: '#/components/schemas/RunList'
           description: ''
         '403':
           content:
@@ -20530,6 +20530,11 @@ components:
           type: string
           format: date
           nullable: true
+        timetable_max_seconds:
+          type: integer
+          maximum: 180
+          minimum: 10
+          title: Longest timetable calculation (seconds)
         enabled_currencies:
           type: array
           items:
@@ -20572,6 +20577,7 @@ components:
       - modules
       - trial_ends_on
       - paid_until
+      - timetable_max_seconds
       - enabled_currencies
       - default_currency
       - student_count
@@ -20663,6 +20669,11 @@ components:
           type: string
           format: date
           nullable: true
+        timetable_max_seconds:
+          type: integer
+          maximum: 180
+          minimum: 10
+          title: Longest timetable calculation (seconds)
         enabled_currencies:
           type: array
           items:
@@ -20758,6 +20769,11 @@ components:
           type: string
           format: date
           nullable: true
+        timetable_max_seconds:
+          type: integer
+          maximum: 180
+          minimum: 10
+          title: Longest timetable calculation (seconds)
         enabled_currencies:
           type: array
           items:
@@ -20813,6 +20829,7 @@ components:
       - modules
       - trial_ends_on
       - paid_until
+      - timetable_max_seconds
       - enabled_currencies
       - default_currency
       - student_count
@@ -26637,6 +26654,11 @@ components:
           type: string
           format: date
           nullable: true
+        timetable_max_seconds:
+          type: integer
+          maximum: 180
+          minimum: 10
+          title: Longest timetable calculation (seconds)
     PatchedConsoleSiteBannerRequest:
       type: object
       description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
@@ -29788,6 +29810,20 @@ components:
       required:
       - request_id
       - timetable
+    RunList:
+      type: object
+      properties:
+        time_limit_max:
+          type: integer
+          description: Temps de calcul le plus long permis à l'école, en secondes
+            (réglé dans la console).
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Run'
+      required:
+      - time_limit_max
+      - runs
     RunStatusEnum:
       enum:
       - queued

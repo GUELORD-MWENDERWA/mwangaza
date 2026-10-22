@@ -352,6 +352,11 @@ export function EditorPage() {
           <Button variant="outline" onClick={() => setDeleting(true)}>
             {t("timetable.editor.deleteDraft")}
           </Button>
+          <Button asChild variant="outline">
+            <Link to={`/timetable/calculate?draft=${state.id}`}>
+              {t("timetable.calculation.open")}
+            </Link>
+          </Button>
           <Button onClick={() => setCreating(true)}>{t("timetable.editor.newDraft")}</Button>
         </>,
       )}

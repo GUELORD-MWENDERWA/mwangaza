@@ -65,6 +65,7 @@ import { ParentRequestsPage } from "./features/parent-requests/ParentRequestsPag
 import { PromotionPage } from "./features/promotion/PromotionPage";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
+import { CalculatePage } from "./features/timetable/CalculatePage";
 import { ChecksPage } from "./features/timetable/ChecksPage";
 import { RoomsPage } from "./features/timetable/RoomsPage";
 import { EditorPage } from "./features/timetable/EditorPage";
@@ -163,6 +164,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   { path: "cash-closings/register", item: menuItem("closings"), element: <ReceiptRegisterPage /> },
   { path: "unpaid/export", item: menuItem("unpaid"), element: <UnpaidExportPage /> },
   { path: "unpaid/statements", item: menuItem("unpaid"), element: <UnpaidStatementsPage /> },
+  { path: "timetable/calculate", item: menuItem("timetable"), element: <CalculatePage /> },
 ];
 
 export const routes: RouteObject[] = [

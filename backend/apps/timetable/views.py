@@ -40,6 +40,7 @@ from apps.timetable.serializers import (
     RoomUpdateSerializer,
     RuleChoicesSerializer,
     RunCreateSerializer,
+    RunListSerializer,
     RunSerializer,
     SwapSerializer,
     TeacherProfileSerializer,
@@ -401,10 +402,15 @@ class DraftUndoView(_TimetableView):
 
 @extend_schema(tags=["timetable"])
 class RunsView(_TimetableView):
-    @extend_schema(responses={200: RunSerializer(many=True), **ERRORS})
+    @extend_schema(operation_id="timetable_runs_list", responses={200: RunListSerializer, **ERRORS})
     def get(self, request: Request) -> Response:
-        """Les 10 derniers calculs de l'année en cours, le plus récent d'abord."""
-        return Response(RunSerializer(runs.runs(organisation.current_year()), many=True).data)
+        """Les 10 derniers calculs de l'année en cours, le plus récent d'abord, et le temps de
+        calcul le plus long permis à l'école (une demande plus longue y est ramenée)."""
+        listed = {
+            "time_limit_max": require_current_school().timetable_max_seconds,
+            "runs": runs.runs(organisation.current_year()),
+        }
+        return Response(RunListSerializer(listed).data)
 
     @extend_schema(
         request=RunCreateSerializer,

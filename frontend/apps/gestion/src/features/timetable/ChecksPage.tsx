@@ -18,7 +18,7 @@ import {
   StatusPill,
 } from "@mwangaza/ui";
 import { useMemo, useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
@@ -63,6 +63,21 @@ export function ChecksPage() {
   const general = useTimetableRules();
   const [filter, setFilter] = useState<Filter>("all");
   const [editing, setEditing] = useState<Rule | "new" | null>(null);
+  // `?rule=` : une règle qui bloque un calcul (EDT.3b) ouvre sa fenêtre.
+  const [params, setParams] = useSearchParams();
+  const asked = params.get("rule");
+  const open = editing ?? (asked ? rules.data?.find((rule) => rule.id === asked) : undefined);
+  const close = () => {
+    setEditing(null);
+    if (asked)
+      setParams(
+        (current) => {
+          current.delete("rule");
+          return current;
+        },
+        { replace: true },
+      );
+  };
   const lookup = useMemo(() => lookupOf(choices.data, rooms.data), [choices.data, rooms.data]);
   const lessons = (grids.data ?? []).flatMap((grid) =>
     grid.slots.filter((slot) => slot.kind === "lesson"),
@@ -131,6 +146,9 @@ export function ChecksPage() {
             </Button>
             <Button asChild variant="outline">
               <Link to="/rooms">{t("shell.menu.rooms")}</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/timetable/calculate">{t("timetable.calculation.open")}</Link>
             </Button>
           </>
         }
@@ -255,14 +273,14 @@ export function ChecksPage() {
           </Card>
         </div>
       </div>
-      {editing && (
+      {open && (
         <RuleDialog
-          rule={editing === "new" ? null : editing}
+          rule={open === "new" ? null : open}
           choices={choices.data}
           rooms={rooms.data ?? []}
           days={days.length ? days : [1, 2, 3, 4, 5, 6]}
           maxLessons={maxLessons}
-          onClose={() => setEditing(null)}
+          onClose={close}
         />
       )}
     </>

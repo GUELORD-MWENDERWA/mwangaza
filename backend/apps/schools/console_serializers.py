@@ -67,6 +67,7 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
             "modules",
             "trial_ends_on",
             "paid_until",
+            "timetable_max_seconds",
             "enabled_currencies",
             "default_currency",
             "student_count",
