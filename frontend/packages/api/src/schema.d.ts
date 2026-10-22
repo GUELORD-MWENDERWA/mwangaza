@@ -5352,6 +5352,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/runs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Les 10 derniers calculs de l'année en cours, le plus récent d'abord. */
+        get: operations["timetable_runs_list"];
+        put?: never;
+        /**
+         * @description Demande le calcul d'un brouillon (tout l'horaire, une classe ou un enseignant ; le
+         *     reste ne bouge pas) ; le résultat sera un nouveau brouillon. 202 : demandé ; 200 : cette
+         *     demande existait déjà. Refusé (409) si les contrôles ont du rouge ou si l'école calcule
+         *     déjà ; 429 si la plateforme a trop de calculs en cours.
+         */
+        post: operations["timetable_runs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/runs/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Un calcul : état, durée, souhaits non tenus, règles qui bloquent, brouillon calculé. */
+        get: operations["timetable_runs_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/runs/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Annule un calcul en attente ou en cours : son résultat ne sera pas écrit. */
+        post: operations["timetable_runs_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/timetable/teachers/": {
         parameters: {
             query?: never;
@@ -11201,6 +11258,108 @@ export interface components {
             resit_percent: number;
             resit_failures_to_fail: number;
         };
+        Run: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * Request
+             * Format: uuid
+             */
+            request_id: string;
+            /**
+             * Draft
+             * Format: uuid
+             */
+            timetable: string;
+            /**
+             * Calculated draft
+             * Format: uuid
+             */
+            result: string | null;
+            status: components["schemas"]["RunStatusEnum"];
+            scope: components["schemas"]["ScopeEnum"];
+            /**
+             * Class or teacher
+             * Format: uuid
+             */
+            target: string | null;
+            /** Time limit (seconds) */
+            time_limit: number;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            started_at: string | null;
+            /** Format: date-time */
+            finished_at: string | null;
+            /** Duration (ms) */
+            duration_ms: number | null;
+            /** Penalty */
+            score: number | null;
+            /** @description Souhaits non tenus. */
+            unmet: components["schemas"]["RunUnmet"][];
+            /** @description Règles qui rendent le calcul impossible. */
+            blocking: components["schemas"]["RunBlocking"][];
+            /** Memory peak (MB) */
+            peak_mb: number | null;
+        };
+        RunBlocking: {
+            /** @description rule, absence, teacher_day, course_day, no_gaps, locks, frozen (le reste de l'horaire gardé tel quel), unit (un cours qui ne tient nulle part). */
+            code: string;
+            /** @description Règle, enseignant, cours, classe. */
+            subject: string;
+            /** Format: uuid */
+            rule: string;
+            kind: string;
+            /** Format: uuid */
+            teacher: string;
+            /** Format: uuid */
+            course: string;
+            /** Format: uuid */
+            class_group: string;
+            /** @description Chiffres de la phrase. */
+            values: {
+                [key: string]: unknown;
+            };
+        };
+        RunCreateRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 créé par l'écran : la même demande renvoyée ne relance rien.
+             */
+            request_id: string;
+            /**
+             * Format: uuid
+             * @description Brouillon de départ (il ne change pas).
+             */
+            timetable: string;
+            /** @default all */
+            scope: components["schemas"]["ScopeEnum"];
+            /**
+             * Format: uuid
+             * @description Classe ou enseignant recalculé (le reste reste).
+             */
+            target?: string | null;
+            /** @default 60 */
+            time_limit: number;
+        };
+        /**
+         * @description * `queued` - Waiting
+         *     * `running` - Calculating
+         *     * `done` - Done
+         *     * `infeasible` - Impossible
+         *     * `timeout` - Not found in time
+         *     * `error` - Failed
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        RunStatusEnum: "queued" | "running" | "done" | "infeasible" | "timeout" | "error" | "cancelled";
+        RunUnmet: {
+            /** @description rule (règle `rule`), morning (cours du matin l'après-midi), moved (séance déplacée par rapport au brouillon de départ). */
+            code: string;
+            count: number;
+            /** Format: uuid */
+            rule: string;
+        };
         Scale: {
             scale: components["schemas"]["ScaleRow"][];
         };
@@ -11399,6 +11558,13 @@ export interface components {
             /** @description Code de l'espace, retapé pour confirmer. */
             confirm: string;
         };
+        /**
+         * @description * `all` - Whole timetable
+         *     * `class` - One class
+         *     * `teacher` - One teacher
+         * @enum {string}
+         */
+        ScopeEnum: "all" | "class" | "teacher";
         Score: {
             /** Format: uuid */
             evaluation_id: string;
@@ -29346,6 +29512,204 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimetableRules"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_runs_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Run"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_runs_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RunCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RunCreateRequest"];
+                "multipart/form-data": components["schemas"]["RunCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Run"];
+                };
+            };
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Run"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_runs_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Run"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_runs_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Run"];
                 };
             };
             400: {

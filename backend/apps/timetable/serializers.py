@@ -6,15 +6,19 @@ from apps.timetable.constraints import UnavailableSerializer, clean
 from apps.timetable.models import (
     MAX_LESSON_MINUTES,
     MAX_LESSONS_PER_DAY,
+    MAX_RUN_SECONDS,
     MAX_TEACHER_WEEK_HOURS,
     MAX_UNAVAILABLE,
     MIN_LESSON_MINUTES,
+    MIN_RUN_SECONDS,
+    RUN_SECONDS,
     Room,
     TimeGrid,
     TimeSlot,
     Timetable,
     TimetableEntry,
     TimetableRule,
+    TimetableRun,
 )
 
 # 7 jours de 12 heures et 11 récréations au plus.
@@ -358,3 +362,70 @@ class TimetableCourseSerializer(serializers.Serializer):
     room_kind = serializers.CharField()
     spans_break = serializers.BooleanField()
     max_per_day = serializers.IntegerField()
+
+
+class RunCreateSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField(
+        help_text="UUID v7 créé par l'écran : la même demande renvoyée ne relance rien."
+    )
+    timetable = serializers.UUIDField(help_text="Brouillon de départ (il ne change pas).")
+    scope = serializers.ChoiceField(
+        choices=TimetableRun.Scope.choices, default=TimetableRun.Scope.ALL
+    )
+    target = serializers.UUIDField(
+        allow_null=True, default=None, help_text="Classe ou enseignant recalculé (le reste reste)."
+    )
+    time_limit = serializers.IntegerField(
+        min_value=MIN_RUN_SECONDS, max_value=MAX_RUN_SECONDS, default=RUN_SECONDS
+    )
+
+
+class RunUnmetSerializer(serializers.Serializer):
+    code = serializers.CharField(
+        help_text="rule (règle `rule`), morning (cours du matin l'après-midi), moved (séance "
+        "déplacée par rapport au brouillon de départ)."
+    )
+    count = serializers.IntegerField()
+    rule = serializers.UUIDField(required=False)
+
+
+class RunBlockingSerializer(serializers.Serializer):
+    code = serializers.CharField(
+        help_text="rule, absence, teacher_day, course_day, no_gaps, locks, frozen (le reste de "
+        "l'horaire gardé tel quel), unit (un cours qui ne tient nulle part)."
+    )
+    subject = serializers.CharField(required=False, help_text="Règle, enseignant, cours, classe.")
+    rule = serializers.UUIDField(required=False)
+    kind = serializers.CharField(required=False)
+    teacher = serializers.UUIDField(required=False)
+    course = serializers.UUIDField(required=False)
+    class_group = serializers.UUIDField(required=False)
+    values = serializers.DictField(required=False, help_text="Chiffres de la phrase.")
+
+
+class RunSerializer(serializers.ModelSerializer):
+    unmet = RunUnmetSerializer(many=True, help_text="Souhaits non tenus.")
+    blocking = RunBlockingSerializer(
+        many=True, help_text="Règles qui rendent le calcul impossible."
+    )
+
+    class Meta:
+        model = TimetableRun
+        fields = [
+            "id",
+            "request_id",
+            "timetable",
+            "result",
+            "status",
+            "scope",
+            "target",
+            "time_limit",
+            "created_at",
+            "started_at",
+            "finished_at",
+            "duration_ms",
+            "score",
+            "unmet",
+            "blocking",
+            "peak_mb",
+        ]

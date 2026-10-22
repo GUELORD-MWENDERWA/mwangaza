@@ -1,6 +1,7 @@
 """API des paramètres de l'emploi du temps : grilles horaires, grille et salle des classes, salles,
 règles générales (EDT.1a) ; disponibilités, contrôles (EDT.1b) ; règles (EDT.1c) ; brouillons de
-l'horaire (EDT.2a : un geste par requête, qui renvoie l'état du brouillon). Module
+l'horaire (EDT.2a : un geste par requête, qui renvoie l'état du brouillon) ; calcul automatique
+(EDT.3a : demandé ici, fait par la file `heavy`, suivi par son état). Module
 `timetable`, droit `timetable.manage` ; en ligne seulement. Listes courtes (quelques grilles, au
 plus 300 salles, 500 règles, classes de l'année) : pas de pagination."""
 
@@ -18,8 +19,15 @@ from apps.core.errors import ErrorSerializer
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, constraints, drafts, services
-from apps.timetable.models import Room, TimeGrid, Timetable, TimetableEntry, TimetableRule
+from apps.timetable import checks, constraints, drafts, runs, services
+from apps.timetable.models import (
+    Room,
+    TimeGrid,
+    Timetable,
+    TimetableEntry,
+    TimetableRule,
+    TimetableRun,
+)
 from apps.timetable.serializers import (
     ChecksSerializer,
     DraftCreateSerializer,
@@ -31,6 +39,8 @@ from apps.timetable.serializers import (
     RoomSerializer,
     RoomUpdateSerializer,
     RuleChoicesSerializer,
+    RunCreateSerializer,
+    RunSerializer,
     SwapSerializer,
     TeacherProfileSerializer,
     TimeGridCreateSerializer,
@@ -387,3 +397,51 @@ class DraftUndoView(_TimetableView):
         """Annule le dernier geste (50 derniers gardés)."""
         timetable = get_object_or_404(Timetable, pk=pk)
         return _state(drafts.undo(timetable, actor=request.user))
+
+
+@extend_schema(tags=["timetable"])
+class RunsView(_TimetableView):
+    @extend_schema(responses={200: RunSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Les 10 derniers calculs de l'année en cours, le plus récent d'abord."""
+        return Response(RunSerializer(runs.runs(organisation.current_year()), many=True).data)
+
+    @extend_schema(
+        request=RunCreateSerializer,
+        responses={200: RunSerializer, 202: RunSerializer, 429: ErrorSerializer, **WRITE_ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        """Demande le calcul d'un brouillon (tout l'horaire, une classe ou un enseignant ; le
+        reste ne bouge pas) ; le résultat sera un nouveau brouillon. 202 : demandé ; 200 : cette
+        demande existait déjà. Refusé (409) si les contrôles ont du rouge ou si l'école calcule
+        déjà ; 429 si la plateforme a trop de calculs en cours."""
+        data = RunCreateSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        fields = data.validated_data
+        timetable = (
+            drafts.drafts(organisation.current_year()).filter(pk=fields.pop("timetable")).first()
+        )
+        if timetable is None:
+            return Response(
+                {"timetable": [_("This draft does not exist.")]},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        run, created = runs.request(timetable=timetable, actor=request.user, **fields)
+        code = status.HTTP_202_ACCEPTED if created else status.HTTP_200_OK
+        return Response(RunSerializer(run).data, status=code)
+
+
+@extend_schema(tags=["timetable"])
+class RunView(_TimetableView):
+    @extend_schema(responses={200: RunSerializer, **ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        """Un calcul : état, durée, souhaits non tenus, règles qui bloquent, brouillon calculé."""
+        return Response(RunSerializer(get_object_or_404(TimetableRun, pk=pk)).data)
+
+
+@extend_schema(tags=["timetable"])
+class RunCancelView(_TimetableView):
+    @extend_schema(request=None, responses={200: RunSerializer, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Annule un calcul en attente ou en cours : son résultat ne sera pas écrit."""
+        return Response(RunSerializer(runs.cancel(get_object_or_404(TimetableRun, pk=pk))).data)

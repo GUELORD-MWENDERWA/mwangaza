@@ -16677,6 +16677,183 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/runs/:
+    get:
+      operationId: timetable_runs_list
+      description: Les 10 derniers calculs de l'année en cours, le plus récent d'abord.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Run'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_runs_create
+      description: |-
+        Demande le calcul d'un brouillon (tout l'horaire, une classe ou un enseignant ; le
+        reste ne bouge pas) ; le résultat sera un nouveau brouillon. 202 : demandé ; 200 : cette
+        demande existait déjà. Refusé (409) si les contrôles ont du rouge ou si l'école calcule
+        déjà ; 429 si la plateforme a trop de calculs en cours.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RunCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RunCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+          description: ''
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/runs/{id}/:
+    get:
+      operationId: timetable_runs_retrieve
+      description: 'Un calcul : état, durée, souhaits non tenus, règles qui bloquent,
+        brouillon calculé.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/runs/{id}/cancel/:
+    post:
+      operationId: timetable_runs_cancel_create
+      description: 'Annule un calcul en attente ou en cours : son résultat ne sera
+        pas écrit.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Run'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/teachers/:
     get:
       operationId: timetable_teachers_list
@@ -29453,6 +29630,198 @@ components:
       - course_pass_percent
       - resit_percent
       - resit_failures_to_fail
+    Run:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        request_id:
+          type: string
+          format: uuid
+          title: Request
+        timetable:
+          type: string
+          format: uuid
+          title: Draft
+        result:
+          type: string
+          format: uuid
+          nullable: true
+          title: Calculated draft
+        status:
+          $ref: '#/components/schemas/RunStatusEnum'
+        scope:
+          $ref: '#/components/schemas/ScopeEnum'
+        target:
+          type: string
+          format: uuid
+          nullable: true
+          title: Class or teacher
+        time_limit:
+          type: integer
+          maximum: 180
+          minimum: 10
+          title: Time limit (seconds)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+        duration_ms:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+          title: Duration (ms)
+        score:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Penalty
+        unmet:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunUnmet'
+          description: Souhaits non tenus.
+        blocking:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunBlocking'
+          description: Règles qui rendent le calcul impossible.
+        peak_mb:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+          title: Memory peak (MB)
+      required:
+      - id
+      - request_id
+      - timetable
+      - result
+      - status
+      - scope
+      - target
+      - time_limit
+      - created_at
+      - started_at
+      - finished_at
+      - duration_ms
+      - score
+      - unmet
+      - blocking
+      - peak_mb
+    RunBlocking:
+      type: object
+      properties:
+        code:
+          type: string
+          description: rule, absence, teacher_day, course_day, no_gaps, locks, frozen
+            (le reste de l'horaire gardé tel quel), unit (un cours qui ne tient nulle
+            part).
+        subject:
+          type: string
+          description: Règle, enseignant, cours, classe.
+        rule:
+          type: string
+          format: uuid
+        kind:
+          type: string
+        teacher:
+          type: string
+          format: uuid
+        course:
+          type: string
+          format: uuid
+        class_group:
+          type: string
+          format: uuid
+        values:
+          type: object
+          additionalProperties: {}
+          description: Chiffres de la phrase.
+      required:
+      - code
+      - subject
+      - rule
+      - kind
+      - teacher
+      - course
+      - class_group
+      - values
+    RunCreateRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: 'UUID v7 créé par l''écran : la même demande renvoyée ne relance
+            rien.'
+        timetable:
+          type: string
+          format: uuid
+          description: Brouillon de départ (il ne change pas).
+        scope:
+          allOf:
+          - $ref: '#/components/schemas/ScopeEnum'
+          default: all
+        target:
+          type: string
+          format: uuid
+          nullable: true
+          description: Classe ou enseignant recalculé (le reste reste).
+        time_limit:
+          type: integer
+          maximum: 180
+          minimum: 10
+          default: 60
+      required:
+      - request_id
+      - timetable
+    RunStatusEnum:
+      enum:
+      - queued
+      - running
+      - done
+      - infeasible
+      - timeout
+      - error
+      - cancelled
+      type: string
+      description: |-
+        * `queued` - Waiting
+        * `running` - Calculating
+        * `done` - Done
+        * `infeasible` - Impossible
+        * `timeout` - Not found in time
+        * `error` - Failed
+        * `cancelled` - Cancelled
+    RunUnmet:
+      type: object
+      properties:
+        code:
+          type: string
+          description: rule (règle `rule`), morning (cours du matin l'après-midi),
+            moved (séance déplacée par rapport au brouillon de départ).
+        count:
+          type: integer
+        rule:
+          type: string
+          format: uuid
+      required:
+      - code
+      - count
+      - rule
     Scale:
       type: object
       properties:
@@ -29859,6 +30228,16 @@ components:
       required:
       - confirm
       - reason
+    ScopeEnum:
+      enum:
+      - all
+      - class
+      - teacher
+      type: string
+      description: |-
+        * `all` - Whole timetable
+        * `class` - One class
+        * `teacher` - One teacher
     Score:
       type: object
       properties:

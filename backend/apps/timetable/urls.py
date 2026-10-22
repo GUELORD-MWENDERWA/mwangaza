@@ -23,4 +23,7 @@ urlpatterns = [
     path("timetable/drafts/<uuid:pk>/entries/<uuid:entry>/", views.DraftEntryView.as_view()),
     path("timetable/drafts/<uuid:pk>/swap/", views.DraftSwapView.as_view()),
     path("timetable/drafts/<uuid:pk>/undo/", views.DraftUndoView.as_view()),
+    path("timetable/runs/", views.RunsView.as_view()),
+    path("timetable/runs/<uuid:pk>/", views.RunView.as_view()),
+    path("timetable/runs/<uuid:pk>/cancel/", views.RunCancelView.as_view()),
 ]
