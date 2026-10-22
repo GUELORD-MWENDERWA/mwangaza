@@ -36,10 +36,14 @@ def test_heavy_work_never_shares_the_fast_queue():
         "apps.students.tasks.run_student_import",
         "apps.schools.tasks.delete_space",
         "apps.schools.tasks.fill_demonstration",
+        "apps.timetable.tasks.run_timetable",
     }
-    # Le travailleur lourd ne reprend jamais un message deux fois en route, sauf le PDF, qui
-    # ne refait rien s'il est déjà pris (`printing.run`).
-    assert [n for n, t in ours().items() if t.acks_late] == ["apps.core.tasks.render_print_job"]
+    # Le travailleur lourd ne reprend jamais un message deux fois en route, sauf le PDF et le
+    # calcul de l'horaire, qui ne refont rien s'ils sont déjà pris (`printing.run`, `runs.execute`).
+    assert sorted(n for n, t in ours().items() if t.acks_late) == [
+        "apps.core.tasks.render_print_job",
+        "apps.timetable.tasks.run_timetable",
+    ]
 
 
 def test_light_scheduler_sends_known_tasks_to_their_queue_without_django():
@@ -144,7 +148,17 @@ def test_heavy_libraries_are_loaded_only_when_used():
 
     from django.conf import settings
 
-    heavy = ["pywebpush", "aiohttp", "openpyxl", "segno", "pypdf", "weasyprint", "sentry_sdk"]
+    heavy = [
+        "pywebpush",
+        "aiohttp",
+        "openpyxl",
+        "segno",
+        "pypdf",
+        "weasyprint",
+        "sentry_sdk",
+        "ortools",
+        "pandas",
+    ]
     code = (
         "import sys, django; django.setup()\n"
         "from config.celery import app; app.loader.import_default_modules()\n"

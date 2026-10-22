@@ -1,0 +1,12 @@
+# Tâche EDT.3a — Calcul automatique de l'horaire : solveur et calcul (serveur)
+
+Découpée de EDT.3 le 2026-10-22 (taille L : solveur + écran) ; l'écran du calcul est EDT.3b (#379). Spec : `docs/specs/emploi-du-temps.md` § 7.
+
+- **But** : `timetable/solver.py` (CP-SAT, OR-Tools importé dans la fonction) place toutes les séances : O1–O7, réglages (au plus par jour, sans trou, salles par type, groupes en parallèle et cours communs) et règles obligatoires ; souhaits pondérés (heures ou moments évités, étalement, jour libre, peu de trous des enseignants, matinée, stabilité). `TimetableRun` idempotent (`request_id`), tâche de la file `heavy`, temps limité (60 s, au plus 180 s) ; résultat dans un **nouveau brouillon** (le brouillon de départ reste, « Annuler » = y revenir) ; impossible → seconde résolution avec hypothèses : la règle qui bloque (codes + valeurs, phrases à l'écran en EDT.3b) ; recalcul d'une classe ou d'un enseignant, le reste figé ; stabilité par rapport aux séances du brouillon de départ.
+- **API** : `POST /api/timetable/runs/` (refus si diagnostic rouge, calcul déjà en cours pour l'école, file pleine), `GET …/runs/`, `GET …/runs/<id>/`, `POST …/runs/<id>/cancel/`.
+- **Hors périmètre** : écran, temps réglable dans la console (EDT.3b) ; publication (EDT.4) ; IA (IA.2b).
+- **Critères** : sur un petit cas, résultat sans aucune erreur de `checks.draft` et rien « à placer » ; ITIG de `make demo` calculée sans conflit ; temps et pic de mémoire notés dans `docs/claude/recherches/`.
+- **Tests** : petit cas (3 classes, 4 enseignants : verrou, au plus 2 h par jour, groupes en parallèle, absences) ; cas impossible → règle nommée ; même `request_id` = un calcul ; isolation et 403 ; diagnostic rouge → 409 ; recalcul d'une classe ; scénario `test_demo` ; OR-Tools dans `test_heavy_libraries…`.
+- **Regard senior** : pas de verrou Redis (le travailleur `heavy` n'a qu'un fil : un calcul à la fois pour la plateforme), une école = un calcul en attente ou en cours ; nouveau brouillon plutôt qu'un historique de 600 séances dans `Timetable.history` (réécrit à chaque geste) ; annulation = résultat ignoré (CP-SAT n'est pas interrompu, temps borné).
+- **Documents** : spec § 7 et § 13, `04`, `03` journal, `05` (découpage, file), `06`, `07` § 4, `reference.md`, `A-FAIRE.md` § 11.
+- **Risques** : import d'OR-Tools ≈ 74 Mo (pandas compris) ; `make demo` plus lent ; modèle trop gros si les séances identiques ne sont pas regroupées (une variable par cours, longueur et départ).

@@ -1771,6 +1771,8 @@ export const en: Messages<typeof fr> = {
         joint_teachers_differ: "Joint course ({{names}}) without the same teacher.",
         group_hours_differ:
           "{{names}} are taught at the same time but do not have the same hours ({{hours}}).",
+        group_sessions_differ:
+          "{{names}} are taught at the same time but are not split into the same lessons ({{sessions}}).",
         rule_without_object:
           "Its course, room or teacher is no longer there this year: edit or delete it.",
       },

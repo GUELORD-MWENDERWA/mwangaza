@@ -1792,6 +1792,8 @@ export const fr = {
         joint_teachers_differ: "Cours commun ({{names}}) sans le même enseignant.",
         group_hours_differ:
           "{{names}} se donnent en même temps, mais n'ont pas les mêmes heures ({{hours}}).",
+        group_sessions_differ:
+          "{{names}} se donnent en même temps, mais pas avec les mêmes séances ({{sessions}}).",
         rule_without_object:
           "Son cours, sa salle ou son enseignant n'est plus là cette année : à modifier ou à supprimer.",
       },

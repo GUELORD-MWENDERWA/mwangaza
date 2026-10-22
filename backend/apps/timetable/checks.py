@@ -740,7 +740,8 @@ def _orphans(rules, rooms, staff, by_course) -> list[Issue]:
 
 def _group_issues(parallel, joint, by_group) -> list[Issue]:
     """7. Groupes en parallèle au même enseignant ; cours commun à enseignants différents ;
-    heures différentes dans un groupe (ils se donnent en même temps) ; groupe sans objet."""
+    heures ou séances différentes dans un groupe (ils se donnent en même temps) ; groupe sans
+    objet."""
     issues = []
     for kind_groups, is_joint in ((parallel, False), (joint, True)):
         for rule, members in kind_groups:
@@ -782,9 +783,13 @@ def _group_issues(parallel, joint, by_group) -> list[Issue]:
             if not is_joint and len(mine) != len(set(mine)):
                 issues.append(issue("parallel_same_teacher"))
             hours = [course.weekly_hours or 0 for course in members]
+            sessions = ["+".join(map(str, placing.sessions(course))) for course in members]
             if len(set(hours)) > 1:
                 hours_text = ", ".join(str(value) for value in hours)
                 issues.append(issue("group_hours_differ", {"hours": hours_text}))
+            elif len(set(sessions)) > 1:
+                # Donnés ensemble, séance par séance (EDT.3a).
+                issues.append(issue("group_sessions_differ", {"sessions": ", ".join(sessions)}))
     return issues
 
 

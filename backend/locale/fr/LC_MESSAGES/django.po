@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-21 22:21+0200\n"
+"POT-Creation-Date: 2026-10-22 14:03+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -601,6 +601,7 @@ msgstr "Validée"
 #: apps/schools/models.py:388 apps/students/models.py:176
 #: apps/students/models.py:242 apps/students/models.py:290
 #: apps/sync/models.py:74 apps/timetable/models.py:258
+#: apps/timetable/models.py:380
 msgid "status"
 msgstr "statut"
 
@@ -3771,12 +3772,12 @@ msgstr "En attente"
 msgid "Running"
 msgstr "En cours"
 
-#: apps/core/models.py:385
+#: apps/core/models.py:385 apps/timetable/models.py:356
 msgid "Done"
 msgstr "Terminé"
 
 #: apps/core/models.py:386 apps/schools/models.py:344
-#: apps/students/models.py:227
+#: apps/students/models.py:227 apps/timetable/models.py:359
 msgid "Failed"
 msgstr "Échec"
 
@@ -6099,6 +6100,7 @@ msgid "more than %(days)s days late"
 msgstr "retard de plus de %(days)s jours"
 
 #: apps/finance/documents.py:372 apps/students/models.py:228
+#: apps/timetable/models.py:360
 msgid "Cancelled"
 msgstr "Annulé"
 
@@ -8992,7 +8994,7 @@ msgstr "rapport"
 msgid "students created"
 msgstr "élèves créés"
 
-#: apps/students/models.py:247
+#: apps/students/models.py:247 apps/timetable/models.py:391
 msgid "finished at"
 msgstr "terminé le"
 
@@ -9775,7 +9777,116 @@ msgstr "heure de l'horaire"
 msgid "timetable entries"
 msgstr "heures de l'horaire"
 
-#: apps/timetable/serializers.py:338
+#: apps/timetable/models.py:354
+msgid "Waiting"
+msgstr "En attente"
+
+#: apps/timetable/models.py:355
+msgid "Calculating"
+msgstr "Calcul en cours"
+
+#: apps/timetable/models.py:357
+msgid "Impossible"
+msgstr "Impossible"
+
+#: apps/timetable/models.py:358
+msgid "Not found in time"
+msgstr "Pas trouvé dans le temps"
+
+#: apps/timetable/models.py:363
+msgid "Whole timetable"
+msgstr "Tout l'horaire"
+
+#: apps/timetable/models.py:364
+msgid "One class"
+msgstr "Une classe"
+
+#: apps/timetable/models.py:365
+msgid "One teacher"
+msgstr "Un enseignant"
+
+#: apps/timetable/models.py:367
+msgid "request"
+msgstr "demande"
+
+#: apps/timetable/models.py:369
+msgid "draft"
+msgstr "brouillon"
+
+#: apps/timetable/models.py:377
+msgid "calculated draft"
+msgstr "brouillon calculé"
+
+#: apps/timetable/models.py:382
+msgid "scope"
+msgstr "portée"
+
+#: apps/timetable/models.py:384
+msgid "class or teacher"
+msgstr "classe ou enseignant"
+
+#: apps/timetable/models.py:386
+msgid "time limit (seconds)"
+msgstr "temps limite (secondes)"
+
+#: apps/timetable/models.py:390
+msgid "started at"
+msgstr "commencé le"
+
+#: apps/timetable/models.py:392
+msgid "duration (ms)"
+msgstr "durée (ms)"
+
+#: apps/timetable/models.py:393
+msgid "penalty"
+msgstr "pénalité"
+
+#: apps/timetable/models.py:394
+msgid "wishes not kept"
+msgstr "souhaits non tenus"
+
+#: apps/timetable/models.py:395
+msgid "blocking rules"
+msgstr "règles qui bloquent"
+
+#: apps/timetable/models.py:396
+msgid "memory peak (MB)"
+msgstr "pic de mémoire (Mo)"
+
+#: apps/timetable/models.py:400
+msgid "timetable calculation"
+msgstr "calcul de l'horaire"
+
+#: apps/timetable/models.py:401
+msgid "timetable calculations"
+msgstr "calculs de l'horaire"
+
+#: apps/timetable/runs.py:45
+msgid "A calculation is already under way for this school."
+msgstr "Un calcul est déjà en cours pour cette école."
+
+#: apps/timetable/runs.py:48
+msgid "Too many calculations are under way: try again in a few minutes."
+msgstr "Trop de calculs sont en cours : réessayez dans quelques minutes."
+
+#: apps/timetable/runs.py:51
+msgid "Fix what the checks show in red before calculating."
+msgstr "Corrigez ce que les contrôles montrent en rouge avant de calculer."
+
+#: apps/timetable/runs.py:54
+msgid "Choose a class or a teacher of this school year."
+msgstr "Choisissez une classe ou un enseignant de cette année scolaire."
+
+#: apps/timetable/runs.py:56
+msgid "This calculation is already finished."
+msgstr "Ce calcul est déjà terminé."
+
+#: apps/timetable/runs.py:194
+#, python-format
+msgid "%(name)s (calculated)"
+msgstr "%(name)s (calculé)"
+
+#: apps/timetable/serializers.py:342
 msgid ""
 "One change at a time: a move (day and first lesson), a room or the lock."
 msgstr ""
@@ -9861,6 +9972,6 @@ msgstr "les heures sont numérotées 1, 2, 3… dans l'ordre."
 msgid "at most 12 lessons a day."
 msgstr "12 heures de cours par jour au plus."
 
-#: apps/timetable/views.py:297
+#: apps/timetable/views.py:307 apps/timetable/views.py:426
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."

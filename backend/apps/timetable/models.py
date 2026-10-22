@@ -338,3 +338,72 @@ class TimetableEntry(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.weekday} {self.first}+{self.length}"
+
+
+# Temps de calcul (secondes) : préréglage, bornes (spec § 7 ; réglable dans la console en EDT.3b).
+RUN_SECONDS, MIN_RUN_SECONDS, MAX_RUN_SECONDS = 60, 10, 180
+
+
+class TimetableRun(TenantModel):
+    """Calcul automatique d'un brouillon (EDT.3a, spec § 7) [T] : demandé une seule fois (la même
+    demande renvoyée, même `request_id`, ne relance rien), fait par la file `heavy`, résultat
+    écrit dans un nouveau brouillon (`result`) ; le brouillon de départ ne change pas. Impossible :
+    `blocking` nomme les règles qui suffisent à le rendre impossible."""
+
+    class Status(models.TextChoices):
+        QUEUED = "queued", _("Waiting")
+        RUNNING = "running", _("Calculating")
+        DONE = "done", _("Done")
+        INFEASIBLE = "infeasible", _("Impossible")
+        TIMEOUT = "timeout", _("Not found in time")
+        ERROR = "error", _("Failed")
+        CANCELLED = "cancelled", _("Cancelled")
+
+    class Scope(models.TextChoices):
+        ALL = "all", _("Whole timetable")
+        CLASS = "class", _("One class")
+        TEACHER = "teacher", _("One teacher")
+
+    request_id = models.UUIDField(_("request"))
+    timetable = models.ForeignKey(
+        Timetable, on_delete=models.CASCADE, related_name="runs", verbose_name=_("draft")
+    )
+    result = models.ForeignKey(
+        Timetable,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("calculated draft"),
+    )
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.QUEUED
+    )
+    scope = models.CharField(_("scope"), max_length=7, choices=Scope.choices, default=Scope.ALL)
+    # La classe ou l'enseignant recalculé ; le reste de l'horaire ne bouge pas.
+    target = models.UUIDField(_("class or teacher"), null=True, blank=True)
+    time_limit = models.PositiveSmallIntegerField(
+        _("time limit (seconds)"),
+        default=RUN_SECONDS,
+        validators=[MinValueValidator(MIN_RUN_SECONDS), MaxValueValidator(MAX_RUN_SECONDS)],
+    )
+    started_at = models.DateTimeField(_("started at"), null=True, blank=True)
+    finished_at = models.DateTimeField(_("finished at"), null=True, blank=True)
+    duration_ms = models.PositiveIntegerField(_("duration (ms)"), null=True, blank=True)
+    score = models.IntegerField(_("penalty"), null=True, blank=True)
+    unmet = models.JSONField(_("wishes not kept"), default=list, blank=True)
+    blocking = models.JSONField(_("blocking rules"), default=list, blank=True)
+    peak_mb = models.PositiveIntegerField(_("memory peak (MB)"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("timetable calculation")
+        verbose_name_plural = _("timetable calculations")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "request_id"], name="timetable_run_request_unique"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.timetable} · {self.status}"

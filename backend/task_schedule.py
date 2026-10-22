@@ -19,6 +19,7 @@ TASK_ROUTES = {
     "apps.students.tasks.run_student_import": {"queue": HEAVY_QUEUE},
     "apps.schools.tasks.delete_space": {"queue": HEAVY_QUEUE},
     "apps.schools.tasks.fill_demonstration": {"queue": HEAVY_QUEUE},
+    "apps.timetable.tasks.run_timetable": {"queue": HEAVY_QUEUE},
     "apps.notifications.tasks.deliver": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.alert_console": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.tick": {"queue": FAST_QUEUE},
