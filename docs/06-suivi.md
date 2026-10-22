@@ -72,6 +72,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 - Fait : EDT.3 découpée (écran en EDT.3b, #379) ; `timetable/solver.py` (CP-SAT : unités, O1–O7, réglages, règles, souhaits, stabilité ; impossible → règles qui bloquent par hypothèses), `TimetableRun`, `runs.py`, tâche `run_timetable` (file `heavy`), API `/api/timetable/runs/` ; résultat dans un nouveau brouillon ; contrôle 7 `group_sessions_differ` ; OR-Tools ajouté ; `make demo` : heures de l'ITIG sous sa grille, horaire calculé en 10 s.
 - Tests : `test_runs.py` (petit cas de 3 classes et 4 enseignants jugé par `checks.draft`, recalcul d'une classe, cas impossible nommé, droits, isolation, même demande, refus) ; scénario `test_demo` ; files des tâches et bibliothèques lourdes.
 - Décisions : un fil en trois temps (recherche locale pour le premier horaire), pas de verrou Redis, nouveau brouillon plutôt qu'un historique (`03`) ; pic mesuré 257–271 Mo pour tout le processus (`docs/claude/recherches/edt3-solveur-mesures.md`, « À valider »).
+- Sécurité : `pip-audit` rouge sur `main` depuis le 2026-10-21 (34 failles connues) ; aiohttp 3.14.5, certifi 2026.10.19, Pillow 13.0.0, pypdf 6.21.2 mis à jour dans le verrou.
 - Suite : EDT.3b (écran du calcul).
 
 ### 2026-10-22 — Tâche EDT.2b : éditeur de l'horaire, autres vues
