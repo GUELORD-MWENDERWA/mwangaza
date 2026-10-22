@@ -1,10 +1,22 @@
-// Éditeur de l'horaire (EDT.2a) : teinte des cases pendant le choix d'une heure. Le serveur reste
-// juge ; l'écran ne doit pas dire « possible » là où la classe, l'enseignant ou la salle est déjà
-// pris, même quand deux classes suivent des grilles différentes (deux vacations).
+// Éditeur de l'horaire (EDT.2a, EDT.2b) : teinte des cases pendant le choix d'une heure, vues par
+// enseignant et par salle, noms courts de l'horaire général. Le serveur reste juge ; l'écran ne doit
+// pas dire « possible » là où la classe, l'enseignant ou la salle est déjà pris, ni où l'enseignant
+// est absent, même quand deux classes suivent des grilles différentes (deux vacations).
 import { describe, expect, it } from "vitest";
 
-import type { ClassRow, Room, TimeGrid } from "./data";
-import { type EditorCourse, type Entry, boardOf, lanesOf, placedOf, rowsOf, tint } from "./editor";
+import type { ClassRow, Room, TeacherProfile, TimeGrid } from "./data";
+import {
+  type DraftState,
+  type EditorCourse,
+  type Entry,
+  boardOf,
+  focusOf,
+  lanesOf,
+  placedOf,
+  rowsOf,
+  shortNames,
+  tint,
+} from "./editor";
 
 const slot = (weekday: number, index: number | null, start: string, end: string) => ({
   id: `${weekday}-${start}`,
@@ -107,6 +119,67 @@ describe("teinte des cases de l'éditeur", () => {
       { lane: 0, lanes: 2 },
       { lane: 1, lanes: 2 },
       { lane: 0, lanes: 1 },
+    ]);
+  });
+});
+
+describe("vues par enseignant et par salle, noms courts", () => {
+  // t1 est absent le lundi à partir de 09:00.
+  const profiles = [
+    { teacher: "t1", unavailable: [{ weekday: 1, start: "09:00", end: "12:00" }] },
+  ] as unknown as TeacherProfile[];
+  const board = boardOf(courses, classes, grids, rooms, profiles);
+
+  it("une heure où l'enseignant est absent se teinte en rouge", () => {
+    const maths = { course: courses[0]!, length: 1, room: null };
+    expect(tint(board, [], maths, 1, 1)).toEqual({ kind: "fits" });
+    expect(tint(board, [], maths, 1, 3)).toEqual({ kind: "absent", teacher: "t1" });
+  });
+
+  it("séances, reste à placer et conflits d'un enseignant ; grilles mélangées signalées", () => {
+    const state = {
+      entries: [entry("m", "maths", 1, 1, "r1"), entry("f", "french", 2, 1, "r1")],
+      left: [{ course: "physics", lengths: [2] }],
+      issues: [
+        { code: "same_room", entry: "f", values: { entries: ["m"] }, teacher: null, room: "r1" },
+        { code: "class_gap", entry: null, values: {}, class_group: "a", teacher: null },
+      ],
+    } as unknown as DraftState;
+    const mine = focusOf(board, state, "teacher", "t1");
+    expect(mine.entries.map((item) => item.id)).toEqual(["m"]);
+    expect(mine.left.map((item) => item.course.id)).toEqual(["physics"]);
+    expect(mine.issues.map((issue) => issue.code)).toEqual(["same_room"]);
+    // Maths en 1A (grille du matin), physique en 1B (grille décalée).
+    expect(mine.mixed).toBe(true);
+    // La salle 1 : les deux séances ; « À placer » : la physique n'y va pas (salle de la 1B : r2).
+    const room = focusOf(board, state, "room", "r1");
+    expect(room.entries.map((item) => item.id)).toEqual(["m", "f"]);
+    expect(room.left).toEqual([]);
+    expect(focusOf(board, state, "class", "a").issues).toHaveLength(2);
+  });
+
+  it("noms courts distincts dans une classe, les mêmes partout ailleurs", () => {
+    const named = (id: string, name: string, group: string) =>
+      ({ ...course(id, group, null), name }) as EditorCourse;
+    const codes = shortNames([
+      named("1", "Mathématiques", "a"),
+      named("2", "Éducation civique et morale", "a"),
+      named("3", "Électricité", "a"),
+      named("4", "Électronique", "a"),
+      named("5", "Électronique", "b"),
+      named("6", "Technologie électrique", "b"),
+      named("7", "Technologie électronique", "b"),
+      named("8", "H.G.A.", "b"),
+    ]);
+    expect([...codes.values()]).toEqual([
+      "Math",
+      "ÉduCM",
+      "Électri",
+      "Électro",
+      "Électro",
+      "TecÉlectri",
+      "TecÉlectro",
+      "HGA",
     ]);
   });
 });

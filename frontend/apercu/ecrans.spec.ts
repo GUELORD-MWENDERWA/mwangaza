@@ -169,6 +169,9 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     ];
     for (const path of pages)
       await visit(head, `${ITIG}${path}`, "gestion", path.replace(/\//g, "-") || "accueil");
+    // Éditeur de l'horaire (EDT.2b) : vues par enseignant, par salle, horaire général.
+    for (const view of ["teacher", "room", "all"])
+      await visit(head, `${ITIG}timetable?view=${view}`, "gestion", `timetable-${view}`);
     // Emploi du temps (EDT.1b) : vue « Emploi du temps » des cours, fenêtre des disponibilités.
     await visit(head, `${ITIG}courses`, "gestion", "courses-placement", async (page) => {
       await page.getByRole("radio", { name: "Emploi du temps" }).click();
