@@ -6,7 +6,7 @@
 // séances déjà chargées. Ordinateur : la semaine en grille ; téléphone : un jour à la fois.
 // Droit `timetable.manage`, en ligne seulement.
 import { api, call } from "@mwangaza/api";
-import { useTranslation } from "@mwangaza/i18n";
+import { formatDate, formatDay, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
@@ -36,6 +36,8 @@ import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
+import { can } from "../../lib/permissions";
+import { useCurrentMe, useSchool } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
 import {
@@ -50,6 +52,8 @@ import {
   useTeacherProfiles,
   useTimetableClasses,
   useTimetableCourses,
+  useVersions,
+  versionListKey,
 } from "./data";
 import {
   type Entry,
@@ -68,6 +72,7 @@ import {
 import { DayList, IssueText, type Pick, WeekGrid, capitalized } from "./EditorParts";
 import { EntryDialog, PlaceDialog } from "./EntryDialog";
 import { GeneralView } from "./GeneralView";
+import { PublishDialog } from "./PublishDialog";
 
 /** Textes propres à chaque vue (sélecteur, précédent, suivant, rien à placer). */
 const VIEW_TEXT = {
@@ -108,14 +113,19 @@ export function EditorPage() {
   const [params, setParams] = useSearchParams();
   const years = useYears();
   const drafts = useDrafts();
+  const versions = useVersions();
+  const canPublish = can(useCurrentMe(), ["timetable.publish"]);
+  const timeZone = useSchool().data?.timezone ?? "Africa/Lubumbashi";
   const courses = useTimetableCourses();
   const classes = useTimetableClasses();
   const grids = useGrids();
   const rooms = useRooms();
   const profiles = useTeacherProfiles();
-  const draftId = params.get("draft") ?? drafts.data?.[0]?.id;
+  // Sans brouillon choisi : le plus récent, sinon la version publiée (lecture seule).
+  const draftId = params.get("draft") ?? drafts.data?.[0]?.id ?? versions.data?.[0]?.id;
   const draft = useDraft(draftId);
-  const [creating, setCreating] = useState(false);
+  const [creating, setCreating] = useState<false | { from: string }>(false);
+  const [publishing, setPublishing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [opened, setOpened] = useState<{ entry: string } | { course: string; length: number }>();
   const [picked, setPicked] = useState<Pick | null>(null);
@@ -160,23 +170,34 @@ export function EditorPage() {
     },
   });
 
-  const queries = [years, drafts, courses, classes, grids, rooms, profiles];
+  const queries = [years, drafts, versions, courses, classes, grids, rooms, profiles];
   if (queries.some((query) => query.isPending) || (draftId && draft.isPending)) {
     return <Skeleton label={t("common.loading")} />;
   }
   const failed = [...queries, draft].find((query) => query.isError);
   if (failed) return <LoadError error={failed.error} onRetry={() => void failed.refetch()} />;
   const year = years.data?.find((item) => item.is_current);
+  // Une version publiée ou archivée ne se modifie plus (EDT.4a) : l'éditeur la montre en lecture.
+  const readOnly = Boolean(state && state.status !== "draft");
   const header = (actions?: React.ReactNode) => (
     <PageHeader
       title={t("timetable.editor.title")}
-      subtitle={t("timetable.editor.subtitle", { year: year?.name ?? "—" })}
+      subtitle={t(
+        state?.status === "published"
+          ? "timetable.editor.subtitlePublished"
+          : state?.status === "archived"
+            ? "timetable.editor.subtitleArchived"
+            : "timetable.editor.subtitle",
+        { year: year?.name ?? "—" },
+      )}
       actions={actions}
     />
   );
   const createDialog = creating && (
     <CreateDraftDialog
       drafts={drafts.data ?? []}
+      versions={versions.data ?? []}
+      from={creating.from}
       onClose={() => setCreating(false)}
       onCreated={(created) => {
         queryClient.setQueryData(draftKey(created.id), created);
@@ -218,7 +239,9 @@ export function EditorPage() {
           tone="lake"
           title={t("timetable.editor.emptyTitle")}
           actions={
-            <Button onClick={() => setCreating(true)}>{t("timetable.editor.createFirst")}</Button>
+            <Button onClick={() => setCreating({ from: "" })}>
+              {t("timetable.editor.createFirst")}
+            </Button>
           }
         >
           {t("timetable.editor.emptyText")}
@@ -309,7 +332,7 @@ export function EditorPage() {
   };
   const pickEntry = (entry: Entry) => {
     const course = board.courses.get(entry.course);
-    if (course && !entry.locked) {
+    if (course && !entry.locked && !readOnly) {
       setPicked({ course, length: entry.length, entry: entry.id, room: entry.room ?? null });
     }
   };
@@ -327,7 +350,7 @@ export function EditorPage() {
         <>
           <Select
             aria-label={t("timetable.editor.draft")}
-            className="w-full min-w-0 sm:w-auto"
+            className={cn("w-full min-w-0 sm:w-auto", readOnly && "max-[560px]:col-span-2")}
             value={state.id}
             onChange={(event) =>
               setParams((current) => {
@@ -336,29 +359,86 @@ export function EditorPage() {
               })
             }
           >
-            {(drafts.data ?? []).map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
+            <optgroup label={t("timetable.editor.drafts")}>
+              {(drafts.data ?? []).map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </optgroup>
+            {(versions.data ?? []).length > 0 && (
+              <optgroup label={t("timetable.editor.versions")}>
+                {(versions.data ?? []).map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.status === "published"
+                      ? t("timetable.editor.version.published", { name: item.name })
+                      : t("timetable.editor.version.archived", { name: item.name })}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </Select>
-          <Button
-            variant="outline"
-            disabled={!state.can_undo || gesture.isPending}
-            onClick={() => void run({ kind: "undo" }).catch(() => undefined)}
-          >
-            {t("timetable.editor.undo")}
-          </Button>
-          <Button variant="outline" onClick={() => setDeleting(true)}>
-            {t("timetable.editor.deleteDraft")}
-          </Button>
-          <Button asChild variant="outline">
-            <Link to={`/timetable/calculate?draft=${state.id}`}>
-              {t("timetable.calculation.open")}
-            </Link>
-          </Button>
-          <Button onClick={() => setCreating(true)}>{t("timetable.editor.newDraft")}</Button>
+          {readOnly ? (
+            <Button
+              className="max-[560px]:col-span-2"
+              onClick={() => setCreating({ from: state.id })}
+            >
+              {t("timetable.editor.copyVersion")}
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                disabled={!state.can_undo || gesture.isPending}
+                onClick={() => void run({ kind: "undo" }).catch(() => undefined)}
+              >
+                {t("timetable.editor.undo")}
+              </Button>
+              <Button variant="outline" onClick={() => setDeleting(true)}>
+                {t("timetable.editor.deleteDraft")}
+              </Button>
+              <Button asChild variant="outline">
+                <Link to={`/timetable/calculate?draft=${state.id}`}>
+                  {t("timetable.calculation.open")}
+                </Link>
+              </Button>
+              <Button
+                variant={canPublish ? "outline" : "default"}
+                onClick={() => setCreating({ from: "" })}
+              >
+                {t("timetable.editor.newDraft")}
+              </Button>
+              {canPublish && (
+                <Button onClick={() => setPublishing(true)}>{t("timetable.editor.publish")}</Button>
+              )}
+            </>
+          )}
         </>,
+      )}
+      {readOnly && (
+        <Banner tone="info" className="mb-4">
+          <span>
+            <b>
+              {t(
+                state.published_by
+                  ? "timetable.editor.publishedBy"
+                  : "timetable.editor.publishedOn",
+                {
+                  date: state.published_at
+                    ? formatDate(state.published_at, i18n.language, timeZone)
+                    : "—",
+                  name: state.published_by,
+                  from: state.valid_from ? formatDay(state.valid_from, i18n.language) : "—",
+                },
+              )}
+            </b>{" "}
+            {t(
+              state.status === "published"
+                ? "timetable.editor.publishedHelp"
+                : "timetable.editor.archivedHelp",
+            )}
+          </span>
+        </Banner>
       )}
       <div className="mb-4 flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -433,7 +513,7 @@ export function EditorPage() {
                 picked={picked}
                 codes={codes}
                 week={week}
-                onOpen={(entry) => setOpened({ entry: entry.id })}
+                onOpen={(entry) => !readOnly && setOpened({ entry: entry.id })}
                 onPick={pickEntry}
                 onUnpick={() => setPicked(null)}
                 onDropAt={dropAt}
@@ -465,6 +545,8 @@ export function EditorPage() {
                     {t("timetable.editor.cancelPick")}
                   </Button>
                 </div>
+              ) : readOnly ? (
+                <span className="text-sm text-ink-3">{t("timetable.editor.readOnlyHint")}</span>
               ) : absences?.length ? (
                 <span className="text-sm text-ink-3">{t("timetable.editor.absentHint")}</span>
               ) : null}
@@ -484,16 +566,18 @@ export function EditorPage() {
                 picked={picked}
                 context={kind}
                 absences={absences}
-                onOpen={(entry) => setOpened({ entry: entry.id })}
+                onOpen={(entry) => !readOnly && setOpened({ entry: entry.id })}
                 onPick={pickEntry}
                 onUnpick={() => setPicked(null)}
                 onDropAt={dropAt}
                 onDropOn={dropOn}
               />
-              <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-3">
-                <span>{t("timetable.editor.hint")}</span>
-                <span>{t("timetable.editor.lockHint")}</span>
-              </p>
+              {!readOnly && (
+                <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-ink-3">
+                  <span>{t("timetable.editor.hint")}</span>
+                  <span>{t("timetable.editor.lockHint")}</span>
+                </p>
+              )}
             </CardContent>
           </Card>
           <Card className="md:hidden">
@@ -521,10 +605,12 @@ export function EditorPage() {
                   marks={marks}
                   context={kind}
                   absences={absences}
-                  onOpen={(entry) => setOpened({ entry: entry.id })}
+                  onOpen={(entry) => !readOnly && setOpened({ entry: entry.id })}
                 />
               )}
-              <p className="text-sm text-ink-3">{t("timetable.editor.dayHint")}</p>
+              <p className="text-sm text-ink-3">
+                {t(readOnly ? "timetable.editor.readOnlyHint" : "timetable.editor.dayHint")}
+              </p>
             </CardContent>
           </Card>
           <div className="flex flex-col gap-4">
@@ -567,8 +653,9 @@ export function EditorPage() {
                     >
                       <button
                         type="button"
-                        draggable
-                        className="min-w-0 flex-1 cursor-grab text-left"
+                        draggable={!readOnly}
+                        disabled={readOnly}
+                        className="min-w-0 flex-1 cursor-grab text-left disabled:cursor-default"
                         aria-label={t("timetable.editor.pick", {
                           course: item.course.name,
                           length: item.length,
@@ -602,6 +689,7 @@ export function EditorPage() {
                       <Button
                         variant="outline"
                         size="sm"
+                        disabled={readOnly}
                         onClick={() => setOpened({ course: item.course.id, length: item.length })}
                       >
                         {t("timetable.editor.place")}
@@ -637,6 +725,21 @@ export function EditorPage() {
         <PlaceDialog course={placing} length={opened.length} {...common} />
       )}
       {createDialog}
+      {publishing && year && (
+        <PublishDialog
+          state={state}
+          year={year}
+          current={versions.data?.find((item) => item.status === "published")}
+          timeZone={timeZone}
+          onClose={() => setPublishing(false)}
+          onPublished={(published) => {
+            setPublishing(false);
+            queryClient.setQueryData(draftKey(published.id), published);
+            void queryClient.invalidateQueries({ queryKey: draftListKey });
+            void queryClient.invalidateQueries({ queryKey: versionListKey });
+          }}
+        />
+      )}
       <ConfirmDialog
         open={deleting}
         onOpenChange={setDeleting}
@@ -696,10 +799,14 @@ function IssuesCard({
 /** Nouveau brouillon : un nom, puis les verrous des règles ou la copie d'un brouillon. */
 function CreateDraftDialog({
   drafts,
+  versions,
+  from: initial,
   onClose,
   onCreated,
 }: {
   drafts: { id: string; name: string }[];
+  versions: { id: string; name: string; status: string }[];
+  from: string;
   onClose: () => void;
   onCreated: (state: DraftState) => void;
 }) {
@@ -708,7 +815,7 @@ function CreateDraftDialog({
     new Date(),
   );
   const [name, setName] = useState(t("timetable.editor.create.nameDefault", { date: today }));
-  const [from, setFrom] = useState("");
+  const [from, setFrom] = useState(initial);
   const create = useMutation({
     mutationFn: () =>
       call(
@@ -748,7 +855,7 @@ function CreateDraftDialog({
             {(control) => (
               <Select {...control} value={from} onChange={(event) => setFrom(event.target.value)}>
                 <option value="">{t("timetable.editor.create.fromLocks")}</option>
-                {drafts.map((item) => (
+                {[...versions, ...drafts].map((item) => (
                   <option key={item.id} value={item.id}>
                     {t("timetable.editor.create.fromDraft", { name: item.name })}
                   </option>

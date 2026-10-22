@@ -118,6 +118,11 @@ def created(demo) -> None:
         assert (locked.weekday, locked.first, locked.length, locked.locked) == (1, 2, 6, True)
         run = TimetableRun.objects.select_related("result").get()
         assert run.status == "done" and run.result.based_on_id == source.pk
+        # EDT.4a : publié dès la rentrée.
+        assert (run.result.status, run.result.valid_from) == (
+            "published",
+            AcademicYear.objects.get(is_current=True).starts_on,
+        )
         draft = checks.draft(run.result)
         assert draft["errors"] == 0 and draft["left"] == [], draft["issues"]
         kept = [entry for entry in draft["entries"] if entry.course_id == locked.course_id]

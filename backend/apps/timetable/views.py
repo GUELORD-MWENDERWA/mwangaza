@@ -14,12 +14,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.permissions import HasSchoolPermission
-from apps.accounts.roles import TIMETABLE_MANAGE
+from apps.accounts.roles import TIMETABLE_MANAGE, TIMETABLE_PUBLISH
 from apps.core.errors import ErrorSerializer
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, constraints, drafts, runs, services
+from apps.timetable import checks, constraints, drafts, runs, services, versions
 from apps.timetable.models import (
     Room,
     TimeGrid,
@@ -35,6 +35,7 @@ from apps.timetable.serializers import (
     DraftStateSerializer,
     EntryChangeSerializer,
     PlaceSerializer,
+    PublishSerializer,
     RoomCreateSerializer,
     RoomSerializer,
     RoomUpdateSerializer,
@@ -53,6 +54,7 @@ from apps.timetable.serializers import (
     TimetableRuleSerializer,
     TimetableRulesSerializer,
     TimetableRuleWriteSerializer,
+    VersionSerializer,
 )
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
@@ -295,17 +297,19 @@ class DraftsView(_TimetableView):
         request=DraftCreateSerializer, responses={201: DraftStateSerializer, **WRITE_ERRORS}
     )
     def post(self, request: Request) -> Response:
-        """Nouveau brouillon : copie d'un brouillon de l'année, ou vide avec les heures
-        verrouillées des règles déjà placées (journal)."""
+        """Nouveau brouillon : copie d'une version de l'année (brouillon, publiée ou archivée),
+        ou vide avec les heures verrouillées des règles déjà placées (journal)."""
         data = DraftCreateSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         year = organisation.current_year()
         based_on = None
         if data.validated_data["based_on"]:
-            based_on = drafts.drafts(year).filter(pk=data.validated_data["based_on"]).first()
+            based_on = Timetable.objects.filter(
+                academic_year=year, pk=data.validated_data["based_on"]
+            ).first()
             if based_on is None:
                 return Response(
-                    {"based_on": [_("This draft does not exist.")]},
+                    {"based_on": [_("This timetable does not exist.")]},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         timetable = drafts.create_draft(
@@ -318,7 +322,8 @@ class DraftsView(_TimetableView):
 class DraftView(_TimetableView):
     @extend_schema(responses={200: DraftStateSerializer, **ERRORS})
     def get(self, request: Request, pk) -> Response:
-        """Un brouillon : séances, conflits (recalculés), reste à placer, heures placées / dues."""
+        """Un brouillon, ou une version publiée ou archivée (lecture seule) : séances, conflits
+        (recalculés), reste à placer, heures placées / dues."""
         return _state(get_object_or_404(Timetable, pk=pk))
 
     @extend_schema(responses={204: None, **WRITE_ERRORS})
@@ -398,6 +403,33 @@ class DraftUndoView(_TimetableView):
         """Annule le dernier geste (50 derniers gardés)."""
         timetable = get_object_or_404(Timetable, pk=pk)
         return _state(drafts.undo(timetable, actor=request.user))
+
+
+@extend_schema(tags=["timetable"])
+class DraftPublishView(_TimetableView):
+    required_permission = TIMETABLE_PUBLISH
+
+    @extend_schema(request=PublishSerializer, responses={200: DraftStateSerializer, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Publie le brouillon : il devient l'horaire de l'école dès `valid_from`, ne se modifie
+        plus, et la version en vigueur est archivée (journal). Refusé (409) tant que le brouillon
+        a des conflits ; le reste à placer ne bloque pas."""
+        timetable = get_object_or_404(Timetable, pk=pk)
+        data = PublishSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        published = versions.publish(
+            timetable, valid_from=data.validated_data["valid_from"], actor=request.user
+        )
+        return _state(published)
+
+
+@extend_schema(tags=["timetable"])
+class VersionsView(_TimetableView):
+    @extend_schema(responses={200: VersionSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Version publiée puis anciennes versions (archivées) de l'année en cours."""
+        listed = versions.versions(organisation.current_year())
+        return Response(VersionSerializer(listed, many=True).data)
 
 
 @extend_schema(tags=["timetable"])

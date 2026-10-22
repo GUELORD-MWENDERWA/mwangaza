@@ -21,7 +21,7 @@ from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup
 from apps.schools.organisation import current_year
-from apps.timetable import checks, constraints, runs
+from apps.timetable import checks, constraints, runs, versions
 from apps.timetable.models import (
     Room,
     TeacherTimetableProfile,
@@ -242,7 +242,8 @@ def _rules() -> None:
 
 def _calculated() -> None:
     """Un brouillon de l'ITIG avec les heures verrouillées des règles (EDT.2a), puis son horaire
-    calculé une fois par le solveur, comme le ferait l'écran (EDT.3a), en temps court."""
+    calculé une fois par le solveur, comme le ferait l'écran (EDT.3a), en temps court, et publié
+    dès la rentrée (EDT.4a)."""
     year = current_year()
     locks, rooms = checks.fixed_locks(year)
     draft = Timetable.objects.create(academic_year=year, name="Brouillon de démonstration")
@@ -260,3 +261,6 @@ def _calculated() -> None:
     )
     run = TimetableRun.objects.create(request_id=uuid7(), timetable=draft, time_limit=DEMO_SECONDS)
     runs.execute(str(run.pk))
+    run.refresh_from_db()
+    if run.result is not None:
+        versions.publish(run.result, valid_from=year.starts_on, actor=None)

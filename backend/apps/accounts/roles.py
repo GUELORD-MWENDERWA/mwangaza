@@ -41,6 +41,7 @@ PERMISSIONS: dict[str, Promise] = {
     "finance.view_reports": _("View financial reports"),
     "finance.import_prior_payments": _("Record what students paid before the school started here"),
     "timetable.manage": _("Configure the timetable: time grids, rooms and rules"),
+    "timetable.publish": _("Publish the timetable"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
 }
@@ -72,6 +73,8 @@ GRADES_VALIDATE = "grades.validate"
 ROLES_MANAGE = "roles.manage"
 # Publier et archiver les annonces aux familles (H4).
 TIMETABLE_MANAGE = "timetable.manage"
+# Publier un brouillon de l'horaire : il devient celui de l'école, l'ancien est archivé (EDT.4a).
+TIMETABLE_PUBLISH = "timetable.publish"
 ANNOUNCEMENTS_PUBLISH = "announcements.publish"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
@@ -143,6 +146,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.view_reports",
             "finance.import_prior_payments",
             "timetable.manage",
+            "timetable.publish",
             "announcements.publish",
             "audit.view",
         ),
@@ -158,6 +162,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "students.view",
             "students.edit",
             "timetable.manage",
+            "timetable.publish",
             "announcements.publish",
         ),
     ),

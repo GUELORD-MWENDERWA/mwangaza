@@ -118,6 +118,7 @@ class Action(models.TextChoices):
     TIMETABLE_DRAFT_CREATED = "timetable.draft_created", _("Timetable draft created")
     TIMETABLE_DRAFT_DELETED = "timetable.draft_deleted", _("Timetable draft deleted")
     TIMETABLE_LOCK_CHANGED = "timetable.lock_changed", _("Lesson locked or unlocked")
+    TIMETABLE_PUBLISHED = "timetable.published", _("Timetable published")
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
     RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
     # Délibération (8.4.2) : décision d'un élève, date, proclamation des résultats, réouverture.

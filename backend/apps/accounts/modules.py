@@ -38,7 +38,7 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
     # Sans permission : ils ouvrent des fonctions (portail des parents, notifications à l'écran,
     # travail hors-ligne), pas des droits du personnel.
     # Emploi du temps (bloc EDT) : grilles, salles, puis règles, calcul et publication.
-    "timetable": (_("Timetable"), ("timetable.manage",)),
+    "timetable": (_("Timetable"), ("timetable.manage", "timetable.publish")),
     "portal": (_("Parent portal"), ()),
     "notifications": (_("Notifications and reminders"), ()),
     "offline": (_("Offline work and synchronisation"), ()),
