@@ -16,6 +16,7 @@ from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
     FINANCE_APPROVE_CANCELLATION,
     FINANCE_VIEW_REPORTS,
+    GRADES_ENTER,
     GRADES_VALIDATE,
     ROLES_MANAGE,
 )
@@ -43,6 +44,8 @@ STAFF_KINDS = {
     # Le titulaire la reçoit aussi (`events.grades_sent`), sans pouvoir la couper : une par cours.
     Kind.GRADES_SENT: GRADES_VALIDATE,
     Kind.REPORT_CARDS_READY: GRADES_VALIDATE,
+    # Nouvel horaire (EDT.4b) : envoyé aux enseignants dont les heures changent, réglable par eux.
+    Kind.TIMETABLE_PUBLISHED: GRADES_ENTER,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})
@@ -61,6 +64,7 @@ PREFERENCE_KINDS = {
         Kind.PLACE_OFFERED,
         Kind.PAYMENT_DUE,
         Kind.PAYMENT_OVERDUE,
+        Kind.TIMETABLE_PUBLISHED,
     ],
 }
 # Notifications par tâche d'envoi : une annonce à mille familles ne retient pas un worker.
@@ -162,7 +166,7 @@ def offered_kinds(app: str, permissions: Iterable[str] = ()) -> list[str]:
     return [
         kind
         for kind in PREFERENCE_KINDS[app]
-        if kind not in STAFF_KINDS or STAFF_KINDS[kind] in permissions
+        if app != App.GESTION or kind not in STAFF_KINDS or STAFF_KINDS[kind] in permissions
     ]
 
 

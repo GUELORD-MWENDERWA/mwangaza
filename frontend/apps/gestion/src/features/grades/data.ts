@@ -5,9 +5,10 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 import type { LocalDb } from "../../lib/sync/db";
 import { keys } from "../../lib/queries";
+import { readOrKept } from "../../lib/sync/reads";
 import { useSyncStatus } from "../../lib/sync/session";
 import { layoutQuery, type PrintLayout } from "../printing/printOptions";
-import { GRADING_ID, isNetworkError, recall, remember, sheetId, sheetQueue } from "./offline";
+import { GRADING_ID, sheetId, sheetQueue } from "./offline";
 
 export type Grading = Schemas["Grading"];
 export type GradingClass = Schemas["GradingClass"];
@@ -17,27 +18,12 @@ export type TotalsSheet = Schemas["TotalsSheet"];
 export type Validation = Schemas["Validation"];
 
 /** Lecture en ligne, gardée sur l'appareil (8.2.3) ; sans réponse du serveur, la copie gardée. */
-async function readOrRecall<T>(
+const readOrRecall = async <T>(
   db: LocalDb | null,
   id: string,
   read: () => Promise<T>,
-  prefer: () => Promise<boolean> = async () => false,
-): Promise<T> {
-  if (db && (await prefer())) {
-    const local = await recall<T>(db, id);
-    if (local) return local.value;
-  }
-  const startedAt = Date.now();
-  try {
-    const value = await read();
-    if (db) void remember(db, id, value, startedAt).catch(() => undefined);
-    return value;
-  } catch (error) {
-    const local = db && isNetworkError(error) ? await recall<T>(db, id) : undefined;
-    if (local) return local.value;
-    throw error;
-  }
-}
+  prefer?: () => Promise<boolean>,
+) => (await readOrKept(db?.grades ?? null, id, read, prefer)).value;
 
 export function useGrading() {
   const { db } = useSyncStatus();

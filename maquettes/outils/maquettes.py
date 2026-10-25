@@ -175,6 +175,7 @@ ACTIVE_FOR = {
     "emploi-du-temps-general.html": "notes-saisie.html",
     "calcul-emploi-du-temps.html": "notes-saisie.html",
     "publication-emploi-du-temps.html": "notes-saisie.html",
+    "mon-horaire.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
 }
 
@@ -202,6 +203,7 @@ USERS = {
     "secretaire": ("Masika Furaha", "Secrétaire", "MF"),
     "promoteur": ("Fr. Innocent Mugisho", "Promoteur", "IM"),
     "de": ("Esther Kavugho", "Directrice des études", "EK"),
+    "enseignant": ("Jean Kambale", "Enseignant · titulaire 2HT Électricité A", "JK"),
 }
 
 SYNC = {
@@ -377,6 +379,7 @@ GESTION = [
     ("emploi-du-temps-general", "Emploi du temps : horaire général", "V1.2", "Plus tard · EDT.2b", True),
     ("calcul-emploi-du-temps", "Emploi du temps : calcul automatique", "V1.2", "Plus tard · EDT.3b", True),
     ("publication-emploi-du-temps", "Emploi du temps : publication", "V1.2", "Plus tard · EDT.4a", True),
+    ("mon-horaire", "Mon horaire (enseignant, sans réseau)", "V1.2", "Plus tard · EDT.4b", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),
     ("bulletin-education-de-base", "Bulletin officiel — 7e-8e EB", "V1.2", "Plus tard · 6.3", True),
 ]
@@ -394,6 +397,7 @@ PORTAIL = [
     ("profil", "Profil et coordonnées", "V1.0", "H5", False),
     ("verification-recu", "Vérification publique d'un reçu", "V1.0", "F4", False),
     ("enfant-scolarite", "Scolarité d'un enfant", "V1.2", "6.8", False),
+    ("enfant-horaire", "Horaire de la classe d'un enfant", "V1.2", "EDT.4b", True),
 ]
 
 

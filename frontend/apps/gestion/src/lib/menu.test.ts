@@ -64,6 +64,8 @@ describe("menu selon les permissions (04 § 8)", () => {
 
   it("enseignant : ses notes (8.2.1) et ce que tout le personnel lit (5.7)", () => {
     expect(keysOf(me("teacher"))).toEqual([
+      // Son horaire publié, lisible sans réseau (EDT.4b).
+      "myTimetable",
       "grades",
       "gradeSheets",
       "application",
@@ -80,7 +82,7 @@ describe("menu selon les permissions (04 § 8)", () => {
     // Titulaire d'une classe (NB.3) : « Ma classe » en plus.
     const titular = me("teacher");
     titular.school = { ...titular.school!, homeroom: true };
-    expect(keysOf(titular).slice(0, 2)).toEqual(["grades", "homeroom"]);
+    expect(keysOf(titular).slice(0, 3)).toEqual(["myTimetable", "grades", "homeroom"]);
   });
 
   it("session support : droits de l'école sauf la caisse", () => {

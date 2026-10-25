@@ -463,3 +463,41 @@ class RunListSerializer(serializers.Serializer):
         "console)."
     )
     runs = RunSerializer(many=True)
+
+
+# Lecture de l'horaire publié (EDT.4b)
+
+
+class ScheduleLessonSerializer(serializers.Serializer):
+    weekday = serializers.IntegerField(help_text="1 = lundi … 7 = dimanche.")
+    first = serializers.IntegerField(help_text="Numéro de la première heure.")
+    length = serializers.IntegerField(help_text="Heures qui se suivent.")
+    start = serializers.TimeField(
+        allow_null=True, format="%H:%M", help_text="Vide : la grille ne porte plus ces heures."
+    )
+    end = serializers.TimeField(allow_null=True, format="%H:%M")
+    course = serializers.CharField()
+    class_group = serializers.CharField()
+    teacher = serializers.CharField(help_text="Nom de l'enseignant ; vide sans nom.")
+    room = serializers.CharField(help_text="Vide : sans salle.")
+
+
+class PublishedTimetableSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    valid_from = serializers.DateField(allow_null=True, help_text="En vigueur dès.")
+    published_at = serializers.DateTimeField(allow_null=True)
+
+
+class HomeroomScheduleSerializer(serializers.Serializer):
+    class_group = serializers.CharField()
+    lessons = ScheduleLessonSerializer(many=True)
+
+
+class MyTimetableSerializer(serializers.Serializer):
+    timetable = PublishedTimetableSerializer(
+        allow_null=True, help_text="Vide : aucun horaire publié cette année."
+    )
+    lessons = ScheduleLessonSerializer(many=True, help_text="Séances du compte.")
+    homeroom = HomeroomScheduleSerializer(
+        allow_null=True, help_text="Classe dont le compte est titulaire cette année."
+    )

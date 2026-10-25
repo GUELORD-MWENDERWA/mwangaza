@@ -31,7 +31,7 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern:
-              /\/api\/portal\/(me|families|children\/[0-9a-f-]+|announcements|calendar|summons)\/$/,
+              /\/api\/portal\/(me|families|children\/[0-9a-f-]+(\/timetable)?|announcements|calendar|summons)\/$/,
             handler: "NetworkFirst",
             options: { cacheName: "portal-data", networkTimeoutSeconds: 10 },
           },

@@ -13,13 +13,13 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import HasSchoolPermission
+from apps.accounts.permissions import HasSchoolAccess, HasSchoolPermission
 from apps.accounts.roles import TIMETABLE_MANAGE, TIMETABLE_PUBLISH
 from apps.core.errors import ErrorSerializer
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, constraints, drafts, runs, services, versions
+from apps.timetable import checks, constraints, drafts, runs, schedule, services, versions
 from apps.timetable.models import (
     Room,
     TimeGrid,
@@ -34,6 +34,7 @@ from apps.timetable.serializers import (
     DraftSerializer,
     DraftStateSerializer,
     EntryChangeSerializer,
+    MyTimetableSerializer,
     PlaceSerializer,
     PublishSerializer,
     RoomCreateSerializer,
@@ -430,6 +431,21 @@ class VersionsView(_TimetableView):
         """Version publiée puis anciennes versions (archivées) de l'année en cours."""
         listed = versions.versions(organisation.current_year())
         return Response(VersionSerializer(listed, many=True).data)
+
+
+@extend_schema(tags=["timetable"])
+class MyTimetableView(APIView):
+    """« Mon horaire » (EDT.4b) : tout le personnel de l'école le lit, chacun seulement ses
+    séances et celles de la classe dont il est titulaire."""
+
+    permission_classes = [HasSchoolAccess]
+    required_module = "timetable"
+
+    @extend_schema(responses={200: MyTimetableSerializer, 403: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        """Séances du compte dans l'horaire publié de l'année en cours (début et fin d'après la
+        grille de chaque classe) et, s'il est titulaire, celles de sa classe."""
+        return Response(MyTimetableSerializer(schedule.mine(request.user)).data)
 
 
 @extend_schema(tags=["timetable"])

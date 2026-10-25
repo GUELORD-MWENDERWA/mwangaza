@@ -44,6 +44,8 @@ export type QueuedOperation = Operation & {
  *  (`grading`, `sheet|<cours>|<période>`). Une feuille saisie hors ligne y est mise à jour, avec
  *  son opération `grades.save` dans la file. */
 export type GradesRow = { id: string; value: unknown; readAt: number };
+/** Lectures gardées pour la lecture sans réseau, sans file (« Mon horaire », EDT.4b). */
+export type ReadRow = GradesRow;
 
 type ConfigRow = { id: "config"; value: Config };
 type MetaRow = SyncMeta & { id: "sync" };
@@ -68,6 +70,7 @@ export class LocalDb extends Dexie {
   outbox!: EntityTable<QueuedOperation, "seq">;
   cash!: EntityTable<CashRow, "id">;
   grades!: EntityTable<GradesRow, "id">;
+  reads!: EntityTable<ReadRow, "id">;
 
   constructor(deviceId: string) {
     super(localDbName(deviceId));
@@ -81,6 +84,7 @@ export class LocalDb extends Dexie {
     });
     this.version(2).stores({ cash: "id" });
     this.version(3).stores({ grades: "id" });
+    this.version(4).stores({ reads: "id" });
     this.on("populate", (transaction) => {
       void transaction.table("meta").add({ ...EMPTY_META, id: "sync" });
     });

@@ -34,6 +34,15 @@ export function useChildConduct(id: string) {
   });
 }
 
+/** Horaire de la classe de l'enfant (EDT.4b) : la version publiée. */
+export function useChildTimetable(id: string) {
+  return useQuery({
+    queryKey: ["portal", "child", id, "timetable"],
+    queryFn: () =>
+      call(api.GET("/api/portal/children/{id}/timetable/", { params: { path: { id } } })),
+  });
+}
+
 /** Reçu PDF d'un paiement, ouvert par le navigateur (session du portail). */
 export function receiptUrl(paymentId: string): string {
   return `/api/portal/payments/${paymentId}/receipt/`;

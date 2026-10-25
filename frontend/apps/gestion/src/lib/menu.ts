@@ -92,6 +92,14 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "EDT.2a",
       },
       {
+        key: "myTimetable",
+        path: "my-timetable",
+        icon: "clock",
+        permissions: ["grades.enter", "grades.enter_any"],
+        task: "EDT.4b",
+        module: "timetable",
+      },
+      {
         key: "grades",
         path: "grades",
         icon: "edit",

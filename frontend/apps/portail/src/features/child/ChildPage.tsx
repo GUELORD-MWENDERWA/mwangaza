@@ -31,6 +31,7 @@ import {
 } from "../../lib/families";
 import { PortalFrame } from "../home/PortalFrame";
 import { ChildAvatar } from "./ChildAvatar";
+import { ChildTimetable } from "./ChildTimetable";
 
 const TONES = {
   paid: "ok",
@@ -68,6 +69,7 @@ export function ChildPage() {
       )}
       {data && <Payments child={data} />}
       {data && <Conduct id={id} />}
+      {data && <ChildTimetable id={id} />}
     </PortalFrame>
   );
 }

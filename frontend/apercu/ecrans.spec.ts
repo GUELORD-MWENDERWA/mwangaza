@@ -220,6 +220,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     const own = await json<{ classes: { id: string; name: string }[] }>(teacher, "/api/homeroom/");
     const titular = own.classes.find((item) => item.name === "3HT ÉLECTRICITÉ A") ?? own.classes[0];
     await visit(teacher, `${ITIG}homeroom?class=${titular!.id}`, "gestion", "homeroom");
+    // Mon horaire (EDT.4b) : ses séances dans l'horaire publié.
+    await visit(teacher, `${ITIG}my-timetable`, "gestion", "my-timetable");
     // Suivi des notes (8.2.2, NB.2) : la directrice des études (double authentification).
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");

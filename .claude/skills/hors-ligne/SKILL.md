@@ -9,7 +9,7 @@ Référence complète : `docs/03-architecture-technique.md` § 5 (principes, end
 
 ## Ce qui marche sans réseau en V1.0
 
-Notes (8.2.3) : feuilles lues en ligne puis saisies sans réseau (`grades.save`, copie Dexie `grades` ; mêmes droits qu'en ligne : le carnet est à l'enseignant du cours, `grades.enter_any` n'y met qu'un total, NB.1), envoi et validation en ligne. Consultation des élèves et de leur situation financière, encaissement, impression et réimpression des reçus, demande d'annulation (validée en ligne), clôture de caisse (envoyée à la reconnexion). La configuration (frais, barèmes, rôles, classes) se fait **en ligne seulement**.
+Notes (8.2.3) : feuilles lues en ligne puis saisies sans réseau (`grades.save`, copie Dexie `grades` ; mêmes droits qu'en ligne : le carnet est à l'enseignant du cours, `grades.enter_any` n'y met qu'un total, NB.1), envoi et validation en ligne. « Mon horaire » (EDT.4b) : lecture seule, dernière lecture gardée dans la table Dexie `reads` (`lib/sync/reads.ts` : `readOrKept`, aussi utilisée par les notes), relue à l'ouverture de l'application. Consultation des élèves et de leur situation financière, encaissement, impression et réimpression des reçus, demande d'annulation (validée en ligne), clôture de caisse (envoyée à la reconnexion). La configuration (frais, barèmes, rôles, classes) se fait **en ligne seulement**.
 
 ## Écrire hors-ligne (navigateur)
 

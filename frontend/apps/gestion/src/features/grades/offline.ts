@@ -3,12 +3,12 @@
 // met à jour la feuille gardée et ajoute l'opération `grades.save` à la file, dans une seule
 // transaction. À la reconnexion la file part, dans l'ordre ; refusée (date limite, feuille
 // validée…), l'opération reste dans la file avec sa raison, montrée sur la feuille.
-import { ApiError } from "@mwangaza/api";
 import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
 
 import { uuidv7 } from "../../lib/ids";
 import type { LocalDb, QueuedOperation } from "../../lib/sync/db";
+import { isNetworkError, keep, kept } from "../../lib/sync/reads";
 import { syncNow } from "../../lib/sync/session";
 import type { Sheet } from "./data";
 import { applySave, type SaveBody } from "./sheet";
@@ -16,23 +16,13 @@ import { applySave, type SaveBody } from "./sheet";
 export const GRADING_ID = "grading";
 export const sheetId = (course: string, term: string) => `sheet|${course}|${term}`;
 
-type Cached<T> = { value: T; readAt: number };
+/** Garde ce que le serveur vient de donner (`lib/sync/reads.ts`). */
+export const remember = (db: LocalDb, id: string, value: unknown, readAt = Date.now()) =>
+  keep(db.grades, id, value, readAt);
 
-/** Garde ce que le serveur vient de donner ; une lecture plus ancienne que celle gardée (réponse
- *  arrivée en retard) ne la remplace pas. */
-export async function remember(db: LocalDb, id: string, value: unknown, readAt = Date.now()) {
-  await db.transaction("rw", db.grades, async () => {
-    const saved = await db.grades.get(id);
-    if ((saved?.readAt ?? 0) <= readAt) await db.grades.put({ id, value, readAt });
-  });
-}
+export const recall = <T>(db: LocalDb, id: string) => kept<T>(db.grades, id);
 
-export async function recall<T>(db: LocalDb, id: string): Promise<Cached<T> | undefined> {
-  return (await db.grades.get(id)) as Cached<T> | undefined;
-}
-
-/** Pas de réponse du serveur (hors ligne, serveur injoignable) : on retombe sur l'appareil. */
-export const isNetworkError = (error: unknown) => error instanceof ApiError && error.status === 0;
+export { isNetworkError };
 
 const isSheetOp = (op: QueuedOperation, course: string, term: string) =>
   op.type === "grades.save" && op.payload.course === course && op.payload.term === term;

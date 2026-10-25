@@ -40,6 +40,14 @@ export { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/tabs";
 export { SyncIndicator } from "./components/sync-indicator";
 export { Toast } from "./components/toast";
 export { Kpi } from "./components/kpi";
+export {
+  type DayNames,
+  isoWeekday,
+  type ScheduleLesson,
+  toSchedule,
+  WeekSchedule,
+  weekdaysOf,
+} from "./components/week-schedule";
 export { Icon, type IconName } from "./icons";
 export { cn } from "./lib/cn";
 export { DESKTOP, useMediaQuery } from "./media";
