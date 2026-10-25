@@ -262,6 +262,12 @@ class PlatformAction(models.TextChoices):
     PLATFORM_UPDATED = "platform.updated", _("Platform identity changed")
     PLATFORM_LOGO_CHANGED = "platform.logo_changed", _("Platform logo changed")
     PLATFORM_ICON_CHANGED = "platform.icon_changed", _("Application icon changed")
+    # Intelligence artificielle (IA.1.1) : réglages, usages et crédits d'une école, plafond.
+    AI_SETTINGS_CHANGED = "ai.settings_changed", _("AI settings changed")
+    AI_ALLOWANCE_CHANGED = "ai.allowance_changed", _("AI uses or credits of a school changed")
+    AI_TOP_UP = "ai.top_up", _("AI credits added to a school")
+    AI_CAP_80 = "ai.cap_80", _("AI spending reached 80 % of the monthly cap")
+    AI_CAP_100 = "ai.cap_100", _("AI monthly cap reached")
     # Écoles (5.3) : identité et abonnement ; l'école en voit une partie dans son propre journal.
     SCHOOL_CREATED = "school.created", _("School created")
     SCHOOL_UPDATED = "school.updated", _("School or subscription changed")

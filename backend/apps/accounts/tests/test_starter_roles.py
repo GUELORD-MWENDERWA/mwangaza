@@ -56,6 +56,7 @@ TABLE = {
     "finance.import_prior_payments": "✔ . . ✔ . . . .",
     "timetable.manage": "✔ ✔ . . . . . .",
     "timetable.publish": "✔ ✔ . . . . . .",
+    "ai.use": ". . . . . . . .",
     "announcements.publish": "✔ ✔ ✔ . . ✔ . .",
     "audit.view": "✔ . . . . . ✔ .",
 }

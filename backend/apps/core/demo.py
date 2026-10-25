@@ -12,6 +12,7 @@ from django.utils import timezone
 from apps.academics.demo import create_demo_courses, create_demo_grades, create_demo_promotion
 from apps.accounts.demo import create_demo_accounts
 from apps.accounts.phone import DEMO_PHONE_PREFIX
+from apps.ai.demo import create_demo_ai
 from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools
 from apps.finance.demo import (
@@ -45,6 +46,7 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_organisation,
     create_demo_courses,
     create_demo_timetable,
+    create_demo_ai,
     create_demo_fees,
     create_demo_students,
     create_demo_grades,

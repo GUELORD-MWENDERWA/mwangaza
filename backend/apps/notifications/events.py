@@ -465,3 +465,25 @@ def timetable_published(timetable, *, teachers: set, class_groups: set, actor: U
                     )
                 )
     return len(push.create(school, drafts))
+
+
+# IA (IA.1.1)
+
+
+def ai_credits_low(balance) -> None:
+    """80 % des crédits IA du mois dépensés : une fois par mois (`AiBalance.alerted_80`), à ceux
+    qui gèrent les rôles de l'école. Dans l'école courante."""
+
+    def text():
+        return (
+            _("AI credits running low"),
+            _("80 percent of this month's AI credits are used. Ask the support for more."),
+        )
+
+    send(
+        staff(Kind.AI_CREDITS),
+        app=App.GESTION,
+        kind=Kind.AI_CREDITS,
+        url="/settings",
+        text=text,
+    )

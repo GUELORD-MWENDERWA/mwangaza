@@ -7,7 +7,7 @@ from rest_framework.throttling import SimpleRateThrottle
 
 from config.celery import app
 
-QUEUES = {"celery", "heavy"}
+QUEUES = {"celery", "heavy", "ai"}
 
 
 def ours():
@@ -39,8 +39,10 @@ def test_heavy_work_never_shares_the_fast_queue():
         "apps.timetable.tasks.run_timetable",
     }
     # Le travailleur lourd ne reprend jamais un message deux fois en route, sauf le PDF et le
-    # calcul de l'horaire, qui ne refont rien s'ils sont déjà pris (`printing.run`, `runs.execute`).
+    # calcul de l'horaire, qui ne refont rien s'ils sont déjà pris (`printing.run`, `runs.execute`),
+    # et l'appel à l'IA (file `ai`, `services.execute` ne démarre qu'un appel « en attente »).
     assert sorted(n for n, t in ours().items() if t.acks_late) == [
+        "apps.ai.tasks.run_call",
         "apps.core.tasks.render_print_job",
         "apps.timetable.tasks.run_timetable",
     ]
@@ -158,6 +160,7 @@ def test_heavy_libraries_are_loaded_only_when_used():
         "sentry_sdk",
         "ortools",
         "pandas",
+        "anthropic",
     ]
     code = (
         "import sys, django; django.setup()\n"

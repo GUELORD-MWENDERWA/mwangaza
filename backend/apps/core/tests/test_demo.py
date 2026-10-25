@@ -26,6 +26,7 @@ from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
+from apps.ai.models import AiAllowance
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
@@ -97,6 +98,11 @@ def created(demo) -> None:
         rows = class_rows(AcademicYear.objects.get(is_current=True))
         assert {row["capacity"] for row in rows} == {39, 30}
         assert len({row["home_room"] for row in rows}) == (len(rows) + 1) // 2
+    # IA.1.1 : chaque espace a ses usages et ses crédits IA fictifs, jamais ceux d'une autre école.
+    with use_school(itig):
+        assert AiAllowance.objects.get().monthly_credits == 5_000
+    with use_school(volcans):
+        assert AiAllowance.objects.get().uses == ["timetable_constraints"]
     # EDT.1b : ateliers en deux séances dans un atelier, disponibilités ; EDT.3a : les classes
     # techniques ramenées sous leur grille, plus rien de rouge avant le calcul.
     with use_school(itig):

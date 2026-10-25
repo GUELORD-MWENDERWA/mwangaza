@@ -42,6 +42,7 @@ PERMISSIONS: dict[str, Promise] = {
     "finance.import_prior_payments": _("Record what students paid before the school started here"),
     "timetable.manage": _("Configure the timetable: time grids, rooms and rules"),
     "timetable.publish": _("Publish the timetable"),
+    "ai.use": _("Use the AI assistance"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
 }

@@ -261,6 +261,8 @@ class Notification(TenantModel):
         REPORT_CARDS_READY = "report_cards_ready", _("Report cards ready")
         # Horaire publié (EDT.4b) : aux enseignants et aux parents dont l'horaire change.
         TIMETABLE_PUBLISHED = "timetable_published", _("New timetable")
+        # IA (IA.1.1) : 80 % des crédits du mois dépensés, à ceux qui gèrent les rôles.
+        AI_CREDITS = "ai_credits", _("AI credits running low")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

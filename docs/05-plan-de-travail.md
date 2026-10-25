@@ -79,7 +79,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 15.6 | ~~**EDT.4a**~~ ✓ Publication : publier un brouillon (bloqué tant qu'il a des conflits), version publiée immuable, l'ancienne archivée, versions consultables — *découpée le 2026-10-22* | P0 | M | 🤖 |
 | 15.6 bis | ~~**EDT.4b**~~ ✓ Lecture de l'horaire publié : « Mon horaire » de l'enseignant (sans réseau), Portail, notification groupée | P0 | M | 🤖 |
 | 15.6 ter | ~~**EDT.4c**~~ ✓ Impressions : classe, enseignant avec sa charge, salle, horaire général | P0 | M | 🤖 |
-| 15.7 | **IA.1.1** Socle IA : usages, cinq verrous, crédits, plafond de la plateforme | P0 | M | 🤖 |
+| 15.7 | ~~**IA.1.1**~~ ✓ Socle IA : usages, cinq verrous, crédits, plafond de la plateforme | P0 | M | 🤖 |
 | 15.8 | **IA.2a → IA.2b** IA du directeur des études : consignes en phrases → règles ; analyse et propositions | P0 | M + M | 🤖 |
 | 15.9 | **EDT.6** Heures prestées : exceptions notées, fiche mensuelle imprimable, export pour la paie | P1 | M | 🤖 |
 | 15.10 | **IA.1.2** Console et crédits IA (avant de vendre l'IA à une école réelle) | P1 | M | 🤖 |
@@ -414,7 +414,7 @@ Intégration de **Claude** (API d'Anthropic) côté serveur. « Comme Claude Cod
 
 **Coût pour le serveur** (§ 8.5) : un appel dure de quelques secondes à une minute, donc jamais dans une requête web : tâche Celery dans une file `ai` limitée à 2 appels à la fois, l'écran attend le résultat. Une ligne par appel (`AiCall`, purgée à 90 jours) et un cumul par école, mois et usage (`AiUsageMonth`, gardé pour la facturation) : le contrôle des crédits lit une ligne, pas une somme.
 
-- [ ] **IA.1.1** Socle serveur *(M, P1)* — tout le reste en dépend :
+- [x] **IA.1.1** Socle serveur *(M, P1 ; fait le 2026-10-25 : `apps/ai` — `uses.py`, `services.py` (`authorize`), `client.py`, `prices.py`, `tasks.py` ; commande `manage.py ai_allowance` ; décisions : `03` du 2026-10-25)* — tout le reste en dépend :
    - module `ai` du catalogue ; catalogue des usages ; `authorize` (les cinq verrous) ; `client.py` ; `AiCall` [T] immuable (qui, usage, modèle, jetons d'entrée, de sortie et de cache, coût, état : fait, refusé, erreur, gardé, abandonné ; **jamais le texte** de la demande ni de la réponse) ; `AiUsageMonth` [T] ; réglages de la plateforme ; alerte au super-admin à 80 % et 100 % du plafond, à l'école à 80 % de ses crédits (notifications existantes) ; purge dans le planificateur ;
    - session support « en tant qu'école » : l'appel est compté sur le compte de la plateforme, pas sur les crédits de l'école (mise en route faite par le support) ;
    - clé de l'API seulement sur le serveur (`serveur.env`), jamais dans une application ;
