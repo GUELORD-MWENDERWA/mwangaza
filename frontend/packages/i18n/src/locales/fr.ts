@@ -509,6 +509,9 @@ export const fr = {
       courses: {
         configure: "Configurer les cours, maxima et enseignants des classes",
       },
+      ai: {
+        use: "Utiliser l'assistance par l'IA (l'offre de l'école fixe les usages et les crédits)",
+      },
       timetable: {
         manage: "Régler l'emploi du temps : grilles horaires, salles et règles",
         publish: "Publier l'emploi du temps : le brouillon devient celui de l'école",
@@ -4741,6 +4744,7 @@ export const fr = {
       grades_reminder: "Fiches de cotes attendues",
       report_cards_ready: "Bulletins prêts",
       timetable_published: "Nouvel horaire",
+      ai_credits: "Crédits IA bientôt épuisés",
     },
     kindHelp: {
       test: "Pour vérifier que cet appareil les reçoit.",
@@ -4762,6 +4766,7 @@ export const fr = {
       grades_reminder: "Le directeur des études vous rappelle les fiches de cotes attendues",
       report_cards_ready: "Un titulaire déclare prêts les bulletins de sa classe",
       timetable_published: "Quand une publication de l'horaire change vos heures",
+      ai_credits: "80 % des crédits IA de l'école pour le mois sont utilisés",
     },
     kindsTitle: "Que recevoir sur l'écran",
     kindsHelp: "Vaut pour toutes vos écoles. Une sorte coupée reste dans la liste.",
@@ -5229,6 +5234,7 @@ export const fr = {
         notifications: "Notifications et relances",
         offline: "Travail hors-ligne et synchronisation",
         academics: "Cours, notes et bulletins",
+        ai: "Assistance par l'IA",
         timetable: "Emploi du temps",
       },
       modulesNeeds: "Nécessite : {{modules}}.",
@@ -5586,6 +5592,11 @@ export const fr = {
       "platform.updated": "Identité modifiée",
       "platform.logo_changed": "Logo changé",
       "platform.icon_changed": "Icône des applications changée",
+      "ai.settings_changed": "Réglages de l'IA modifiés",
+      "ai.allowance_changed": "Usages ou crédits IA d'une école modifiés",
+      "ai.top_up": "Crédits IA ajoutés à une école",
+      "ai.cap_80": "La dépense IA atteint 80 % du plafond du mois",
+      "ai.cap_100": "Plafond mensuel de l'IA atteint",
       "school.created": "École créée",
       "school.updated": "École ou abonnement modifié",
       "school.suspended": "École suspendue",
