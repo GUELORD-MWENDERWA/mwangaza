@@ -7499,10 +7499,6 @@ msgid "AI credits running low"
 msgstr "Crédits IA bientôt épuisés"
 
 #: apps/notifications/events.py:481
-#, fuzzy
-#| msgid ""
-#| "80 percent of this month's AI credits are used. Ask the support for more "
-#| "if needed."
 msgid ""
 "80 percent of this month's AI credits are used. Ask the support for more."
 msgstr "80 % des crédits IA de ce mois sont utilisés. Demandez-en plus au support."

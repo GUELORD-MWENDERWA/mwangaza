@@ -139,6 +139,7 @@ def test_muted_kind_stays_in_the_center_and_expired_browser_is_dropped(
             "cancellation_request",
             "cash_difference",
             "register_open",
+            "ai_credits",
         ],
         "muted": ["platform_news"],
     }
