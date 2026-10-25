@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Imprimer l'horaire — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+.sheet{background:#fff;border:1px solid var(--line,#D0D5DD);padding:14px;font-size:11px;line-height:1.35;color:#101828}
+.sheet h3{margin:6px 0 2px;text-align:center;font-size:13px;text-decoration:underline;text-transform:uppercase;color:#0B1C35}
+.sheet .lh{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;border-bottom:2.2px solid #0B1C35;padding-bottom:6px;font-size:10px}
+.sheet .lh .lg,.sheet .lh .fl{width:40px;height:40px;border:1px solid #0B1C35;border-radius:6px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.sheet table{width:100%;border-collapse:collapse;margin-top:6px}
+.sheet th,.sheet td{border:.6px solid #A9B4C4;padding:3px 5px;vertical-align:top;text-align:left}
+.sheet th{background:#EDF1F6;font-size:10px}
+.sheet td.h{white-space:nowrap;background:#F7F9FC;font-size:10px}
+.sheet td.brk{background:#F2F4F7;color:#475467;text-align:center;font-size:9px}
+.sheet td b{display:block}.sheet td span{color:#475467;font-size:10px}
+.sheet td.g{text-align:center;font-size:9.5px;padding:2px}
+.sheet .sub{text-align:center;color:#475467;font-size:10px}
+.pages{display:grid;gap:14px}
+</style></head>
+<body><div class="app"><div class="main"><main class="content">
+<div class="banner lampb"><span class="tag v">EDT.4c</span><span>Imprimer l'horaire : un document au choix (classe, enseignant, salle, horaire général), d'une version publiée, archivée ou d'un brouillon. Les documents reprennent l'en-tête de l'école.</span></div>
+<div class="pagehead"><div><h1>Imprimer l'horaire</h1><p>Choisissez la version, le document, puis ouvrez le PDF.</p></div><div class="row"><a class="btn primary" href="#">Ouvrir le PDF</a></div></div>
+<div class="grid" style="grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start">
+ <div class="pages">
+  <div class="sheet"><div class="lh"><div class="lg">ITIG</div><div><i>République Démocratique du Congo</i><br><b>ITIG DON BOSCO GOMA</b><br>SECRÉTARIAT DES ÉTUDES</div><div class="fl"></div></div>
+   <h3>Horaire de la 2HT Électricité</h3><div class="sub">Titulaire : M. Bahati Kasereka · 2026-2027 · en vigueur depuis le 26/10/2026 · 39 h par semaine</div>
+   <table><tr><th></th><th>Lundi</th><th>Mardi</th><th>Mercredi</th><th>Jeudi</th><th>Vendredi</th><th>Samedi</th></tr>
+   <tr><td class="h"><b>1re</b>07:30–08:20</td><td><b>Mathématiques</b><span>M. Kambale · Salle 12</span></td><td rowspan="2"><b>Français</b><span>Mme Furaha · Salle 12</span></td><td><b>Mathématiques</b><span>M. Kambale · Salle 12</span></td><td><b>Électrotechnique</b><span>M. Bahati · Salle 12</span></td><td><b>Mathématiques</b><span>M. Kambale</span></td><td><b>Mesures électriques</b><span>M. Bahati</span></td></tr>
+   <tr><td class="h"><b>2e</b>08:20–09:10</td><td><b>Électronique</b><span>M. Muhindo · Salle 12</span></td><td><b>Anglais</b><span>Mme Zawadi</span></td><td><b>Physique</b><span>M. Safari</span></td><td><b>Physique</b><span>M. Safari</span></td><td></td></tr>
+   <tr><td class="brk" colspan="7">Récréation 09:10–09:30</td></tr></table></div>
+  <div class="sheet"><div class="lh"><div class="lg">ITIG</div><div><b>ITIG DON BOSCO GOMA</b><br>SECRÉTARIAT DES ÉTUDES</div><div class="fl"></div></div>
+   <h3>Horaire de M. Bahati Kasereka</h3><div class="sub">2026-2027 · en vigueur depuis le 26/10/2026</div>
+   <table><tr><th></th><th>Lundi</th><th>Mardi</th><th>Mercredi</th></tr><tr><td class="h"><b>1re</b>07:30</td><td><b>Électrotechnique</b><span>3HT Électricité · Salle 14</span></td><td></td><td><b>Électrotechnique</b><span>4HT Électricité · Salle 15</span></td></tr></table>
+   <table><tr><th colspan="4">Charge de la semaine : 23 h placées sur 23 h dues (au plus 24 h)</th></tr><tr><th>Classe</th><th>Cours</th><th>Dues</th><th>Placées</th></tr><tr><td>3HT Électricité</td><td>Électrotechnique</td><td>4</td><td>4</td></tr><tr><td colspan="2"><b>Total</b></td><td><b>23</b></td><td><b>23</b></td></tr></table></div>
+  <div class="sheet"><div class="lh"><div class="lg">ITIG</div><div><b>ITIG DON BOSCO GOMA</b></div><div class="fl"></div></div>
+   <h3>Horaire général — lundi à mercredi</h3>
+   <table><tr><th rowspan="2">Classe</th><th colspan="7">Lundi</th><th colspan="7">Mardi</th></tr><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr>
+   <tr><td><b>7e EB A</b></td><td class="g">Math</td><td class="g">Fran</td><td class="g" colspan="2">Phys</td><td class="g" colspan="3">AteÉ</td><td class="g">Math</td><td class="g" colspan="2">Fran</td><td class="g">Anglais</td><td class="g" colspan="3">AteÉ</td></tr></table>
+   <p class="sub" style="text-align:left">Math : Mathématiques · Fran : Français · Phys : Physique · AteÉ : Atelier d'électricité</p></div>
+ </div>
+ <div class="card"><div class="hd"><h2>Document</h2></div><div class="bd">
+  <div class="tabs vt"><span class="on">Classe</span><span>Enseignant</span><span>Salle</span><span>Général</span></div>
+  <label class="lbl">Version</label><span class="inp">Publiée · en vigueur le 26/10/2026 ▾</span>
+  <label class="lbl">Classe</label><span class="inp">Toutes les classes (une par page) ▾</span>
+  <label class="lbl">Papier</label><span class="inp">A4 paysage ▾</span>
+  <p class="muted small">Horaire général : A4 sur deux pages (lundi–mercredi, jeudi–samedi) ou A3 sur une page.</p>
+ </div></div>
+</div></main></div></div></body></html>
