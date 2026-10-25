@@ -1,0 +1,15 @@
+{% load i18n %}<table class="tt">
+  <thead><tr><th class="h"></th>{% for day in days %}<th>{{ day }}</th>{% endfor %}</tr></thead>
+  <tbody>
+  {% for row in rows %}
+  <tr{% if row.is_break %} class="brk"{% endif %}>
+    {% if row.is_break %}<td class="h">{% translate "Break" %}<br>{{ row.times }}</td>{% else %}<td class="h"><b>{{ row.label }}</b><br>{{ row.times }}</td>{% endif %}
+    {% for cell in row.cells %}{% if cell == "skip" %}{% elif cell %}<td rowspan="{{ cell.rowspan }}" class="lesson">{% for lesson in cell.lessons %}<div class="ls"><b>{{ lesson.title }}</b>{% if lesson.detail %}<span>{{ lesson.detail }}</span>{% endif %}{% if lesson.time %}<span>{{ lesson.time }}</span>{% endif %}</div>{% endfor %}</td>{% else %}<td{% if row.is_break %} class="brk"{% endif %}></td>{% endif %}{% endfor %}
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if outside %}
+<p class="small"><b>{% translate "Lessons the time grid no longer holds" %}</b> :
+{% for lesson in outside %}{{ lesson.day }}, {% blocktranslate with n=lesson.first %}lesson {{ n }}{% endblocktranslate %} — {{ lesson.title }}{% if lesson.detail %} ({{ lesson.detail }}){% endif %}{% if not forloop.last %} ; {% endif %}{% endfor %}</p>
+{% endif %}

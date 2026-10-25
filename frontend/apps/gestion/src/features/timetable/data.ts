@@ -5,6 +5,7 @@ import { api, call, type Schemas } from "@mwangaza/api";
 import { useQuery } from "@tanstack/react-query";
 
 import { keys } from "../../lib/queries";
+import { layoutQuery, type PrintLayout } from "../printing/printOptions";
 import type { Gesture } from "./editor";
 
 export type TimeGrid = Schemas["TimeGrid"];
@@ -204,4 +205,27 @@ export function useRuns() {
         ? 2000
         : false,
   });
+}
+
+export type PrintKind = "class" | "teacher" | "room" | "general";
+
+/** Adresse de l'horaire imprimé (EDT.4c) : `subject` vide, tous (une page chacun) ; `sheet` : A3
+ *  met l'horaire général sur une seule page. */
+export function printUrl(options: {
+  kind: PrintKind;
+  subject: string;
+  timetable: string;
+  output: "html" | "pdf";
+  layout: PrintLayout;
+  sheet: string;
+}) {
+  const query = new URLSearchParams({
+    kind: options.kind,
+    timetable: options.timetable,
+    output: options.output,
+    ...layoutQuery(options.layout),
+  });
+  if (options.subject) query.set("subject", options.subject);
+  if (options.kind === "general") query.set("paper", options.sheet);
+  return `/api/timetable/print/?${query}`;
 }

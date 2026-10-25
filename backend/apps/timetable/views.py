@@ -5,6 +5,7 @@ l'horaire (EDT.2a : un geste par requête, qui renvoie l'état du brouillon) ; c
 `timetable`, droit `timetable.manage` ; en ligne seulement. Listes courtes (quelques grilles, au
 plus 300 salles, 500 règles, classes de l'année) : pas de pagination."""
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
@@ -15,11 +16,13 @@ from rest_framework.views import APIView
 
 from apps.accounts.permissions import HasSchoolAccess, HasSchoolPermission
 from apps.accounts.roles import TIMETABLE_MANAGE, TIMETABLE_PUBLISH
+from apps.core.documents import PRINT_RESPONSE, print_options, render, school_header
 from apps.core.errors import ErrorSerializer
+from apps.core.kept import Keep
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, constraints, drafts, runs, schedule, services, versions
+from apps.timetable import checks, constraints, drafts, prints, runs, schedule, services, versions
 from apps.timetable.models import (
     Room,
     TimeGrid,
@@ -36,6 +39,7 @@ from apps.timetable.serializers import (
     EntryChangeSerializer,
     MyTimetableSerializer,
     PlaceSerializer,
+    PrintQuerySerializer,
     PublishSerializer,
     RoomCreateSerializer,
     RoomSerializer,
@@ -431,6 +435,47 @@ class VersionsView(_TimetableView):
         """Version publiée puis anciennes versions (archivées) de l'année en cours."""
         listed = versions.versions(organisation.current_year())
         return Response(VersionSerializer(listed, many=True).data)
+
+
+@extend_schema(tags=["timetable"])
+class PrintView(_TimetableView):
+    @extend_schema(
+        parameters=[PrintQuerySerializer],
+        responses={**PRINT_RESPONSE, 400: ErrorSerializer, 409: ErrorSerializer, **ERRORS},
+    )
+    def get(self, request: Request) -> HttpResponse:
+        """Horaire imprimé (EDT.4c) : d'une classe, d'un enseignant (avec sa charge), d'une salle
+        ou général, d'une version au choix (la publiée par défaut). Sans `subject`, un seul PDF,
+        une page par classe, enseignant ou salle qui a des séances. Aperçu HTML ou PDF gardé."""
+        params = PrintQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        year = organisation.current_year()
+        timetable = prints.timetable_of(data.get("timetable"), year.pk if year else None)
+        kind = data["kind"]
+        pages = prints.document(
+            kind, timetable, data.get("subject"), one_sheet=data["paper"] == "a3"
+        )
+        options = print_options(data, "landscape")
+        template = "timetable/general.html" if kind == prints.GENERAL else "timetable/sheet.html"
+        keep = Keep(
+            kind=f"timetable_{kind}",
+            subjects=[subject for subject, _context in pages],
+            variant=f"{options['paper']}-{options['orientation']}",
+            volatile={"printed_at": None},
+        )
+        contexts = [
+            {**school_header(require_current_school()), **context} for _subject, context in pages
+        ]
+        return render(
+            template,
+            contexts[0],
+            data["output"],
+            f"horaire-{kind}.pdf",
+            options,
+            more=contexts[1:],
+            keep=keep,
+        )
 
 
 @extend_schema(tags=["timetable"])

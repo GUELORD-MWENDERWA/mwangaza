@@ -72,6 +72,9 @@ test("documents imprimables", async ({ browser }) => {
     ["lettres-invitation", `/api/families/letters/?class_group=${id.class_group}&output=html`],
     ["circulaire", `/api/announcements/${id.announcement}/circular/?output=html`],
     ["convocation", `/api/summons/${id.summons}/letter/?output=html`],
+    ["horaire-classe", `/api/timetable/print/?kind=class&output=html`],
+    ["horaire-enseignant", `/api/timetable/print/?kind=teacher&output=html`],
+    ["horaire-general", `/api/timetable/print/?kind=general&output=html`],
   ];
   for (const [name, path] of documents) {
     await head.goto(`${ITIG.replace("/app/", "")}${path}`);

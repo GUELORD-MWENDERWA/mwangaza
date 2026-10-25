@@ -176,6 +176,7 @@ ACTIVE_FOR = {
     "calcul-emploi-du-temps.html": "notes-saisie.html",
     "publication-emploi-du-temps.html": "notes-saisie.html",
     "mon-horaire.html": "notes-saisie.html",
+    "impression-emploi-du-temps.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
 }
 
@@ -380,6 +381,7 @@ GESTION = [
     ("calcul-emploi-du-temps", "Emploi du temps : calcul automatique", "V1.2", "Plus tard · EDT.3b", True),
     ("publication-emploi-du-temps", "Emploi du temps : publication", "V1.2", "Plus tard · EDT.4a", True),
     ("mon-horaire", "Mon horaire (enseignant, sans réseau)", "V1.2", "Plus tard · EDT.4b", True),
+    ("impression-emploi-du-temps", "Imprimer l'horaire (classe, enseignant, salle, général)", "V1.2", "Plus tard · EDT.4c", True),
     ("bulletin", "Bulletin officiel — humanités techniques", "V1.2", "Plus tard · 6.3", True),
     ("bulletin-education-de-base", "Bulletin officiel — 7e-8e EB", "V1.2", "Plus tard · 6.3", True),
 ]

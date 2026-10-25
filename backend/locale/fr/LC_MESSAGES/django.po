@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 10:53+0200\n"
+"POT-Creation-Date: 2026-10-25 11:44+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -1391,6 +1391,7 @@ msgstr "Nom, post-nom, prénom"
 #: apps/academics/templates/academics/grade_sheet.html:74
 #: apps/finance/templates/finance/unpaid.html:62
 #: apps/students/templates/students/registration_form.html:50
+#: apps/timetable/templates/timetable/sheet.html:25
 msgid "Total"
 msgstr "Total"
 
@@ -1818,6 +1819,7 @@ msgid "By course"
 msgstr "Par cours"
 
 #: apps/academics/templates/academics/situation.html:70
+#: apps/timetable/templates/timetable/sheet.html:23
 msgid "Course"
 msgstr "Cours"
 
@@ -1877,6 +1879,7 @@ msgstr "Lauréat de l'école :"
 #: apps/finance/templates/finance/unpaid.html:27
 #: apps/portal/templates/portal/receipt.html:25 apps/students/imports.py:85
 #: apps/students/templates/students/registration_form.html:30
+#: apps/timetable/templates/timetable/sheet.html:23
 msgid "Class"
 msgstr "Classe"
 
@@ -7315,20 +7318,20 @@ msgstr "Bulletins prêts : %(class)s"
 msgid "%(term)s · declared by %(teacher)s, homeroom teacher"
 msgstr "%(term)s · déclarés par %(teacher)s, titulaire"
 
-#: apps/notifications/events.py:449 apps/notifications/models.py:263
+#: apps/notifications/events.py:448 apps/notifications/models.py:263
 msgid "New timetable"
 msgstr "Nouvel horaire"
 
-#: apps/notifications/events.py:450
+#: apps/notifications/events.py:449
 #, python-format
 msgid "Your lessons change from %(date)s."
 msgstr "Vos heures changent à partir du %(date)s."
 
-#: apps/notifications/events.py:462
+#: apps/notifications/events.py:461
 msgid "New class timetable"
 msgstr "Nouvel horaire des cours"
 
-#: apps/notifications/events.py:463
+#: apps/notifications/events.py:462
 #, python-format
 msgid "Timetable of %(children)s from %(date)s."
 msgstr "Horaire de %(children)s à partir du %(date)s."
@@ -9603,7 +9606,7 @@ msgstr "grilles horaires"
 msgid "Lesson"
 msgstr "Heure de cours"
 
-#: apps/timetable/models.py:69
+#: apps/timetable/models.py:69 apps/timetable/templates/timetable/_table.html:6
 msgid "Break"
 msgstr "Récréation"
 
@@ -9891,6 +9894,42 @@ msgstr "calcul de l'horaire"
 msgid "timetable calculations"
 msgstr "calculs de l'horaire"
 
+#: apps/timetable/prints.py:28
+msgid "There is nothing to print in this timetable."
+msgstr "Cet horaire ne contient rien à imprimer."
+
+#: apps/timetable/prints.py:30
+msgid "The school has no time grid yet."
+msgstr "L'école n'a pas encore de grille horaire."
+
+#: apps/timetable/prints.py:31
+msgid "Not found."
+msgstr "Introuvable."
+
+#: apps/timetable/prints.py:153
+msgid "DRAFT — not published"
+msgstr "BROUILLON — non publié"
+
+#: apps/timetable/prints.py:156
+#, python-format
+msgid "Archived version «%(name)s»"
+msgstr "Version archivée « %(name)s »"
+
+#: apps/timetable/prints.py:157
+#, python-format
+msgid "In force since %(date)s"
+msgstr "En vigueur depuis le %(date)s"
+
+#: apps/timetable/prints.py:276 apps/timetable/prints.py:329
+#: apps/timetable/prints.py:353
+#, python-format
+msgid "Timetable of %(name)s"
+msgstr "Horaire : %(name)s"
+
+#: apps/timetable/prints.py:444
+msgid "General timetable"
+msgstr "Horaire général"
+
 #: apps/timetable/runs.py:45
 msgid "A calculation is already under way for this school."
 msgstr "Un calcul est déjà en cours pour cette école."
@@ -9916,7 +9955,7 @@ msgstr "Ce calcul est déjà terminé."
 msgid "%(name)s (calculated)"
 msgstr "%(name)s (calculé)"
 
-#: apps/timetable/serializers.py:368
+#: apps/timetable/serializers.py:388
 msgid ""
 "One change at a time: a move (day and first lesson), a room or the lock."
 msgstr ""
@@ -10002,6 +10041,58 @@ msgstr "les heures sont numérotées 1, 2, 3… dans l'ordre."
 msgid "at most 12 lessons a day."
 msgstr "12 heures de cours par jour au plus."
 
+#: apps/timetable/templates/timetable/_table.html:13
+msgid "Lessons the time grid no longer holds"
+msgstr "Séances que la grille horaire ne porte plus"
+
+#: apps/timetable/templates/timetable/_table.html:14
+#, python-format
+msgid "lesson %(n)s"
+msgstr "%(n)se heure"
+
+#: apps/timetable/templates/timetable/general.html:17
+#: apps/timetable/templates/timetable/sheet.html:15
+msgid "Studies office"
+msgstr "Bureau des études"
+
+#: apps/timetable/templates/timetable/general.html:18
+#: apps/timetable/templates/timetable/sheet.html:16
+#, python-format
+msgid "printed on %(date)s"
+msgstr "imprimé le %(date)s"
+
+#: apps/timetable/templates/timetable/general.html:22
+msgid "Class · placed / due"
+msgstr "Classe · placées / dues"
+
+#: apps/timetable/templates/timetable/sheet.html:18
+#, python-format
+msgid "Homeroom teacher: %(homeroom)s"
+msgstr "Titulaire : %(homeroom)s"
+
+#: apps/timetable/templates/timetable/sheet.html:18
+#, python-format
+msgid "%(hours)s hours a week"
+msgstr "%(hours)s heures par semaine"
+
+#: apps/timetable/templates/timetable/sheet.html:21
+#, python-format
+msgid "Weekly load: %(hours)s of %(due)s hours due"
+msgstr "Charge de la semaine : %(hours)s heures placées sur %(due)s dues"
+
+#: apps/timetable/templates/timetable/sheet.html:21
+#, python-format
+msgid "at most %(limit)s"
+msgstr "au plus %(limit)s"
+
+#: apps/timetable/templates/timetable/sheet.html:23
+msgid "Hours due"
+msgstr "Heures dues"
+
+#: apps/timetable/templates/timetable/sheet.html:23
+msgid "Hours placed"
+msgstr "Heures placées"
+
 #: apps/timetable/versions.py:31
 msgid "This draft still has conflicts: correct them before publishing."
 msgstr "Ce brouillon a encore des conflits : les corriger avant de publier."
@@ -10014,10 +10105,10 @@ msgstr "Cette date n'est pas dans l'année scolaire de l'horaire."
 msgid "This date is before the start of the timetable in force."
 msgstr "Cette date est avant le début de l'horaire en vigueur."
 
-#: apps/timetable/views.py:313
+#: apps/timetable/views.py:317
 msgid "This timetable does not exist."
 msgstr "Cet horaire n'existe pas."
 
-#: apps/timetable/views.py:480
+#: apps/timetable/views.py:525
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."

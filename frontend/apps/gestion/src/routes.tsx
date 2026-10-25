@@ -66,6 +66,7 @@ import { PromotionPage } from "./features/promotion/PromotionPage";
 import { NotFound, RouteError } from "./features/status/StatusPages";
 import { SupportPage } from "./features/support/SupportPage";
 import { CalculatePage } from "./features/timetable/CalculatePage";
+import { PrintPage } from "./features/timetable/PrintPage";
 import { ChecksPage } from "./features/timetable/ChecksPage";
 import { RoomsPage } from "./features/timetable/RoomsPage";
 import { EditorPage } from "./features/timetable/EditorPage";
@@ -167,6 +168,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
   { path: "unpaid/export", item: menuItem("unpaid"), element: <UnpaidExportPage /> },
   { path: "unpaid/statements", item: menuItem("unpaid"), element: <UnpaidStatementsPage /> },
   { path: "timetable/calculate", item: menuItem("timetable"), element: <CalculatePage /> },
+  { path: "timetable/print", item: menuItem("timetable"), element: <PrintPage /> },
 ];
 
 export const routes: RouteObject[] = [

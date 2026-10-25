@@ -1,0 +1,27 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+{% block style %}
+.tt { table-layout: fixed; }
+.tt th.h, .tt td.h { width: 22mm; background: #F7F9FC; font-size: .85em; white-space: nowrap; }
+.tt td.lesson { padding: .25em .4em; }
+.tt .ls + .ls { margin-top: .3em; padding-top: .3em; border-top: .4pt dashed #A9B4C4; }
+.tt .ls b { display: block; }
+.tt .ls span { display: block; color: #475467; font-size: .85em; }
+.tt tr.brk td { background: #F2F4F7; color: #475467; font-size: .8em; padding: .1em .4em; }
+.tt tr { height: 13mm; } .tt tr.brk { height: 5mm; }
+.load td.num, .load th.num { width: 22mm; }
+{% endblock %}
+{% block content %}
+{% include "core/_document_header.html" with service=_("Studies office") %}
+<div class="lh-extra">{{ timetable.academic_year.name }} · {{ version }}{% if printed_at %} · {% blocktranslate with date=printed_at|date:"d/m/Y" %}printed on {{ date }}{% endblocktranslate %}{% endif %}</div>
+<p class="center small">{% if kind == "class" and homeroom %}{% blocktranslate %}Homeroom teacher: {{ homeroom }}{% endblocktranslate %} · {% endif %}{% blocktranslate %}{{ hours }} hours a week{% endblocktranslate %}</p>
+{% include "timetable/_table.html" %}
+{% if kind == "teacher" %}
+<h2>{% blocktranslate %}Weekly load: {{ hours }} of {{ due }} hours due{% endblocktranslate %}{% if limit %} ({% blocktranslate %}at most {{ limit }}{% endblocktranslate %}){% endif %}</h2>
+<table class="load">
+  <thead><tr><th>{% translate "Class" %}</th><th>{% translate "Course" %}</th><th class="num">{% translate "Hours due" %}</th><th class="num">{% translate "Hours placed" %}</th></tr></thead>
+  <tbody>{% for row in load %}<tr><td>{{ row.class_group }}</td><td>{{ row.course }}</td><td class="num">{{ row.due }}</td><td class="num">{{ row.placed }}</td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td colspan="2">{% translate "Total" %}</td><td class="num">{{ due }}</td><td class="num">{{ hours }}</td></tr></tfoot>
+</table>
+{% endif %}
+{% endblock %}

@@ -379,14 +379,19 @@ export function EditorPage() {
             )}
           </Select>
           {readOnly ? (
-            <Button
-              className="max-[560px]:col-span-2"
-              onClick={() => setCreating({ from: state.id })}
-            >
-              {t("timetable.editor.copyVersion")}
-            </Button>
+            <>
+              <Button asChild variant="outline" className="max-[560px]:col-span-2">
+                <Link to={`/timetable/print?version=${state.id}`}>{t("timetable.print.open")}</Link>
+              </Button>
+              <Button onClick={() => setCreating({ from: state.id })}>
+                {t("timetable.editor.copyVersion")}
+              </Button>
+            </>
           ) : (
             <>
+              <Button asChild variant="outline">
+                <Link to={`/timetable/print?version=${state.id}`}>{t("timetable.print.open")}</Link>
+              </Button>
               <Button
                 variant="outline"
                 disabled={!state.can_undo || gesture.isPending}
