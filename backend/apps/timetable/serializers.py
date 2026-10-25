@@ -1,6 +1,7 @@
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
+from apps.core.documents import PAPERS, PrintOptionsSerializer
 from apps.timetable.checks import LEVELS
 from apps.timetable.constraints import UnavailableSerializer, clean
 from apps.timetable.models import (
@@ -20,6 +21,7 @@ from apps.timetable.models import (
     TimetableRule,
     TimetableRun,
 )
+from apps.timetable.prints import KINDS
 
 # 7 jours de 12 heures et 11 récréations au plus.
 MAX_SLOTS = 7 * (2 * MAX_LESSONS_PER_DAY - 1)
@@ -289,6 +291,24 @@ class VersionSerializer(serializers.ModelSerializer):
 
     def get_published_by(self, timetable: Timetable) -> str | None:
         return str(timetable.published_by) if timetable.published_by_id else None
+
+
+class PrintQuerySerializer(PrintOptionsSerializer):
+    """Impression de l'horaire (EDT.4c) ; sens habituel : paysage."""
+
+    kind = serializers.ChoiceField(choices=KINDS)
+    subject = serializers.UUIDField(
+        required=False,
+        help_text="La classe, l'enseignant ou la salle ; absent : tous (une page chacun).",
+    )
+    timetable = serializers.UUIDField(
+        required=False,
+        help_text="La version (brouillon, publiée ou archivée) ; absent : la publiée.",
+    )
+    output = serializers.ChoiceField(choices=["pdf", "html"], default="pdf")
+    paper = serializers.ChoiceField(
+        choices=("a3", *PAPERS), default="a4", help_text="A3 : horaire général sur une seule page."
+    )
 
 
 class PublishSerializer(serializers.Serializer):

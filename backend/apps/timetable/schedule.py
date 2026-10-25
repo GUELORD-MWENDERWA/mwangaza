@@ -29,6 +29,8 @@ class Lesson:
     room: str
     teacher_id: UUID | None
     class_group_id: UUID
+    course_id: UUID
+    room_id: UUID | None
 
 
 def published(year_id) -> Timetable | None:
@@ -80,6 +82,8 @@ def lessons(timetable: Timetable | None, where: Q) -> list[Lesson]:
                 room=entry.room.name if entry.room else "",
                 teacher_id=course.teacher_id,
                 class_group_id=group.pk,
+                course_id=course.pk,
+                room_id=entry.room_id,
             )
         )
     found.sort(key=lambda row: (row.weekday, row.start is None, row.start, row.first))

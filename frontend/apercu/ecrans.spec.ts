@@ -144,6 +144,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "timetable-checks",
       "timetable",
       "timetable/calculate",
+      "timetable/print",
       "unpaid",
       "unpaid/export",
       "cash-closings/register",

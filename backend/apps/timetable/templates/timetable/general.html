@@ -1,0 +1,35 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{{ title }}{% endblock %}
+{% block style %}
+.gt { table-layout: fixed; font-size: .8em; }
+.gt th, .gt td { padding: .15em .2em; text-align: center; }
+.gt th.cl, .gt td.cl { width: 26mm; text-align: left; }
+.gt td.cl span { display: block; color: #475467; font-size: .85em; }
+.gt td.day, .gt th.day { border-left: 1.4pt solid #0B1C35; }
+.gt td.free { background: #F7F9FC; } .gt td.off { background: #E4E7EC; }
+.gt td.lesson { font-weight: 700; overflow: hidden; }
+.legend { margin-top: .8em; font-size: .85em; columns: 3; }
+.sheet + .sheet { break-before: page; }
+{% endblock %}
+{% block content %}
+{% for sheet in sheets %}
+<section class="sheet">
+{% include "core/_document_header.html" with service=_("Studies office") title=sheet.title %}
+<div class="lh-extra">{{ timetable.academic_year.name }} · {{ version }}{% if printed_at %} · {% blocktranslate with date=printed_at|date:"d/m/Y" %}printed on {{ date }}{% endblocktranslate %}{% endif %}</div>
+<table class="gt">
+  <thead>
+    <tr><th class="cl" rowspan="2">{% translate "Class · placed / due" %}</th>{% for day in sheet.days %}<th class="day" colspan="{{ day.hours|length }}">{{ day.name }}</th>{% endfor %}</tr>
+    <tr>{% for day in sheet.days %}{% for hour in day.hours %}<th{% if forloop.first %} class="day"{% endif %}>{{ hour }}</th>{% endfor %}{% endfor %}</tr>
+  </thead>
+  <tbody>
+  {% for line in sheet.lines %}
+  <tr><td class="cl"><b>{{ line.name }}</b><span>{{ line.placed }}/{{ line.due }} h</span></td>
+  {% for cell in line.cells %}<td{% if cell.span > 1 %} colspan="{{ cell.span }}"{% endif %} class="{% if cell.first %}day {% endif %}{% if cell.text %}lesson{% else %}{{ cell.state }}{% endif %}"{% if cell.title %} title="{{ cell.title }}"{% endif %}>{{ cell.text }}</td>{% endfor %}
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div class="legend">{% for code, name in legend %}<div><b>{{ code }}</b> : {{ name }}</div>{% endfor %}</div>
+</section>
+{% endfor %}
+{% endblock %}

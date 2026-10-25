@@ -25,6 +25,7 @@ urlpatterns = [
     path("timetable/drafts/<uuid:pk>/undo/", views.DraftUndoView.as_view()),
     path("timetable/drafts/<uuid:pk>/publish/", views.DraftPublishView.as_view()),
     path("timetable/versions/", views.VersionsView.as_view()),
+    path("timetable/print/", views.PrintView.as_view()),
     path("timetable/mine/", views.MyTimetableView.as_view()),
     path("timetable/runs/", views.RunsView.as_view()),
     path("timetable/runs/<uuid:pk>/", views.RunView.as_view()),

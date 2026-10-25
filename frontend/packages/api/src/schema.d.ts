@@ -5360,6 +5360,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/print/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Horaire imprimé (EDT.4c) : d'une classe, d'un enseignant (avec sa charge), d'une salle
+         *     ou général, d'une version au choix (la publiée par défaut). Sans `subject`, un seul PDF,
+         *     une page par classe, enseignant ou salle qui a des séances. Aperçu HTML ou PDF gardé.
+         */
+        get: operations["timetable_print_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/timetable/rooms/": {
         parameters: {
             query?: never;
@@ -29606,6 +29627,91 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_print_retrieve: {
+        parameters: {
+            query: {
+                /**
+                 * @description * `class` - class
+                 *     * `teacher` - teacher
+                 *     * `room` - room
+                 *     * `general` - general
+                 */
+                kind: "class" | "teacher" | "room" | "general";
+                /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
+                 * @description * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+                /**
+                 * @description A3 : horaire général sur une seule page.
+                 *
+                 *     * `a3` - a3
+                 *     * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a3" | "a4" | "a5";
+                /** @description La classe, l'enseignant ou la salle ; absent : tous (une page chacun). */
+                subject?: string;
+                /** @description La version (brouillon, publiée ou archivée) ; absent : la publiée. */
+                timetable?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
