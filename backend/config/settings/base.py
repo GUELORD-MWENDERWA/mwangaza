@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "apps.portal",
     "apps.academics",
     "apps.timetable",
+    "apps.ai",
 ]
 
 MIDDLEWARE = [
@@ -163,6 +164,8 @@ SOFTWARE_COPYRIGHT_SAME_AS: list[str] = []
 # Notifications sur l'écran (5.5, Web Push) : paire de clés VAPID de la plateforme, créée une fois
 # par `manage.py webpush_keys` et jamais changée (elle invaliderait tous les abonnements). Vides :
 # rien n'est envoyé sur les écrans ; le centre de notifications marche quand même.
+# Clé de l'API Anthropic (IA.1.1) : seulement sur le serveur, jamais dans une application.
+ANTHROPIC_API_KEY = env("ANTHROPIC_API_KEY", "")
 WEBPUSH_VAPID_PUBLIC_KEY = env("WEBPUSH_VAPID_PUBLIC_KEY", "")
 WEBPUSH_VAPID_PRIVATE_KEY = env("WEBPUSH_VAPID_PRIVATE_KEY", "")
 # `make demo` : données fictives permises en développement, dans l'essai sur plusieurs appareils et

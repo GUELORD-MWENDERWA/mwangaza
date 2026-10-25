@@ -13,13 +13,15 @@ TIME_ZONE = "Africa/Lubumbashi"
 # planificateur) et `heavy` (lourde : PDF, import d'une liste, création et remise à zéro d'un espace
 # de démonstration). Un travail lourd ne retarde jamais une tâche courte. Chaque tâche est routée
 # ici, nommément : un test refuse une tâche sans route ni limites de temps.
-FAST_QUEUE, HEAVY_QUEUE = "celery", "heavy"
+FAST_QUEUE, HEAVY_QUEUE, AI_QUEUE = "celery", "heavy", "ai"
 TASK_ROUTES = {
     "apps.core.tasks.render_print_job": {"queue": HEAVY_QUEUE},
     "apps.students.tasks.run_student_import": {"queue": HEAVY_QUEUE},
     "apps.schools.tasks.delete_space": {"queue": HEAVY_QUEUE},
     "apps.schools.tasks.fill_demonstration": {"queue": HEAVY_QUEUE},
     "apps.timetable.tasks.run_timetable": {"queue": HEAVY_QUEUE},
+    "apps.ai.tasks.run_call": {"queue": AI_QUEUE},
+    "apps.ai.tasks.purge": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.deliver": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.alert_console": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.tick": {"queue": FAST_QUEUE},
@@ -50,6 +52,10 @@ BEAT_SCHEDULE = {
     "sync-purge": {
         "task": "apps.sync.tasks.purge",
         "schedule": crontab(hour=3, minute=45),
+    },
+    "ai-purge": {
+        "task": "apps.ai.tasks.purge",
+        "schedule": crontab(hour=4, minute=0),
     },
     "demo-requests-purge": {
         "task": "apps.core.tasks.purge_demo_requests",

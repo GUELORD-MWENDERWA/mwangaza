@@ -46,6 +46,8 @@ STAFF_KINDS = {
     Kind.REPORT_CARDS_READY: GRADES_VALIDATE,
     # Nouvel horaire (EDT.4b) : envoyé aux enseignants dont les heures changent, réglable par eux.
     Kind.TIMETABLE_PUBLISHED: GRADES_ENTER,
+    # Crédits de l'IA presque épuisés (IA.1.1) : ceux qui gèrent les rôles de l'école.
+    Kind.AI_CREDITS: ROLES_MANAGE,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})

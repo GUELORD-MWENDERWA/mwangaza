@@ -9055,12 +9055,13 @@ export interface components {
          *     * `communication` - Announcements
          *     * `academics` - Courses, grades and report cards
          *     * `timetable` - Timetable
+         *     * `ai` - AI assistance
          *     * `portal` - Parent portal
          *     * `notifications` - Notifications and reminders
          *     * `offline` - Offline work and synchronisation
          * @enum {string}
          */
-        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "portal" | "notifications" | "offline";
+        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "ai" | "portal" | "notifications" | "offline";
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -9109,9 +9110,10 @@ export interface components {
          *     * `grades_reminder` - Grade sheets expected
          *     * `report_cards_ready` - Report cards ready
          *     * `timetable_published` - New timetable
+         *     * `ai_credits` - AI credits running low
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "timetable_published";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "timetable_published" | "ai_credits";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -10391,11 +10393,12 @@ export interface components {
          *     * `finance.import_prior_payments` - Record what students paid before the school started here
          *     * `timetable.manage` - Configure the timetable: time grids, rooms and rules
          *     * `timetable.publish` - Publish the timetable
+         *     * `ai.use` - Use the AI assistance
          *     * `announcements.publish` - Publish announcements
          *     * `audit.view` - View the audit log
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "timetable.manage" | "timetable.publish" | "announcements.publish" | "audit.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "timetable.manage" | "timetable.publish" | "ai.use" | "announcements.publish" | "audit.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -10500,6 +10503,11 @@ export interface components {
          * @description * `platform.updated` - Platform identity changed
          *     * `platform.logo_changed` - Platform logo changed
          *     * `platform.icon_changed` - Application icon changed
+         *     * `ai.settings_changed` - AI settings changed
+         *     * `ai.allowance_changed` - AI uses or credits of a school changed
+         *     * `ai.top_up` - AI credits added to a school
+         *     * `ai.cap_80` - AI spending reached 80 % of the monthly cap
+         *     * `ai.cap_100` - AI monthly cap reached
          *     * `school.created` - School created
          *     * `school.updated` - School or subscription changed
          *     * `school.suspended` - School suspended
@@ -10527,7 +10535,7 @@ export interface components {
          *     * `site.banner_updated` - Site banner changed
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -17967,6 +17975,7 @@ export interface operations {
                 /**
                  * @description * `access` - access
                  *     * `account` - account
+                 *     * `ai` - ai
                  *     * `announcement` - announcement
                  *     * `device` - device
                  *     * `platform` - platform
@@ -17974,7 +17983,7 @@ export interface operations {
                  *     * `site` - site
                  *     * `team` - team
                  */
-                domain?: "access" | "account" | "announcement" | "device" | "platform" | "school" | "site" | "team";
+                domain?: "access" | "account" | "ai" | "announcement" | "device" | "platform" | "school" | "site" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */

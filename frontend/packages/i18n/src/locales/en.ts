@@ -507,6 +507,9 @@ export const en: Messages<typeof fr> = {
       courses: {
         configure: "Configure the courses, maxima and teachers of classes",
       },
+      ai: {
+        use: "Use the AI assistance (the school's plan sets which uses and credits)",
+      },
       timetable: {
         manage: "Configure the timetable: time grids, rooms and rules",
         publish: "Publish the timetable: the draft becomes the school's timetable",
@@ -4696,6 +4699,7 @@ export const en: Messages<typeof fr> = {
       grades_reminder: "Grade sheets expected",
       report_cards_ready: "Report cards ready",
       timetable_published: "New timetable",
+      ai_credits: "AI credits running low",
     },
     kindHelp: {
       test: "To check that this device receives them.",
@@ -4718,6 +4722,7 @@ export const en: Messages<typeof fr> = {
       grades_reminder: "The director of studies reminds you of the grade sheets still expected",
       report_cards_ready: "A homeroom teacher declares the report cards of their class ready",
       timetable_published: "When a newly published timetable changes your lessons",
+      ai_credits: "80 % of the school's AI credits for the month are used",
     },
     kindsTitle: "What to receive on screen",
     kindsHelp: "Applies to all your schools. A muted kind stays in the list.",
@@ -5171,6 +5176,7 @@ export const en: Messages<typeof fr> = {
         notifications: "Notifications and reminders",
         offline: "Offline work and synchronisation",
         academics: "Courses, grades and report cards",
+        ai: "AI assistance",
         timetable: "Timetable",
       },
       modulesNeeds: "Needs: {{modules}}.",
@@ -5522,6 +5528,11 @@ export const en: Messages<typeof fr> = {
       "platform.updated": "Identity changed",
       "platform.logo_changed": "Logo changed",
       "platform.icon_changed": "Application icon changed",
+      "ai.settings_changed": "AI settings changed",
+      "ai.allowance_changed": "AI uses or credits of a school changed",
+      "ai.top_up": "AI credits added to a school",
+      "ai.cap_80": "AI spending reached 80 % of the monthly cap",
+      "ai.cap_100": "AI monthly cap reached",
       "school.created": "School created",
       "school.updated": "School or subscription changed",
       "school.suspended": "School suspended",

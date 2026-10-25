@@ -32,6 +32,9 @@ PAGES = {
     PlatformAction.ACCESS_ADDRESS_REFUSED: "/journal",
     Action.SUPPORT_STARTED: "/journal/support",
 }
+# IA (IA.1.1) : la dépense du mois atteint 80 % puis 100 % du plafond de la plateforme.
+PAGES[PlatformAction.AI_CAP_80] = "/ia"
+PAGES[PlatformAction.AI_CAP_100] = "/ia"
 TITLES = {action.value: action.label for action in PAGES}
 # Demande de démonstration (WEB.1d) : pas une entrée du journal, sa propre page.
 DEMO_REQUEST = "demo_request"

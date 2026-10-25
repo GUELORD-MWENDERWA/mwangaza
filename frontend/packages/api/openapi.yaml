@@ -5260,6 +5260,7 @@ paths:
           enum:
           - access
           - account
+          - ai
           - announcement
           - device
           - platform
@@ -5271,6 +5272,7 @@ paths:
         description: |-
           * `access` - access
           * `account` - account
+          * `ai` - ai
           * `announcement` - announcement
           * `device` - device
           * `platform` - platform
@@ -25253,6 +25255,7 @@ components:
       - communication
       - academics
       - timetable
+      - ai
       - portal
       - notifications
       - offline
@@ -25263,6 +25266,7 @@ components:
         * `communication` - Announcements
         * `academics` - Courses, grades and report cards
         * `timetable` - Timetable
+        * `ai` - AI assistance
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
         * `offline` - Offline work and synchronisation
@@ -25366,6 +25370,7 @@ components:
       - grades_reminder
       - report_cards_ready
       - timetable_published
+      - ai_credits
       type: string
       description: |-
         * `test` - Test notification
@@ -25387,6 +25392,7 @@ components:
         * `grades_reminder` - Grade sheets expected
         * `report_cards_ready` - Report cards ready
         * `timetable_published` - New timetable
+        * `ai_credits` - AI credits running low
     NotificationPreferences:
       type: object
       properties:
@@ -27805,6 +27811,7 @@ components:
       - finance.import_prior_payments
       - timetable.manage
       - timetable.publish
+      - ai.use
       - announcements.publish
       - audit.view
       type: string
@@ -27833,6 +27840,7 @@ components:
         * `finance.import_prior_payments` - Record what students paid before the school started here
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `timetable.publish` - Publish the timetable
+        * `ai.use` - Use the AI assistance
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
     Person:
@@ -28089,6 +28097,11 @@ components:
       - platform.updated
       - platform.logo_changed
       - platform.icon_changed
+      - ai.settings_changed
+      - ai.allowance_changed
+      - ai.top_up
+      - ai.cap_80
+      - ai.cap_100
       - school.created
       - school.updated
       - school.suspended
@@ -28119,6 +28132,11 @@ components:
         * `platform.updated` - Platform identity changed
         * `platform.logo_changed` - Platform logo changed
         * `platform.icon_changed` - Application icon changed
+        * `ai.settings_changed` - AI settings changed
+        * `ai.allowance_changed` - AI uses or credits of a school changed
+        * `ai.top_up` - AI credits added to a school
+        * `ai.cap_80` - AI spending reached 80 % of the monthly cap
+        * `ai.cap_100` - AI monthly cap reached
         * `school.created` - School created
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended

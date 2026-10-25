@@ -137,6 +137,20 @@ services:
     memswap_limit: 384m
     command: celery -A config worker -Q heavy -n heavy@%h --loglevel=info --concurrency=1 --max-tasks-per-child=5 --max-memory-per-child=240000
 
+  # Appels à l'IA (IA.1.1) : file `ai`, deux appels à la fois, en fils (un appel attend l'API
+  # plusieurs secondes sans calculer : pas de processus de plus). Seul à recevoir la clé de l'API.
+  # Éteint tant que `COMPOSE_PROFILES=ai` n'est pas dans `infra/.env` : ses 128 Mo ne tiennent
+  # dans la marge du serveur de 2 Go qu'après vérification (`make deploy-memoire`).
+  worker-ai:
+    <<: *backend
+    profiles: ["ai"]
+    mem_limit: 128m
+    memswap_limit: 128m
+    command: celery -A config worker -Q ai -n ai@%h --loglevel=info -P threads --concurrency=2
+    environment:
+      <<: *backend-env
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
   # Planificateur (relances, purges de la nuit) : un petit service à part, qu'aucun travailleur
   # ne peut emporter en s'arrêtant. Il ne fait que poser le nom des tâches dans Redis, sans Django
   # (`backend/beat.py`, PERF.8) : ≈ 50 Mo au lieu de ≈ 110, et il ne reçoit que l'adresse de
