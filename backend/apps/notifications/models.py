@@ -259,6 +259,8 @@ class Notification(TenantModel):
         GRADES_REMINDER = "grades_reminder", _("Grade sheets expected")
         # Espace du titulaire (NB.3) : bulletins d'une classe prêts, à ceux qui valident les notes.
         REPORT_CARDS_READY = "report_cards_ready", _("Report cards ready")
+        # Horaire publié (EDT.4b) : aux enseignants et aux parents dont l'horaire change.
+        TIMETABLE_PUBLISHED = "timetable_published", _("New timetable")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

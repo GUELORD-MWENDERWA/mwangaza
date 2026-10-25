@@ -62,7 +62,7 @@ Un M **bleu nuit** épais surmonté d'une flamme, dans un carré arrondi `lamp`.
 
 ## Composants (maquette → application)
 
-Dans `frontend/packages/ui` (exportés par `@mwangaza/ui`), construits une fois, réutilisés partout : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand` / `PlatformMark` / `BrandMark`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon`, `Tabs…`, `Switch`, `Select`, `Table`, `ConfirmDialog`, `Kpi`, `usePlatform()`, `LegalNotice`, `useMediaQuery` / `DESKTOP`.
+Dans `frontend/packages/ui` (exportés par `@mwangaza/ui`), construits une fois, réutilisés partout : `Button`, `Input`, `PasswordInput`, `Textarea`, `Field`, `Checkbox` / `CheckboxField`, `Segmented`, `CodeInput`, `Card…`, `List`, `Banner`, `StatusPill`, `Tag`, `Steps`, `Code` / `CodeList`, `Sheet…`, `DialogRoot` / `DialogContent`, `DropdownMenu…`, `Avatar`, `Brand` / `PlatformMark` / `BrandMark`, `SchoolBadge`, `SyncIndicator`, `PageHeader`, `StateCard`, `Toast`, `Skeleton`, `Icon`, `Tabs…`, `Switch`, `Select`, `Table`, `ConfirmDialog`, `Kpi`, `WeekSchedule` / `toSchedule` (horaire publié en lecture : un jour à la fois, la semaine en colonnes avec `columns`, EDT.4b), `usePlatform()`, `LegalNotice`, `useMediaQuery` / `DESKTOP`.
 
 | Maquette | Composant | Notes |
 |---|---|---|

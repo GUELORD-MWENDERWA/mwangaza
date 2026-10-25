@@ -11691,6 +11691,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/portal/children/{id}/timetable/:
+    get:
+      operationId: portal_children_timetable_retrieve
+      description: 'Horaire de la classe d''un enfant (EDT.4b) : la version publiée
+        ; 404 comme `ChildView`.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChildTimetable'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/portal/families/:
     get:
       operationId: portal_families_list
@@ -16529,6 +16564,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/mine/:
+    get:
+      operationId: timetable_mine_retrieve
+      description: |-
+        Séances du compte dans l'horaire publié de l'année en cours (début et fin d'après la
+        grille de chaque classe) et, s'il est titulaire, celles de sa classe.
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyTimetable'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/rooms/:
     get:
       operationId: timetable_rooms_list
@@ -19461,6 +19519,29 @@ components:
       - term_name
       - points
       - grade
+    ChildTimetable:
+      type: object
+      description: Horaire de la classe d'un enfant (EDT.4b).
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_group:
+          type: string
+        timetable:
+          allOf:
+          - $ref: '#/components/schemas/PublishedTimetable'
+          nullable: true
+          description: 'Vide : l''école n''a pas encore publié son horaire.'
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleLesson'
+      required:
+      - id
+      - class_group
+      - timetable
+      - lessons
     ClassActivation:
       type: object
       properties:
@@ -23845,6 +23926,18 @@ components:
       - course
       - average
       - below_half
+    HomeroomSchedule:
+      type: object
+      properties:
+        class_group:
+          type: string
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleLesson'
+      required:
+      - class_group
+      - lessons
     HomeroomStats:
       type: object
       properties:
@@ -25074,6 +25167,28 @@ components:
       - code
       - name
       - status
+    MyTimetable:
+      type: object
+      properties:
+        timetable:
+          allOf:
+          - $ref: '#/components/schemas/PublishedTimetable'
+          nullable: true
+          description: 'Vide : aucun horaire publié cette année.'
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScheduleLesson'
+          description: Séances du compte.
+        homeroom:
+          allOf:
+          - $ref: '#/components/schemas/HomeroomSchedule'
+          nullable: true
+          description: Classe dont le compte est titulaire cette année.
+      required:
+      - timetable
+      - lessons
+      - homeroom
     Notification:
       type: object
       properties:
@@ -25133,6 +25248,7 @@ components:
       - grades_returned
       - grades_reminder
       - report_cards_ready
+      - timetable_published
       type: string
       description: |-
         * `test` - Test notification
@@ -25153,6 +25269,7 @@ components:
         * `grades_returned` - Grade sheet returned
         * `grades_reminder` - Grade sheets expected
         * `report_cards_ready` - Report cards ready
+        * `timetable_published` - New timetable
     NotificationPreferences:
       type: object
       properties:
@@ -28895,6 +29012,24 @@ components:
             en vigueur.'
       required:
       - valid_from
+    PublishedTimetable:
+      type: object
+      properties:
+        name:
+          type: string
+        valid_from:
+          type: string
+          format: date
+          nullable: true
+          description: En vigueur dès.
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - name
+      - valid_from
+      - published_at
     Pull:
       type: object
       properties:
@@ -30051,6 +30186,47 @@ components:
         * `installments` - Installments
         * `monthly` - Monthly
         * `single` - Single payment
+    ScheduleLesson:
+      type: object
+      properties:
+        weekday:
+          type: integer
+          description: 1 = lundi … 7 = dimanche.
+        first:
+          type: integer
+          description: Numéro de la première heure.
+        length:
+          type: integer
+          description: Heures qui se suivent.
+        start:
+          type: string
+          format: time
+          nullable: true
+          description: 'Vide : la grille ne porte plus ces heures.'
+        end:
+          type: string
+          format: time
+          nullable: true
+        course:
+          type: string
+        class_group:
+          type: string
+        teacher:
+          type: string
+          description: Nom de l'enseignant ; vide sans nom.
+        room:
+          type: string
+          description: 'Vide : sans salle.'
+      required:
+      - weekday
+      - first
+      - length
+      - start
+      - end
+      - course
+      - class_group
+      - teacher
+      - room
     SchoolDeleteRequest:
       type: object
       properties:

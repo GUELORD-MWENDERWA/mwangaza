@@ -66,12 +66,16 @@ class HasSchoolPermission(BasePermission):
 
 class HasSchoolAccess(BasePermission):
     """Tout compte qui a des droits dans l'école de l'adresse, quels qu'ils soient (appartenance
-    active ou session support) : ce que tout le personnel lit (annonces de la plateforme)."""
+    active ou session support) : ce que tout le personnel lit (annonces de la plateforme, « Mon
+    horaire » avec le module de l'emploi du temps)."""
 
     def has_permission(self, request, view) -> bool:
         if request.school is None:
             raise NotFound(SCHOOL_NOT_FOUND.detail, code=SCHOOL_NOT_FOUND.code)
-        return school_access(request) is not None
+        if school_access(request) is None:
+            return False
+        ensure_module(request.school, view)
+        return True
 
 
 def platform_rights_required(request, view) -> frozenset[str]:

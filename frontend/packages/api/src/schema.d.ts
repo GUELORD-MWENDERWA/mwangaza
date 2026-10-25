@@ -3664,6 +3664,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/children/{id}/timetable/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Horaire de la classe d'un enfant (EDT.4b) : la version publiée ; 404 comme `ChildView`. */
+        get: operations["portal_children_timetable_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/families/": {
         parameters: {
             query?: never;
@@ -5323,6 +5340,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/mine/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Séances du compte dans l'horaire publié de l'année en cours (début et fin d'après la
+         *     grille de chaque classe) et, s'il est titulaire, celles de sa classe.
+         */
+        get: operations["timetable_mine_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/timetable/rooms/": {
         parameters: {
             query?: never;
@@ -6431,6 +6468,15 @@ export interface components {
             points: number;
             /** @description TB, B, AB, ME ou MA. */
             grade: string;
+        };
+        /** @description Horaire de la classe d'un enfant (EDT.4b). */
+        ChildTimetable: {
+            /** Format: uuid */
+            id: string;
+            class_group: string;
+            /** @description Vide : l'école n'a pas encore publié son horaire. */
+            timetable: components["schemas"]["PublishedTimetable"] | null;
+            lessons: components["schemas"]["ScheduleLesson"][];
         };
         ClassActivation: {
             /** Format: uuid */
@@ -8453,6 +8499,10 @@ export interface components {
             /** @description Élèves sous la moitié. */
             below_half: number | null;
         };
+        HomeroomSchedule: {
+            class_group: string;
+            lessons: components["schemas"]["ScheduleLesson"][];
+        };
         HomeroomStats: {
             students: number;
             /** @description Élèves avec toutes leurs notes. */
@@ -8996,6 +9046,14 @@ export interface components {
             name: string;
             status: components["schemas"]["SchoolStatusEnum"];
         };
+        MyTimetable: {
+            /** @description Vide : aucun horaire publié cette année. */
+            timetable: components["schemas"]["PublishedTimetable"] | null;
+            /** @description Séances du compte. */
+            lessons: components["schemas"]["ScheduleLesson"][];
+            /** @description Classe dont le compte est titulaire cette année. */
+            homeroom: components["schemas"]["HomeroomSchedule"] | null;
+        };
         Notification: {
             /** Format: uuid */
             readonly id: string;
@@ -9029,9 +9087,10 @@ export interface components {
          *     * `grades_returned` - Grade sheet returned
          *     * `grades_reminder` - Grade sheets expected
          *     * `report_cards_ready` - Report cards ready
+         *     * `timetable_published` - New timetable
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "timetable_published";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -10891,6 +10950,16 @@ export interface components {
              */
             valid_from: string;
         };
+        PublishedTimetable: {
+            name: string;
+            /**
+             * Format: date
+             * @description En vigueur dès.
+             */
+            valid_from: string | null;
+            /** Format: date-time */
+            published_at: string | null;
+        };
         Pull: {
             changes: components["schemas"]["Change"][];
             /** @description `since` de la prochaine demande. */
@@ -11465,6 +11534,27 @@ export interface components {
          * @enum {string}
          */
         ScheduleKindEnum: "installments" | "monthly" | "single";
+        ScheduleLesson: {
+            /** @description 1 = lundi … 7 = dimanche. */
+            weekday: number;
+            /** @description Numéro de la première heure. */
+            first: number;
+            /** @description Heures qui se suivent. */
+            length: number;
+            /**
+             * Format: time
+             * @description Vide : la grille ne porte plus ces heures.
+             */
+            start: string | null;
+            /** Format: time */
+            end: string | null;
+            course: string;
+            class_group: string;
+            /** @description Nom de l'enseignant ; vide sans nom. */
+            teacher: string;
+            /** @description Vide : sans salle. */
+            room: string;
+        };
         SchoolDeleteRequest: {
             /** @description Code de l'espace, retapé pour confirmer. */
             confirm: string;
@@ -24498,6 +24588,43 @@ export interface operations {
             };
         };
     };
+    portal_children_timetable_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildTimetable"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     portal_families_list: {
         parameters: {
             query?: never;
@@ -29452,6 +29579,33 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_mine_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyTimetable"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -90,6 +90,7 @@ describe("coquille et menu (M7)", () => {
         .getAllByRole("link")
         .map((link) => link.textContent),
     ).toEqual([
+      "Mon horaire",
       "Saisie des notes",
       "Fiches de cotes",
       "Application",

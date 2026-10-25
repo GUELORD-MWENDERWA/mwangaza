@@ -14,6 +14,7 @@ from apps.notifications.serializers import NotificationSerializer
 from apps.portal import children, families
 from apps.schools.models import School
 from apps.students.serializers import ContactDetailsSerializer
+from apps.timetable.serializers import PublishedTimetableSerializer, ScheduleLessonSerializer
 
 _PASSWORD = {"max_length": 128, "trim_whitespace": False, "style": {"input_type": "password"}}
 _REMEMBER = {
@@ -258,6 +259,17 @@ class ChildIncidentSerializer(serializers.Serializer):
     offence = serializers.CharField(source="rule.label")
     points = serializers.IntegerField()
     occurred_on = serializers.DateField()
+
+
+class ChildTimetableSerializer(serializers.Serializer):
+    """Horaire de la classe d'un enfant (EDT.4b)."""
+
+    id = serializers.UUIDField()
+    class_group = serializers.CharField()
+    timetable = PublishedTimetableSerializer(
+        allow_null=True, help_text="Vide : l'école n'a pas encore publié son horaire."
+    )
+    lessons = ScheduleLessonSerializer(many=True)
 
 
 class ChildConductSerializer(serializers.Serializer):

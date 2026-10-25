@@ -115,6 +115,7 @@ def test_the_browser_subscribes_without_a_school_and_alone_gets_the_portal(
             "place_offered",
             "payment_due",
             "payment_overdue",
+            "timetable_published",
         ],
         "muted": [],
     }

@@ -36,7 +36,7 @@ from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
-from apps.timetable import checks
+from apps.timetable import checks, schedule
 from apps.timetable.models import (
     Room,
     TeacherTimetableProfile,
@@ -127,6 +127,10 @@ def created(demo) -> None:
         assert draft["errors"] == 0 and draft["left"] == [], draft["issues"]
         kept = [entry for entry in draft["entries"] if entry.course_id == locked.course_id]
         assert (1, 2, 6) in {(entry.weekday, entry.first, entry.length) for entry in kept}
+        # EDT.4b : « Mon horaire » de l'enseignant de démo (titulaire), heures de la grille.
+        mine = schedule.mine(User.objects.get(phone="+243000001008"))
+        assert mine["lessons"] and mine["homeroom"]["lessons"]
+        assert all(lesson.start and lesson.end for lesson in mine["lessons"])
     # Reprise des résultats (8.4.7) : la 8EB C sans aucune note, la moitié de ses élèves repris.
     with use_school(itig):
         paper = Deliberation.objects.get(class_group__level__name="8EB", class_group__section="C")

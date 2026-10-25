@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from zoneinfo import ZoneInfo
 
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q
 from django.utils import timezone
 from rest_framework.exceptions import NotFound
 
@@ -22,6 +22,7 @@ from apps.finance.models import Payment, PaymentCancellation, StudentCharge
 from apps.schools.models import School
 from apps.students.models import Enrollment, Student
 from apps.students.photos import photo_version
+from apps.timetable import schedule
 
 # État d'un frais à l'écran : ceux de `finance`, plus « payé d'avance » (échéance pas encore
 # arrivée) et « partiel » (entamé, pas encore échu).
@@ -140,23 +141,27 @@ def child_payments(user: User, student_id) -> ChildPayments:
         )
 
 
+def _current_enrollment(student: Student) -> Enrollment:
+    """Inscription active de l'année en cours ; sans elle, rien à montrer (404)."""
+    enrollment = (
+        Enrollment.objects.filter(
+            student=student, academic_year__is_current=True, status=Enrollment.Status.ACTIVE
+        )
+        .select_related("student", "class_group")
+        .first()
+    )
+    if enrollment is None:
+        raise NotFound
+    return enrollment
+
+
 def child_conduct(user: User, student_id) -> dict:
     """Conduite de l'enfant pour l'année en cours (8.5.1b) : cote et points de chaque période
     commencée, fautes non annulées (libellé, points, date ; ni la note ni l'enseignant). Vide dans
     une école sans le module `academics`. Cinq requêtes."""
     student = find_student(user, student_id)
     with in_school(student.school):
-        enrollment = (
-            Enrollment.objects.filter(
-                student=student,
-                academic_year__is_current=True,
-                status=Enrollment.Status.ACTIVE,
-            )
-            .select_related("student", "class_group")
-            .first()
-        )
-        if enrollment is None:
-            raise NotFound
+        enrollment = _current_enrollment(student)
         terms: list = []
         incidents: list = []
         if student.school.has_module("academics"):
@@ -174,4 +179,24 @@ def child_conduct(user: User, student_id) -> dict:
             "full_name": student.full_name,
             "terms": terms,
             "incidents": incidents,
+        }
+
+
+def child_timetable(user: User, student_id) -> dict:
+    """Horaire de la classe de l'enfant (EDT.4b) : séances de la version publiée de l'année
+    (cours, enseignant, salle, début et fin). Vide sans horaire publié ou dans une école sans le
+    module de l'emploi du temps. Cinq requêtes."""
+    student = find_student(user, student_id)
+    with in_school(student.school):
+        enrollment = _current_enrollment(student)
+        version = (
+            schedule.published(enrollment.academic_year_id)
+            if student.school.has_module("timetable")
+            else None
+        )
+        return {
+            "id": student.pk,
+            "class_group": enrollment.class_group.name,
+            "timetable": version,
+            "lessons": schedule.lessons(version, Q(course__class_group=enrollment.class_group_id)),
         }

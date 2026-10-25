@@ -2,7 +2,7 @@
 transaction : paiement reçu, annonce et convocation (5.7) pour le parent (Portail), écart de caisse
 et annulation à valider pour le personnel qui en a le droit, annonce de l'école pour tout son
 personnel (Gestion), droit sensible donné à un compte pour ceux qui gèrent les rôles (S.3.1), fiche
-de cotes envoyée ou renvoyée (NB.1). Le
+de cotes envoyée ou renvoyée (NB.1), nouvel horaire publié (EDT.4b). Le
 texte est écrit dans la langue de chaque destinataire ; l'envoi sur l'écran suit la validation
 (`push.notify`).
 
@@ -26,7 +26,7 @@ from apps.core.tenancy import require_current_school
 from apps.finance.models import CancellationRequest, CashClosing, CashSession, Payment
 from apps.notifications import push
 from apps.notifications.models import Announcement, Notification, Summons
-from apps.students.models import Family
+from apps.students.models import Enrollment, Family
 
 App = Notification.App
 Kind = Notification.Kind
@@ -406,3 +406,62 @@ def report_cards_ready(group, term, *, actor: User) -> None:
         url=f"/grade-validation?term={term.pk}",
         text=text,
     )
+
+
+# Emploi du temps (EDT.4b)
+
+
+def timetable_published(timetable, *, teachers: set, class_groups: set, actor: User | None) -> int:
+    """Horaire publié : une notification par personne touchée, même avec plusieurs classes ou
+    plusieurs enfants. Les enseignants dont les séances changent ouvrent « Mon horaire » (Gestion,
+    sauf l'auteur) ; les parents des classes touchées, la page de l'enfant (l'accueil s'ils en ont
+    plusieurs). Quatre requêtes, jointures courtes (une classe de 800 élèves reste rapide)."""
+    school = require_current_school()
+    if not school.has_module("notifications"):
+        return 0
+    rows = Enrollment.objects.filter(
+        academic_year_id=timetable.academic_year_id,
+        status=Enrollment.Status.ACTIVE,
+        class_group_id__in=class_groups,
+    ).values_list("student__family_id", "student_id", "student__first_name")
+    children: dict = defaultdict(list)
+    for family_id, student_id, first_name in rows:
+        children[family_id].append((student_id, first_name))
+    parents = dict(
+        Family.objects.filter(
+            pk__in=children, portal_suspended_at__isnull=True, primary_user__isnull=False
+        ).values_list("primary_user_id", "pk")
+    )
+    teachers = {pk for pk in teachers if not actor or pk != actor.pk}
+    users = User.objects.filter(is_active=True, pk__in=[*parents, *teachers])
+    member_ids = set(_members(*teachers).values_list("pk", flat=True))
+    drafts = []
+    for user in users:
+        with translation.override(user.language):
+            when = date_format(timetable.valid_from, "j F Y")
+            if user.pk in member_ids:
+                drafts.append(
+                    push.draft(
+                        user,
+                        app=App.GESTION,
+                        kind=Kind.TIMETABLE_PUBLISHED,
+                        title=_("New timetable"),
+                        body=_("Your lessons change from %(date)s.") % {"date": when},
+                        url="/my-timetable",
+                    )
+                )
+            if user.pk in parents:
+                mine = children[parents[user.pk]]
+                names = ", ".join(name for _pk, name in mine)
+                drafts.append(
+                    push.draft(
+                        user,
+                        app=App.PORTAIL,
+                        kind=Kind.TIMETABLE_PUBLISHED,
+                        title=_("New class timetable"),
+                        body=_("Timetable of %(children)s from %(date)s.")
+                        % {"children": names, "date": when},
+                        url=f"/children/{mine[0][0]}" if len(mine) == 1 else "/",
+                    )
+                )
+    return len(push.create(school, drafts))

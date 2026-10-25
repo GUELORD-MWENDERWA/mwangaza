@@ -60,6 +60,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   grades_returned: "undo",
   grades_reminder: "bell",
   report_cards_ready: "check",
+  timetable_published: "calendar",
 };
 
 export function NotificationsPage() {

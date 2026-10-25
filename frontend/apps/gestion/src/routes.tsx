@@ -69,6 +69,7 @@ import { CalculatePage } from "./features/timetable/CalculatePage";
 import { ChecksPage } from "./features/timetable/ChecksPage";
 import { RoomsPage } from "./features/timetable/RoomsPage";
 import { EditorPage } from "./features/timetable/EditorPage";
+import { MyTimetablePage } from "./features/timetable/MyTimetablePage";
 import { TimeGridPage } from "./features/timetable/TimeGridPage";
 import { UnpaidExportPage } from "./features/unpaid/UnpaidExportPage";
 import { UnpaidPage } from "./features/unpaid/UnpaidPage";
@@ -85,6 +86,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   rooms: <RoomsPage />,
   timetableChecks: <ChecksPage />,
   timetable: <EditorPage />,
+  myTimetable: <MyTimetablePage />,
   grades: <GradesPage />,
   gradeValidation: <GradeValidationPage />,
   homeroom: <HomeroomPage />,

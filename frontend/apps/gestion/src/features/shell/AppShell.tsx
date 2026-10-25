@@ -26,6 +26,7 @@ import { GuideProvider, useGuide } from "../guide/Guide";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
 import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
+import { useKeepMyTimetable } from "../timetable/mine";
 import { SearchPalette } from "./SearchPalette";
 import { PinBanner } from "./PinBanner";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
@@ -37,6 +38,7 @@ export function AppShell() {
   const me = useCurrentMe();
   const school = useCurrentSchool();
   useSyncSession(me);
+  useKeepMyTimetable(me);
   // Gardés sur l'appareil mémorisé : l'application démarrera sans réseau (B5).
   useEffect(() => void keepForOfflineStart(me, school).catch(() => undefined), [me, school]);
   // Aucun droit dans cette école : le support ouvre sa session, les autres choisissent une école.

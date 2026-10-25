@@ -15,6 +15,11 @@ urlpatterns = [
     path("children/<uuid:pk>/", views.ChildView.as_view(), name="child"),
     path("children/<uuid:pk>/conduct/", views.ChildConductView.as_view(), name="child-conduct"),
     path("children/<uuid:pk>/photo/", views.ChildPhotoView.as_view(), name="child-photo"),
+    path(
+        "children/<uuid:pk>/timetable/",
+        views.ChildTimetableView.as_view(),
+        name="child-timetable",
+    ),
     path("payments/<uuid:pk>/receipt/", views.ReceiptView.as_view(), name="receipt"),
     path("places/", views.PlacesView.as_view(), name="places"),
     path("places/<uuid:pk>/", views.PlaceAnswerView.as_view(), name="place-answer"),

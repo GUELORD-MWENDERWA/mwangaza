@@ -3,7 +3,8 @@ les anciennes. Une version publiée ou archivée ne se modifie plus (`drafts._op
 geste) : pour la changer, on en copie un nouveau brouillon, puis on le publie.
 
 Publier est sérialisé par un verrou sur l'année scolaire : deux publications en même temps se
-suivent, sans heurter la règle « une seule version publiée par année »."""
+suivent, sans heurter la règle « une seule version publiée par année ». Les enseignants et les
+parents dont l'horaire change sont prévenus dans la même transaction (EDT.4b)."""
 
 from datetime import date
 
@@ -16,8 +17,9 @@ from django.utils.translation import gettext_lazy as _
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
+from apps.notifications import events
 from apps.schools.models import AcademicYear
-from apps.timetable import checks
+from apps.timetable import checks, schedule
 from apps.timetable.drafts import NOT_A_DRAFT
 from apps.timetable.models import Timetable
 
@@ -100,4 +102,6 @@ def publish(timetable: Timetable, *, valid_from: date, actor) -> Timetable:
             },
             label=draft.name,
         )
+        teachers, class_groups = schedule.touched(current, draft)
+        events.timetable_published(draft, teachers=teachers, class_groups=class_groups, actor=actor)
     return draft

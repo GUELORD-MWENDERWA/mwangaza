@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-22 22:19+0200\n"
+"POT-Creation-Date: 2026-10-25 10:53+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -2136,8 +2136,8 @@ msgstr "double authentification activée le"
 
 #: apps/accounts/models.py:108 apps/accounts/models.py:197
 #: apps/accounts/models.py:238 apps/notifications/models.py:208
-#: apps/notifications/models.py:267 apps/notifications/models.py:331
-#: apps/notifications/models.py:370 apps/sync/models.py:22
+#: apps/notifications/models.py:269 apps/notifications/models.py:333
+#: apps/notifications/models.py:372 apps/sync/models.py:22
 msgid "account"
 msgstr "compte"
 
@@ -2150,7 +2150,7 @@ msgid "role"
 msgstr "rôle"
 
 #: apps/accounts/models.py:200 apps/core/models.py:52 apps/core/models.py:282
-#: apps/notifications/models.py:340 apps/schools/admin.py:59
+#: apps/notifications/models.py:342 apps/schools/admin.py:59
 #: apps/schools/models.py:231 apps/schools/models.py:355
 msgid "school"
 msgstr "école"
@@ -3354,7 +3354,7 @@ msgid "after"
 msgstr "après"
 
 #: apps/audit/models.py:71 apps/audit/models.py:137
-#: apps/notifications/models.py:345 apps/sync/models.py:17
+#: apps/notifications/models.py:347 apps/sync/models.py:17
 msgid "browser"
 msgstr "navigateur"
 
@@ -3679,7 +3679,7 @@ msgid "email"
 msgstr "e-mail"
 
 #: apps/core/models.py:287 apps/notifications/models.py:23
-#: apps/notifications/models.py:168 apps/notifications/models.py:272
+#: apps/notifications/models.py:168 apps/notifications/models.py:274
 msgid "message"
 msgstr "message"
 
@@ -3713,7 +3713,7 @@ msgid "Coming soon"
 msgstr "Prochainement"
 
 #: apps/core/models.py:317 apps/finance/models.py:247
-#: apps/notifications/models.py:93 apps/notifications/models.py:270
+#: apps/notifications/models.py:93 apps/notifications/models.py:272
 #: apps/schools/models.py:438 apps/sync/models.py:26
 #: apps/timetable/models.py:81 apps/timetable/models.py:120
 #: apps/timetable/models.py:209
@@ -3752,7 +3752,7 @@ msgstr "contenu du site"
 msgid "site contents"
 msgstr "contenus du site"
 
-#: apps/core/models.py:341 apps/notifications/models.py:274
+#: apps/core/models.py:341 apps/notifications/models.py:276
 msgid "link"
 msgstr "lien"
 
@@ -7315,6 +7315,24 @@ msgstr "Bulletins prêts : %(class)s"
 msgid "%(term)s · declared by %(teacher)s, homeroom teacher"
 msgstr "%(term)s · déclarés par %(teacher)s, titulaire"
 
+#: apps/notifications/events.py:449 apps/notifications/models.py:263
+msgid "New timetable"
+msgstr "Nouvel horaire"
+
+#: apps/notifications/events.py:450
+#, python-format
+msgid "Your lessons change from %(date)s."
+msgstr "Vos heures changent à partir du %(date)s."
+
+#: apps/notifications/events.py:462
+msgid "New class timetable"
+msgstr "Nouvel horaire des cours"
+
+#: apps/notifications/events.py:463
+#, python-format
+msgid "Timetable of %(children)s from %(date)s."
+msgstr "Horaire de %(children)s à partir du %(date)s."
+
 #: apps/notifications/models.py:17
 msgid "All families"
 msgstr "Toutes les familles"
@@ -7328,7 +7346,7 @@ msgid "Staff"
 msgstr "Personnel"
 
 #: apps/notifications/models.py:22 apps/notifications/models.py:91
-#: apps/notifications/models.py:167 apps/notifications/models.py:271
+#: apps/notifications/models.py:167 apps/notifications/models.py:273
 msgid "title"
 msgstr "titre"
 
@@ -7551,68 +7569,68 @@ msgstr "Fiches de cotes attendues"
 msgid "Report cards ready"
 msgstr "Bulletins prêts"
 
-#: apps/notifications/models.py:269 apps/notifications/models.py:333
+#: apps/notifications/models.py:271 apps/notifications/models.py:335
 msgid "app"
 msgstr "application"
 
-#: apps/notifications/models.py:275
+#: apps/notifications/models.py:277
 msgid "read at"
 msgstr "lue le"
 
-#: apps/notifications/models.py:279
+#: apps/notifications/models.py:281
 msgid "notification"
 msgstr "notification"
 
-#: apps/notifications/models.py:280
+#: apps/notifications/models.py:282
 msgid "notifications"
 msgstr "notifications"
 
-#: apps/notifications/models.py:296
+#: apps/notifications/models.py:298
 msgid "Reminders to parents"
 msgstr "Relances aux parents"
 
-#: apps/notifications/models.py:297
+#: apps/notifications/models.py:299
 msgid "Registers still open"
 msgstr "Caisses encore ouvertes"
 
-#: apps/notifications/models.py:299
+#: apps/notifications/models.py:301
 msgid "job"
 msgstr "travail"
 
-#: apps/notifications/models.py:300 apps/timetable/models.py:75
+#: apps/notifications/models.py:302 apps/timetable/models.py:75
 #: apps/timetable/models.py:310
 msgid "day"
 msgstr "jour"
 
-#: apps/notifications/models.py:303
+#: apps/notifications/models.py:305
 msgid "scheduled run"
 msgstr "passage du planificateur"
 
-#: apps/notifications/models.py:304
+#: apps/notifications/models.py:306
 msgid "scheduled runs"
 msgstr "passages du planificateur"
 
-#: apps/notifications/models.py:325
+#: apps/notifications/models.py:327
 msgid "Platform console"
 msgstr "Console de la plateforme"
 
-#: apps/notifications/models.py:342
+#: apps/notifications/models.py:344
 msgid "endpoint"
 msgstr "adresse d'envoi"
 
-#: apps/notifications/models.py:348
+#: apps/notifications/models.py:350
 msgid "push subscription"
 msgstr "abonnement aux notifications"
 
-#: apps/notifications/models.py:349
+#: apps/notifications/models.py:351
 msgid "push subscriptions"
 msgstr "abonnements aux notifications"
 
-#: apps/notifications/models.py:372
+#: apps/notifications/models.py:374
 msgid "muted kinds"
 msgstr "sortes coupées"
 
-#: apps/notifications/models.py:375 apps/notifications/models.py:376
+#: apps/notifications/models.py:377 apps/notifications/models.py:378
 msgid "notification preferences"
 msgstr "préférences de notification"
 
@@ -9984,22 +10002,22 @@ msgstr "les heures sont numérotées 1, 2, 3… dans l'ordre."
 msgid "at most 12 lessons a day."
 msgstr "12 heures de cours par jour au plus."
 
-#: apps/timetable/versions.py:29
+#: apps/timetable/versions.py:31
 msgid "This draft still has conflicts: correct them before publishing."
 msgstr "Ce brouillon a encore des conflits : les corriger avant de publier."
 
-#: apps/timetable/versions.py:33
+#: apps/timetable/versions.py:35
 msgid "This date is not in the school year of the timetable."
 msgstr "Cette date n'est pas dans l'année scolaire de l'horaire."
 
-#: apps/timetable/versions.py:37
+#: apps/timetable/versions.py:39
 msgid "This date is before the start of the timetable in force."
 msgstr "Cette date est avant le début de l'horaire en vigueur."
 
-#: apps/timetable/views.py:312
+#: apps/timetable/views.py:313
 msgid "This timetable does not exist."
 msgstr "Cet horaire n'existe pas."
 
-#: apps/timetable/views.py:464
+#: apps/timetable/views.py:480
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."

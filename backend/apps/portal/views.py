@@ -37,6 +37,7 @@ from apps.portal.serializers import (
     AnnouncementsQuerySerializer,
     ChildConductSerializer,
     ChildPaymentsSerializer,
+    ChildTimetableSerializer,
     FamilyCodeSerializer,
     LinkedFamilySerializer,
     LinkSerializer,
@@ -202,6 +203,17 @@ class ChildConductView(APIView):
     @extend_schema(responses={200: ChildConductSerializer, **READ_ERRORS})
     def get(self, request: Request, pk) -> Response:
         return Response(ChildConductSerializer(children.child_conduct(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildTimetableView(APIView):
+    """Horaire de la classe d'un enfant (EDT.4b) : la version publiée ; 404 comme `ChildView`."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: ChildTimetableSerializer, **READ_ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        return Response(ChildTimetableSerializer(children.child_timetable(request.user, pk)).data)
 
 
 @extend_schema(tags=["portal"])
