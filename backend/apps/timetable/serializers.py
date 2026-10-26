@@ -2,7 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from apps.core.documents import PAPERS, PrintOptionsSerializer
-from apps.timetable import assistant
+from apps.timetable import assistant, review
 from apps.timetable.checks import LEVELS
 from apps.timetable.constraints import UnavailableSerializer, clean
 from apps.timetable.models import (
@@ -553,3 +553,45 @@ class AssistKeepItemSerializer(serializers.Serializer):
 
 class AssistKeepSerializer(serializers.Serializer):
     items = AssistKeepItemSerializer(many=True, min_length=1, max_length=20)
+
+
+class ReviewAskSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField(
+        help_text="Fabriqué par l'écran : le même clic ne coûte qu'une fois."
+    )
+    timetable = serializers.UUIDField(
+        required=False,
+        allow_null=True,
+        help_text="Horaire calculé à analyser ; absent : le diagnostic de l'année.",
+    )
+
+
+class ReviewActionSerializer(serializers.Serializer):
+    key = serializers.CharField(help_text="`kind:identifiant`, à renvoyer pour appliquer.")
+    kind = serializers.ChoiceField(choices=review.KINDS)
+    id = serializers.UUIDField(allow_null=True, help_text="Règle ou cours visé.")
+    label = serializers.CharField(allow_blank=True)
+    pattern = serializers.CharField(required=False, help_text="Séances proposées (set_pattern).")
+    note = serializers.CharField(allow_blank=True)
+
+
+class ReviewProposalSerializer(serializers.Serializer):
+    explanation = serializers.CharField(allow_blank=True)
+    actions = ReviewActionSerializer(many=True)
+
+
+class ReviewCallSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    state = serializers.CharField(
+        help_text="queued, running, done, error, refused, kept, abandoned."
+    )
+    refusal = serializers.CharField(allow_blank=True, help_text="Code du refus ou de l'erreur.")
+    proposal = ReviewProposalSerializer(allow_null=True)
+
+
+class ReviewApplySerializer(serializers.Serializer):
+    key = serializers.CharField(max_length=80)
+
+
+class ReviewFinishSerializer(serializers.Serializer):
+    applied = serializers.BooleanField()

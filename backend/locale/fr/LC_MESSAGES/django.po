@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 23:28+0200\n"
+"POT-Creation-Date: 2026-10-26 20:22+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -10102,6 +10102,10 @@ msgstr "Horaire : %(name)s"
 msgid "General timetable"
 msgstr "Horaire général"
 
+#: apps/timetable/review.py:36
+msgid "This action is no longer possible."
+msgstr "Cette action n'est plus possible."
+
 #: apps/timetable/runs.py:45
 msgid "A calculation is already under way for this school."
 msgstr "Un calcul est déjà en cours pour cette école."
@@ -10277,10 +10281,10 @@ msgstr "Cette date n'est pas dans l'année scolaire de l'horaire."
 msgid "This date is before the start of the timetable in force."
 msgstr "Cette date est avant le début de l'horaire en vigueur."
 
-#: apps/timetable/views.py:411
+#: apps/timetable/views.py:489
 msgid "This timetable does not exist."
 msgstr "Cet horaire n'existe pas."
 
-#: apps/timetable/views.py:619
+#: apps/timetable/views.py:697
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."

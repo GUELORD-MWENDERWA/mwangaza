@@ -2146,6 +2146,28 @@ export const en: Messages<typeof fr> = {
         other: "Other wish",
       },
     },
+    review: {
+      open: "Ask for advice",
+      title: "Ask for advice",
+      subtitle: "The assistant reads the figures from the checks; you decide what to apply",
+      reading: "Reading the figures…",
+      failed: "The assistant could not answer. Nothing was changed; try again later.",
+      nothing: "No action to suggest.",
+      proposed_one: "{{count}} possible action · apply the ones you want",
+      proposed_other: "{{count}} possible actions · apply the ones you want",
+      apply: "Apply",
+      applied_one:
+        "{{count}} action applied. Run the calculation again: it checks the change, the assistant guarantees nothing.",
+      applied_other:
+        "{{count}} actions applied. Run the calculation again: it checks the changes, the assistant guarantees nothing.",
+      done: "Done",
+      kind: {
+        soften_rule: "Relax a rule",
+        pause_rule: "Pause a rule",
+        set_pattern: "Lessons",
+        need_teacher: "One more teacher",
+      },
+    },
     assistant: {
       open: "Tell my instructions",
       title: "Tell my instructions",

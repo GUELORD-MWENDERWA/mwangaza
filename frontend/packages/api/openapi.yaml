@@ -16894,6 +16894,203 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/review/:
+    post:
+      operationId: timetable_review_create
+      description: |-
+        « Demander conseil » (IA.2b) : les chiffres calculés par le code (contrôles de l'année,
+        ou conflits de l'horaire `timetable`) partent à l'assistant ; l'appel est rendu tout de
+        suite. Droits `timetable.manage` et `ai.use`, crédits de l'école.
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewAskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewAskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewAskRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/review/{id}/:
+    get:
+      operationId: timetable_review_retrieve
+      description: État du conseil ; prêt, l'explication et les actions vérifiées.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCall'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/review/{id}/apply/:
+    post:
+      operationId: timetable_review_apply_create
+      description: |-
+        Applique une action proposée (même service et même journal que l'écran normal) ;
+        action absente de la réponse ou plus possible : 409.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewApplyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewApplyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewApplyRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/review/{id}/finish/:
+    post:
+      operationId: timetable_review_finish_create
+      description: 'Ferme le conseil : gardé si au moins une action est appliquée,
+        sinon abandonné.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewFinishRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReviewFinishRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReviewFinishRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/rooms/:
     get:
       operationId: timetable_rooms_list
@@ -29889,6 +30086,108 @@ components:
       - percent
       - resit_percent
       - passed
+    ReviewAction:
+      type: object
+      properties:
+        key:
+          type: string
+          description: '`kind:identifiant`, à renvoyer pour appliquer.'
+        kind:
+          $ref: '#/components/schemas/ReviewActionKindEnum'
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Règle ou cours visé.
+        label:
+          type: string
+        pattern:
+          type: string
+          description: Séances proposées (set_pattern).
+        note:
+          type: string
+      required:
+      - key
+      - kind
+      - id
+      - label
+      - pattern
+      - note
+    ReviewActionKindEnum:
+      enum:
+      - soften_rule
+      - pause_rule
+      - set_pattern
+      - need_teacher
+      type: string
+      description: |-
+        * `soften_rule` - soften_rule
+        * `pause_rule` - pause_rule
+        * `set_pattern` - set_pattern
+        * `need_teacher` - need_teacher
+    ReviewApplyRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 80
+      required:
+      - key
+    ReviewAskRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: 'Fabriqué par l''écran : le même clic ne coûte qu''une fois.'
+        timetable:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Horaire calculé à analyser ; absent : le diagnostic de l''année.'
+      required:
+      - request_id
+    ReviewCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          description: queued, running, done, error, refused, kept, abandoned.
+        refusal:
+          type: string
+          description: Code du refus ou de l'erreur.
+        proposal:
+          allOf:
+          - $ref: '#/components/schemas/ReviewProposal'
+          nullable: true
+      required:
+      - id
+      - state
+      - refusal
+      - proposal
+    ReviewFinishRequest:
+      type: object
+      properties:
+        applied:
+          type: boolean
+      required:
+      - applied
+    ReviewProposal:
+      type: object
+      properties:
+        explanation:
+          type: string
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReviewAction'
+      required:
+      - explanation
+      - actions
     Role:
       type: object
       description: 'Rôle de l''école : un nom et des permissions.'
