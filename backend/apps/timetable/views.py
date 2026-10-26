@@ -30,6 +30,7 @@ from apps.timetable import (
     constraints,
     drafts,
     prints,
+    review,
     runs,
     schedule,
     services,
@@ -56,6 +57,10 @@ from apps.timetable.serializers import (
     PlaceSerializer,
     PrintQuerySerializer,
     PublishSerializer,
+    ReviewApplySerializer,
+    ReviewAskSerializer,
+    ReviewCallSerializer,
+    ReviewFinishSerializer,
     RoomCreateSerializer,
     RoomSerializer,
     RoomUpdateSerializer,
@@ -365,6 +370,79 @@ class AssistAbandonView(_TimetableView):
     def post(self, request: Request, pk) -> Response:
         """La personne abandonne la réponse : rien n'est enregistré."""
         assistant.abandon(_assist_call(request, pk))
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def _review_call(request: Request, pk) -> AiCall:
+    return get_object_or_404(AiCall, pk=pk, user=request.user, use=review.USE)
+
+
+def _review_state(call: AiCall, code: int = status.HTTP_200_OK) -> Response:
+    ready = call.state == AiCall.State.DONE
+    data = {
+        "id": call.pk,
+        "state": call.state,
+        "refusal": call.refusal,
+        "proposal": review.proposals(call) if ready else None,
+    }
+    return Response(ReviewCallSerializer(data).data, status=code)
+
+
+@extend_schema(tags=["timetable"])
+class ReviewView(_TimetableView):
+    @extend_schema(
+        request=ReviewAskSerializer,
+        responses={202: ReviewCallSerializer, 400: ErrorSerializer, **ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        """« Demander conseil » (IA.2b) : les chiffres calculés par le code (contrôles de l'année,
+        ou conflits de l'horaire `timetable`) partent à l'assistant ; l'appel est rendu tout de
+        suite. Droits `timetable.manage` et `ai.use`, crédits de l'école."""
+        data = ReviewAskSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        asked = data.validated_data.get("timetable")
+        call = review.ask(
+            school=require_current_school(),
+            user=request.user,
+            permissions=school_access(request).permissions,
+            request_id=data.validated_data["request_id"],
+            timetable=get_object_or_404(Timetable, pk=asked) if asked else None,
+            support=support.current(request) is not None,
+        )
+        return _review_state(call, status.HTTP_202_ACCEPTED)
+
+
+@extend_schema(tags=["timetable"])
+class ReviewCallView(_TimetableView):
+    @extend_schema(responses={200: ReviewCallSerializer, **ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        """État du conseil ; prêt, l'explication et les actions vérifiées."""
+        return _review_state(_review_call(request, pk))
+
+
+@extend_schema(tags=["timetable"])
+class ReviewApplyView(_TimetableView):
+    @extend_schema(
+        request=ReviewApplySerializer, responses={200: ReviewCallSerializer, **WRITE_ERRORS}
+    )
+    def post(self, request: Request, pk) -> Response:
+        """Applique une action proposée (même service et même journal que l'écran normal) ;
+        action absente de la réponse ou plus possible : 409."""
+        data = ReviewApplySerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        call = _review_call(request, pk)
+        review.apply(call, data.validated_data["key"], actor=request.user)
+        return _review_state(call)
+
+
+@extend_schema(tags=["timetable"])
+class ReviewFinishView(_TimetableView):
+    @extend_schema(request=ReviewFinishSerializer, responses={204: None, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Ferme le conseil : gardé si au moins une action est appliquée, sinon abandonné."""
+        data = ReviewFinishSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        review.finish(_review_call(request, pk), applied=data.validated_data["applied"])
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

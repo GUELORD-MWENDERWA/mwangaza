@@ -38,6 +38,7 @@ import {
   useTimetableRules,
 } from "./data";
 import { AssistantDialog } from "./AssistantDialog";
+import { ReviewDialog } from "./ReviewDialog";
 import { RuleDialog } from "./RuleDialog";
 import { RulesCard } from "./RulesCard";
 import { dayName, hoursText, lookupOf } from "./rules";
@@ -67,6 +68,7 @@ export function ChecksPage() {
   const [filter, setFilter] = useState<Filter>("all");
   const [editing, setEditing] = useState<Rule | "new" | null>(null);
   const [assisting, setAssisting] = useState(false);
+  const [advising, setAdvising] = useState(false);
   const me = useCurrentMe();
   const hasAssistant = me.school?.modules.includes("ai") && can(me, ["ai.use"]);
   // `?rule=` : une règle qui bloque un calcul (EDT.3b) ouvre sa fenêtre.
@@ -188,6 +190,11 @@ export function ChecksPage() {
         <Card>
           <CardHeader className="flex-wrap">
             <CardTitle>{t("timetable.checks.listTitle")}</CardTitle>
+            {hasAssistant && report.issues.length > 0 && (
+              <Button variant="outline" size="sm" onClick={() => setAdvising(true)}>
+                {t("timetable.review.open")}
+              </Button>
+            )}
             {report.issues.length > 0 && (
               <Segmented<Filter>
                 label={t("timetable.checks.filter")}
@@ -280,6 +287,7 @@ export function ChecksPage() {
           </Card>
         </div>
       </div>
+      {advising && <ReviewDialog onClose={() => setAdvising(false)} />}
       {assisting && <AssistantDialog lookup={lookup} onClose={() => setAssisting(false)} />}
       {open && (
         <RuleDialog

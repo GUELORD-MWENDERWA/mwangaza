@@ -2171,6 +2171,28 @@ export const fr = {
         other: "Autre souhait",
       },
     },
+    review: {
+      open: "Demander conseil",
+      title: "Demander conseil",
+      subtitle: "L'assistant lit les chiffres du contrôle ; tu décides de ce qu'on applique",
+      reading: "Je lis les chiffres…",
+      failed: "L'assistant n'a pas pu répondre. Rien n'a été changé ; réessaie plus tard.",
+      nothing: "Aucune action à proposer.",
+      proposed_one: "{{count}} action possible · applique celles que tu veux",
+      proposed_other: "{{count}} actions possibles · applique celles que tu veux",
+      apply: "Appliquer",
+      applied_one:
+        "{{count}} action appliquée. Relance le calcul : il vérifie le changement, l'assistant ne garantit rien.",
+      applied_other:
+        "{{count}} actions appliquées. Relance le calcul : il vérifie les changements, l'assistant ne garantit rien.",
+      done: "Terminer",
+      kind: {
+        soften_rule: "Assouplir une règle",
+        pause_rule: "Mettre une règle en pause",
+        set_pattern: "Séances",
+        need_teacher: "Un enseignant de plus",
+      },
+    },
     assistant: {
       open: "Dire mes consignes",
       title: "Dire mes consignes",

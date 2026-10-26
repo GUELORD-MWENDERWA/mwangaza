@@ -73,6 +73,7 @@ import { DayList, IssueText, type Pick, WeekGrid, capitalized } from "./EditorPa
 import { EntryDialog, PlaceDialog } from "./EntryDialog";
 import { GeneralView } from "./GeneralView";
 import { PublishDialog } from "./PublishDialog";
+import { ReviewDialog } from "./ReviewDialog";
 
 /** Textes propres à chaque vue (sélecteur, précédent, suivant, rien à placer). */
 const VIEW_TEXT = {
@@ -114,7 +115,10 @@ export function EditorPage() {
   const years = useYears();
   const drafts = useDrafts();
   const versions = useVersions();
-  const canPublish = can(useCurrentMe(), ["timetable.publish"]);
+  const me = useCurrentMe();
+  const canPublish = can(me, ["timetable.publish"]);
+  const canAdvise = me.school?.modules.includes("ai") && can(me, ["ai.use"]);
+  const [advising, setAdvising] = useState(false);
   const timeZone = useSchool().data?.timezone ?? "Africa/Lubumbashi";
   const courses = useTimetableCourses();
   const classes = useTimetableClasses();
@@ -493,6 +497,11 @@ export function EditorPage() {
               </Button>
             </div>
           )}
+          {canAdvise && state?.status === "draft" && (
+            <Button variant="outline" size="sm" onClick={() => setAdvising(true)}>
+              {t("timetable.review.open")}
+            </Button>
+          )}
           {loadText && <StatusPill tone={over ? "due" : "info"}>{loadText}</StatusPill>}
           <StatusPill tone={errors ? "due" : "ok"}>
             {errors
@@ -730,6 +739,7 @@ export function EditorPage() {
         <PlaceDialog course={placing} length={opened.length} {...common} />
       )}
       {createDialog}
+      {advising && <ReviewDialog timetable={draftId} onClose={() => setAdvising(false)} />}
       {publishing && year && (
         <PublishDialog
           state={state}

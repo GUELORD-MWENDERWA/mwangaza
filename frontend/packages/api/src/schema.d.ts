@@ -5459,6 +5459,81 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/review/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description « Demander conseil » (IA.2b) : les chiffres calculés par le code (contrôles de l'année,
+         *     ou conflits de l'horaire `timetable`) partent à l'assistant ; l'appel est rendu tout de
+         *     suite. Droits `timetable.manage` et `ai.use`, crédits de l'école.
+         */
+        post: operations["timetable_review_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/review/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description État du conseil ; prêt, l'explication et les actions vérifiées. */
+        get: operations["timetable_review_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/review/{id}/apply/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Applique une action proposée (même service et même journal que l'écran normal) ;
+         *     action absente de la réponse ou plus possible : 409.
+         */
+        post: operations["timetable_review_apply_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/review/{id}/finish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Ferme le conseil : gardé si au moins une action est appliquée, sinon abandonné. */
+        post: operations["timetable_review_finish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/timetable/rooms/": {
         parameters: {
             query?: never;
@@ -11320,6 +11395,59 @@ export interface components {
              */
             resit_percent: string | null;
             passed: boolean | null;
+        };
+        ReviewAction: {
+            /** @description `kind:identifiant`, à renvoyer pour appliquer. */
+            key: string;
+            kind: components["schemas"]["ReviewActionKindEnum"];
+            /**
+             * Format: uuid
+             * @description Règle ou cours visé.
+             */
+            id: string | null;
+            label: string;
+            /** @description Séances proposées (set_pattern). */
+            pattern: string;
+            note: string;
+        };
+        /**
+         * @description * `soften_rule` - soften_rule
+         *     * `pause_rule` - pause_rule
+         *     * `set_pattern` - set_pattern
+         *     * `need_teacher` - need_teacher
+         * @enum {string}
+         */
+        ReviewActionKindEnum: "soften_rule" | "pause_rule" | "set_pattern" | "need_teacher";
+        ReviewApplyRequest: {
+            key: string;
+        };
+        ReviewAskRequest: {
+            /**
+             * Format: uuid
+             * @description Fabriqué par l'écran : le même clic ne coûte qu'une fois.
+             */
+            request_id: string;
+            /**
+             * Format: uuid
+             * @description Horaire calculé à analyser ; absent : le diagnostic de l'année.
+             */
+            timetable?: string | null;
+        };
+        ReviewCall: {
+            /** Format: uuid */
+            id: string;
+            /** @description queued, running, done, error, refused, kept, abandoned. */
+            state: string;
+            /** @description Code du refus ou de l'erreur. */
+            refusal: string;
+            proposal: components["schemas"]["ReviewProposal"] | null;
+        };
+        ReviewFinishRequest: {
+            applied: boolean;
+        };
+        ReviewProposal: {
+            explanation: string;
+            actions: components["schemas"]["ReviewAction"][];
         };
         /** @description Rôle de l'école : un nom et des permissions. */
         Role: {
@@ -30018,6 +30146,209 @@ export interface operations {
                     "application/pdf": string;
                     "text/html": string;
                 };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_review_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewAskRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReviewAskRequest"];
+                "multipart/form-data": components["schemas"]["ReviewAskRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_review_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewCall"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_review_apply_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewApplyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReviewApplyRequest"];
+                "multipart/form-data": components["schemas"]["ReviewApplyRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_review_finish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewFinishRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReviewFinishRequest"];
+                "multipart/form-data": components["schemas"]["ReviewFinishRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             400: {
                 headers: {
