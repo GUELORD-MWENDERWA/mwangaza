@@ -20,6 +20,8 @@ import {
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router";
 
+import { can } from "../../lib/permissions";
+import { useCurrentMe } from "../../lib/queries";
 import { useYears } from "../organisation/data";
 import { LoadError } from "../status/StatusPages";
 import {
@@ -35,6 +37,7 @@ import {
   useTimetableChecks,
   useTimetableRules,
 } from "./data";
+import { AssistantDialog } from "./AssistantDialog";
 import { RuleDialog } from "./RuleDialog";
 import { RulesCard } from "./RulesCard";
 import { dayName, hoursText, lookupOf } from "./rules";
@@ -63,6 +66,9 @@ export function ChecksPage() {
   const general = useTimetableRules();
   const [filter, setFilter] = useState<Filter>("all");
   const [editing, setEditing] = useState<Rule | "new" | null>(null);
+  const [assisting, setAssisting] = useState(false);
+  const me = useCurrentMe();
+  const hasAssistant = me.school?.modules.includes("ai") && can(me, ["ai.use"]);
   // `?rule=` : une règle qui bloque un calcul (EDT.3b) ouvre sa fenêtre.
   const [params, setParams] = useSearchParams();
   const asked = params.get("rule");
@@ -248,6 +254,7 @@ export function ChecksPage() {
             lookup={lookup}
             general={general.data}
             onAdd={() => setEditing("new")}
+            onAssist={hasAssistant ? () => setAssisting(true) : undefined}
             onEdit={setEditing}
           />
           <Card>
@@ -273,6 +280,7 @@ export function ChecksPage() {
           </Card>
         </div>
       </div>
+      {assisting && <AssistantDialog lookup={lookup} onClose={() => setAssisting(false)} />}
       {open && (
         <RuleDialog
           rule={open === "new" ? null : open}

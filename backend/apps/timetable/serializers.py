@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from apps.core.documents import PAPERS, PrintOptionsSerializer
+from apps.timetable import assistant
 from apps.timetable.checks import LEVELS
 from apps.timetable.constraints import UnavailableSerializer, clean
 from apps.timetable.models import (
@@ -521,3 +522,34 @@ class MyTimetableSerializer(serializers.Serializer):
     homeroom = HomeroomScheduleSerializer(
         allow_null=True, help_text="Classe dont le compte est titulaire cette année."
     )
+
+
+class AssistAskSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField(
+        help_text="Fabriqué par l'écran : le même clic ne coûte qu'une fois."
+    )
+    text = serializers.CharField(max_length=assistant.TEXT_MAX, trim_whitespace=True)
+
+
+class AssistProposalSerializer(serializers.Serializer):
+    sentence = serializers.CharField()
+    rule = TimetableRuleWriteSerializer(allow_null=True, help_text="Vide : pas compris (`reason`).")
+    reason = serializers.CharField(allow_blank=True)
+
+
+class AssistCallSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    state = serializers.CharField(
+        help_text="queued, running, done, error, refused, kept, abandoned."
+    )
+    refusal = serializers.CharField(allow_blank=True, help_text="Code du refus ou de l'erreur.")
+    proposals = AssistProposalSerializer(many=True, allow_null=True)
+
+
+class AssistKeepItemSerializer(serializers.Serializer):
+    sentence = serializers.CharField(max_length=assistant.SENTENCE_MAX)
+    rule = TimetableRuleWriteSerializer()
+
+
+class AssistKeepSerializer(serializers.Serializer):
+    items = AssistKeepItemSerializer(many=True, min_length=1, max_length=20)
