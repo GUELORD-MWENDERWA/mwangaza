@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.3.0
+      - uses: astral-sh/setup-uv@v10.3.2
       # `uvx` lance pip-audit sans l'ajouter aux dépendances du projet. Toute faille connue
       # échoue (pip-audit ne donne pas de gravité) ; une faille sans correctif ni risque réel
       # s'écrit en `--ignore-vuln <identifiant>` ici, avec la raison en commentaire.
