@@ -5119,6 +5119,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/constraints/assist/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Envoie les consignes du directeur des études à l'assistant (IA.2a) : l'appel est rendu
+         *     tout de suite, la réponse se lit sur l'appel. Droits `timetable.manage` et `ai.use`,
+         *     crédits de l'école ; refus expliqués (assistant coupé, crédits épuisés, trop long…).
+         */
+        post: operations["timetable_constraints_assist_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/constraints/assist/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description État de la demande ; prête, les règles proposées (vérifiées) ou les consignes pas
+         *     comprises avec la raison.
+         */
+        get: operations["timetable_constraints_assist_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/constraints/assist/{id}/abandon/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description La personne abandonne la réponse : rien n'est enregistré. */
+        post: operations["timetable_constraints_assist_abandon_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/constraints/assist/{id}/keep/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Enregistre les règles cochées (revérifiées, source « assistant », journal), une seule
+         *     fois par demande.
+         */
+        post: operations["timetable_constraints_assist_keep_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/timetable/constraints/choices/": {
         parameters: {
             query?: never;
@@ -5933,6 +6011,36 @@ export interface components {
             /** Format: uuid */
             term: string;
             grade: components["schemas"]["ConductGradeEnum"];
+            reason: string;
+        };
+        AssistAskRequest: {
+            /**
+             * Format: uuid
+             * @description Fabriqué par l'écran : le même clic ne coûte qu'une fois.
+             */
+            request_id: string;
+            text: string;
+        };
+        AssistCall: {
+            /** Format: uuid */
+            id: string;
+            /** @description queued, running, done, error, refused, kept, abandoned. */
+            state: string;
+            /** @description Code du refus ou de l'erreur. */
+            refusal: string;
+            proposals: components["schemas"]["AssistProposal"][] | null;
+        };
+        AssistKeepItemRequest: {
+            sentence: string;
+            rule: components["schemas"]["TimetableRuleWriteRequest"];
+        };
+        AssistKeepRequest: {
+            items: components["schemas"]["AssistKeepItemRequest"][];
+        };
+        AssistProposal: {
+            sentence: string;
+            /** @description Vide : pas compris (`reason`). */
+            rule: components["schemas"]["TimetableRuleWrite"] | null;
             reason: string;
         };
         /**
@@ -12958,6 +13066,24 @@ export interface components {
          * @enum {string}
          */
         TimetableRuleKindEnum: "fixed_lesson" | "course_not_slot" | "course_part_of_day" | "parallel_courses" | "joint_courses" | "room_unavailable" | "spread_over_week" | "teacher_compact" | "teacher_free_day";
+        TimetableRuleWrite: {
+            kind: components["schemas"]["TimetableRuleKindEnum"];
+            /** @description Vérifiés par le schéma du kind. */
+            params: {
+                [key: string]: unknown;
+            };
+            /**
+             * @description Vide : celle du kind.
+             *
+             *     * `hard` - Required
+             *     * `soft` - Wish
+             */
+            strength: components["schemas"]["RuleStrengthEnum"];
+            /** @description Souhait : 1 à 10 ; vide : du kind. */
+            weight: number;
+            /** @default true */
+            active: boolean;
+        };
         TimetableRuleWriteRequest: {
             kind: components["schemas"]["TimetableRuleKindEnum"];
             /** @description Vérifiés par le schéma du kind. */
@@ -28811,6 +28937,203 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_constraints_assist_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssistAskRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssistAskRequest"];
+                "multipart/form-data": components["schemas"]["AssistAskRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_constraints_assist_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistCall"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_constraints_assist_abandon_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_constraints_assist_keep_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssistKeepRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AssistKeepRequest"];
+                "multipart/form-data": components["schemas"]["AssistKeepRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableRule"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-25 22:26+0200\n"
+"POT-Creation-Date: 2026-10-25 23:28+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -7498,10 +7498,11 @@ msgstr "Horaire de %(children)s à partir du %(date)s."
 msgid "AI credits running low"
 msgstr "Crédits IA bientôt épuisés"
 
-#: apps/notifications/events.py:481
+#: apps/notifications/events.py:480
 msgid ""
 "80 percent of this month's AI credits are used. Ask the support for more."
-msgstr "80 % des crédits IA de ce mois sont utilisés. Demandez-en plus au support."
+msgstr ""
+"80 % des crédits IA de ce mois sont utilisés. Demandez-en plus au support."
 
 #: apps/notifications/models.py:17
 msgid "All families"
@@ -9637,6 +9638,18 @@ msgstr ""
 msgid "Invalid device key."
 msgstr "Clé d'appareil non valide."
 
+#: apps/timetable/assistant.py:33
+msgid "This answer is not ready or was already handled."
+msgstr "Cette réponse n'est pas prête ou a déjà été traitée."
+
+#: apps/timetable/assistant.py:232
+msgid "The assistant's answer could not be read."
+msgstr "La réponse de l'assistant n'a pas pu être lue."
+
+#: apps/timetable/assistant.py:234
+msgid "Not understood."
+msgstr "Pas compris."
+
 #: apps/timetable/constraints.py:42
 msgid "The school already has 500 timetable rules."
 msgstr "L'école a déjà 500 règles d'horaire."
@@ -10114,7 +10127,7 @@ msgstr "Ce calcul est déjà terminé."
 msgid "%(name)s (calculated)"
 msgstr "%(name)s (calculé)"
 
-#: apps/timetable/serializers.py:388
+#: apps/timetable/serializers.py:389
 msgid ""
 "One change at a time: a move (day and first lesson), a room or the lock."
 msgstr ""
@@ -10264,10 +10277,10 @@ msgstr "Cette date n'est pas dans l'année scolaire de l'horaire."
 msgid "This date is before the start of the timetable in force."
 msgstr "Cette date est avant le début de l'horaire en vigueur."
 
-#: apps/timetable/views.py:317
+#: apps/timetable/views.py:411
 msgid "This timetable does not exist."
 msgstr "Cet horaire n'existe pas."
 
-#: apps/timetable/views.py:525
+#: apps/timetable/views.py:619
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."

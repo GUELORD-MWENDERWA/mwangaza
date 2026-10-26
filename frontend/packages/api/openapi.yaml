@@ -15821,6 +15821,194 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/constraints/assist/:
+    post:
+      operationId: timetable_constraints_assist_create
+      description: |-
+        Envoie les consignes du directeur des études à l'assistant (IA.2a) : l'appel est rendu
+        tout de suite, la réponse se lit sur l'appel. Droits `timetable.manage` et `ai.use`,
+        crédits de l'école ; refus expliqués (assistant coupé, crédits épuisés, trop long…).
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistAskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssistAskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssistAskRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/constraints/assist/{id}/:
+    get:
+      operationId: timetable_constraints_assist_retrieve
+      description: |-
+        État de la demande ; prête, les règles proposées (vérifiées) ou les consignes pas
+        comprises avec la raison.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssistCall'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/constraints/assist/{id}/abandon/:
+    post:
+      operationId: timetable_constraints_assist_abandon_create
+      description: 'La personne abandonne la réponse : rien n''est enregistré.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/constraints/assist/{id}/keep/:
+    post:
+      operationId: timetable_constraints_assist_keep_create
+      description: |-
+        Enregistre les règles cochées (revérifiées, source « assistant », journal), une seule
+        fois par demande.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssistKeepRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AssistKeepRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AssistKeepRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimetableRule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/constraints/choices/:
     get:
       operationId: timetable_constraints_choices_retrieve
@@ -18391,6 +18579,79 @@ components:
       - grade
       - reason
       - term
+    AssistAskRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: 'Fabriqué par l''écran : le même clic ne coûte qu''une fois.'
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+      required:
+      - request_id
+      - text
+    AssistCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          description: queued, running, done, error, refused, kept, abandoned.
+        refusal:
+          type: string
+          description: Code du refus ou de l'erreur.
+        proposals:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssistProposal'
+          nullable: true
+      required:
+      - id
+      - state
+      - refusal
+      - proposals
+    AssistKeepItemRequest:
+      type: object
+      properties:
+        sentence:
+          type: string
+          minLength: 1
+          maxLength: 500
+        rule:
+          $ref: '#/components/schemas/TimetableRuleWriteRequest'
+      required:
+      - rule
+      - sentence
+    AssistKeepRequest:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssistKeepItemRequest'
+      required:
+      - items
+    AssistProposal:
+      type: object
+      properties:
+        sentence:
+          type: string
+        rule:
+          allOf:
+          - $ref: '#/components/schemas/TimetableRuleWrite'
+          nullable: true
+          description: 'Vide : pas compris (`reason`).'
+        reason:
+          type: string
+      required:
+      - sentence
+      - rule
+      - reason
     AudienceEnum:
       enum:
       - all_families
@@ -33411,6 +33672,37 @@ components:
         * `spread_over_week` - Spread over the week
         * `teacher_compact` - Compact day for teachers
         * `teacher_free_day` - Free day
+    TimetableRuleWrite:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/TimetableRuleKindEnum'
+        params:
+          type: object
+          additionalProperties: {}
+          description: Vérifiés par le schéma du kind.
+        strength:
+          allOf:
+          - $ref: '#/components/schemas/RuleStrengthEnum'
+          description: |-
+            Vide : celle du kind.
+
+            * `hard` - Required
+            * `soft` - Wish
+        weight:
+          type: integer
+          maximum: 10
+          minimum: 1
+          description: 'Souhait : 1 à 10 ; vide : du kind.'
+        active:
+          type: boolean
+          default: true
+      required:
+      - kind
+      - params
+      - strength
+      - weight
+      - active
     TimetableRuleWriteRequest:
       type: object
       properties:

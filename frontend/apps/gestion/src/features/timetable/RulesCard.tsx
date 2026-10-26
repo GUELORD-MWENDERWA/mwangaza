@@ -14,10 +14,12 @@ type Props = {
   lookup: Lookup;
   general: Rules | undefined;
   onAdd: () => void;
+  /** Absent : l'école n'a pas l'assistant IA ou la personne n'a pas `ai.use`. */
+  onAssist?: () => void;
   onEdit: (rule: Rule) => void;
 };
 
-export function RulesCard({ rules, lookup, general, onAdd, onEdit }: Props) {
+export function RulesCard({ rules, lookup, general, onAdd, onAssist, onEdit }: Props) {
   const { t, i18n } = useTranslation();
   const generalText =
     general &&
@@ -32,9 +34,16 @@ export function RulesCard({ rules, lookup, general, onAdd, onEdit }: Props) {
     <Card>
       <CardHeader className="flex-wrap">
         <CardTitle>{t("timetable.constraints.title", { number: rules.length })}</CardTitle>
-        <Button size="sm" onClick={onAdd}>
-          {t("timetable.constraints.add")}
-        </Button>
+        <span className="flex flex-wrap gap-2">
+          {onAssist && (
+            <Button variant="outline" size="sm" onClick={onAssist}>
+              {t("timetable.assistant.open")}
+            </Button>
+          )}
+          <Button size="sm" onClick={onAdd}>
+            {t("timetable.constraints.add")}
+          </Button>
+        </span>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {generalText && (
@@ -71,6 +80,11 @@ export function RulesCard({ rules, lookup, general, onAdd, onEdit }: Props) {
                       </StatusPill>
                     </span>
                     <span className="text-sm text-ink-2">{text}</span>
+                    {rule.source === "ai" && rule.text && (
+                      <span className="break-words text-sm text-ink-3">
+                        {t("timetable.assistant.fromAssistant", { text: rule.text })}
+                      </span>
+                    )}
                   </div>
                   <Button variant="outline" size="sm" onClick={() => onEdit(rule)}>
                     {t("timetable.constraints.edit")}

@@ -14,15 +14,27 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import HasSchoolAccess, HasSchoolPermission
+from apps.accounts import support
+from apps.accounts.permissions import HasSchoolAccess, HasSchoolPermission, school_access
 from apps.accounts.roles import TIMETABLE_MANAGE, TIMETABLE_PUBLISH
+from apps.ai.models import AiCall
 from apps.core.documents import PRINT_RESPONSE, print_options, render, school_header
 from apps.core.errors import ErrorSerializer
 from apps.core.kept import Keep
 from apps.core.tenancy import require_current_school
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks, constraints, drafts, prints, runs, schedule, services, versions
+from apps.timetable import (
+    assistant,
+    checks,
+    constraints,
+    drafts,
+    prints,
+    runs,
+    schedule,
+    services,
+    versions,
+)
 from apps.timetable.models import (
     Room,
     TimeGrid,
@@ -32,6 +44,9 @@ from apps.timetable.models import (
     TimetableRun,
 )
 from apps.timetable.serializers import (
+    AssistAskSerializer,
+    AssistCallSerializer,
+    AssistKeepSerializer,
     ChecksSerializer,
     DraftCreateSerializer,
     DraftSerializer,
@@ -272,6 +287,85 @@ class ConstraintChoicesView(_TimetableView):
         """Ce que l'éditeur des règles propose : kinds (forces permises, poids par défaut), cours
         enseignés cette année et leurs enseignants."""
         return Response(RuleChoicesSerializer(constraints.choices()).data)
+
+
+def _assist_call(request: Request, pk) -> AiCall:
+    """L'appel de cette personne, dans cette école (un autre : 404)."""
+    return get_object_or_404(AiCall, pk=pk, user=request.user, use=assistant.USE)
+
+
+def _assist_state(call: AiCall, code: int = status.HTTP_200_OK) -> Response:
+    ready = call.state == AiCall.State.DONE
+    data = {
+        "id": call.pk,
+        "state": call.state,
+        "refusal": call.refusal,
+        "proposals": assistant.proposals(call) if ready else None,
+    }
+    return Response(AssistCallSerializer(data).data, status=code)
+
+
+@extend_schema(tags=["timetable"])
+class AssistView(_TimetableView):
+    @extend_schema(
+        request=AssistAskSerializer,
+        responses={202: AssistCallSerializer, 400: ErrorSerializer, **ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        """Envoie les consignes du directeur des études à l'assistant (IA.2a) : l'appel est rendu
+        tout de suite, la réponse se lit sur l'appel. Droits `timetable.manage` et `ai.use`,
+        crédits de l'école ; refus expliqués (assistant coupé, crédits épuisés, trop long…)."""
+        data = AssistAskSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        call = assistant.ask(
+            school=require_current_school(),
+            user=request.user,
+            permissions=school_access(request).permissions,
+            request_id=data.validated_data["request_id"],
+            text=data.validated_data["text"],
+            support=support.current(request) is not None,
+        )
+        return _assist_state(call, status.HTTP_202_ACCEPTED)
+
+
+@extend_schema(tags=["timetable"])
+class AssistCallView(_TimetableView):
+    @extend_schema(responses={200: AssistCallSerializer, **ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        """État de la demande ; prête, les règles proposées (vérifiées) ou les consignes pas
+        comprises avec la raison."""
+        return _assist_state(_assist_call(request, pk))
+
+
+@extend_schema(tags=["timetable"])
+class AssistKeepView(_TimetableView):
+    @extend_schema(
+        request=AssistKeepSerializer,
+        responses={200: TimetableRuleSerializer(many=True), **WRITE_ERRORS},
+    )
+    def post(self, request: Request, pk) -> Response:
+        """Enregistre les règles cochées (revérifiées, source « assistant », journal), une seule
+        fois par demande."""
+        data = AssistKeepSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        rules = assistant.keep(
+            _assist_call(request, pk),
+            [
+                {"sentence": item["sentence"], "rule": item["rule"]}
+                for item in data.validated_data["items"]
+            ],
+            actor=request.user,
+        )
+        return Response(TimetableRuleSerializer(rules, many=True).data)
+
+
+@extend_schema(tags=["timetable"])
+class AssistAbandonView(_TimetableView):
+    @extend_schema(request=None, responses={204: None, **WRITE_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """La personne abandonne la réponse : rien n'est enregistré."""
+        assistant.abandon(_assist_call(request, pk))
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 def _state(timetable: Timetable, code: int = status.HTTP_200_OK) -> Response:
