@@ -3086,6 +3086,10 @@ export const fr = {
         draft_deleted: "Brouillon d'horaire supprimé",
         lock_changed: "Heure verrouillée ou déverrouillée",
         published: "Horaire publié",
+        exam_sitting_changed: "Épreuve de l'horaire enregistrée",
+        exam_sitting_deleted: "Épreuve de l'horaire supprimée",
+        exam_published: "Horaire des épreuves publié",
+        exam_reopened: "Horaire des épreuves rouvert",
       },
       discipline: {
         rule_changed: "Liste des infractions modifiée",
