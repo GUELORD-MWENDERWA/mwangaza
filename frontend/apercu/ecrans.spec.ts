@@ -162,6 +162,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "settings",
       "organisation",
       "staff",
+      "staff/import",
       "roles",
       "devices",
       "audit",
@@ -171,6 +172,24 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     ];
     for (const path of pages)
       await visit(head, `${ITIG}${path}`, "gestion", path.replace(/\//g, "-") || "accueil");
+    // Import du personnel (R.1) : aperçu d'un fichier, sans rien enregistrer.
+    await visit(head, `${ITIG}staff/import`, "gestion", "staff-import-apercu", async (page) => {
+      const rows = [
+        "NOM;POST-NOM;PRÉNOM;TÉLÉPHONE;RÔLES",
+        "KAMBALE;MUHINDO;Josué;0000009101;Enseignant",
+        "KAVIRA;NZIAVAKE;Esther;0000009102;Enseignant, Caissier",
+        "PALUKU;SIVIHWA;Daniel;0971234567;Enseignant",
+        "KAHINDO;MASIKA;Grâce;0000009103;Bibliothécaire",
+        "MUMBERE;;Élie;0000001001;Directeur",
+      ];
+      await page.getByLabel(/Fichier Excel/).setInputFiles({
+        name: "personnel.csv",
+        mimeType: "text/csv",
+        buffer: Buffer.from(rows.join("\n")),
+      });
+      await page.getByRole("button", { name: "Vérifier le fichier" }).click();
+      await page.getByText("Aperçu", { exact: true }).waitFor();
+    });
     // Éditeur de l'horaire (EDT.2b) : vues par enseignant, par salle, horaire général.
     for (const view of ["teacher", "room", "all"])
       await visit(head, `${ITIG}timetable?view=${view}`, "gestion", `timetable-${view}`);

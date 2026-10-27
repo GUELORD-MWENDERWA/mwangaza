@@ -41,6 +41,7 @@ import { ResitsPage } from "./features/resits/ResitsPage";
 import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
+import { ImportStaffPage } from "./features/staff/ImportStaffPage";
 import { StaffPage } from "./features/staff/StaffPage";
 import { ClassListPage } from "./features/students/ClassListPage";
 import { EditStudentPage } from "./features/students/EditStudentPage";
@@ -133,6 +134,7 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     item: { ...menuItem("fees"), permissions: ["finance.import_prior_payments"] },
     element: <PriorPaymentsPage />,
   },
+  { path: "staff/import", item: menuItem("staff"), element: <ImportStaffPage /> },
   {
     path: "deliberation/prior-results",
     item: menuItem("deliberation"),

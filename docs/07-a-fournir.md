@@ -40,7 +40,7 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 
 ### V1.0 — clôture
 
-Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des comptes activés (`gestion/invitations-portail`), lettre d'invitation, deux par A4 (`gestion/lettre-invitation`). Dessinée par Claude en 4.10 (à valider) : mise en page du guide PDF de la version, qui est sa propre maquette (`frontend/guide/guide.html`, jetons du design, résultat `docs/guide/guide-v1.0.pdf`).
+Dessinées par Claude en 4.9 (à valider) : invitations au portail et suivi des comptes activés (`gestion/invitations-portail`), lettre d'invitation, deux par A4 (`gestion/lettre-invitation`). Dessinée par Claude en 4.10 (à valider) : mise en page du guide PDF de la version, qui est sa propre maquette (`frontend/guide/guide.html`, jetons du design, résultat `docs/guide/guide-v1.0.pdf`). Dessinées par Claude en R.1 (2026-10-27, à valider) : import du personnel depuis Excel (`gestion/personnel-import`), lettre d'accès du personnel, deux par A4 (`gestion/lettre-acces-personnel`).
 
 ### Lancement — version finie (4.12 à 4.21)
 

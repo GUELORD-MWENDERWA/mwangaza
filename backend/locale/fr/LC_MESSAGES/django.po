@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 13:24+0200\n"
+"POT-Creation-Date: 2026-10-27 17:06+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -887,7 +887,8 @@ msgstr ""
 "Le fichier doit avoir une colonne matricule et une colonne décision : "
 "utilisez le modèle."
 
-#: apps/academics/prior_results.py:79 apps/finance/prior_payments.py:70
+#: apps/academics/prior_results.py:79 apps/accounts/staff_import.py:66
+#: apps/finance/prior_payments.py:70
 msgid "No row can be recorded."
 msgstr "Aucune ligne ne peut être enregistrée."
 
@@ -2513,6 +2514,11 @@ msgstr "Parent"
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
+#: apps/accounts/serializers.py:439
+#, python-format
+msgid "Choose between 1 and %(max)s people."
+msgstr "Choisissez entre 1 et %(max)s personnes."
+
 #: apps/accounts/services.py:53
 msgid ""
 "This change would leave the school without an active account that can manage "
@@ -2607,6 +2613,53 @@ msgstr ""
 "Un de vos rôles exige la double authentification : elle ne peut pas être "
 "désactivée."
 
+#: apps/accounts/staff_import.py:58
+msgid ""
+"The file needs a last name, a phone and a role column: use the template."
+msgstr ""
+"Le fichier doit avoir une colonne nom, une colonne téléphone et une colonne "
+"rôles : utilisez le modèle."
+
+#: apps/accounts/staff_import.py:63
+msgid "The file has more than 150 people: split it into two files."
+msgstr ""
+"Le fichier compte plus de 150 personnes : partagez-le en deux fichiers."
+
+#: apps/accounts/staff_import.py:69
+msgid ""
+"The file, the roles or the staff changed since the preview: check it again."
+msgstr ""
+"Le fichier, les rôles ou le personnel ont changé depuis l'aperçu : vérifiez-"
+"le de nouveau."
+
+#: apps/accounts/staff_import.py:75
+msgid ""
+"None of these people needs an access letter: they have already signed in, or "
+"their account is also used outside this school."
+msgstr ""
+"Aucune de ces personnes n'attend de lettre d'accès : elles se sont déjà "
+"connectées, ou leur compte sert aussi en dehors de cette école."
+
+#: apps/accounts/staff_import.py:348
+msgid "LAST NAME"
+msgstr "NOM"
+
+#: apps/accounts/staff_import.py:349
+msgid "MIDDLE NAME (optional)"
+msgstr "POST-NOM (facultatif)"
+
+#: apps/accounts/staff_import.py:350
+msgid "FIRST NAME (optional)"
+msgstr "PRÉNOM (facultatif)"
+
+#: apps/accounts/staff_import.py:351
+msgid "PHONE"
+msgstr "TÉLÉPHONE"
+
+#: apps/accounts/staff_import.py:352
+msgid "ROLES"
+msgstr "RÔLES"
+
 #: apps/accounts/support.py:61
 msgid "Only the platform support can open a support session."
 msgstr "Seul le support de la plateforme peut ouvrir une session support."
@@ -2634,6 +2687,66 @@ msgstr "Cette personne fait déjà partie de l'équipe."
 #: apps/accounts/team.py:38
 msgid "The platform must keep at least one lead administrator."
 msgstr "La plateforme doit garder au moins un administrateur principal."
+
+#: apps/accounts/templates/accounts/access_letters.html:3
+msgid "Access letters"
+msgstr "Lettres d'accès"
+
+#: apps/accounts/templates/accounts/access_letters.html:27
+#, python-format
+msgid "YOUR ACCESS TO %(name)s"
+msgstr "VOTRE ACCÈS À %(name)s"
+
+#: apps/accounts/templates/accounts/access_letters.html:28
+msgid "For"
+msgstr "Pour"
+
+#: apps/accounts/templates/accounts/access_letters.html:29
+#, python-format
+msgid ""
+"The school uses %(name)s for the cash desk, the students, the marks and the "
+"announcements. Here is your account."
+msgstr ""
+"L'école utilise %(name)s pour la caisse, les élèves, les notes et les "
+"annonces. Voici votre compte."
+
+#: apps/accounts/templates/accounts/access_letters.html:33
+#, python-format
+msgid "Open <b>%(app_url)s</b> or scan the QR code."
+msgstr "Ouvrez <b>%(app_url)s</b> ou scannez le code QR."
+
+#: apps/accounts/templates/accounts/access_letters.html:34
+#: apps/students/templates/students/invitation_letters.html:38
+#, python-format
+msgid "Enter your number: <b>%(phone)s</b>"
+msgstr "Saisissez votre numéro : <b>%(phone)s</b>"
+
+#: apps/accounts/templates/accounts/access_letters.html:35
+msgid "Enter the temporary password opposite, then choose your own."
+msgstr ""
+"Saisissez le mot de passe provisoire ci-contre, puis choisissez le vôtre."
+
+#: apps/accounts/templates/accounts/access_letters.html:37
+msgid "TEMPORARY PASSWORD"
+msgstr "MOT DE PASSE PROVISOIRE"
+
+#: apps/accounts/templates/accounts/access_letters.html:39
+msgid "It only works for the first sign-in."
+msgstr "Il ne sert qu'à la première connexion."
+
+#: apps/accounts/templates/accounts/access_letters.html:39
+msgid ""
+"Do not give it to anyone. A problem, or a lost letter? Ask the school's "
+"secretariat: it prints a new letter."
+msgstr ""
+"Ne le donnez à personne. Un problème ou une lettre perdue ? Adressez-vous au "
+"secrétariat de l'école : il imprime une nouvelle lettre."
+
+#: apps/accounts/templates/accounts/access_letters.html:40
+#: apps/students/templates/students/invitation_letters.html:45
+#, python-format
+msgid "Printed on %(date)s by %(printed_by)s"
+msgstr "Imprimé le %(date)s par %(printed_by)s"
 
 #: apps/accounts/templates/admin/accounts/login.html:11
 msgid ""
@@ -2696,11 +2809,11 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:75
+#: apps/accounts/views.py:80
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
-#: apps/accounts/views.py:117
+#: apps/accounts/views.py:122
 msgid "Only the staff of the school can sign its documents."
 msgstr "Seul le personnel de l'école peut signer ses documents."
 
@@ -9388,11 +9501,6 @@ msgstr ""
 msgid "Open <b>%(portal_url)s</b> or scan the QR code."
 msgstr "Ouvrez <b>%(portal_url)s</b> ou scannez le code QR."
 
-#: apps/students/templates/students/invitation_letters.html:38
-#, python-format
-msgid "Enter your number: <b>%(phone)s</b>"
-msgstr "Saisissez votre numéro : <b>%(phone)s</b>"
-
 #: apps/students/templates/students/invitation_letters.html:39
 msgid "Enter the family code opposite and choose a password."
 msgstr "Saisissez le code famille ci-contre et choisissez un mot de passe."
@@ -9409,11 +9517,6 @@ msgid ""
 msgstr ""
 "Ce n'est plus votre numéro, ou un problème ? Adressez-vous au secrétariat de "
 "l'école. Ne donnez ce code à personne : il ouvre le compte de votre famille."
-
-#: apps/students/templates/students/invitation_letters.html:45
-#, python-format
-msgid "Printed on %(date)s by %(printed_by)s"
-msgstr "Imprimé le %(date)s par %(printed_by)s"
 
 #: apps/students/templates/students/registration_form.html:2
 msgid "Registration form"
@@ -10172,27 +10275,27 @@ msgstr "L'école n'a pas encore de grille horaire."
 msgid "Not found."
 msgstr "Introuvable."
 
-#: apps/timetable/prints.py:153
+#: apps/timetable/prints.py:161
 msgid "DRAFT — not published"
 msgstr "BROUILLON — non publié"
 
-#: apps/timetable/prints.py:156
+#: apps/timetable/prints.py:164
 #, python-format
 msgid "Archived version «%(name)s»"
 msgstr "Version archivée « %(name)s »"
 
-#: apps/timetable/prints.py:157
+#: apps/timetable/prints.py:165
 #, python-format
 msgid "In force since %(date)s"
 msgstr "En vigueur depuis le %(date)s"
 
-#: apps/timetable/prints.py:276 apps/timetable/prints.py:329
-#: apps/timetable/prints.py:353
+#: apps/timetable/prints.py:284 apps/timetable/prints.py:337
+#: apps/timetable/prints.py:361
 #, python-format
 msgid "Timetable of %(name)s"
 msgstr "Horaire : %(name)s"
 
-#: apps/timetable/prints.py:433 apps/timetable/prints.py:446
+#: apps/timetable/prints.py:441 apps/timetable/prints.py:454
 msgid "General timetable"
 msgstr "Horaire général"
 

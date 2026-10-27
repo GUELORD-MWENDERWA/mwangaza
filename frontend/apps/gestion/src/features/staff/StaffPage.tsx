@@ -101,10 +101,18 @@ export function StaffPage() {
         title={t("staff.title")}
         subtitle={t("staff.subtitle")}
         actions={
-          <Button size="lg" onClick={() => phone.current?.focus()}>
-            <Icon name="userplus" />
-            {t("staff.new")}
-          </Button>
+          <>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/staff/import">
+                <Icon name="upload" />
+                {t("staff.importButton")}
+              </Link>
+            </Button>
+            <Button size="lg" onClick={() => phone.current?.focus()}>
+              <Icon name="userplus" />
+              {t("staff.new")}
+            </Button>
+          </>
         }
       />
       <Card>
