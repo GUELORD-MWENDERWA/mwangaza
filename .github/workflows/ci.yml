@@ -85,6 +85,9 @@ jobs:
         run: uv sync --locked
       - name: Lint
         run: make lint-back
+      - name: Migrations à jour (aucun changement de modèle sans sa migration)
+        working-directory: backend
+        run: uv run python manage.py makemigrations --check --dry-run
       - name: Requêtes lentes notées par la base (plus de 2 s)
         run: >-
           psql "postgresql://mwangaza:mwangaza@localhost:5432/mwangaza"
