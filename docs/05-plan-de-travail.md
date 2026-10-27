@@ -83,7 +83,7 @@ C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Vali
 | 15.8 | ~~**IA.2a**~~ ✓ ~~**IA.2b**~~ ✓ IA du directeur des études : consignes en phrases → règles ; analyse et propositions | P0 | M + M | 🤖 |
 | 15.9 | **EDT.6** Heures prestées : exceptions notées, fiche mensuelle imprimable, export pour la paie | P1 | M | 🤖 |
 | 15.10 | **IA.1.2** Console et crédits IA (avant de vendre l'IA à une école réelle) | P1 | M | 🤖 |
-| 15.11 | **EDT.5** Horaire des interrogations et des examens | P1 | S à M | 🤖 |
+| 15.11 | **EDT.5** (5a ✓, reste 5b) Horaire des interrogations et des examens | P1 | S à M | 🤖 |
 | | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
 | 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
 | 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
@@ -396,7 +396,9 @@ But : la personne chargée de la communication tient le site à jour sans dével
 - [x] **EDT.4b** Lecture de l'horaire publié *(P0, M, après EDT.4a, spec § 10 ; faite le 2026-10-25 : `timetable/schedule.py`, `MyTimetablePage.tsx`, carte du Portail, API `/api/timetable/mine/` et `/api/portal/children/<id>/timetable/`, notification `timetable_published`)* — « Mon horaire » de l'enseignant et lecture sans réseau dans la Gestion (instantané) ; Portail (horaire de la classe de l'enfant) ; notification groupée des enseignants et parents touchés (5.6).
 - [x] **EDT.4c** Impressions *(P0, M, après EDT.4a, spec § 11 ; faite le 2026-10-25 : `timetable/prints.py`, `PrintPage.tsx`, API `/api/timetable/print/`)* — PDF de la classe, de l'enseignant (avec sa charge), de la salle et horaire général (A4 sur deux pages ou A3), d'une version au choix ; détail d'EDT.4 ci-dessous.
 - Détail d'EDT.4 (4a + 4b + 4c) — publier (bloqué si une règle obligatoire est violée ; version publiée immuable, l'ancienne archivée ; journal) ; notification groupée des enseignants et parents touchés (5.6) ; PDF classe, enseignant (avec charge), salle, horaire général (file `heavy`, gardés) ; Portail (horaire de la classe de l'enfant) et « Mon horaire » de l'enseignant ; lecture sans réseau dans la Gestion. Décidé en EDT.4c : pas d'abréviation saisie par l'école, les noms courts calculés comme à l'écran (EDT.2b) avec une légende imprimée dessous.
-- [ ] **EDT.5** Horaire des interrogations et des examens *(P1, S à M, après EDT.4, spec § 11.6)* — par période, fait par le directeur des études (§ 5 ter) ; mêmes contrôles et impressions.
+- [ ] **EDT.5** Horaire des interrogations et des examens *(P1, S à M, après EDT.4, spec § 11.6 ; découpée le 2026-10-27 : 5a serveur #397, 5b écran et impression #398)* — par période, fait par le directeur des études (§ 5 ter) ; mêmes contrôles et impressions.
+  - [x] **EDT.5a** Serveur *(faite le 2026-10-27 : `timetable/exams.py`, `ExamSchedule` + `ExamSitting`, API `/api/timetable/exams/<période>/`, `…/sittings/<id>/`, `…/publish/`)* — contrôles rouges (classe, surveillant, salle à deux endroits ; date hors période) et orange (surveillant absent, congé), publication refusée avec du rouge, rouvrir, journal ; `make demo` : épreuves de la 1re période de l'ITIG, publiées.
+  - [ ] **EDT.5b** Écran du directeur des études (maquette d'abord), PDF de l'horaire des épreuves, lecture par les enseignants et le Portail, notification.
 - [ ] **EDT.6** Heures prestées *(P1, M, après EDT.4, spec §§ 11.5, 12)* — `LessonException` (absence, remplacement, annulation, heure en plus ; journal) ; calcul du mois en SQL avec le calendrier de l'école ; fiche par enseignant (PDF) et export Excel pour la paie (7.3) et les primes.
 
 ### 6.5 Intelligence artificielle dans l'application (IA) — P1 / P2, V1.4

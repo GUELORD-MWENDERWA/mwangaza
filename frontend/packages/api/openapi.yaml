@@ -787,6 +787,10 @@ paths:
           - timetable.draft_deleted
           - timetable.lock_changed
           - timetable.published
+          - timetable.exam_sitting_changed
+          - timetable.exam_sitting_deleted
+          - timetable.exam_published
+          - timetable.exam_reopened
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -930,6 +934,10 @@ paths:
           * `timetable.draft_deleted` - Timetable draft deleted
           * `timetable.lock_changed` - Lesson locked or unlocked
           * `timetable.published` - Timetable published
+          * `timetable.exam_sitting_changed` - Exam sitting saved
+          * `timetable.exam_sitting_deleted` - Exam sitting deleted
+          * `timetable.exam_published` - Exam timetable published
+          * `timetable.exam_reopened` - Exam timetable reopened
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1254,6 +1262,10 @@ paths:
           - timetable.draft_deleted
           - timetable.lock_changed
           - timetable.published
+          - timetable.exam_sitting_changed
+          - timetable.exam_sitting_deleted
+          - timetable.exam_published
+          - timetable.exam_reopened
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1397,6 +1409,10 @@ paths:
           * `timetable.draft_deleted` - Timetable draft deleted
           * `timetable.lock_changed` - Lesson locked or unlocked
           * `timetable.published` - Timetable published
+          * `timetable.exam_sitting_changed` - Exam sitting saved
+          * `timetable.exam_sitting_deleted` - Exam sitting deleted
+          * `timetable.exam_published` - Exam timetable published
+          * `timetable.exam_reopened` - Exam timetable reopened
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -16570,6 +16586,309 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/exams/{term}/:
+    get:
+      operationId: timetable_exams_retrieve
+      description: |-
+        Horaire des épreuves d'une période : état, épreuves (par jour et heure) et contrôles
+        (rouge : conflit de classe, de surveillant ou de salle, date hors de la période ;
+        orange : surveillant absent, jour de congé).
+      parameters:
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+        description: La période ou les examens.
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamSchedule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_exams_create
+      description: |-
+        Ajoute une épreuve (brouillon seulement, 409 si l'horaire est publié) ; les conflits
+        ne refusent pas le geste, ils se voient dans les contrôles.
+      parameters:
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamSittingWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExamSittingWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExamSittingWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamSitting'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/exams/{term}/publish/:
+    post:
+      operationId: timetable_exams_publish_create
+      description: Publie l'horaire de la période. Refusé (409) vide ou avec un conflit.
+      parameters:
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamSchedule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: timetable_exams_publish_destroy
+      description: Rouvre un horaire publié pour le changer (écrit au journal).
+      parameters:
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamSchedule'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/exams/sittings/{id}/:
+    patch:
+      operationId: timetable_exams_sittings_partial_update
+      description: Change une épreuve (brouillon seulement).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExamSittingWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExamSittingWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExamSittingWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamSitting'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: timetable_exams_sittings_destroy
+      description: Retire une épreuve (brouillon seulement).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/grids/:
     get:
       operationId: timetable_grids_list
@@ -18345,6 +18664,10 @@ components:
       - timetable.draft_deleted
       - timetable.lock_changed
       - timetable.published
+      - timetable.exam_sitting_changed
+      - timetable.exam_sitting_deleted
+      - timetable.exam_published
+      - timetable.exam_reopened
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -18487,6 +18810,10 @@ components:
         * `timetable.draft_deleted` - Timetable draft deleted
         * `timetable.lock_changed` - Lesson locked or unlocked
         * `timetable.published` - Timetable published
+        * `timetable.exam_sitting_changed` - Exam sitting saved
+        * `timetable.exam_sitting_deleted` - Exam sitting deleted
+        * `timetable.exam_published` - Exam timetable published
+        * `timetable.exam_reopened` - Exam timetable reopened
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -23629,6 +23956,169 @@ components:
           format: date
       required:
       - exam_on
+    ExamIssue:
+      type: object
+      properties:
+        level:
+          $ref: '#/components/schemas/CheckLevelEnum'
+        code:
+          type: string
+          description: Le contrôle (`class_overlap`, `outside_term`…).
+        sittings:
+          type: array
+          items:
+            type: string
+            format: uuid
+        values:
+          type: object
+          additionalProperties: {}
+      required:
+      - level
+      - code
+      - sittings
+      - values
+    ExamKindEnum:
+      enum:
+      - quiz
+      - exam
+      type: string
+      description: |-
+        * `quiz` - Test
+        * `exam` - Exam
+    ExamSchedule:
+      type: object
+      description: |-
+        Horaire d'une période : état, épreuves et contrôles. Sans geste encore, `status` est
+        `draft` et `published_at` vide.
+      properties:
+        term:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ExamScheduleStatusEnum'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        published_by:
+          type: string
+          nullable: true
+        sittings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamSitting'
+        errors:
+          type: integer
+          description: 'Conflits : bloquent la publication.'
+        warnings:
+          type: integer
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamIssue'
+      required:
+      - term
+      - status
+      - published_at
+      - published_by
+      - sittings
+      - errors
+      - warnings
+      - issues
+    ExamScheduleStatusEnum:
+      enum:
+      - draft
+      - published
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `published` - Published
+    ExamSitting:
+      type: object
+      description: Une épreuve ; la classe et le cours viennent du cours choisi.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        course:
+          type: string
+          format: uuid
+        course_name:
+          type: string
+          readOnly: true
+        class_group:
+          type: string
+          format: uuid
+          readOnly: true
+        class_name:
+          type: string
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/ExamKindEnum'
+        date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+        room:
+          type: string
+          format: uuid
+          nullable: true
+        room_name:
+          type: string
+          readOnly: true
+        invigilator:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - id
+      - course
+      - course_name
+      - class_group
+      - class_name
+      - kind
+      - date
+      - start
+      - end
+      - room
+      - room_name
+      - invigilator
+    ExamSittingWriteRequest:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/ExamKindEnum'
+        date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+        room:
+          type: string
+          format: uuid
+          nullable: true
+        invigilator:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - course
+      - date
+      - end
+      - start
     ExchangeRate:
       type: object
       properties:
@@ -27561,6 +28051,31 @@ components:
           nullable: true
         locked:
           type: boolean
+    PatchedExamSittingWriteRequest:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/ExamKindEnum'
+        date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+        room:
+          type: string
+          format: uuid
+          nullable: true
+        invigilator:
+          type: string
+          format: uuid
+          nullable: true
     PatchedFamilyWriteRequest:
       type: object
       properties:

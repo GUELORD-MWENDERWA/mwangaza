@@ -119,6 +119,11 @@ class Action(models.TextChoices):
     TIMETABLE_DRAFT_DELETED = "timetable.draft_deleted", _("Timetable draft deleted")
     TIMETABLE_LOCK_CHANGED = "timetable.lock_changed", _("Lesson locked or unlocked")
     TIMETABLE_PUBLISHED = "timetable.published", _("Timetable published")
+    # Horaire des interrogations et des examens (EDT.5).
+    EXAM_SITTING_CHANGED = "timetable.exam_sitting_changed", _("Exam sitting saved")
+    EXAM_SITTING_DELETED = "timetable.exam_sitting_deleted", _("Exam sitting deleted")
+    EXAM_TIMETABLE_PUBLISHED = "timetable.exam_published", _("Exam timetable published")
+    EXAM_TIMETABLE_REOPENED = "timetable.exam_reopened", _("Exam timetable reopened")
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
     RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
     # Délibération (8.4.2) : décision d'un élève, date, proclamation des résultats, réouverture.

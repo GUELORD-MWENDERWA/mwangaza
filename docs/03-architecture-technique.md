@@ -236,6 +236,7 @@ Estimations tirées de `docs/claude/recherches/perf-impression-capacite-2026-10-
 
 | Date | Décision | Raison |
 |---|---|---|
+| 2026-10-27 | Horaire des épreuves (EDT.5a) : `ExamSchedule` par période + `ExamSitting`, placé à la main par le DE (pas de solveur), publier/rouvrir au journal, contrôles en 4 requêtes | Quelques dizaines d'épreuves par période : un solveur n'apporte rien ; rouvrir évite une version par correction |
 | 2026-09 | Django + React/TS PWA, PostgreSQL | Compétences existantes, hors-ligne navigateur, budget |
 | 2026-09 | Multi-écoles par clé étrangère `school` | Fonctions inter-écoles (parents, transferts, réseaux) |
 | 2026-09 | Paiements immuables, annulation = nouvel enregistrement | Traçabilité, synchronisation sans conflit |

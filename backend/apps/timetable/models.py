@@ -404,3 +404,93 @@ class TimetableRun(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.timetable} · {self.status}"
+
+
+class ExamSchedule(TenantModel):
+    """Horaire des interrogations ou des examens d'une période (EDT.5, spec § 11.6) [T] : une par
+    période, fait par le directeur des études. Brouillon tant qu'il se règle ; publié, il ne se
+    modifie plus (le rouvrir est un geste du journal)."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", _("Draft")
+        PUBLISHED = "published", _("Published")
+
+    term = models.ForeignKey(
+        "schools.Term",
+        on_delete=models.CASCADE,
+        related_name="+",
+        verbose_name=_("period"),
+    )
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.DRAFT
+    )
+    published_at = models.DateTimeField(_("published on"), null=True, blank=True)
+    published_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("published by"),
+    )
+
+    class Meta:
+        verbose_name = _("exam timetable")
+        verbose_name_plural = _("exam timetables")
+        constraints = [
+            models.UniqueConstraint(fields=["school", "term"], name="exam_schedule_one_per_term"),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.term)
+
+
+class ExamSitting(TenantModel):
+    """Une épreuve de l'horaire (EDT.5) [T] : le cours (donc la classe), le jour, l'heure de début
+    et de fin, la salle et le surveillant. Pas de clé vers `Evaluation` : l'épreuve annonce le
+    jour, la note se saisit à part (8.2)."""
+
+    class Kind(models.TextChoices):
+        QUIZ = "quiz", _("Test")
+        EXAM = "exam", _("Exam")
+
+    schedule = models.ForeignKey(
+        ExamSchedule, on_delete=models.CASCADE, related_name="sittings", verbose_name=_("timetable")
+    )
+    course = models.ForeignKey(
+        "academics.Course", on_delete=models.CASCADE, related_name="+", verbose_name=_("course")
+    )
+    kind = models.CharField(_("kind"), max_length=5, choices=Kind.choices, default=Kind.EXAM)
+    date = models.DateField(_("date"))
+    start = models.TimeField(_("start"))
+    end = models.TimeField(_("end"))
+    room = models.ForeignKey(
+        Room,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("room"),
+    )
+    invigilator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("invigilator"),
+    )
+
+    class Meta:
+        ordering = ["date", "start"]
+        verbose_name = _("exam sitting")
+        verbose_name_plural = _("exam sittings")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(start__lt=models.F("end")), name="sitting_ends_after_start"
+            ),
+        ]
+        indexes = [models.Index(fields=["school", "schedule"], name="sitting_school_schedule")]
+
+    def __str__(self) -> str:
+        return f"{self.course} · {self.date}"

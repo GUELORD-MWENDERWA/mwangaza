@@ -10,7 +10,7 @@ Rejouable : grilles, salles, disponibilités et règles de l'espace sont refaite
 démonstration seulement)."""
 
 from collections import defaultdict
-from datetime import time
+from datetime import time, timedelta
 
 from django.db.models import Q
 
@@ -19,10 +19,12 @@ from apps.accounts.models import User
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
-from apps.schools.models import ClassGroup
+from apps.schools.models import ClassGroup, Term
 from apps.schools.organisation import current_year
-from apps.timetable import checks, constraints, runs, versions
+from apps.timetable import checks, constraints, exams, runs, versions
 from apps.timetable.models import (
+    ExamSchedule,
+    ExamSitting,
     Room,
     TeacherTimetableProfile,
     TimeGrid,
@@ -95,6 +97,7 @@ def _grid(name: str, *, is_default: bool, lesson_minutes: int, start: time, **sh
 def create_demo_timetable(spaces: list[DemoSpace]) -> None:
     for space in spaces:
         with use_school(space.school):
+            ExamSchedule.objects.all().delete()
             Timetable.objects.all().delete()
             ClassGroup.objects.filter(
                 Q(time_grid__isnull=False) | Q(home_room__isnull=False)
@@ -139,6 +142,7 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
             if space.profile == "itig":
                 _rules()
                 _calculated()
+                _exams()
 
 
 def _fit_hours() -> None:
@@ -264,3 +268,37 @@ def _calculated() -> None:
     run.refresh_from_db()
     if run.result is not None:
         versions.publish(run.result, valid_from=year.starts_on, actor=None)
+
+
+def _exams() -> None:
+    """EDT.5 : l'horaire des épreuves de la 1re période de l'ITIG, publié : les quatre premières
+    classes, un jour chacune dès le premier lundi, deux cours le matin (l'examen puis une
+    interrogation), leur enseignant surveillant, dans la salle de la classe."""
+    year = current_year()
+    term = Term.objects.filter(academic_year=year, kind=Term.Kind.PERIOD).order_by("order").first()
+    start = term.starts_on or year.starts_on
+    monday = start + timedelta(days=-start.weekday() % 7)
+    schedule = ExamSchedule.objects.create(term=term)
+    sittings = []
+    groups = ClassGroup.objects.filter(academic_year=year).select_related("home_room")[:4]
+    for day, group in enumerate(groups):
+        courses = Course.objects.filter(class_group=group, is_taught=True)
+        for course, (kind, begin, end) in zip(
+            courses.order_by("order")[:2],
+            (("exam", time(8, 0), time(10, 0)), ("quiz", time(10, 30), time(11, 30))),
+            strict=False,
+        ):
+            sittings.append(
+                ExamSitting(
+                    schedule=schedule,
+                    course=course,
+                    kind=kind,
+                    date=monday + timedelta(days=day),
+                    start=begin,
+                    end=end,
+                    room=group.home_room,
+                    invigilator=course.teacher,
+                )
+            )
+    ExamSitting.objects.bulk_create(sittings)
+    exams.publish(term, actor=None)
