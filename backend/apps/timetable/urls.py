@@ -1,6 +1,6 @@
 from django.urls import path
 
-from apps.timetable import views
+from apps.timetable import exam_views, views
 
 urlpatterns = [
     path("timetable/grids/", views.GridsView.as_view()),
@@ -32,6 +32,9 @@ urlpatterns = [
     path("timetable/drafts/<uuid:pk>/swap/", views.DraftSwapView.as_view()),
     path("timetable/drafts/<uuid:pk>/undo/", views.DraftUndoView.as_view()),
     path("timetable/drafts/<uuid:pk>/publish/", views.DraftPublishView.as_view()),
+    path("timetable/exams/sittings/<uuid:pk>/", exam_views.ExamSittingView.as_view()),
+    path("timetable/exams/<uuid:term>/", exam_views.ExamsView.as_view()),
+    path("timetable/exams/<uuid:term>/publish/", exam_views.ExamPublishView.as_view()),
     path("timetable/versions/", views.VersionsView.as_view()),
     path("timetable/print/", views.PrintView.as_view()),
     path("timetable/mine/", views.MyTimetableView.as_view()),

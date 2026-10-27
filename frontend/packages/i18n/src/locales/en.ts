@@ -3053,6 +3053,10 @@ export const en: Messages<typeof fr> = {
         draft_deleted: "Timetable draft deleted",
         lock_changed: "Lesson locked or unlocked",
         published: "Timetable published",
+        exam_sitting_changed: "Exam sitting saved",
+        exam_sitting_deleted: "Exam sitting deleted",
+        exam_published: "Exam timetable published",
+        exam_reopened: "Exam timetable reopened",
       },
       discipline: {
         rule_changed: "Offence list changed",

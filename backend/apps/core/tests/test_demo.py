@@ -37,8 +37,9 @@ from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
-from apps.timetable import checks, schedule
+from apps.timetable import checks, exams, schedule
 from apps.timetable.models import (
+    ExamSchedule,
     Room,
     TeacherTimetableProfile,
     Timetable,
@@ -133,6 +134,10 @@ def created(demo) -> None:
         assert draft["errors"] == 0 and draft["left"] == [], draft["issues"]
         kept = [entry for entry in draft["entries"] if entry.course_id == locked.course_id]
         assert (1, 2, 6) in {(entry.weekday, entry.first, entry.length) for entry in kept}
+        # EDT.5 : l'horaire des épreuves de la 1re période, publié et sans conflit.
+        exam = ExamSchedule.objects.get()
+        assert exam.status == "published" and exam.sittings.count() >= 4
+        assert exams.report(exam.term, exams.sittings_of(exam))["errors"] == 0
         # EDT.4b : « Mon horaire » de l'enseignant de démo (titulaire), heures de la grille.
         mine = schedule.mine(User.objects.get(phone="+243000001008"))
         assert mine["lessons"] and mine["homeroom"]["lessons"]

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 20:22+0200\n"
+"POT-Creation-Date: 2026-10-26 21:05+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -111,7 +111,8 @@ msgstr "Une séance dure %(longest)d h : permettez au moins autant par jour."
 msgid "Choose a room or a type of room, not both."
 msgstr "Choisissez une salle ou un type de salle, pas les deux."
 
-#: apps/academics/courses.py:170 apps/timetable/services.py:72
+#: apps/academics/courses.py:170 apps/timetable/exams.py:39
+#: apps/timetable/services.py:72
 msgid "This room does not exist."
 msgstr "Cette salle n'existe pas."
 
@@ -536,7 +537,7 @@ msgstr "Le matin"
 
 #: apps/academics/models.py:117 apps/academics/models.py:150
 #: apps/academics/models.py:219 apps/academics/models.py:494
-#: apps/timetable/models.py:307
+#: apps/timetable/models.py:307 apps/timetable/models.py:461
 msgid "course"
 msgstr "cours"
 
@@ -584,6 +585,7 @@ msgid "grades"
 msgstr "notes"
 
 #: apps/academics/models.py:214 apps/timetable/models.py:247
+#: apps/timetable/models.py:415
 msgid "Draft"
 msgstr "Brouillon"
 
@@ -601,7 +603,7 @@ msgstr "Validée"
 #: apps/schools/models.py:396 apps/students/models.py:176
 #: apps/students/models.py:242 apps/students/models.py:290
 #: apps/sync/models.py:74 apps/timetable/models.py:259
-#: apps/timetable/models.py:377
+#: apps/timetable/models.py:377 apps/timetable/models.py:425
 msgid "status"
 msgstr "statut"
 
@@ -692,7 +694,7 @@ msgstr "à partir de (points)"
 msgid "enrolment"
 msgstr "inscription"
 
-#: apps/academics/models.py:341
+#: apps/academics/models.py:341 apps/timetable/models.py:464
 msgid "date"
 msgstr "date"
 
@@ -1004,7 +1006,7 @@ msgstr "Points obtenus"
 msgid "MAX"
 msgstr "MAX"
 
-#: apps/academics/report_card_documents.py:331
+#: apps/academics/report_card_documents.py:331 apps/timetable/models.py:455
 msgid "Exam"
 msgstr "Exam."
 
@@ -2861,7 +2863,7 @@ msgstr "Double authentification sur un nouveau téléphone"
 msgid "Two-factor authentication turned off"
 msgstr "Double authentification désactivée"
 
-#: apps/audit/actions.py:24 apps/audit/actions.py:284
+#: apps/audit/actions.py:24 apps/audit/actions.py:289
 msgid "Two-factor authentication reset by support"
 msgstr "Double authentification réinitialisée par le support"
 
@@ -2869,19 +2871,19 @@ msgstr "Double authentification réinitialisée par le support"
 msgid "New recovery codes"
 msgstr "Nouveaux codes de secours"
 
-#: apps/audit/actions.py:27 apps/audit/actions.py:280
+#: apps/audit/actions.py:27 apps/audit/actions.py:285
 msgid "Names or phone changed by support"
 msgstr "Noms ou téléphone changés par le support"
 
-#: apps/audit/actions.py:28 apps/audit/actions.py:281
+#: apps/audit/actions.py:28 apps/audit/actions.py:286
 msgid "Account deactivated by support"
 msgstr "Compte désactivé par le support"
 
-#: apps/audit/actions.py:29 apps/audit/actions.py:282
+#: apps/audit/actions.py:29 apps/audit/actions.py:287
 msgid "Account reactivated by support"
 msgstr "Compte réactivé par le support"
 
-#: apps/audit/actions.py:30 apps/audit/actions.py:283
+#: apps/audit/actions.py:30 apps/audit/actions.py:288
 msgid "Temporary password given by support"
 msgstr "Mot de passe provisoire donné par le support"
 
@@ -2929,7 +2931,7 @@ msgstr "Mot de passe provisoire donné"
 msgid "Two-factor authentication reset"
 msgstr "Double authentification réinitialisée"
 
-#: apps/audit/actions.py:49 apps/audit/actions.py:272
+#: apps/audit/actions.py:49 apps/audit/actions.py:277
 msgid "School created"
 msgstr "École créée"
 
@@ -2945,15 +2947,15 @@ msgstr "Logo de l'école changé"
 msgid "School stamp or signature of the head changed"
 msgstr "Cachet de l'école ou signature du chef d'établissement changés"
 
-#: apps/audit/actions.py:56 apps/audit/actions.py:274
+#: apps/audit/actions.py:56 apps/audit/actions.py:279
 msgid "School suspended"
 msgstr "École suspendue"
 
-#: apps/audit/actions.py:57 apps/audit/actions.py:275
+#: apps/audit/actions.py:57 apps/audit/actions.py:280
 msgid "School reactivated"
 msgstr "École réactivée"
 
-#: apps/audit/actions.py:58 apps/audit/actions.py:276
+#: apps/audit/actions.py:58 apps/audit/actions.py:281
 msgid "School stopped"
 msgstr "École arrêtée"
 
@@ -3133,368 +3135,384 @@ msgstr "Heure verrouillée ou déverrouillée"
 msgid "Timetable published"
 msgstr "Horaire publié"
 
-#: apps/audit/actions.py:122
+#: apps/audit/actions.py:123
+msgid "Exam sitting saved"
+msgstr "Épreuve de l'horaire enregistrée"
+
+#: apps/audit/actions.py:124
+msgid "Exam sitting deleted"
+msgstr "Épreuve de l'horaire supprimée"
+
+#: apps/audit/actions.py:125
+msgid "Exam timetable published"
+msgstr "Horaire des épreuves publié"
+
+#: apps/audit/actions.py:126
+msgid "Exam timetable reopened"
+msgstr "Horaire des épreuves rouvert"
+
+#: apps/audit/actions.py:127
 msgid "Application grade corrected"
 msgstr "Cote d'application corrigée"
 
-#: apps/audit/actions.py:123
+#: apps/audit/actions.py:128
 msgid "Resit grade changed"
 msgstr "Note de repêchage modifiée"
 
-#: apps/audit/actions.py:125
+#: apps/audit/actions.py:130
 msgid "Deliberation decision recorded"
 msgstr "Décision de délibération enregistrée"
 
-#: apps/audit/actions.py:126
+#: apps/audit/actions.py:131
 msgid "Class results proclaimed"
 msgstr "Résultats de la classe proclamés"
 
-#: apps/audit/actions.py:127
+#: apps/audit/actions.py:132
 msgid "Class results reopened"
 msgstr "Résultats de la classe rouverts"
 
-#: apps/audit/actions.py:128
+#: apps/audit/actions.py:133
 msgid "Deliberation council recorded"
 msgstr "Conseil de délibération enregistré"
 
-#: apps/audit/actions.py:131
+#: apps/audit/actions.py:136
 msgid "Deliberation minutes printed"
 msgstr "Procès-verbal de délibération imprimé"
 
-#: apps/audit/actions.py:135
+#: apps/audit/actions.py:140
 msgid "Family created"
 msgstr "Famille créée"
 
-#: apps/audit/actions.py:136
+#: apps/audit/actions.py:141
 msgid "Family changed"
 msgstr "Famille modifiée"
 
-#: apps/audit/actions.py:137
+#: apps/audit/actions.py:142
 msgid "Family deleted"
 msgstr "Famille supprimée"
 
-#: apps/audit/actions.py:138
+#: apps/audit/actions.py:143
 msgid "Student created"
 msgstr "Élève créé"
 
-#: apps/audit/actions.py:139
+#: apps/audit/actions.py:144
 msgid "Student changed"
 msgstr "Élève modifié"
 
-#: apps/audit/actions.py:140
+#: apps/audit/actions.py:145
 msgid "Student enrolled"
 msgstr "Élève inscrit"
 
-#: apps/audit/actions.py:141
+#: apps/audit/actions.py:146
 msgid "Enrollment changed"
 msgstr "Inscription modifiée"
 
-#: apps/audit/actions.py:143
+#: apps/audit/actions.py:148
 msgid "Place offered for next year"
 msgstr "Place de l'année suivante proposée"
 
-#: apps/audit/actions.py:144
+#: apps/audit/actions.py:149
 msgid "Place for next year withdrawn"
 msgstr "Place de l'année suivante retirée"
 
-#: apps/audit/actions.py:145
+#: apps/audit/actions.py:150
 msgid "Parent answered about the place"
 msgstr "Réponse du parent pour la place"
 
-#: apps/audit/actions.py:146
+#: apps/audit/actions.py:151
 msgid "Student imported from a file"
 msgstr "Élève importé d'un fichier"
 
-#: apps/audit/actions.py:147
+#: apps/audit/actions.py:152
 msgid "Student import cancelled"
 msgstr "Import d'élèves annulé"
 
-#: apps/audit/actions.py:148
+#: apps/audit/actions.py:153
 msgid "Student removed (import cancelled)"
 msgstr "Élève retiré (import annulé)"
 
-#: apps/audit/actions.py:151
+#: apps/audit/actions.py:156
 msgid "Family code printed on the registration form"
 msgstr "Code famille imprimé sur la fiche d'inscription"
 
-#: apps/audit/actions.py:153
+#: apps/audit/actions.py:158
 msgid "New family code"
 msgstr "Nouveau code famille"
 
-#: apps/audit/actions.py:156
+#: apps/audit/actions.py:161
 msgid "Portal invitation letter printed (family code)"
 msgstr "Lettre d'invitation au portail imprimée (code famille)"
 
-#: apps/audit/actions.py:160
+#: apps/audit/actions.py:165
 msgid "Portal invitation message opened (family code)"
 msgstr "Message d'invitation au portail ouvert (code famille)"
 
-#: apps/audit/actions.py:162
+#: apps/audit/actions.py:167
 msgid "Parent portal access suspended"
 msgstr "Accès au portail suspendu"
 
-#: apps/audit/actions.py:163
+#: apps/audit/actions.py:168
 msgid "Parent portal access restored"
 msgstr "Accès au portail rétabli"
 
-#: apps/audit/actions.py:166
+#: apps/audit/actions.py:171
 msgid "Contact details sent by the parent applied"
 msgstr "Coordonnées envoyées par le parent appliquées"
 
-#: apps/audit/actions.py:170
+#: apps/audit/actions.py:175
 msgid "Contact details sent by the parent not applied"
 msgstr "Coordonnées envoyées par le parent non appliquées"
 
-#: apps/audit/actions.py:173
+#: apps/audit/actions.py:178
 msgid "Parent portal activated"
 msgstr "Portail activé par le parent"
 
-#: apps/audit/actions.py:174
+#: apps/audit/actions.py:179
 msgid "Parent chose a new password"
 msgstr "Nouveau mot de passe choisi par le parent"
 
-#: apps/audit/actions.py:176
+#: apps/audit/actions.py:181
 msgid "Fee type created"
 msgstr "Type de frais créé"
 
-#: apps/audit/actions.py:177
+#: apps/audit/actions.py:182
 msgid "Fee type changed"
 msgstr "Type de frais modifié"
 
-#: apps/audit/actions.py:178
+#: apps/audit/actions.py:183
 msgid "Fee type deleted"
 msgstr "Type de frais supprimé"
 
-#: apps/audit/actions.py:179
+#: apps/audit/actions.py:184
 msgid "Fee rule created"
 msgstr "Barème créé"
 
-#: apps/audit/actions.py:180
+#: apps/audit/actions.py:185
 msgid "Fee rule changed"
 msgstr "Barème modifié"
 
-#: apps/audit/actions.py:181
+#: apps/audit/actions.py:186
 msgid "Fee rule deleted"
 msgstr "Barème supprimé"
 
-#: apps/audit/actions.py:184
+#: apps/audit/actions.py:189
 msgid "Fee rules copied from another school year"
 msgstr "Barèmes repris d'une autre année"
 
-#: apps/audit/actions.py:186
+#: apps/audit/actions.py:191
 msgid "Exchange rate set"
 msgstr "Taux de l'année saisi"
 
-#: apps/audit/actions.py:187
+#: apps/audit/actions.py:192
 msgid "Custom schedule set"
 msgstr "Échéancier particulier enregistré"
 
-#: apps/audit/actions.py:188 apps/finance/models.py:717
+#: apps/audit/actions.py:193 apps/finance/models.py:717
 msgid "Discount granted"
 msgstr "Réduction accordée"
 
-#: apps/audit/actions.py:189
+#: apps/audit/actions.py:194
 msgid "Discount revoked"
 msgstr "Réduction retirée"
 
-#: apps/audit/actions.py:191
+#: apps/audit/actions.py:196
 msgid "Cash register created"
 msgstr "Caisse créée"
 
-#: apps/audit/actions.py:192
+#: apps/audit/actions.py:197
 msgid "Cash register changed"
 msgstr "Caisse modifiée"
 
-#: apps/audit/actions.py:193
+#: apps/audit/actions.py:198
 msgid "Cash session opened"
 msgstr "Caisse ouverte"
 
-#: apps/audit/actions.py:194
+#: apps/audit/actions.py:199
 msgid "Cash session closed"
 msgstr "Caisse clôturée"
 
-#: apps/audit/actions.py:195
+#: apps/audit/actions.py:200
 msgid "Payment recorded"
 msgstr "Paiement encaissé"
 
-#: apps/audit/actions.py:199
+#: apps/audit/actions.py:204
 msgid "Earlier payment recorded (not at the cash desk)"
 msgstr "Paiement d'avant l'application enregistré (hors caisse)"
 
-#: apps/audit/actions.py:202
+#: apps/audit/actions.py:207
 msgid "Receipt reprinted"
 msgstr "Reçu réimprimé"
 
-#: apps/audit/actions.py:206
+#: apps/audit/actions.py:211
 msgid "Payment cancellation requested"
 msgstr "Annulation de paiement demandée"
 
-#: apps/audit/actions.py:208
+#: apps/audit/actions.py:213
 msgid "Payment cancelled"
 msgstr "Paiement annulé"
 
-#: apps/audit/actions.py:211
+#: apps/audit/actions.py:216
 msgid "Payment cancellation refused"
 msgstr "Annulation de paiement refusée"
 
-#: apps/audit/actions.py:215
+#: apps/audit/actions.py:220
 msgid "Cancellation receipt reprinted"
 msgstr "Reçu d'annulation réimprimé"
 
-#: apps/audit/actions.py:218
+#: apps/audit/actions.py:223
 msgid "Student credit created"
 msgstr "Crédit d'élève créé"
 
-#: apps/audit/actions.py:219
+#: apps/audit/actions.py:224
 msgid "Student credit used"
 msgstr "Crédit d'élève utilisé"
 
-#: apps/audit/actions.py:220
+#: apps/audit/actions.py:225
 msgid "Student credit voided"
 msgstr "Crédit d'élève annulé"
 
-#: apps/audit/actions.py:222
+#: apps/audit/actions.py:227
 msgid "Unpaid fees exported"
 msgstr "Impayés exportés"
 
-#: apps/audit/actions.py:226
+#: apps/audit/actions.py:231
 msgid "Receipt register exported"
 msgstr "Registre des reçus exporté"
 
-#: apps/audit/actions.py:229
+#: apps/audit/actions.py:234
 msgid "Financial statement printed"
 msgstr "Situation financière imprimée"
 
-#: apps/audit/actions.py:232
+#: apps/audit/actions.py:237
 msgid "Announcement published"
 msgstr "Annonce publiée"
 
-#: apps/audit/actions.py:233
+#: apps/audit/actions.py:238
 msgid "Announcement archived"
 msgstr "Annonce archivée"
 
-#: apps/audit/actions.py:235
+#: apps/audit/actions.py:240
 msgid "Parents summoned"
 msgstr "Parents convoqués"
 
-#: apps/audit/actions.py:236
+#: apps/audit/actions.py:241
 msgid "Summons cancelled"
 msgstr "Convocation annulée"
 
-#: apps/audit/actions.py:239
+#: apps/audit/actions.py:244
 msgid "Device remembered"
 msgstr "Appareil mémorisé"
 
-#: apps/audit/actions.py:240
+#: apps/audit/actions.py:245
 msgid "Device disconnected"
 msgstr "Appareil déconnecté"
 
-#: apps/audit/actions.py:243
+#: apps/audit/actions.py:248
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:247
+#: apps/audit/actions.py:252
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:248
+#: apps/audit/actions.py:253
 msgid "Support session closed"
 msgstr "Session support fermée"
 
-#: apps/audit/actions.py:262
+#: apps/audit/actions.py:267
 msgid "Platform identity changed"
 msgstr "Identité de la plateforme modifiée"
 
-#: apps/audit/actions.py:263
+#: apps/audit/actions.py:268
 msgid "Platform logo changed"
 msgstr "Logo de la plateforme changé"
 
-#: apps/audit/actions.py:264
+#: apps/audit/actions.py:269
 msgid "Application icon changed"
 msgstr "Icône des applications changée"
 
-#: apps/audit/actions.py:266
+#: apps/audit/actions.py:271
 msgid "AI settings changed"
 msgstr "Réglages de l’IA modifiés"
 
-#: apps/audit/actions.py:267
+#: apps/audit/actions.py:272
 msgid "AI uses or credits of a school changed"
 msgstr "Usages ou crédits IA d’une école modifiés"
 
-#: apps/audit/actions.py:268
+#: apps/audit/actions.py:273
 msgid "AI credits added to a school"
 msgstr "Crédits IA ajoutés à une école"
 
-#: apps/audit/actions.py:269
+#: apps/audit/actions.py:274
 #, python-format
 msgid "AI spending reached 80 % of the monthly cap"
 msgstr "La dépense IA atteint 80 % du plafond du mois"
 
-#: apps/audit/actions.py:270
+#: apps/audit/actions.py:275
 msgid "AI monthly cap reached"
 msgstr "Plafond mensuel de l’IA atteint"
 
-#: apps/audit/actions.py:273
+#: apps/audit/actions.py:278
 msgid "School or subscription changed"
 msgstr "École ou abonnement modifié"
 
-#: apps/audit/actions.py:277
+#: apps/audit/actions.py:282
 msgid "Sandbox or demonstration space deleted"
 msgstr "Espace d'essai ou de démonstration supprimé"
 
-#: apps/audit/actions.py:287
+#: apps/audit/actions.py:292
 msgid "Device disconnected by support"
 msgstr "Appareil déconnecté par le support"
 
-#: apps/audit/actions.py:289
+#: apps/audit/actions.py:294
 msgid "Announcement to schools published"
 msgstr "Annonce aux écoles publiée"
 
-#: apps/audit/actions.py:290
+#: apps/audit/actions.py:295
 msgid "Announcement to schools archived"
 msgstr "Annonce aux écoles archivée"
 
-#: apps/audit/actions.py:293
+#: apps/audit/actions.py:298
 msgid "Platform account logged in"
 msgstr "Connexion d'un compte de la plateforme"
 
-#: apps/audit/actions.py:294
+#: apps/audit/actions.py:299
 msgid "Two-factor code refused on a platform account"
 msgstr "Code de double authentification refusé sur un compte de la plateforme"
 
-#: apps/audit/actions.py:297
+#: apps/audit/actions.py:302
 msgid "Platform account refused from an unauthorised address"
 msgstr "Compte de la plateforme refusé depuis une adresse non autorisée"
 
-#: apps/audit/actions.py:300
+#: apps/audit/actions.py:305
 msgid "Team member invited"
 msgstr "Membre de l'équipe invité"
 
-#: apps/audit/actions.py:301
+#: apps/audit/actions.py:306
 msgid "Roles of a team member changed"
 msgstr "Rôles d'un membre de l'équipe changés"
 
-#: apps/audit/actions.py:302
+#: apps/audit/actions.py:307
 msgid "Member removed from the team"
 msgstr "Membre retiré de l'équipe"
 
-#: apps/audit/actions.py:304
+#: apps/audit/actions.py:309
 msgid "Site content added"
 msgstr "Contenu du site ajouté"
 
-#: apps/audit/actions.py:305
+#: apps/audit/actions.py:310
 msgid "Site content changed"
 msgstr "Contenu du site modifié"
 
-#: apps/audit/actions.py:306
+#: apps/audit/actions.py:311
 msgid "Site content moved"
 msgstr "Contenu du site déplacé"
 
-#: apps/audit/actions.py:307
+#: apps/audit/actions.py:312
 msgid "Site content deleted"
 msgstr "Contenu du site supprimé"
 
-#: apps/audit/actions.py:308
+#: apps/audit/actions.py:313
 msgid "Site banner changed"
 msgstr "Bandeau du site modifié"
 
@@ -3890,7 +3908,7 @@ msgstr "Prochainement"
 #: apps/notifications/models.py:93 apps/notifications/models.py:274
 #: apps/schools/models.py:438 apps/sync/models.py:26
 #: apps/timetable/models.py:81 apps/timetable/models.py:120
-#: apps/timetable/models.py:209
+#: apps/timetable/models.py:209 apps/timetable/models.py:463
 msgid "kind"
 msgstr "type"
 
@@ -7598,11 +7616,13 @@ msgstr "montré à"
 
 #: apps/notifications/models.py:97 apps/schools/models.py:392
 #: apps/schools/models.py:450 apps/timetable/models.py:79
+#: apps/timetable/models.py:465
 msgid "start"
 msgstr "début"
 
 #: apps/notifications/models.py:98 apps/schools/models.py:393
 #: apps/schools/models.py:451 apps/timetable/models.py:80
+#: apps/timetable/models.py:466
 msgid "end"
 msgstr "fin"
 
@@ -9766,6 +9786,35 @@ msgstr "Ces heures ne sont pas dans la grille horaire de la classe."
 msgid "This course does not run across a break."
 msgstr "Ce cours ne passe pas une récréation."
 
+#: apps/timetable/exams.py:30
+msgid "Choose a period or the exams, not a semester or a term."
+msgstr ""
+"Choisissez une période ou les examens, pas un semestre ni un trimestre."
+
+#: apps/timetable/exams.py:33
+msgid "This timetable is published: reopen it to change it."
+msgstr "Cet horaire est publié : rouvrez-le pour le modifier."
+
+#: apps/timetable/exams.py:35
+msgid "This timetable is not published."
+msgstr "Cet horaire n'est pas publié."
+
+#: apps/timetable/exams.py:37
+msgid "This course is not taught in the school year of the period."
+msgstr "Ce cours n'est pas donné pendant l'année scolaire de cette période."
+
+#: apps/timetable/exams.py:40
+msgid "This person is not on the staff."
+msgstr "Cette personne ne fait pas partie du personnel de l'école."
+
+#: apps/timetable/exams.py:43
+msgid "This timetable still has conflicts: correct them before publishing."
+msgstr "Cet horaire a encore des conflits : corrigez-les avant de publier."
+
+#: apps/timetable/exams.py:46
+msgid "Add at least one sitting before publishing."
+msgstr "Ajoutez au moins une épreuve avant de publier."
+
 #: apps/timetable/models.py:36
 msgid "lesson length (minutes)"
 msgstr "durée d'une heure (minutes)"
@@ -9831,6 +9880,7 @@ msgid "in use"
 msgstr "utilisée"
 
 #: apps/timetable/models.py:131 apps/timetable/models.py:324
+#: apps/timetable/models.py:473
 msgid "room"
 msgstr "salle"
 
@@ -9934,7 +9984,7 @@ msgstr "règle de l'horaire"
 msgid "timetable rules"
 msgstr "règles de l'horaire"
 
-#: apps/timetable/models.py:248
+#: apps/timetable/models.py:248 apps/timetable/models.py:416
 msgid "Published"
 msgstr "Publié"
 
@@ -9946,11 +9996,11 @@ msgstr "Archivé"
 msgid "in force from"
 msgstr "en vigueur à partir du"
 
-#: apps/timetable/models.py:262
+#: apps/timetable/models.py:262 apps/timetable/models.py:427
 msgid "published on"
 msgstr "publié le"
 
-#: apps/timetable/models.py:269
+#: apps/timetable/models.py:269 apps/timetable/models.py:434
 msgid "published by"
 msgstr "publié par"
 
@@ -9963,6 +10013,7 @@ msgid "undo history"
 msgstr "historique pour annuler"
 
 #: apps/timetable/models.py:283 apps/timetable/models.py:304
+#: apps/timetable/models.py:458
 msgid "timetable"
 msgstr "horaire"
 
@@ -10065,6 +10116,34 @@ msgstr "calcul de l'horaire"
 #: apps/timetable/models.py:398
 msgid "timetable calculations"
 msgstr "calculs de l'horaire"
+
+#: apps/timetable/models.py:422
+msgid "period"
+msgstr "période"
+
+#: apps/timetable/models.py:438
+msgid "exam timetable"
+msgstr "horaire des épreuves"
+
+#: apps/timetable/models.py:439
+msgid "exam timetables"
+msgstr "horaires des épreuves"
+
+#: apps/timetable/models.py:454
+msgid "Test"
+msgstr "Interrogation"
+
+#: apps/timetable/models.py:481
+msgid "invigilator"
+msgstr "surveillant"
+
+#: apps/timetable/models.py:486
+msgid "exam sitting"
+msgstr "épreuve"
+
+#: apps/timetable/models.py:487
+msgid "exam sittings"
+msgstr "épreuves"
 
 #: apps/timetable/prints.py:28
 msgid "There is nothing to print in this timetable."
