@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 21:05+0200\n"
+"POT-Creation-Date: 2026-10-27 10:45+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -310,7 +310,7 @@ msgstr "Liste d'infractions proposée"
 msgid "Conduct scale"
 msgstr "Seuils de la conduite"
 
-#: apps/academics/discipline.py:345 apps/academics/grades.py:215
+#: apps/academics/discipline.py:345 apps/academics/grades.py:225
 #, python-format
 msgid "Period %(n)d"
 msgstr "Période %(n)d"
@@ -369,49 +369,49 @@ msgstr ""
 msgid "Give the reason for changing grades that are already sent."
 msgstr "Donnez le motif de la modification de notes déjà envoyées."
 
-#: apps/academics/grades.py:218 apps/notifications/models.py:82
+#: apps/academics/grades.py:228 apps/notifications/models.py:82
 #: apps/schools/models.py:430
 msgid "Exams"
 msgstr "Examens"
 
-#: apps/academics/grades.py:220
+#: apps/academics/grades.py:230
 #, python-format
 msgid "Semester %(n)d"
 msgstr "Semestre %(n)d"
 
-#: apps/academics/grades.py:220
+#: apps/academics/grades.py:230
 #, python-format
 msgid "Trimester %(n)d"
 msgstr "Trimestre %(n)d"
 
-#: apps/academics/grades.py:222
+#: apps/academics/grades.py:232
 #, python-format
 msgid "Exams · %(group)s"
 msgstr "Examens · %(group)s"
 
-#: apps/academics/grades.py:356 apps/academics/grades.py:439
-#: apps/academics/grades.py:546
+#: apps/academics/grades.py:366 apps/academics/grades.py:449
+#: apps/academics/grades.py:556
 msgid "Unknown evaluation."
 msgstr "Évaluation inconnue."
 
-#: apps/academics/grades.py:363
+#: apps/academics/grades.py:373
 #, python-format
 msgid "At most %(max)d evaluations per period."
 msgstr "Au plus %(max)d évaluations par période."
 
-#: apps/academics/grades.py:434
+#: apps/academics/grades.py:444
 msgid "This student is not in the class."
 msgstr "Cet élève n'est pas dans la classe."
 
-#: apps/academics/grades.py:444
+#: apps/academics/grades.py:454
 msgid "A grade cannot be above the maximum of its evaluation."
 msgstr "Une note ne peut pas dépasser le maximum de son évaluation."
 
-#: apps/academics/grades.py:458
+#: apps/academics/grades.py:468
 msgid "A grade is above this maximum."
 msgstr "Une note dépasse ce maximum."
 
-#: apps/academics/homeroom.py:35
+#: apps/academics/homeroom.py:36
 msgid ""
 "Every grade sheet of this period must be validated before the report cards "
 "are ready."
@@ -419,13 +419,13 @@ msgstr ""
 "Toutes les fiches de cotes de la période doivent être validées avant que les "
 "bulletins soient prêts."
 
-#: apps/academics/homeroom_views.py:102
+#: apps/academics/homeroom_views.py:113
 msgid "Only the homeroom teacher of this class opens its space."
 msgstr "Seul le titulaire de cette classe ouvre son espace."
 
 #: apps/academics/models.py:33 apps/academics/models.py:457
 #: apps/academics/models.py:546 apps/academics/models.py:693
-#: apps/notifications/models.py:129 apps/schools/models.py:610
+#: apps/notifications/models.py:129 apps/schools/models.py:620
 #: apps/students/models.py:173
 msgid "class"
 msgstr "classe"
@@ -1911,30 +1911,30 @@ msgid "Placing courses in the timetable needs the timetable right."
 msgstr ""
 "Placer les cours dans l'horaire demande le droit sur l'emploi du temps."
 
-#: apps/academics/views.py:262
+#: apps/academics/views.py:264
 msgid "Only the teacher of this course sees its evaluations."
 msgstr "Seul l'enseignant de ce cours voit ses évaluations."
 
-#: apps/academics/views.py:330
+#: apps/academics/views.py:332
 msgid "You cannot read the grade sheet of this course."
 msgstr "Vous ne pouvez pas lire la fiche de cotes de ce cours."
 
-#: apps/academics/views.py:412
+#: apps/academics/views.py:414
 msgid "This course does not exist."
 msgstr "Ce cours n'existe pas."
 
-#: apps/academics/views.py:491
+#: apps/academics/views.py:493
 msgid ""
 "Some courses have no validated grades yet: the report card cannot be printed."
 msgstr ""
 "Des cours n'ont pas encore de notes validées : le bulletin ne peut pas être "
 "imprimé."
 
-#: apps/academics/views.py:605
+#: apps/academics/views.py:607
 msgid "You cannot print the table of this class."
 msgstr "Vous ne pouvez pas imprimer le tableau de cette classe."
 
-#: apps/academics/views.py:611
+#: apps/academics/views.py:613
 msgid "You do not enter the grades of this course."
 msgstr "Vous ne saisissez pas les notes de ce cours."
 
@@ -2315,8 +2315,8 @@ msgid "Manage the platform team"
 msgstr "Gérer l'équipe de la plateforme"
 
 #: apps/accounts/platform_roles.py:49
-msgid "Owner"
-msgstr "Propriétaire"
+msgid "Lead administrator"
+msgstr "Administrateur principal"
 
 #: apps/accounts/platform_roles.py:50
 msgid "Technical"
@@ -2502,7 +2502,7 @@ msgstr "Enseignant"
 msgid "Parent"
 msgstr "Parent"
 
-#: apps/accounts/serializers.py:353
+#: apps/accounts/serializers.py:354
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
@@ -2624,9 +2624,9 @@ msgstr ""
 msgid "This person is already in the team."
 msgstr "Cette personne fait déjà partie de l'équipe."
 
-#: apps/accounts/team.py:37
-msgid "The platform must keep at least one owner."
-msgstr "La plateforme doit garder au moins un propriétaire."
+#: apps/accounts/team.py:38
+msgid "The platform must keep at least one lead administrator."
+msgstr "La plateforme doit garder au moins un administrateur principal."
 
 #: apps/accounts/templates/admin/accounts/login.html:11
 msgid ""
@@ -7543,7 +7543,7 @@ msgstr "titre"
 msgid "recipients"
 msgstr "destinataires"
 
-#: apps/notifications/models.py:27 apps/schools/models.py:611
+#: apps/notifications/models.py:27 apps/schools/models.py:621
 msgid "classes"
 msgstr "classes"
 
@@ -8550,6 +8550,10 @@ msgstr "salle habituelle"
 msgid "homeroom teacher"
 msgstr "titulaire"
 
+#: apps/schools/models.py:615
+msgid "co-homeroom teacher"
+msgstr "cotitulaire"
+
 #: apps/schools/organisation.py:34
 msgid "The school already has a school year with this name."
 msgstr "L'école a déjà une année scolaire de ce nom."
@@ -8647,6 +8651,10 @@ msgstr "En dehors de son semestre ou trimestre."
 #: apps/schools/organisation.py:436
 msgid "Give every level of the school once."
 msgstr "Donnez chaque niveau de l'école une seule fois."
+
+#: apps/schools/organisation.py:593
+msgid "The co-homeroom teacher is someone other than the homeroom teacher."
+msgstr "Le cotitulaire est une autre personne que le titulaire."
 
 #: apps/schools/serializers.py:77
 #, python-format

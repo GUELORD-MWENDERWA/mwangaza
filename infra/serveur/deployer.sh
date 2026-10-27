@@ -135,9 +135,9 @@ case "${1:-}" in
     resolve=()
     if [ -n "${2:-}" ]; then
       echo "Instance $2 (DNS ignoré) :"
-      for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig.$DOMAIN"; do resolve+=(--resolve "$host:443:$2"); done
+      for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig-demo.$DOMAIN"; do resolve+=(--resolve "$host:443:$2"); done
     fi
-    for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig.$DOMAIN"; do
+    for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig-demo.$DOMAIN"; do
       printf '%s : ' "$host"
       # Pas de -k : le certificat doit être valide. Code 000 = connexion ou certificat refusé.
       if code=$(curl -sS --max-time 15 "${resolve[@]}" -o /dev/null -w '%{http_code}' "https://$host/") && [ "$code" != 000 ]; then
@@ -150,6 +150,10 @@ case "${1:-}" in
     curl -fsS --max-time 15 "${resolve[@]}" "https://admin.$DOMAIN/api/health/" && echo || ok=
     python3 infra/serveur/domaine.py "$DOMAIN" || true
     [ -n "$ok" ] || { echo "Vérification en échec."; exit 1; }
+    ;;
+  demo)
+    # Espaces de `make demo` effacés puis recréés à neuf (refusé dès qu'un espace réel existe).
+    "${SSH[@]}" "cd mwangaza/code && $COMPOSE exec -T django python manage.py demo --fresh"
     ;;
   superuser)
     ssh -t "${SSH_OPTS[@]}" "$SERVEUR" "cd mwangaza/code && $COMPOSE exec django python manage.py createsuperuser"

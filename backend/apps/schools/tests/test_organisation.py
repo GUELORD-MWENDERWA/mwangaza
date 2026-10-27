@@ -405,6 +405,7 @@ def test_class_name_section_and_audit(setup, head):
         "section": "A",
         "capacity": 45,
         "homeroom_teacher": None,
+        "co_homeroom_teacher": None,
     }
 
 

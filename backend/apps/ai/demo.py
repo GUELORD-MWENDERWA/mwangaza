@@ -16,5 +16,5 @@ def create_demo_ai(spaces: list[DemoSpace]) -> None:
         with use_school(space.school):
             for model in (AiResult, AiCall, AiUsageMonth, AiBalance, AiAllowance):
                 model.objects.all().delete()
-            granted, credits = PLANS.get(space.school.code, PLANS["volcans"])
+            granted, credits = PLANS.get(space.profile, PLANS["volcans"])
             AiAllowance.objects.create(uses=granted, monthly_credits=credits)

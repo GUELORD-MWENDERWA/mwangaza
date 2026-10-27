@@ -197,6 +197,7 @@ function useClassSchema() {
             t("validation.capacityRange"),
           ),
         homeroom_teacher: z.string(),
+        co_homeroom_teacher: z.string(),
       }),
     [t],
   );
@@ -226,6 +227,7 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
       section: group?.section ?? "",
       capacity: group?.capacity?.toString() ?? "",
       homeroom_teacher: group?.homeroom_teacher?.id ?? "",
+      co_homeroom_teacher: group?.co_homeroom_teacher?.id ?? "",
     },
   });
   const done = async () => {
@@ -241,6 +243,7 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
         section: values.section,
         capacity: values.capacity ? Number(values.capacity) : null,
         homeroom_teacher: values.homeroom_teacher || null,
+        co_homeroom_teacher: values.co_homeroom_teacher || null,
       };
       return group
         ? call(api.PATCH("/api/class-groups/{id}/", { params: { path: { id: group.id } }, body }))
@@ -251,7 +254,7 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
       setGeneral(
         applyServerErrors(
           error,
-          ["level", "track", "section", "capacity", "homeroom_teacher"],
+          ["level", "track", "section", "capacity", "homeroom_teacher", "co_homeroom_teacher"],
           form.setError,
           t,
         ),
@@ -371,6 +374,24 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
             {(control) => (
               <Select {...control} {...form.register("homeroom_teacher")}>
                 <option value="">{t("organisation.classes.noTeacher")}</option>
+                {(candidates.data ?? []).map((person) => (
+                  <option key={person.id} value={person.id}>
+                    {fullName(person)}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
+          <Field
+            id="class-co-teacher"
+            label={t("organisation.classes.coHomeroom")}
+            help={t("organisation.classes.coHomeroomHelp")}
+            error={errors.co_homeroom_teacher?.message}
+            className="min-[600px]:col-span-2"
+          >
+            {(control) => (
+              <Select {...control} {...form.register("co_homeroom_teacher")}>
+                <option value="">{t("organisation.classes.noCoTeacher")}</option>
                 {(candidates.data ?? []).map((person) => (
                   <option key={person.id} value={person.id}>
                     {fullName(person)}

@@ -94,7 +94,7 @@ def print_class(base: str, phone: str, password: str) -> tuple[str, float]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--base", default="https://itig.localhost")
+    parser.add_argument("--base", default="https://itig-demo.localhost")
     parser.add_argument("--users", type=int, default=5)
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--phone", default="0000001007")

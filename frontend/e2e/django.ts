@@ -43,7 +43,7 @@ export function unpaidStudent(): { matricule: string; name: string } {
     `from apps.core.tenancy import use_school
 from apps.schools.models import School
 from apps.students.models import Enrollment
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     e = (Enrollment.objects.filter(status="active", payments__isnull=True, charges__currency="USD",
          charges__status="active").select_related("student").order_by("student__matricule").first())
     print(e.student.matricule, "|", e.student.last_name.upper(), e.student.middle_name.upper(), e.student.first_name)`,
@@ -59,6 +59,6 @@ export function closeCashSessions() {
 from apps.core.tenancy import use_school
 from apps.finance.models import CashSession
 from apps.schools.models import School
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     CashSession.objects.filter(closed_at__isnull=True).update(closed_at=timezone.now())`);
 }

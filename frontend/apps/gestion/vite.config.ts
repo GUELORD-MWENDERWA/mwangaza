@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Application Gestion (personnel), servie sur {code}.<domaine>/app — en dev : http://itig.localhost:5173/app/
+// Application Gestion (personnel), servie sur {code}.<domaine>/app — en dev : http://itig-demo.localhost:5173/app/
 // L'API est servie sur la même origine grâce au proxy : les cookies de session restent valides
 // et le sous-domaine de l'école ({code}.localhost) est transmis tel quel à Django.
 const apiTarget = process.env.VITE_API_TARGET ?? "http://localhost:8000";

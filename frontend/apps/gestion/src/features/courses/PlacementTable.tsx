@@ -96,7 +96,7 @@ export function PlacementTable<T extends PlacementRow>({
               <td>
                 <Input
                   aria-label={`${t("timetable.placement.lessons")} — ${label}`}
-                  placeholder={proposedPattern(hours)}
+                  placeholder={proposedPattern(hours, row.category === "practical")}
                   value={row.placement.lesson_pattern}
                   aria-invalid={problem !== null}
                   onChange={(event) => place(row, { lesson_pattern: event.target.value })}

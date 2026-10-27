@@ -88,7 +88,6 @@ function currentPeriod(leaves: Leaf[]): Leaf | undefined {
 export function GradesPage() {
   const { t } = useTranslation();
   const grading = useGrading();
-  const me = useCurrentMe();
   // « À valider » ouvre la feuille voulue : `?course=…&term=…`.
   const [params] = useSearchParams();
   const [choice, setChoice] = useState<Choice | null>(null);
@@ -99,11 +98,10 @@ export function GradesPage() {
     return <LoadError error={grading.error} onRetry={() => void grading.refetch()} />;
   }
   const { terms } = grading.data;
-  // Le titulaire voit aussi les cours de sa classe : seulement ceux qu'il donne, sauf
-  // `grades.enter_any` (un total par élève).
-  const enterAny = can(me, ["grades.enter_any"]);
+  // Ses cours (son carnet) ; avec `grades.enter_any`, et pour le titulaire ou le cotitulaire de
+  // la classe (NB.7), les autres cours : un total par élève, pour une fiche rendue sur papier.
   const classes = grading.data.classes
-    .map((group) => ({ ...group, courses: group.courses.filter((c) => c.teaches || enterAny) }))
+    .map((group) => ({ ...group, courses: group.courses.filter((c) => c.access !== null) }))
     .filter((group) => group.courses.length > 0);
   const labels = termLabels(terms, t);
   const leaves = gradableTerms(terms, labels);
@@ -470,7 +468,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
             {t(columns.length === 0 ? "grades.noEvaluation" : "grades.noStudent")}
           </p>
         ) : (
-          <Table stacked>
+          <Table stacked freeze>
             <thead>
               <tr>
                 <th>{t("grades.columns.student")}</th>

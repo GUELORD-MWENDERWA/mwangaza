@@ -245,9 +245,16 @@ class GradingListCourseSerializer(GradingCourseSerializer):
         help_text="Le compte donne ce cours : il tient son carnet (évaluations et notes, NB.1) ; "
         "sinon, fiche de cotes seulement, ou un total par élève avec `grades.enter_any`."
     )
+    access = serializers.ChoiceField(
+        choices=["notebook", "total"],
+        allow_null=True,
+        help_text="`notebook` : son carnet ; `total` : un total par élève (`grades.enter_any`, "
+        "titulaire ou cotitulaire de la classe, NB.7 ; refusé si la feuille a des devoirs) ; "
+        "vide : fiche de cotes à lire seulement.",
+    )
 
     class Meta(GradingCourseSerializer.Meta):
-        fields = [*GradingCourseSerializer.Meta.fields, "teaches"]
+        fields = [*GradingCourseSerializer.Meta.fields, "teaches", "access"]
         read_only_fields = fields
 
 
@@ -260,7 +267,8 @@ class GradingClassSerializer(serializers.Serializer):
         "(`grades.enter_any`).",
     )
     is_homeroom = serializers.BooleanField(
-        help_text="Le compte est titulaire de la classe (tableau de la classe, 8.3.6)."
+        help_text="Le compte est titulaire ou cotitulaire de la classe (tableau de la classe, "
+        "8.3.6 ; NB.7)."
     )
 
 

@@ -1065,6 +1065,10 @@ export const fr = {
       homeroom: "Titulaire",
       noTrack: "Aucune option",
       noTeacher: "Pas de titulaire",
+      coHomeroom: "Cotitulaire",
+      coHomeroomHelp:
+        "Facultatif : aide le titulaire. Il complète, comme lui, les fiches de cotes rendues sur papier ; le titulaire seul déclare les bulletins prêts.",
+      noCoTeacher: "Pas de cotitulaire",
       teachersAssigned: "Titulaires assignés",
       missingTeachers_one: "{{count}} sans titulaire",
       missingTeachers_other: "{{count}} sans titulaire",
@@ -2423,7 +2427,13 @@ export const fr = {
     title: "Ma classe",
     subtitle:
       "{{class}} · vous en êtes titulaire. Les fiches de cotes reçues, la vérification de chaque élève, puis les bulletins à déclarer prêts.",
-    none: "Vous n'êtes titulaire d'aucune classe cette année. Le titulaire d'une classe se choisit dans « Organisation scolaire ».",
+    subtitleCo:
+      "{{class}} · vous en êtes cotitulaire. Vous complétez les fiches de cotes rendues sur papier ; le titulaire déclare les bulletins prêts.",
+    coTitular_one:
+      "Vous êtes cotitulaire : complétez la fiche qui manque depuis « Notes » (un total par élève) ; le titulaire déclare ensuite les bulletins prêts.",
+    coTitular_other:
+      "Vous êtes cotitulaire : complétez les {{count}} fiches qui manquent depuis « Notes » (un total par élève) ; le titulaire déclare ensuite les bulletins prêts.",
+    none: "Vous n'êtes titulaire ni cotitulaire d'aucune classe cette année. Le titulaire et le cotitulaire d'une classe se choisissent dans « Organisation scolaire ».",
     noTerm: "Aucune période : le découpage de l'année n'est pas encore fait.",
     classGroup: "Classe",
     term: "Période",
@@ -4870,7 +4880,7 @@ export const fr = {
     },
     noRight: {
       title: "Cette page n'est pas dans vos rôles",
-      text: "Demandez au propriétaire de la plateforme le rôle qu'il faut.",
+      text: "Demandez à l'administrateur principal de la plateforme le rôle qu'il faut.",
       home: "Aller à l'accueil",
     },
     team: {
@@ -4912,7 +4922,7 @@ export const fr = {
       removeText:
         "Son compte est désactivé et ses sessions se ferment tout de suite. Ses actions restent au journal. Pour revenir, il faudra l'inviter de nouveau.",
       roleNames: {
-        owner: "Propriétaire",
+        owner: "Administrateur principal",
         technical: "Technique",
         support: "Support",
         commercial: "Commercial",

@@ -236,6 +236,10 @@ Estimations tirées de `docs/claude/recherches/perf-impression-capacite-2026-10-
 
 | Date | Décision | Raison |
 |---|---|---|
+| 2026-10-27 | Cotitulaire = `ClassGroup.co_homeroom_teacher` (une clé, comme le titulaire) ; titulaire et cotitulaire ont l'accès « un total par élève » (`grades.notebook_access`) sur les cours de leur classe ; la liste des notes suit `access` du serveur | Une fiche rendue sur papier se saisit sans donner le droit « toutes les classes » ; le carnet d'un enseignant reste privé |
+| 2026-10-27 | Cours pratique : pas de limite d'heures par jour (sauf celle du cours) et blocs de 4 h proposés ; l'école fixe ses séances | En RDC un atelier se donne en longs blocs |
+| 2026-10-27 | Espace de démonstration `itig-demo` (migration `schools.0025`, même identifiant, fichiers compris) ; `make deploy-demo` = `demo --fresh` (efface puis recrée, refusé dès qu'un espace réel existe) ; démo à 39 h par classe et 40 enseignants, calcul de 20 s | Laisser `itig` à la vraie école ; une démo au niveau de l'application ; CI ≈ +60 s |
+| 2026-10-27 | Rôle `owner` de la console affiché « Administrateur principal » | La plateforme appartient à l'entreprise, pas à une personne |
 | 2026-10-27 | Horaire des épreuves (EDT.5a) : `ExamSchedule` par période + `ExamSitting`, placé à la main par le DE (pas de solveur), publier/rouvrir au journal, contrôles en 4 requêtes | Quelques dizaines d'épreuves par période : un solveur n'apporte rien ; rouvrir évite une version par correction |
 | 2026-09 | Django + React/TS PWA, PostgreSQL | Compétences existantes, hors-ligne navigateur, budget |
 | 2026-09 | Multi-écoles par clé étrangère `school` | Fonctions inter-écoles (parents, transferts, réseaux) |

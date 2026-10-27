@@ -90,14 +90,14 @@ def test_an_offline_sheet_follows_the_online_rules(api, school, head, teacher):
     remember(clerk)
     refused = clerk.post(PUSH, {"operations": [grades_op(data, uuid7(), term="exam")]})
     assert refused.json()["results"][0]["error"]["code"] == "permission_denied"
-    # Le titulaire ne tient pas le carnet d'un cours qu'il ne donne pas (NB.1).
+    # Le titulaire n'y met qu'un total (NB.7), avec les mêmes règles : date limite passée.
     homeroom = MembershipFactory(school=school, roles=["teacher"]).user
     with use_school(school):
         ClassGroup.objects.filter(pk=data["a"].pk).update(homeroom_teacher=homeroom)
     titular = api(homeroom)
     remember(titular)
     refused = titular.post(PUSH, {"operations": [grades_op(data, uuid7())]})
-    assert refused.json()["results"][0]["error"]["code"] == "permission_denied"
+    assert refused.json()["results"][0]["error"]["code"] == "deadline_passed"
 
 
 def test_a_school_cannot_write_the_grades_of_another_school_offline(

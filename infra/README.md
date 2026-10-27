@@ -14,7 +14,7 @@
 | `certs/` | certificat d'origine Cloudflare (`origin.pem`, `origin.key`), hors Git | 4.6.3 |
 | `backup/sauvegarde.sh` | tâche de chaque nuit (crontab du compte, posé par `make deploy`) et `make backup` : sessions expirées effacées, dump de la base et archive des fichiers chiffrés par `gpg` (clé `BACKUP_PASSPHRASE` ; sans clé : purge seule), rotation 30 / 7 jours ; `make restore` : essai dans une base à part comparée table par table, `remplacer=oui` pour remettre en service (l'ancienne base est gardée) ; journal sur le serveur : `journalctl -t mwangaza` ; copie vers Backblaze B2 par `rclone` et ping d'alerte (4.7.2) ; `fetch` rapatrie la dernière copie | 4.7.1 |
 
-Essayer la production sur la machine : `make prod-local`, puis https://itig.localhost/app/ (certificat local de Caddy : accepter l'avertissement du navigateur) ; `make prod-local-stop` pour l'arrêter. La base de cet essai est vide (`make demo` est refusé hors développement).
+Essayer la production sur la machine : `make prod-local`, puis https://itig-demo.localhost/app/ (certificat local de Caddy : accepter l'avertissement du navigateur) ; `make prod-local-stop` pour l'arrêter. La base de cet essai est vide (`make demo` est refusé hors développement).
 
 
 

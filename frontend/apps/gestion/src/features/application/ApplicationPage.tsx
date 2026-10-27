@@ -126,7 +126,7 @@ export function ApplicationPage() {
               <LoadError error={table.error} onRetry={() => void table.refetch()} />
             ) : (
               <>
-                <Table stacked>
+                <Table stacked freeze>
                   <thead>
                     <tr>
                       <th>{t("application.student")}</th>

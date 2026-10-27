@@ -15,6 +15,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID
 
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -77,12 +78,13 @@ class Space:
 
 
 def homeroom_classes(user: User) -> list[ClassGroup]:
-    """Classes de l'année en cours dont le compte est le titulaire."""
+    """Classes de l'année en cours dont le compte est le titulaire ou le cotitulaire (NB.7)."""
     year = current_year()
     if year is None:
         return []
     return list(
-        ClassGroup.objects.filter(academic_year=year, homeroom_teacher=user)
+        ClassGroup.objects.filter(academic_year=year)
+        .filter(Q(homeroom_teacher=user) | Q(co_homeroom_teacher=user))
         .select_related("academic_year", "level", "track")
         .order_by("level__order", "level__name", "track__name", "section")
     )

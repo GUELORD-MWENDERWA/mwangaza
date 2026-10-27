@@ -26,7 +26,7 @@ MANAGE := cd backend && uv run python manage.py
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
 	test test-back test-front test-e2e apercu captures-site lint lint-back lint-front format api api-schema build \
 	prod-local prod-local-stop perf \
-	deploy-init deploy-check deploy-setup deploy deploy-superuser deploy-logs deploy-memoire deploy-backup deploy-ssh backup restore
+	deploy-init deploy-check deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-memoire deploy-backup deploy-ssh backup restore
 
 help: ## Afficher les commandes
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-15s %s\n", $$1, $$2}'
@@ -79,7 +79,7 @@ migrate: db-up ## Appliquer les migrations
 makemigrations: db-up ## Créer des migrations : make makemigrations app=finance name=exchange_rate
 	$(MANAGE) makemigrations $(app) $(if $(name),--name $(name))
 
-demo: db-up ## Créer ou remettre à jour les données fictives de démonstration (écoles itig et volcans)
+demo: db-up ## Créer ou remettre à jour les données fictives de démonstration (écoles itig-demo et volcans)
 	$(MANAGE) demo
 
 demo-excel: ## Liste d'élèves fictive (eleves-fictifs.xlsx, ~800 élèves) pour essayer l'import
@@ -143,10 +143,10 @@ api-schema: ## Seulement le schéma OpenAPI (CI du backend, sans pnpm)
 build: ## Construire les deux PWA
 	cd frontend && pnpm build
 
-prod-local: ## Essayer la production sur la machine (images du serveur, Caddy) : https://itig.localhost/app/
+prod-local: ## Essayer la production sur la machine (images du serveur, Caddy) : https://itig-demo.localhost/app/
 	mkdir -p infra/certs
 	$(PROD_LOCAL) up --build --detach --wait
-	@echo "Prêt : https://itig.localhost/app/ · https://parents.localhost/ · https://admin.localhost/admin/ (certificat local : accepter l'avertissement)"
+	@echo "Prêt : https://itig-demo.localhost/app/ · https://parents.localhost/ · https://admin.localhost/admin/ (certificat local : accepter l'avertissement)"
 
 perf: ## Mesurer les écrans lourds et l'impression sur make prod-local (n=5 utilisateurs) : tableau dans docs/claude/recherches/
 	python3 scripts/perf.py --users $(or $(n),5)
@@ -165,6 +165,9 @@ deploy-setup: ## Vrai serveur : le préparer, une seule fois
 
 deploy: ## Mettre en ligne main sur le vrai serveur ; make deploy ref=origin/<branche> pour une autre
 	$(DEPLOYER) deploy $(ref)
+
+deploy-demo: ## Vrai serveur : efface les espaces de démonstration de make demo et les recrée à neuf (itig-demo, volcans) ; refusé dès qu'un espace réel existe
+	$(DEPLOYER) demo
 
 deploy-superuser: ## Créer un compte super-admin sur le vrai serveur
 	$(DEPLOYER) superuser

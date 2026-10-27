@@ -146,28 +146,38 @@ NOTEBOOK, TOTAL_ONLY = "notebook", "total"
 def gradable_courses(user: User, permissions) -> QuerySet[Course]:
     """Cours de l'école courante que `user` voit dans les notes (liste, fiche de cotes, fiche
     imprimée, repêchage) : tous avec `grades.enter_any` ; avec `grades.enter`, ceux qu'il donne et
-    ceux de la classe dont il est titulaire. Les évaluations d'un cours : `notebook_access`."""
+    ceux de la classe dont il est titulaire ou cotitulaire (NB.7). Les évaluations d'un cours :
+    `notebook_access`."""
     courses = Course.objects.filter(is_taught=True)
     if GRADES_ENTER_ANY in permissions:
         return courses
     if GRADES_ENTER in permissions:
-        return courses.filter(Q(teacher=user) | Q(class_group__homeroom_teacher=user))
+        return courses.filter(
+            Q(teacher=user)
+            | Q(class_group__homeroom_teacher=user)
+            | Q(class_group__co_homeroom_teacher=user)
+        )
     return courses.none()
 
 
 def notebook_access(user: User, permissions, course: Course) -> str | None:
     """Ce que `user` fait dans la feuille de `course` (NB.1) : `NOTEBOOK` pour l'enseignant du
-    cours (ses évaluations et leurs notes) ; `TOTAL_ONLY` avec `grades.enter_any` (un total par
-    élève, pour un enseignant qui rend sa fiche sur papier) ; sinon `None` : le directeur des
-    études, le titulaire, le préfet n'ont que la fiche de cotes. Un remplaçant passe par la
-    réattribution du cours (charges, 8.1)."""
+    cours (ses évaluations et leurs notes) ; `TOTAL_ONLY` (un total par élève, pour un enseignant
+    qui rend sa fiche sur papier ou n'utilise pas l'application) avec `grades.enter_any`, et pour
+    le titulaire ou le cotitulaire de la classe (NB.7) ; sinon `None` : le directeur des études
+    sans ce droit, le préfet n'ont que la fiche de cotes. Une feuille qui a des devoirs reste au
+    seul enseignant (`notebook_private`). Un remplaçant passe par la réattribution du cours."""
     if not course.is_taught:
         return None
     if course.teacher_id == user.pk and (
         GRADES_ENTER in permissions or GRADES_ENTER_ANY in permissions
     ):
         return NOTEBOOK
-    return TOTAL_ONLY if GRADES_ENTER_ANY in permissions else None
+    if GRADES_ENTER_ANY in permissions:
+        return TOTAL_ONLY
+    if GRADES_ENTER in permissions and course.class_group.is_homeroom_of(user):
+        return TOTAL_ONLY
+    return None
 
 
 def _detailed(evaluations: list[Evaluation], maximum: int) -> bool:
@@ -329,7 +339,7 @@ def _returned(state: GradeSheet) -> HistoryEntry | None:
 def totals_sheet(course: Course, term: Term) -> Sheet:
     """Fiche de cotes (NB.1) : le total de chaque élève au maximum de la période, sans les
     évaluations ni leurs notes, et seulement une fois la feuille envoyée (avant : son état seul).
-    Lue par l'enseignant, le titulaire, `grades.enter_any` et `grades.validate`."""
+    Lue par l'enseignant, le titulaire et le cotitulaire, `grades.enter_any`, `grades.validate`."""
     result = sheet(course, term)
     result.evaluations = []
     sent = result.status in (GradeSheet.Status.SUBMITTED, GradeSheet.Status.VALIDATED)

@@ -193,3 +193,30 @@ def test_gestures_conflicts_and_undo(api, school, head, django_assert_max_num_qu
         assert client.post(f"{url}undo/").status_code == 200
     assert client.get(url).json()["entries"] == []
     assert client.post(f"{url}undo/").json()["code"] == "nothing_to_undo"
+
+
+def test_a_workshop_takes_four_hours_in_a_row(api, school, head):
+    """Un atelier se donne en longs blocs, comme l'école le veut (demandé le 2026-10-27), même si
+    l'école limite un cours à 2 h par jour ; un cours ordinaire reste à ses séances de 2 h."""
+    data = classes(school, head)
+    client = api(head)
+    new_grid(client)
+    workshop = new(data["a"], "Atelier électrique", 4, category=PRACTICAL)
+    french = new(data["a"], "Français", 4)
+    draft = client.post(DRAFTS, {"name": "Brouillon"}).json()
+    url = f"{DRAFTS}{draft['id']}/entries/"
+    placed = client.post(url, place(workshop, 1, 1, 4))
+    assert placed.status_code == 201, placed.json()
+    state = placed.json()
+    assert "course_day_over" not in codes(state)
+    assert all(row["course"] != str(workshop.pk) for row in state["left"])
+    assert client.post(url, place(french, 2, 1, 3)).json()["code"] == "not_due"
+    # Séances choisies par l'école : 2 + 2 d'affilée le même jour, sans conflit.
+    with use_school(school):
+        workshop.lesson_pattern, workshop.weekly_hours = "2+2+3", 7
+        workshop.save(update_fields=["lesson_pattern", "weekly_hours"])
+    entry = next(e for e in state["entries"] if e["course"] == str(workshop.pk))
+    client.delete(f"{url}{entry['id']}/")
+    client.post(url, place(workshop, 3, 1, 2))
+    state = client.post(url, place(workshop, 3, 3, 2)).json()
+    assert "course_day_over" not in codes(state)

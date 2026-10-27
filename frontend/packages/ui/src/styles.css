@@ -234,6 +234,48 @@
   }
 }
 
+/* Tableau figé (`<Table freeze>`) : on remplit un long tableau sans perdre de vue le nom de
+   l'élève ni le titre des colonnes. Le tableau défile dans sa carte, jusqu'à la hauteur de l'écran
+   moins la barre du haut et le pied de la carte ; au téléphone, un tableau aussi empilé reste une
+   liste de cartes (rien de figé). */
+@layer components {
+  .tbl-freeze-wrap {
+    max-height: calc(100dvh - 12rem);
+  }
+  .tbl-freeze thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .tbl-freeze th:first-child,
+  .tbl-freeze td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--color-card);
+    box-shadow: inset -1px 0 0 var(--color-line);
+  }
+  .tbl-freeze thead th:first-child {
+    z-index: 3;
+    background: var(--color-table-head);
+  }
+  .tbl-freeze tbody tr:hover td:first-child,
+  .tbl-freeze tr[aria-selected="true"] td:first-child {
+    background: var(--color-table-head);
+  }
+  @media screen and (width < 600px) {
+    .tbl-freeze-wrap:has(.tbl-stacked) {
+      max-height: none;
+    }
+    .tbl-stacked.tbl-freeze td:first-child,
+    .tbl-stacked.tbl-freeze th:first-child {
+      position: static;
+      box-shadow: none;
+      background: transparent;
+    }
+  }
+}
+
 /* Tableau « empilé » au téléphone (`<Table stacked>`, grandes listes consultées au téléphone :
    élèves, impayés) : chaque ligne devient une carte ; la 1re cellule en est le titre ; une cellule
    `data-label` montre son libellé à gauche et sa valeur à droite. */

@@ -3038,7 +3038,7 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * @description Déclare les bulletins de la période prêts (titulaire de la classe) : 409
+         * @description Déclare les bulletins de la période prêts (le titulaire, pas le cotitulaire) : 409
          *     `sheets_missing` tant qu'une fiche n'est pas validée. Journal, notification
          *     `report_cards_ready` à ceux qui valident les notes.
          */
@@ -5912,6 +5912,12 @@ export interface components {
             copy_fees: boolean;
         };
         /**
+         * @description * `notebook` - notebook
+         *     * `total` - total
+         * @enum {string}
+         */
+        AccessEnum: "notebook" | "total";
+        /**
          * @description * `auth.login` - Logged in
          *     * `account.password_changed` - Password changed
          *     * `account.totp_enabled` - Two-factor authentication turned on
@@ -6829,6 +6835,8 @@ export interface components {
             /** @description Élèves inscrits et actifs (effectif). */
             readonly student_count: number;
             readonly homeroom_teacher: components["schemas"]["Person"] | null;
+            /** @description Cotitulaire (NB.7). */
+            readonly co_homeroom_teacher: components["schemas"]["Person"] | null;
         };
         ClassGroupCreateRequest: {
             /** Format: uuid */
@@ -6843,6 +6851,11 @@ export interface components {
              * @description Titulaire (`id` du compte).
              */
             homeroom_teacher?: string | null;
+            /**
+             * Format: uuid
+             * @description Cotitulaire (NB.7) : complète les fiches de cotes de la classe avec le titulaire ; 400 `same_as_homeroom` si c'est le titulaire.
+             */
+            co_homeroom_teacher?: string | null;
             /** Format: uuid */
             academic_year: string;
         };
@@ -7886,7 +7899,7 @@ export interface components {
             modules: components["schemas"]["ModulesEnum"][];
             /** @description Cachet et signatures posés sur les documents que la Gestion imprime (DOC.1). */
             documents: components["schemas"]["DocumentSigners"];
-            /** @description Titulaire d'une classe de l'année en cours : menu « Ma classe » (NB.3). */
+            /** @description Titulaire ou cotitulaire d'une classe de l'année en cours : menu « Ma classe » (NB.3, NB.7). */
             homeroom: boolean;
         };
         /**
@@ -8687,7 +8700,7 @@ export interface components {
             name: string;
             /** @description Cours qu'il donne, ceux de la classe dont il est titulaire, ou tous (`grades.enter_any`). */
             courses: components["schemas"]["GradingListCourse"][];
-            /** @description Le compte est titulaire de la classe (tableau de la classe, 8.3.6). */
+            /** @description Le compte est titulaire ou cotitulaire de la classe (tableau de la classe, 8.3.6 ; NB.7). */
             is_homeroom: boolean;
         };
         GradingCourse: {
@@ -8709,6 +8722,13 @@ export interface components {
             readonly has_exam: boolean;
             /** @description Le compte donne ce cours : il tient son carnet (évaluations et notes, NB.1) ; sinon, fiche de cotes seulement, ou un total par élève avec `grades.enter_any`. */
             teaches: boolean;
+            /**
+             * @description `notebook` : son carnet ; `total` : un total par élève (`grades.enter_any`, titulaire ou cotitulaire de la classe, NB.7 ; refusé si la feuille a des devoirs) ; vide : fiche de cotes à lire seulement.
+             *
+             *     * `notebook` - notebook
+             *     * `total` - total
+             */
+            access: (components["schemas"]["AccessEnum"] | components["schemas"]["NullEnum"]) | null;
         };
         /** @description Saisie des points de l'école (`grading.py`, 8.4.0). */
         GradingSettings: {
@@ -8833,6 +8853,8 @@ export interface components {
             /** Format: uuid */
             id: string;
             name: string;
+            /** @description Titulaire (sinon cotitulaire, NB.7 : il complète, sans déclarer les bulletins prêts). */
+            is_titular: boolean;
         };
         HomeroomCourse: {
             course: components["schemas"]["BoardCourse"];
@@ -10203,6 +10225,11 @@ export interface components {
              * @description Titulaire (`id` du compte).
              */
             homeroom_teacher?: string | null;
+            /**
+             * Format: uuid
+             * @description Cotitulaire (NB.7) : complète les fiches de cotes de la classe avec le titulaire ; 400 `same_as_homeroom` si c'est le titulaire.
+             */
+            co_homeroom_teacher?: string | null;
         };
         /**
          * @description Un compte vu par le super-admin. Il change les noms, le téléphone (l'identifiant de
@@ -10980,7 +11007,7 @@ export interface components {
             permissions: string[];
         };
         /**
-         * @description * `owner` - Owner
+         * @description * `owner` - Lead administrator
          *     * `technical` - Technical
          *     * `support` - Support
          *     * `commercial` - Sales

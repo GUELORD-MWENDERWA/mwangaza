@@ -484,7 +484,7 @@ export function DeliberationPage() {
                 )}
                 {!year && sessionTable(board.results, board.kind === "period")}
                 {year && (
-                  <Table stacked>
+                  <Table stacked freeze>
                     <thead>
                       <tr>
                         <th>{t("deliberation.student")}</th>

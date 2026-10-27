@@ -1,5 +1,5 @@
 # Développement : tout Mwangaza en une commande (`make dev`).
-# Gestion : http://itig.localhost:5173/app/ · Portail : http://localhost:5174/ · Console : http://admin.localhost:5175/ · API : http://localhost:8000/api/
+# Gestion : http://itig-demo.localhost:5173/app/ · Portail : http://localhost:5174/ · Console : http://admin.localhost:5175/ · API : http://localhost:8000/api/
 name: mwangaza-dev
 
 x-backend: &backend

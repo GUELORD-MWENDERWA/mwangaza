@@ -94,8 +94,8 @@ def test_a_demo_school_is_deleted_entirely_and_the_other_school_keeps_every_row(
     call_command("demo")
     platform_admin.refresh_from_db()  # `make demo` remet son mot de passe : session à refaire
     # L'ITIG joue ici l'espace réel, avec ses paiements : rien ne doit en partir.
-    School.objects.filter(code="itig").update(environment=School.Environment.LIVE)
-    itig, volcans = School.objects.get(code="itig"), School.objects.get(code="volcans")
+    School.objects.filter(code="itig-demo").update(environment=School.Environment.LIVE)
+    itig, volcans = School.objects.get(code="itig-demo"), School.objects.get(code="volcans")
     kept, gone = rows_per_model(itig), rows_per_model(volcans)
     assert gone["finance.Payment"] and gone["accounts.Membership_roles"]
     users = User.objects.count()

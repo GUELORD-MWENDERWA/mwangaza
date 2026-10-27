@@ -293,6 +293,7 @@ describe("Organisation scolaire (C1-C3)", () => {
       section: "b",
       capacity: 40,
       homeroom_teacher: null,
+      co_homeroom_teacher: null,
       academic_year: year.id,
     });
 

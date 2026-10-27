@@ -19,7 +19,7 @@ from apps.finance import services
 from apps.finance.models import Payment
 from apps.schools.models import School
 from apps.students.models import Enrollment
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     e = Enrollment.objects.get(student__matricule="${matricule}", status="active")
     payments = Payment.objects.filter(enrollment=e).order_by("receipt_number")
     receipts = payments.values_list("receipt_number", flat=True)
@@ -39,7 +39,7 @@ function serverClosing(): string {
     `from apps.core.tenancy import use_school
 from apps.finance.models import CashClosing
 from apps.schools.models import School
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     last = CashClosing.objects.filter(device__isnull=False).latest("created_at")
     lines = last.cash_session.closings.order_by("currency")
     print(" ".join(f"{c.currency}:{c.expected_minor}:{c.counted_minor}" for c in lines))`,
@@ -82,7 +82,7 @@ test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime 
   await page.getByRole("button", { name: /^Ouvrir la caisse C/ }).click();
   await expect(page.getByText(/Session ouverte à .* · 0 paiement$/)).toBeVisible();
 
-  const recorded = page.getByText(/^Paiement enregistré : reçu ITIG-P\d+-26-\d{6}\.$/);
+  const recorded = page.getByText(/^Paiement enregistré : reçu ITIG-DEMO-P\d+-26-\d{6}\.$/);
   async function collect(amount: string): Promise<string> {
     await page.getByLabel("Élève qui paie").fill(student.matricule);
     await page.getByRole("button", { name: new RegExp(student.matricule) }).click();
@@ -92,7 +92,7 @@ test("caissière sans réseau : ouvre sa caisse, encaisse deux fois, réimprime 
     await page.keyboard.press("F9");
     await page.keyboard.press("F9");
     await expect(recorded).toBeVisible();
-    return (await recorded.textContent())!.match(/ITIG-P\d+-26-\d{6}/)![0];
+    return (await recorded.textContent())!.match(/ITIG-DEMO-P\d+-26-\d{6}/)![0];
   }
 
   // Reçus imprimés aussitôt, numéros consécutifs de l'appareil, montant en lettres.

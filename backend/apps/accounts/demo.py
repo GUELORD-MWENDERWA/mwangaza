@@ -77,6 +77,9 @@ class DemoAccount:
     no_code: bool = False
     # Poste fictif du compte dans « Appareils connectés » (`sync/demo.py`).
     device: str = ""
+    # Écrit un par un dans la liste de `make demo` ; les enseignants de `TEACHER_POOL` sont
+    # résumés en une ligne.
+    listed: bool = True
 
 
 DEMO_ACCOUNTS = [
@@ -151,6 +154,72 @@ DEMO_ACCOUNTS = [
         device=CASH_DESK_PC,
     ),
 ]
+
+
+# Enseignants de l'ITIG de démonstration (demandé le 2026-10-27 : chaque cours a son
+# enseignant, comme dans une vraie école) : `+243 000 001 101` à `…140`, noms inventés.
+# `academics/demo.py` leur répartit les cours sans enseignant, 24 h par semaine au plus.
+POOL_SIZE = 40
+POOL_LAST = (
+    "Kahindo",
+    "Mumbere",
+    "Kavira",
+    "Masika",
+    "Muhindo",
+    "Kasereka",
+    "Kambale",
+    "Mbusa",
+    "Kakule",
+    "Paluku",
+    "Sikuli",
+    "Vahwere",
+    "Kyakimwa",
+    "Bahati",
+    "Musubao",
+    "Ngoy",
+    "Ilunga",
+    "Mutombo",
+    "Lukusa",
+    "Tshibangu",
+    "Kalala",
+    "Mwamba",
+    "Bisimwa",
+    "Cirhuza",
+)
+POOL_MIDDLE = ("Mathe", "Kasoki", "Kitsa", "Siku", "Kavugho", "Ndungo", "Mughole", "Zawadi")
+POOL_FIRST = (
+    "Jean-Marie",
+    "Esther",
+    "Pascal",
+    "Rachel",
+    "Emmanuel",
+    "Furaha",
+    "Daniel",
+    "Grâce",
+    "Jérémie",
+    "Solange",
+    "Moïse",
+    "Béatrice",
+    "Patient",
+    "Annie",
+    "Josué",
+    "Nadine",
+    "Héritier",
+    "Clarisse",
+)
+TEACHER_POOL = [
+    DemoAccount(
+        f"+243000001{101 + index}",
+        POOL_LAST[index % len(POOL_LAST)],
+        POOL_MIDDLE[index % len(POOL_MIDDLE)],
+        POOL_FIRST[index % len(POOL_FIRST)],
+        {"itig": "teacher"},
+        "enseignant",
+        listed=False,
+    )
+    for index in range(POOL_SIZE)
+]
+DEMO_ACCOUNTS += TEACHER_POOL
 
 
 def _reset_roles(space: DemoSpace) -> dict[str, Role]:

@@ -79,7 +79,9 @@ export function HomeroomPage() {
     <>
       <PageHeader
         title={t("homeroom.title")}
-        subtitle={t("homeroom.subtitle", { class: group.name })}
+        subtitle={t(group.is_titular ? "homeroom.subtitle" : "homeroom.subtitleCo", {
+          class: group.name,
+        })}
         actions={
           <div className="flex flex-wrap gap-3 text-left!">
             {data.classes.length > 1 && (
@@ -141,6 +143,7 @@ export function HomeroomPage() {
           <div className="mt-4">
             <Readiness
               data={data}
+              titular={group.is_titular}
               missing={missing.length}
               pending={ready.isPending}
               onDeclare={() => setConfirm(true)}
@@ -175,7 +178,7 @@ export function HomeroomPage() {
                       : t("homeroom.sheets.noCourse")}
                   </p>
                 ) : (
-                  <Table stacked>
+                  <Table stacked freeze>
                     <thead>
                       <tr>
                         <th>{t("homeroom.columns.course")}</th>
@@ -238,7 +241,7 @@ export function HomeroomPage() {
                 {!data.complete ? (
                   <p className="px-5 py-6 text-sm text-ink-2">{t("homeroom.check.later")}</p>
                 ) : (
-                  <Table stacked>
+                  <Table stacked freeze>
                     <thead>
                       <tr>
                         <th>{t("homeroom.columns.student")}</th>
@@ -361,12 +364,14 @@ export function HomeroomPage() {
 
 function Readiness({
   data,
+  titular,
   missing,
   pending,
   onDeclare,
   onWithdraw,
 }: {
   data: HomeroomData;
+  titular: boolean;
   missing: number;
   pending: boolean;
   onDeclare: () => void;
@@ -385,9 +390,11 @@ function Readiness({
       <Banner
         tone="ok"
         action={
-          <Button variant="outline" onClick={onWithdraw} disabled={pending}>
-            {t("homeroom.ready.withdraw")}
-          </Button>
+          titular && (
+            <Button variant="outline" onClick={onWithdraw} disabled={pending}>
+              {t("homeroom.ready.withdraw")}
+            </Button>
+          )
         }
       >
         <b>{t("homeroom.ready.title")}</b>{" "}
@@ -396,6 +403,15 @@ function Readiness({
           time: formatTime(data.ready_at, i18n.language, school.timezone),
           name: data.ready_by,
         })}
+      </Banner>
+    );
+  }
+  // Cotitulaire (NB.7) : il complète les fiches, le titulaire seul déclare les bulletins prêts.
+  if (!titular) {
+    return (
+      <Banner tone={data.complete ? "info" : "warn"} icon={data.complete ? undefined : "clock"}>
+        <b>{t(data.complete ? "homeroom.toDeclare.title" : "homeroom.pending.title")}</b>{" "}
+        {t("homeroom.coTitular", { count: missing })}
       </Banner>
     );
   }

@@ -94,8 +94,9 @@ def grades_of_report(report: report_cards.ClassReport) -> dict:
 
 
 def may_correct(user: User, permissions, group: ClassGroup) -> bool:
-    """Le titulaire de la classe, ou qui entre les notes de toutes les classes."""
-    return group.homeroom_teacher_id == user.pk or "grades.enter_any" in permissions
+    """Le titulaire ou le cotitulaire de la classe (NB.7), ou qui entre les notes de toutes les
+    classes."""
+    return group.is_homeroom_of(user) or "grades.enter_any" in permissions
 
 
 def _retained(enrollment: Enrollment, term: Term) -> str:

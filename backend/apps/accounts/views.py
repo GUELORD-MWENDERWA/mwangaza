@@ -161,11 +161,11 @@ def me_data(request: Request) -> dict:
             "permissions": sorted_permissions(access.permissions),
             "modules": request.school.modules,
             "documents": signatures.documents(request.school, here),
-            # Menu « Ma classe » (NB.3) : titulaire d'une classe de l'année en cours.
+            # Menu « Ma classe » (NB.3) : titulaire ou cotitulaire (NB.7) d'une classe de l'année.
             "homeroom": "academics" in request.school.modules
-            and ClassGroup.objects.filter(
-                academic_year__is_current=True, homeroom_teacher=user
-            ).exists(),
+            and ClassGroup.objects.filter(academic_year__is_current=True)
+            .filter(Q(homeroom_teacher=user) | Q(co_homeroom_teacher=user))
+            .exists(),
         }
     me = {
         "id": user.id,

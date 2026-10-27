@@ -13,7 +13,7 @@ function prepareSheet(): { course: string; term: string } {
 from apps.accounts.models import User
 from apps.core.tenancy import use_school
 from apps.schools.models import School, Term
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     teacher = User.objects.get(phone="+243000001008")
     course = Course.objects.filter(teacher=teacher).order_by("class_group__level__order", "class_group__section", "order").first()
     term = Term.objects.filter(academic_year=course.class_group.academic_year, kind="period").order_by("order").first()

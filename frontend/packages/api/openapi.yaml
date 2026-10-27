@@ -10034,7 +10034,7 @@ paths:
     post:
       operationId: homeroom_ready_create
       description: |-
-        Déclare les bulletins de la période prêts (titulaire de la classe) : 409
+        Déclare les bulletins de la période prêts (le titulaire, pas le cotitulaire) : 409
         `sheets_missing` tant qu'une fiche n'est pas validée. Journal, notification
         `report_cards_ready` à ceux qui valident les notes.
       tags:
@@ -18589,6 +18589,14 @@ components:
       required:
       - ends_on
       - starts_on
+    AccessEnum:
+      enum:
+      - notebook
+      - total
+      type: string
+      description: |-
+        * `notebook` - notebook
+        * `total` - total
     ActionEnum:
       enum:
       - auth.login
@@ -20625,6 +20633,12 @@ components:
           - $ref: '#/components/schemas/Person'
           readOnly: true
           nullable: true
+        co_homeroom_teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+          description: Cotitulaire (NB.7).
       required:
       - id
       - academic_year
@@ -20635,6 +20649,7 @@ components:
       - capacity
       - student_count
       - homeroom_teacher
+      - co_homeroom_teacher
     ClassGroupCreateRequest:
       type: object
       properties:
@@ -20659,6 +20674,12 @@ components:
           format: uuid
           nullable: true
           description: Titulaire (`id` du compte).
+        co_homeroom_teacher:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cotitulaire (NB.7) : complète les fiches de cotes de la classe
+            avec le titulaire ; 400 `same_as_homeroom` si c''est le titulaire.'
         academic_year:
           type: string
           format: uuid
@@ -22918,8 +22939,8 @@ components:
             imprime (DOC.1).
         homeroom:
           type: boolean
-          description: 'Titulaire d''une classe de l''année en cours : menu « Ma classe
-            » (NB.3).'
+          description: 'Titulaire ou cotitulaire d''une classe de l''année en cours
+            : menu « Ma classe » (NB.3, NB.7).'
       required:
       - code
       - name
@@ -24642,8 +24663,8 @@ components:
             ou tous (`grades.enter_any`).
         is_homeroom:
           type: boolean
-          description: Le compte est titulaire de la classe (tableau de la classe,
-            8.3.6).
+          description: Le compte est titulaire ou cotitulaire de la classe (tableau
+            de la classe, 8.3.6 ; NB.7).
       required:
       - id
       - name
@@ -24695,12 +24716,23 @@ components:
           description: 'Le compte donne ce cours : il tient son carnet (évaluations
             et notes, NB.1) ; sinon, fiche de cotes seulement, ou un total par élève
             avec `grades.enter_any`.'
+        access:
+          nullable: true
+          description: |-
+            `notebook` : son carnet ; `total` : un total par élève (`grades.enter_any`, titulaire ou cotitulaire de la classe, NB.7 ; refusé si la feuille a des devoirs) ; vide : fiche de cotes à lire seulement.
+
+            * `notebook` - notebook
+            * `total` - total
+          oneOf:
+          - $ref: '#/components/schemas/AccessEnum'
+          - $ref: '#/components/schemas/NullEnum'
       required:
       - id
       - name
       - period_max
       - has_exam
       - teaches
+      - access
     GradingSettings:
       type: object
       description: Saisie des points de l'école (`grading.py`, 8.4.0).
@@ -24971,9 +25003,14 @@ components:
           format: uuid
         name:
           type: string
+        is_titular:
+          type: boolean
+          description: 'Titulaire (sinon cotitulaire, NB.7 : il complète, sans déclarer
+            les bulletins prêts).'
       required:
       - id
       - name
+      - is_titular
     HomeroomCourse:
       type: object
       properties:
@@ -27761,6 +27798,12 @@ components:
           format: uuid
           nullable: true
           description: Titulaire (`id` du compte).
+        co_homeroom_teacher:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cotitulaire (NB.7) : complète les fiches de cotes de la classe
+            avec le titulaire ; 400 `same_as_homeroom` si c''est le titulaire.'
     PatchedConsoleAccountRequest:
       type: object
       description: |-
@@ -29397,7 +29440,7 @@ components:
       - finance
       type: string
       description: |-
-        * `owner` - Owner
+        * `owner` - Lead administrator
         * `technical` - Technical
         * `support` - Support
         * `commercial` - Sales

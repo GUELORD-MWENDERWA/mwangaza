@@ -523,9 +523,9 @@ class ClassGroupViewSet(_CrudViewSet):
         if getattr(self, "swagger_fake_view", False):
             return ClassGroup.all_schools.none()
         active = Q(enrollments__status="active")
-        queryset = ClassGroup.objects.select_related("level", "track", "homeroom_teacher").annotate(
-            student_count=Count("enrollments", filter=active)
-        )
+        queryset = ClassGroup.objects.select_related(
+            "level", "track", "homeroom_teacher", "co_homeroom_teacher"
+        ).annotate(student_count=Count("enrollments", filter=active))
         if self.action == "list":
             params = ClassGroupFilterSerializer(data=self.request.query_params)
             params.is_valid(raise_exception=True)
