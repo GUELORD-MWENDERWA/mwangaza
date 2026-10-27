@@ -113,7 +113,11 @@ export function WeekGrid(props: GridProps) {
     for (const entry of mine) {
       const start = rowOf(`L${entry.first}`);
       const end = rowOf(`L${entry.first + entry.length - 1}`);
-      rows.slice(start - 2, end - 1).forEach((row) => covered.add(row.key));
+      // Les heures couvertes ; pas la récréation : elle est pour tous et reste au milieu d'une
+      // longue séance (atelier de la 2e à la 7e heure, demandé le 2026-10-27).
+      rows
+        .slice(start - 2, end - 1)
+        .forEach((row) => row.kind === "lesson" && covered.add(row.key));
       cells.push(
         <Lesson
           key={entry.id}
@@ -146,7 +150,7 @@ export function WeekGrid(props: GridProps) {
             <div
               key={`${weekday}-${row.key}`}
               style={place}
-              className="rounded-md bg-gray-50 text-center text-xs leading-5 text-ink-3"
+              className="relative z-10 rounded-md border border-line bg-gray-50 text-center text-xs leading-5 text-ink-3"
             >
               {t("timetable.editor.break")}
             </div>,

@@ -236,6 +236,7 @@ Estimations tirées de `docs/claude/recherches/perf-impression-capacite-2026-10-
 
 | Date | Décision | Raison |
 |---|---|---|
+| 2026-10-27 | Bulletins : titulaire et cotitulaire pour leur classe ; la liste des élèves vient de `report-card-status/` (pas de `students.view` pour un enseignant) ; impression de l'horaire : une séance se coupe autour d'une récréation | Le titulaire tire les bulletins de sa classe ; la récréation est pour tous |
 | 2026-10-27 | Démonstration de la console remplie **une étape par tâche de fond**, reprise à `steps_done` | Une seule tâche (10 min, 384 Mo) ne suffisait plus pour la démo pleine sur le serveur de 2 Go |
 | 2026-10-27 | CI serveur : `makemigrations --check` après le lint ; démonstration du vrai serveur refaite par la console (« Remettre à zéro »), `make deploy-demo` réservé à un serveur d'essai | Un libellé de choix changé sans migration est passé inaperçu ; `make demo` réécrit l'identité de la plateforme |
 | 2026-10-27 | Cotitulaire = `ClassGroup.co_homeroom_teacher` (une clé, comme le titulaire) ; titulaire et cotitulaire ont l'accès « un total par élève » (`grades.notebook_access`) sur les cours de leur classe ; la liste des notes suit `access` du serveur | Une fiche rendue sur papier se saisit sans donner le droit « toutes les classes » ; le carnet d'un enseignant reste privé |

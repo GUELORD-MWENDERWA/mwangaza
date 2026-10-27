@@ -105,9 +105,10 @@ def lesson_text(kind: str, lesson: schedule.Lesson, row_start: time) -> dict:
 
 def table(grid: TimeGrid, kind: str, lessons: list[schedule.Lesson]) -> dict:
     """Le tableau d'une page : une ligne par heure ou récréation, une colonne par jour. La case de
-    départ d'une séance porte son texte et couvre les lignes de sa durée (récréation comprise,
-    `rowspan`) ; les lignes couvertes ne s'impriment pas. Une séance que la grille ne porte plus
-    est listée à part."""
+    départ d'une séance porte son texte et couvre les lignes de sa durée (`rowspan`) ; les lignes
+    couvertes ne s'impriment pas. Une récréation au milieu d'une séance (atelier de la 2e à la
+    7e heure) reste une récréation, pour tous : la séance se coupe autour d'elle (2026-10-27).
+    Une séance que la grille ne porte plus est listée à part."""
     days, rows = structure(grid)
     index = {row.key: i for i, row in enumerate(rows)}
     cells: list[list] = [[None] * len(days) for _ in rows]  # None : vide ; "skip" : couverte
@@ -119,13 +120,20 @@ def table(grid: TimeGrid, kind: str, lessons: list[schedule.Lesson]) -> dict:
             continue
         column, first = days.index(lesson.weekday), index[start]
         text = lesson_text(kind, lesson, rows[first].start)
-        if isinstance(cells[first][column], dict):  # cours en parallèle (groupes) : même case
-            cells[first][column]["lessons"].append(text)
-            continue
-        covered = [i for i, row in enumerate(rows) if start <= row.key <= end]
-        cells[first][column] = {"lessons": [text], "rowspan": len(covered)}
-        for i in covered[1:]:
-            cells[i][column] = "skip"
+        runs: list[list[int]] = [[]]
+        for i in range(first, index[end] + 1):
+            if rows[i].is_break:
+                runs.append([])
+            else:
+                runs[-1].append(i)
+        for run in filter(None, runs):
+            head = run[0]
+            if isinstance(cells[head][column], dict):  # cours en parallèle (groupes) : même case
+                cells[head][column]["lessons"].append(text)
+                continue
+            cells[head][column] = {"lessons": [text], "rowspan": len(run)}
+            for i in run[1:]:
+                cells[i][column] = "skip"
     return {
         "days": [str(DAY_NAMES[day - 1]) for day in days],
         "rows": [

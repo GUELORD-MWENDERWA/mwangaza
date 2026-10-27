@@ -21,6 +21,8 @@ export type MenuItem = {
   task: string;
   /** Seulement pour le titulaire d'une classe de l'année en cours (« Ma classe », NB.3). */
   homeroom?: boolean;
+  /** Droits qui suffisent au titulaire ou au cotitulaire d'une classe de l'année. */
+  homeroomPermissions?: Permission[];
   /** Module de l'école sans lequel l'écran ne sert à rien, en plus du droit (passage de classe :
    *  droit des élèves, décisions de la délibération). */
   module?: Schemas["ModulesEnum"];
@@ -126,6 +128,8 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         path: "report-cards",
         icon: "print",
         permissions: ["grades.enter_any", "grades.validate"],
+        // NB.8 : aussi le titulaire et le cotitulaire (`grades.enter`), pour leur classe.
+        homeroomPermissions: ["grades.enter"],
         task: "8.3.2",
       },
       {
@@ -323,6 +327,9 @@ export const MENU_ITEMS = MENU.flatMap(({ items }) => items);
 export function canOpen(me: Me, item: MenuItem): boolean {
   if (item.module && !me.school?.modules.includes(item.module)) return false;
   if (item.homeroom && !me.school?.homeroom) return false;
+  if (item.homeroomPermissions && me.school?.homeroom && can(me, item.homeroomPermissions)) {
+    return true;
+  }
   return item.permissions.length === 0 || can(me, item.permissions);
 }
 

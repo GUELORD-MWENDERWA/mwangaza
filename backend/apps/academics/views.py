@@ -57,6 +57,7 @@ from apps.core.kept import Keep
 from apps.schools import organisation
 from apps.schools.models import ClassGroup, Term
 from apps.schools.serializers import term_tree
+from apps.students.models import Enrollment
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 # Cours sans enseignant renvoyés en entier : les autres se voient classe par classe (une école de
@@ -463,26 +464,56 @@ class GradeDeadlineView(APIView):
         return Response(serializer.validated_data)
 
 
-@extend_schema(tags=["grades"])
-class ReportCardStatusView(APIView):
-    """Le bulletin de la classe peut-il s'imprimer ? (8.3.4) : mêmes droits que le bulletin."""
+class _ReportCardView(APIView):
+    """Bulletins d'une classe : `grades.enter_any`, `grades.validate`, ou le titulaire et le
+    cotitulaire de la classe (`grades.enter`, NB.8) pour leur classe seulement."""
 
     permission_classes = [HasSchoolPermission]
-    required_permission = (GRADES_ENTER_ANY, GRADES_VALIDATE)
+    required_permission = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
     required_module = "academics"
+
+    def class_group(self, request: Request, pk) -> ClassGroup:
+        # Manager de l'école de l'adresse : une classe d'une autre école est introuvable.
+        group = get_object_or_404(ClassGroup.objects.select_related("academic_year"), pk=pk)
+        permissions = school_access(request).permissions
+        if not permissions & {GRADES_ENTER_ANY, GRADES_VALIDATE} and not group.is_homeroom_of(
+            request.user
+        ):
+            raise PermissionDenied(
+                _(
+                    "Only the homeroom or co-homeroom teacher of this class prints its "
+                    "report cards."
+                ),
+                code="not_your_class",
+            )
+        return group
+
+
+@extend_schema(tags=["grades"])
+class ReportCardStatusView(_ReportCardView):
+    """Le bulletin de la classe peut-il s'imprimer ? (8.3.4) : mêmes droits que le bulletin."""
 
     @extend_schema(responses={200: ReportCardStatusSerializer, **ERRORS})
     def get(self, request: Request, pk) -> Response:
         """Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
-        qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`)."""
-        group = get_object_or_404(ClassGroup.objects.select_related("academic_year"), pk=pk)
+        qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`) ; et les élèves
+        de la classe, pour choisir le bulletin (sans le droit de lire tous les élèves)."""
+        group = self.class_group(request, pk)
         missing = report_cards.missing_sheets(group)
+        enrollments = (
+            Enrollment.objects.filter(class_group=group, status=Enrollment.Status.ACTIVE)
+            .select_related("student")
+            .order_by("student__last_name", "student__middle_name", "student__first_name")
+        )
         return Response(
             {
                 "missing_count": len(missing),
                 "missing": [
                     {"course": course.name, "term": grades.term_label(term)}
                     for course, term in missing[:MAX_MISSING_LISTED]
+                ],
+                "students": [
+                    {"enrollment": item.pk, "name": item.student.full_name} for item in enrollments
                 ],
             }
         )
@@ -497,13 +528,9 @@ MAX_MISSING_LISTED = 20
 
 
 @extend_schema(tags=["grades"])
-class ReportCardView(APIView):
-    """Bulletin d'un élève ou de toute la classe (8.3.2, 8.3.5) : `grades.enter_any` ou
-    `grades.validate`."""
-
-    permission_classes = [HasSchoolPermission]
-    required_permission = (GRADES_ENTER_ANY, GRADES_VALIDATE)
-    required_module = "academics"
+class ReportCardView(_ReportCardView):
+    """Bulletin d'un élève ou de toute la classe (8.3.2, 8.3.5) : `grades.enter_any`,
+    `grades.validate`, ou le titulaire et le cotitulaire de la classe (NB.8)."""
 
     @extend_schema(
         parameters=[ReportCardSerializer],
@@ -516,7 +543,7 @@ class ReportCardView(APIView):
         journal d'audit."""
         params = ReportCardSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
-        group = get_object_or_404(ClassGroup.objects.select_related("academic_year"), pk=pk)
+        group = self.class_group(request, pk)
         enrollment = params.validated_data.get("enrollment")
         report = report_cards.class_report(group)
         students = [s for s in report.students if not enrollment or s.enrollment.pk == enrollment]

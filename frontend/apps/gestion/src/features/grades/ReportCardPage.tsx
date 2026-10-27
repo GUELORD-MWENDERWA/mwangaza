@@ -19,15 +19,16 @@ import {
 import { useState } from "react";
 import { useSearchParams } from "react-router";
 
-import { studentName } from "../../lib/people";
+import { can } from "../../lib/permissions";
+import { useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
 import { DocumentPreview } from "../students/DocumentPreview";
-import { useStudents } from "../students/data";
 import { usePrintOptions } from "../printing/printOptions";
 import { DEFAULT_CARD_PRINT, reportCardUrl, useGrading, useReportStatus } from "./data";
 
 export function ReportCardPage() {
   const { t } = useTranslation();
+  const me = useCurrentMe();
   const grading = useGrading();
   // `?class=…` : une classe complète, depuis le suivi des notes (NB.2).
   const [params] = useSearchParams();
@@ -35,19 +36,24 @@ export function ReportCardPage() {
   const [search, setSearch] = useState("");
   const [enrollmentId, setEnrollmentId] = useState("");
   const [print, setPrint] = usePrintOptions("report-card", DEFAULT_CARD_PRINT);
-  const classes = grading.data?.classes ?? [];
+  // Le titulaire et le cotitulaire (NB.8) : les bulletins de leur classe seulement.
+  const everyClass = can(me, ["grades.enter_any", "grades.validate"]);
+  const classes = (grading.data?.classes ?? []).filter((item) => everyClass || item.is_homeroom);
   const groupId = classes.find((item) => item.id === classId)?.id ?? classes[0]?.id ?? "";
   const status = useReportStatus(groupId);
-  const students = useStudents({ class_group: groupId, search: search || undefined }, 1);
 
   if (grading.isPending) return <Skeleton label={t("common.loading")} />;
   if (grading.isError) {
     return <LoadError error={grading.error} onRetry={() => void grading.refetch()} />;
   }
 
-  const rows = (students.data?.results ?? []).filter((row) => row.enrollment);
-  const chosen = rows.find((row) => row.enrollment?.id === enrollmentId) ?? rows[0];
-  const enrollment = chosen?.enrollment?.id ?? "";
+  // Élèves de la classe, donnés avec l'état du bulletin (sans le droit de lire tous les élèves).
+  const wanted = search.trim().toLocaleLowerCase();
+  const rows = (status.data?.students ?? []).filter(
+    (row) => !wanted || row.name.toLocaleLowerCase().includes(wanted),
+  );
+  const chosen = rows.find((row) => row.enrollment === enrollmentId) ?? rows[0];
+  const enrollment = chosen?.enrollment ?? "";
   const missing = status.data?.missing_count ?? 0;
   const pdf = enrollment ? reportCardUrl(groupId, enrollment, "pdf", print) : "";
 
@@ -93,8 +99,8 @@ export function ReportCardPage() {
                 onChange={(event) => setEnrollmentId(event.target.value)}
               >
                 {rows.map((row) => (
-                  <option key={row.id} value={row.enrollment?.id}>
-                    {studentName(row)}
+                  <option key={row.enrollment} value={row.enrollment}>
+                    {row.name}
                   </option>
                 ))}
               </Select>

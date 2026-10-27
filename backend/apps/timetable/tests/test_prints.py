@@ -87,6 +87,14 @@ def test_content_of_each_document(school, head, api):
         ((_pk, page),) = prints.document(prints.GENERAL, version, None, one_sheet=True)
         assert len(page["sheets"]) == 1
 
+        # Séance de part et d'autre de la récréation : coupée autour, la récréation reste pour tous.
+        TimetableEntry.objects.filter(timetable=version, weekday=1, first=4).update(first=6)
+        TimetableEntry.objects.filter(timetable=version, weekday=1, first=1).update(first=3)
+        ((_pk, page),) = prints.document(prints.CLASS, version, data["a"].pk)
+        monday = [row["cells"][0] for row in page["rows"]]
+        assert (monday[2]["rowspan"], monday[3], monday[4]["rowspan"]) == (1, None, 1)
+        assert monday[4]["lessons"][0]["title"] == "Mathématique"
+
         # Lundi retiré de la grille après la publication : ses séances sont listées à part.
         TimeSlot.objects.filter(weekday=1).delete()
         ((_pk, page),) = prints.document(prints.CLASS, version, data["a"].pk)

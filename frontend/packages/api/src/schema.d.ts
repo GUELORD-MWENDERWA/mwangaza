@@ -1193,7 +1193,8 @@ export interface paths {
         };
         /**
          * @description Feuilles de notes pas encore validées pour les périodes commencées de la classe : tant
-         *     qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`).
+         *     qu'il en reste, le PDF du bulletin est refusé (409 `report_incomplete`) ; et les élèves
+         *     de la classe, pour choisir le bulletin (sans le droit de lire tous les élèves).
          */
         get: operations["class_groups_report_card_status_retrieve"];
         put?: never;
@@ -11527,6 +11528,13 @@ export interface components {
             missing_count: number;
             /** @description Les premières seulement. */
             missing: components["schemas"]["MissingSheet"][];
+            /** @description Élèves actifs de la classe, par nom (NB.8). */
+            students: components["schemas"]["ReportCardStudent"][];
+        };
+        ReportCardStudent: {
+            /** Format: uuid */
+            enrollment: string;
+            name: string;
         };
         /** @description Échéancier particulier (E4) : les versements remplacent ce qui reste dû pour ce frais. */
         RescheduleRequest: {

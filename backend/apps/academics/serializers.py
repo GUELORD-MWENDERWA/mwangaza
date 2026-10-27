@@ -546,11 +546,19 @@ class MissingSheetSerializer(serializers.Serializer):
     term = serializers.CharField()
 
 
+class ReportCardStudentSerializer(serializers.Serializer):
+    enrollment = serializers.UUIDField()
+    name = serializers.CharField()
+
+
 class ReportCardStatusSerializer(serializers.Serializer):
     """Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées."""
 
     missing_count = serializers.IntegerField()
     missing = MissingSheetSerializer(many=True, help_text="Les premières seulement.")
+    students = ReportCardStudentSerializer(
+        many=True, help_text="Élèves actifs de la classe, par nom (NB.8)."
+    )
 
 
 class GradeSheetPrintSerializer(PrintOptionsSerializer):

@@ -216,11 +216,23 @@ export function HomeroomPage() {
                             {below_half ?? "—"}
                           </td>
                           <td className="text-right">
-                            {(course.status === "submitted" || course.status === "validated") && (
+                            {course.status === "submitted" || course.status === "validated" ? (
                               <Button asChild size="sm" variant="outline">
                                 <Link to={`/grade-sheets/totals?course=${course.id}&term=${term}`}>
                                   <Icon name="file" size={14} />
                                   {t("homeroom.open")}
+                                </Link>
+                              </Button>
+                            ) : (
+                              // NB.7, NB.8 : fiche rendue à la main, le titulaire met un total par
+                              // élève (le carnet d'un enseignant qui a ses devoirs reste à lui).
+                              <Button asChild size="sm" variant="outline">
+                                <Link
+                                  to={`/grades?course=${course.id}&term=${term}`}
+                                  aria-label={t("homeroom.enterLabel", { course: course.name })}
+                                >
+                                  <Icon name="edit" size={14} />
+                                  {t("homeroom.enter")}
                                 </Link>
                               </Button>
                             )}
@@ -335,6 +347,12 @@ export function HomeroomPage() {
                       <Link to={sheets("ranking")}>
                         <Icon name="print" size={14} />
                         {t("homeroom.print.ranking")}
+                      </Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to={`/report-cards?class=${group.id}`}>
+                        <Icon name="print" size={14} />
+                        {t("homeroom.print.reportCards")}
                       </Link>
                     </Button>
                   </div>

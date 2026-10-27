@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 10:45+0200\n"
+"POT-Creation-Date: 2026-10-27 13:24+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -204,11 +204,11 @@ msgstr "Seconde session"
 msgid "End of the year"
 msgstr "Fin d'année"
 
-#: apps/academics/demo.py:573
+#: apps/academics/demo.py:590
 msgid "Improved behaviour after a talk with the parents"
 msgstr "Comportement amélioré après un entretien avec les parents"
 
-#: apps/academics/demo.py:583
+#: apps/academics/demo.py:600
 msgid "Very attentive in class, grade raised by the homeroom teacher"
 msgstr "Très attentif en classe, cote relevée par le titulaire"
 
@@ -1906,35 +1906,42 @@ msgstr "Toute l'école"
 msgid "Deliberation deviations"
 msgstr "Écarts de délibération"
 
-#: apps/academics/views.py:112
+#: apps/academics/views.py:113
 msgid "Placing courses in the timetable needs the timetable right."
 msgstr ""
 "Placer les cours dans l'horaire demande le droit sur l'emploi du temps."
 
-#: apps/academics/views.py:264
+#: apps/academics/views.py:265
 msgid "Only the teacher of this course sees its evaluations."
 msgstr "Seul l'enseignant de ce cours voit ses évaluations."
 
-#: apps/academics/views.py:332
+#: apps/academics/views.py:333
 msgid "You cannot read the grade sheet of this course."
 msgstr "Vous ne pouvez pas lire la fiche de cotes de ce cours."
 
-#: apps/academics/views.py:414
+#: apps/academics/views.py:415
 msgid "This course does not exist."
 msgstr "Ce cours n'existe pas."
 
-#: apps/academics/views.py:493
+#: apps/academics/views.py:484
+msgid ""
+"Only the homeroom or co-homeroom teacher of this class prints its report "
+"cards."
+msgstr ""
+"Seuls le titulaire et le cotitulaire de la classe impriment ses bulletins."
+
+#: apps/academics/views.py:524
 msgid ""
 "Some courses have no validated grades yet: the report card cannot be printed."
 msgstr ""
 "Des cours n'ont pas encore de notes validées : le bulletin ne peut pas être "
 "imprimé."
 
-#: apps/academics/views.py:607
+#: apps/academics/views.py:634
 msgid "You cannot print the table of this class."
 msgstr "Vous ne pouvez pas imprimer le tableau de cette classe."
 
-#: apps/academics/views.py:613
+#: apps/academics/views.py:640
 msgid "You do not enter the grades of this course."
 msgstr "Vous ne saisissez pas les notes de ce cours."
 

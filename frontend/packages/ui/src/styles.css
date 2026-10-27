@@ -259,6 +259,7 @@
     z-index: 3;
     background: var(--color-table-head);
   }
+  .tbl-freeze tfoot td:first-child,
   .tbl-freeze tbody tr:hover td:first-child,
   .tbl-freeze tr[aria-selected="true"] td:first-child {
     background: var(--color-table-head);
