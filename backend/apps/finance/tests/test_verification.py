@@ -125,6 +125,12 @@ def test_a_receipt_printed_offline_is_authentic_until_synced_unless_altered(
         _response, html = page(api, payment_id, **{**claim, **altered})
         assert 'data-state="forged"' in html and "200,00" not in html
     assert page(api, payment_id, host="beta.localhost", **claim)[0].status_code == 404
+    # Code d'école avec un tiret (`itig-demo`) : le numéro se lit après le code.
+    School.objects.filter(pk=school.pk).update(code="alpha-goma")
+    dashed_id = uuid7()
+    dashed = till.claim(dashed_id, f"ALPHA-GOMA-{till.prefix}-26-000010", 1790000000, 2000)
+    assert 'data-state="pending"' in page(api, dashed_id, host="alpha-goma.localhost", **dashed)[1]
+    School.objects.filter(pk=school.pk).update(code="alpha")
 
     with use_school(school):
         SyncOperation.objects.create(

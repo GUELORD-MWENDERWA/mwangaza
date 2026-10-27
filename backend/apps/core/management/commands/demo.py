@@ -6,7 +6,7 @@ console (`apps/core/demo.py`, où chaque tâche qui ajoute un modèle ajoute son
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.db import connection, transaction
 
 from apps.accounts.demo import (
     DEMO_TEAM,
@@ -37,7 +37,13 @@ def _erase_demo_spaces() -> list[str]:
     (`deletion.run`), sans attendre la tâche de fond. Jamais un espace réel ni d'essai."""
     erased = []
     codes = {*DEMO_CODES.values(), "itig"}
-    for school in School.objects.filter(code__in=codes, environment=School.Environment.DEMO):
+    spaces = list(School.objects.filter(code__in=codes, environment=School.Environment.DEMO))
+    if spaces:
+        # Statistiques à jour d'abord : sur une base fraîche (essai, test), l'effacement des notes
+        # par paquets tirait un plan de plusieurs minutes par paquet.
+        with connection.cursor() as cursor:
+            cursor.execute("ANALYZE")
+    for school in spaces:
         School.objects.filter(pk=school.pk).update(status=School.Status.DELETING)
         deletion.run(str(school.pk))
         erased.append(school.code)

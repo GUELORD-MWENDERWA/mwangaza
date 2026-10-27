@@ -30,8 +30,9 @@ from apps.ai.models import AiAllowance
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
+from apps.core.management.commands.demo import _erase_demo_spaces
 from apps.core.models import DemoRequest, PlatformSettings
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
@@ -363,19 +364,12 @@ def rerun_puts_everything_back(demo, settings) -> None:
 def server_run(settings) -> None:
     """Essai sur plusieurs appareils, serveur de démonstration en ligne : mot de passe propre au
     serveur, ni clé commune ni code demandé (comptes partagés entre visiteurs), et plus de
-    super-admin fictif, dont le mot de passe et la clé sont écrits dans le dépôt. `make
-    deploy-demo` (`--fresh`) : les espaces effacés entièrement, puis recréés à neuf."""
+    super-admin fictif, dont le mot de passe et la clé sont écrits dans le dépôt."""
     settings.DEBUG = False
     settings.DEMO_PASSWORD = "propre-au-serveur"
     enable_totp(User.objects.get(phone="+243000001007"))
-    before = set(School.objects.values_list("pk", flat=True))
 
-    call_command("demo", "--fresh")
-
-    assert set(School.objects.values_list("code", flat=True)) == {"itig-demo", "volcans"}
-    assert not before & set(School.objects.values_list("pk", flat=True))
-    with use_school(School.objects.get(code="itig-demo")):
-        assert Student.objects.count() == 800
+    call_command("demo")
 
     cashier = User.objects.get(phone="+243000001005")
     assert authenticate(username="0000001005", password="propre-au-serveur") == cashier
@@ -384,6 +378,24 @@ def server_run(settings) -> None:
     assert not services.totp_required(cashier)
     for admin in User.objects.filter(phone__in=["+243000000000", "+243000000002"]):
         assert not admin.is_platform_admin and not admin.is_active and not admin.platform_roles
+
+
+def test_fresh_erases_the_demo_spaces_only():
+    """`make deploy-demo` (`demo --fresh`) : les espaces de `make demo` (et l'ancien `itig` encore
+    en démonstration) effacés entièrement avant d'être recréés ; jamais un espace d'essai ni un
+    espace réel, même sous un de ces codes. Sans `make demo` : une petite base suffit."""
+    old = SchoolFactory(code="itig", environment=School.Environment.DEMO)
+    demo = SchoolFactory(code="volcans", environment=School.Environment.DEMO)
+    trial = SchoolFactory(code="itig-demo", environment=School.Environment.TEST)
+    with use_school(old):
+        Level.objects.create(name="1re", cycle="secondary_technical", order=1)
+
+    with use_all_schools():
+        erased = _erase_demo_spaces()
+
+    assert sorted(erased) == ["itig", "volcans"]
+    assert list(School.objects.values_list("pk", flat=True)) == [trial.pk]
+    assert not Level.all_schools.filter(school_id__in=[old.pk, demo.pk]).exists()
 
 
 def test_demo_is_refused_outside_development_and_the_essai(settings):
