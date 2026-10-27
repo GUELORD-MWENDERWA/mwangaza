@@ -5,7 +5,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
-from apps.accounts import services
+from apps.accounts import services, staff_import
 from apps.accounts.login import Step
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.modules import MODULE_CHOICES
@@ -354,3 +354,88 @@ class PasswordSerializer(serializers.Serializer):
                 _("Choose a password different from the current one."), code="same_password"
             )
         return value
+
+
+# Import du personnel (R.1)
+
+STAFF_IMPORT_ISSUES = [
+    "missing_name",
+    "missing_phone",
+    "invalid_phone",
+    "demo_number",
+    "demo_space_number",
+    "duplicate_phone",
+    "missing_role",
+    "unknown_role",
+    "already_member",
+]
+
+
+class StaffImportUploadSerializer(serializers.Serializer):
+    file = serializers.FileField(help_text="Excel (.xlsx) ou CSV, 150 personnes au plus.")
+    expected = serializers.IntegerField(
+        required=False,
+        min_value=1,
+        help_text="Nombre de lignes prêtes de l'aperçu : présent, les comptes sont créés.",
+    )
+
+
+class StaffImportIssueSerializer(serializers.Serializer):
+    code = serializers.ChoiceField(choices=STAFF_IMPORT_ISSUES)
+    line = serializers.IntegerField(
+        required=False, help_text="`duplicate_phone` : ligne qui porte déjà ce numéro."
+    )
+    role = serializers.CharField(required=False, help_text="`unknown_role` : rôle écrit.")
+
+
+class StaffImportLineSerializer(serializers.Serializer):
+    line = serializers.IntegerField(source="number", help_text="Numéro de la ligne du fichier.")
+    name = serializers.CharField(help_text="Nom, post-nom et prénom tels qu'écrits.")
+    phone_text = serializers.CharField(help_text="Téléphone tel qu'il est écrit.")
+    roles_text = serializers.CharField(help_text="Rôles tels qu'ils sont écrits.")
+    status = serializers.ChoiceField(
+        choices=[
+            ("ready", "Ready"),
+            ("skipped", "Already in this school: left as is"),
+            ("error", "Error: not recorded"),
+        ]
+    )
+    issues = StaffImportIssueSerializer(many=True)
+
+
+class StaffImportAddedSerializer(serializers.Serializer):
+    id = serializers.UUIDField(help_text="Appartenance créée (lettres d'accès).")
+    name = serializers.CharField()
+    phone = serializers.CharField()
+    roles = serializers.ListField(child=serializers.CharField())
+    existing_account = serializers.BooleanField(
+        help_text="Le numéro avait déjà un compte : la personne garde son mot de passe."
+    )
+    letter = serializers.BooleanField(help_text="Une lettre d'accès lui donnera son mot de passe.")
+
+
+class StaffImportSerializer(serializers.Serializer):
+    """Aperçu d'un fichier du personnel, ou son résultat une fois enregistré."""
+
+    recorded = serializers.BooleanField()
+    ready_count = serializers.IntegerField(help_text="Lignes prêtes (ou enregistrées).")
+    skipped_count = serializers.IntegerField(help_text="Déjà dans l'école : ignorées.")
+    error_count = serializers.IntegerField(help_text="Lignes en erreur : jamais enregistrées.")
+    lines = StaffImportLineSerializer(many=True, help_text="Toutes les lignes lues.")
+    added = StaffImportAddedSerializer(many=True, help_text="Personnes ajoutées (enregistré).")
+
+
+class AccessLettersQuerySerializer(serializers.Serializer):
+    ids = serializers.CharField(
+        help_text="Appartenances séparées par des virgules (50 au plus) : celles qui attendent "
+        "leur lettre reçoivent un nouveau mot de passe provisoire."
+    )
+
+    def validate_ids(self, value):
+        ids = [part.strip() for part in value.split(",") if part.strip()]
+        field = serializers.UUIDField()
+        if not ids or len(ids) > staff_import.MAX_LETTERS:
+            raise serializers.ValidationError(
+                _("Choose between 1 and %(max)s people.") % {"max": staff_import.MAX_LETTERS}
+            )
+        return [field.to_internal_value(part) for part in ids]
