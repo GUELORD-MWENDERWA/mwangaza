@@ -4,6 +4,7 @@ seulement ; comptes partagés protégés ; remise à zéro (même identifiant, n
 sans toucher à un autre espace. Réservé au super-admin : `test_console_schools.py`."""
 
 import re
+from contextlib import suppress
 
 import pytest
 from django.contrib.auth import authenticate
@@ -146,13 +147,22 @@ def test_only_a_ready_console_demonstration_has_a_sheet_and_a_reset(
         raise RuntimeError("panne")
 
     monkeypatch.setattr(demo, "STEPS", [lambda spaces: None, broken])
-    with pytest.raises(RuntimeError):
+    # Une tâche par étape : la seconde échoue dans sa propre tâche.
+    with suppress(RuntimeError):
         demonstrations.fill(created["id"])
     failed = console.get(f"{SCHOOLS}{created['id']}/").json()["demonstration"]
     assert (failed["state"], failed["steps_done"], failed["steps_total"]) == ("failed", 1, 2)
 
-    # Supprimé pendant qu'il se remplit : le remplissage s'arrête, puis l'espace part.
+    # Reprise là où on en était (tâche perdue, travailleur arrêté) : seule l'étape 2 se refait.
+    ran = []
+    monkeypatch.setattr(demo, "STEPS", [lambda spaces: ran.append(1), lambda s: ran.append(2)])
     Demonstration.objects.update(state="filling")
+    demonstrations.fill(created["id"])
+    resumed = console.get(f"{SCHOOLS}{created['id']}/").json()["demonstration"]
+    assert ran == [2] and (resumed["state"], resumed["steps_done"]) == ("ready", 2)
+
+    # Supprimé pendant qu'il se remplit : le remplissage s'arrête, puis l'espace part.
+    Demonstration.objects.update(state="filling", steps_done=0)
 
     def deleted_meanwhile(spaces):
         School.objects.filter(pk=created["id"]).update(status=School.Status.DELETING)

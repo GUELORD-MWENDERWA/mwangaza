@@ -166,7 +166,7 @@ deploy-setup: ## Vrai serveur : le préparer, une seule fois
 deploy: ## Mettre en ligne main sur le vrai serveur ; make deploy ref=origin/<branche> pour une autre
 	$(DEPLOYER) deploy $(ref)
 
-deploy-demo: ## Vrai serveur : efface les espaces de démonstration de make demo et les recrée à neuf (itig-demo, volcans) ; refusé dès qu'un espace réel existe
+deploy-demo: ## Serveur où DJANGO_DEMO_DATA est activé (essai) : espaces de make demo effacés puis recréés ; refusé sur le vrai serveur (console : « Remettre à zéro »)
 	$(DEPLOYER) demo
 
 deploy-superuser: ## Créer un compte super-admin sur le vrai serveur

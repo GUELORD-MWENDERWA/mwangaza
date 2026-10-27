@@ -104,12 +104,16 @@ def _space(record: Demonstration) -> DemoSpace:
 
 
 def fill(school_id: str) -> None:
-    """Tâche de fond : écrit les données fictives de l'espace, une transaction par étape, et note
-    l'avancement. Attend son tour si un espace s'efface encore (remise à zéro). Une erreur laisse
-    l'espace « en échec » : on le remet à zéro ou on le supprime."""
+    """Tâche de fond : écrit **une** étape des données fictives de l'espace (une transaction),
+    note l'avancement, puis demande la suivante. Une tâche par étape (2026-10-27) : chacune a son
+    temps, et le travailleur des tâches lourdes rend sa mémoire entre deux (calcul de l'horaire,
+    ~800 élèves et leurs notes ne tenaient pas en 10 minutes ni en 384 Mo d'un seul tenant) ;
+    une étape interrompue se reprend là où on en était. Attend son tour si un espace s'efface
+    encore (remise à zéro). Une erreur laisse l'espace « en échec » : on le remet à zéro ou on le
+    supprime."""
     from apps.core import demo  # les données fictives de toutes les apps
 
-    leaving = False
+    leaving = more = False
     with deletion.only_one(wait=True):
         mine = Demonstration.objects.filter(school_id=school_id, state=State.FILLING)
         record = mine.select_related("school").first()
@@ -122,8 +126,8 @@ def fill(school_id: str) -> None:
                 raise _Leaving
 
         try:
-            on_step(0, len(demo.STEPS))  # déjà parti ? on ne remplit rien
-            demo.fill([_space(record)], on_step)
+            on_step(record.steps_done, len(demo.STEPS))  # déjà parti ? on ne remplit rien
+            done = demo.fill([_space(record)], on_step, start=record.steps_done, count=1)
         except _Leaving:
             leaving = True
         except Exception:
@@ -131,10 +135,14 @@ def fill(school_id: str) -> None:
             logger.exception("Espace de démonstration %s : remplissage en échec", school_id)
             raise
         else:
-            mine.update(state=State.READY, updated_at=timezone.now())
+            more = done < len(demo.STEPS)
+            if not more:
+                mine.update(state=State.READY, updated_at=timezone.now())
     if leaving:
         # Sa suppression n'a pas pu commencer pendant le remplissage : c'est son tour.
         tasks.delete_space.delay(school_id)
+    elif more:
+        tasks.fill_demonstration.delay(school_id)
 
 
 def _record(school: School) -> Demonstration:

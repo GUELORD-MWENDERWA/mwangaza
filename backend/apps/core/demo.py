@@ -66,20 +66,30 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
 ]
 
 
-def fill(spaces: list[DemoSpace], on_step: Callable[[int, int], None] | None = None) -> None:
+def fill(
+    spaces: list[DemoSpace],
+    on_step: Callable[[int, int], None] | None = None,
+    *,
+    start: int = 0,
+    count: int | None = None,
+) -> int:
     """Écrit les données fictives dans `spaces` (écoles déjà créées, de démonstration), ou les
     remet comme au départ. Une transaction par étape : des écritures courtes, et `on_step(faites,
     total)` dit où on en est (avancement affiché par la console). Tâche de la plateforme : la base
     laisse voir toutes les écoles (S.6, codes famille uniques partout), chaque étape travaille
-    dans l'école de chaque espace (`use_school`)."""
+    dans l'école de chaque espace (`use_school`). `start`, `count` : seulement ces étapes (la
+    console en fait une par tâche de fond, `demonstrations.fill`) ; rend le nombre d'étapes faites
+    en tout."""
     for space in spaces:
         if not space.school.is_demo:
             raise ValueError(f"{space.school.code} n'est pas un espace de démonstration.")
-    for done, step in enumerate(STEPS, start=1):
+    steps = STEPS[start:] if count is None else STEPS[start : start + count]
+    for done, step in enumerate(steps, start=start + 1):
         with use_all_schools(), transaction.atomic():
             step(spaces)
         if on_step is not None:
             on_step(done, len(STEPS))
+    return start + len(steps)
 
 
 DEMO_SUPPORT_PHONE = "+243000000999"
