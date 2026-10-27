@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Le proxy de développement reproduit la production : l'API est sur la même origine que
-// l'application, et le sous-domaine de l'école (itig.localhost) arrive tel quel à Django.
+// l'application, et le sous-domaine de l'école (itig-demo.localhost) arrive tel quel à Django.
 async function loadConfig() {
   vi.resetModules();
   return (await import("./vite.config")).default;

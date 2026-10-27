@@ -3,7 +3,7 @@ import { expect, type Page } from "@playwright/test";
 import { totp } from "./django";
 
 export const PASSWORD = "mwangaza-demo";
-export const ITIG = "http://itig.localhost:5173/app/";
+export const ITIG = "http://itig-demo.localhost:5173/app/";
 export const VOLCANS = "http://volcans.localhost:5173/app/";
 
 /** Connexion avec le numéro et le mot de passe (étape 1). */

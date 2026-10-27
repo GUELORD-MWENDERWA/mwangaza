@@ -206,6 +206,7 @@ class GradingView(_GradesView):
         year = params.validated_data.get("academic_year") or organisation.current_year()
         if year is None:
             return Response({"academic_year": None, "terms": [], "classes": []})
+        permissions = school_access(request).permissions
         listed = (
             self.gradable()
             .filter(class_group__academic_year=year)
@@ -227,10 +228,11 @@ class GradingView(_GradesView):
                     "id": group.pk,
                     "name": group.name,
                     "courses": [],
-                    "is_homeroom": group.homeroom_teacher_id == request.user.pk,
+                    "is_homeroom": group.is_homeroom_of(request.user),
                 },
             )
             course.teaches = course.teacher_id == request.user.pk
+            course.access = grades.notebook_access(request.user, permissions, course)
             entry["courses"].append(course)
         data = {
             "academic_year": year.pk,
@@ -249,9 +251,9 @@ def _course_and_term(pk, term_pk) -> tuple[Course, Term]:
 
 
 class _SheetView(_GradesView):
-    """Carnet de l'enseignant (NB.1) : l'enseignant du cours ; `grades.enter_any` n'y saisit
-    qu'un total par élève ; tout autre compte (directeur des études, titulaire) : 403
-    `not_your_course`, il lit la fiche de cotes."""
+    """Carnet de l'enseignant (NB.1) : l'enseignant du cours ; `grades.enter_any`, le titulaire
+    et le cotitulaire de la classe (NB.7) n'y saisissent qu'un total par élève ; tout autre
+    compte : 403 `not_your_course`, il lit la fiche de cotes."""
 
     def objects(self, pk, term_pk) -> tuple[Course, Term, bool]:
         course, term = _course_and_term(pk, term_pk)
@@ -600,7 +602,7 @@ class GradeSheetPrintView(_GradesView):
         if kind in ("class", "ranking"):
             if not (
                 permissions & {GRADES_ENTER_ANY, GRADES_VALIDATE}
-                or group.homeroom_teacher_id == request.user.pk
+                or group.is_homeroom_of(request.user)
             ):
                 raise PermissionDenied(_("You cannot print the table of this class."))
         else:

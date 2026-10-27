@@ -66,6 +66,8 @@ Les cours, leurs heures et leurs enseignants **existent déjà** (8.1 : `Course.
 
 **Profil horaire de l'enseignant** (`TeacherTimetableProfile` [T], un par membre du personnel qui a des cours) : charge **maximale** par semaine (contrat ; vide = pas de limite), heures **au plus par jour**, **indisponibilités** (jours entiers ou plages horaires : « ne vient pas le vendredi », « enseigne ailleurs le mardi matin » ; gardées en heures, pas en numéros d'heure, pour valoir dans toutes les grilles — EDT.1b). La règle de l'école « N heures du même cours par jour » ne descend jamais sous la plus longue séance d'un cours (un atelier de 6 h d'un bloc reste possible) ; `max_per_day` du cours, lui, ne peut pas être plus court que sa plus longue séance (refusé à l'enregistrement). Un enseignant **partagé avec une autre école** se règle ici par ses indisponibilités : on ne lit **jamais** l'horaire d'une autre école (isolation, règle 1).
 
+
+**Ateliers (2026-10-27)** : un cours pratique se donne en séances aussi longues que l'école le veut (« 6 », « 4+3 », « 2+2+3 »…), sans la règle « au plus N h du même cours par jour » (sauf un maximum saisi pour le cours) ; sans séances saisies, des blocs de 4 h au plus, à parts égales (`placement.proposed`).
 ## 5. Règles (contraintes) (EDT.1c)
 
 Une règle = une ligne `TimetableRule` [T] : `kind` (liste fermée ci-dessous), `params` (JSON **vérifié par un schéma propre à chaque kind**), `strength` (`hard` obligatoire / `soft` souhait, avec un poids 1 à 10), `active`, `source` (`manual`, `ai`), `text` (la phrase d'origine, si l'IA l'a traduite), auteur. Les réglages des §§ 3 et 4 sont aussi des règles pour le solveur, mais rangés là où l'école les cherche.

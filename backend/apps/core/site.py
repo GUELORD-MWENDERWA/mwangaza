@@ -55,7 +55,7 @@ OG_LOCALES = {"fr": "fr_FR", "en": "en_US"}
 # Code d'une école = son sous-domaine (lettres minuscules, chiffres, tirets).
 SCHOOL_CODE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$")
 # Espace de démonstration montré par les captures (`make captures-site`).
-EXAMPLE_SCHOOL = "itig"
+EXAMPLE_SCHOOL = "itig-demo"
 # Bande de chiffres de l'accueil : seulement à partir de ce nombre d'écoles réelles.
 STATS_MIN_SCHOOLS = 5
 STATS_CACHE = "site:stats"

@@ -145,7 +145,7 @@ function Totals({ data }: { data: TotalsSheet }) {
               </CardTitle>
               <span className="text-sm text-ink-3">{t("gradeTotals.studentsHelp")}</span>
             </CardHeader>
-            <Table stacked>
+            <Table stacked freeze>
               <thead>
                 <tr>
                   <th>{t("gradeTotals.columns.student")}</th>

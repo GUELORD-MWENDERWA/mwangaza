@@ -21,7 +21,7 @@ from apps.schools.models import School
 from apps.students.models import Enrollment, Family
 from apps.notifications.models import Announcement, Summons
 from apps.finance.models import Payment
-itig = School.objects.get(code="itig")
+itig = School.objects.get(code="itig-demo")
 with use_school(itig):
     enrollment = Enrollment.objects.filter(status="active").order_by("created_at").first()
     print(json.dumps({
@@ -80,6 +80,6 @@ test("documents imprimables", async ({ browser }) => {
     await head.goto(`${ITIG.replace("/app/", "")}${path}`);
     await head.screenshot({ path: `${OUT}${name}.png`, fullPage: true });
   }
-  await head.goto(`http://itig.localhost:8000/v/${id.payment}`);
+  await head.goto(`http://itig-demo.localhost:8000/v/${id.payment}`);
   await head.screenshot({ path: `${OUT}verification-recu.png`, fullPage: true });
 });

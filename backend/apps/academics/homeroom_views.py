@@ -39,6 +39,10 @@ class ReadySerializer(serializers.Serializer):
 class HomeroomClassSerializer(serializers.Serializer):
     id = serializers.UUIDField()
     name = serializers.CharField()
+    is_titular = serializers.BooleanField(
+        help_text="Titulaire (sinon cotitulaire, NB.7 : il complète, sans déclarer les bulletins "
+        "prêts)."
+    )
 
 
 class HomeroomCourseSerializer(serializers.Serializer):
@@ -93,14 +97,29 @@ class _HomeroomView(APIView):
     required_module = "academics"
     required_permission = (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE)
 
-    def own_class(self, request: Request, pk) -> ClassGroup:
+    def own_class(self, request: Request, pk, *, titular: bool = False) -> ClassGroup:
+        """Le titulaire ou le cotitulaire (NB.7) ; `titular` : le titulaire seul (bulletins
+        prêts)."""
         # Manager de l'école de l'adresse : une classe d'une autre école est introuvable.
         group = get_object_or_404(
             ClassGroup.objects.select_related("academic_year", "level", "track"), pk=pk
         )
-        if group.homeroom_teacher_id != request.user.pk:
+        allowed = (
+            group.homeroom_teacher_id == request.user.pk
+            if titular
+            else group.is_homeroom_of(request.user)
+        )
+        if not allowed:
             raise PermissionDenied(_("Only the homeroom teacher of this class opens its space."))
         return group
+
+
+def _class(group: ClassGroup, request: Request) -> dict:
+    return {
+        "id": group.pk,
+        "name": group.name,
+        "is_titular": group.homeroom_teacher_id == request.user.pk,
+    }
 
 
 @extend_schema(tags=["grades"])
@@ -116,7 +135,7 @@ class HomeroomView(_HomeroomView):
         params.is_valid(raise_exception=True)
         classes = homeroom.homeroom_classes(request.user)
         data = {
-            "classes": [{"id": c.pk, "name": c.name} for c in classes],
+            "classes": [_class(c, request) for c in classes],
             "class_group": None,
             "terms": [],
             "term": None,
@@ -135,7 +154,7 @@ class HomeroomView(_HomeroomView):
         term = next((t for t in terms if t.pk == params.validated_data.get("term")), None)
         term = term or board.default_term(group.academic_year, terms)
         data.update(
-            class_group={"id": group.pk, "name": group.name},
+            class_group=_class(group, request),
             terms=term_tree(group.academic_year),
             term=term.pk if term else None,
         )
@@ -157,12 +176,12 @@ class HomeroomReadyView(_HomeroomView):
     def _target(self, request: Request) -> tuple[ClassGroup, Term]:
         serializer = ReadySerializer(data=request.data or request.query_params)
         serializer.is_valid(raise_exception=True)
-        group = self.own_class(request, serializer.validated_data["class_group"])
+        group = self.own_class(request, serializer.validated_data["class_group"], titular=True)
         return group, get_object_or_404(Term, pk=serializer.validated_data["term"])
 
     @extend_schema(request=ReadySerializer, responses={204: None, 409: ErrorSerializer, **ERRORS})
     def post(self, request: Request) -> Response:
-        """Déclare les bulletins de la période prêts (titulaire de la classe) : 409
+        """Déclare les bulletins de la période prêts (le titulaire, pas le cotitulaire) : 409
         `sheets_missing` tant qu'une fiche n'est pas validée. Journal, notification
         `report_cards_ready` à ceux qui valident les notes."""
         group, term = self._target(request)

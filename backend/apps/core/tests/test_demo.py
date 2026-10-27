@@ -22,7 +22,7 @@ from apps.academics.models import (
     PlaceConfirmation,
 )
 from apps.accounts import attempts, services, totp
-from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET
+from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET, POOL_SIZE
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
@@ -30,14 +30,15 @@ from apps.ai.models import AiAllowance
 from apps.audit.models import AuditLog
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
+from apps.core.management.commands.demo import _erase_demo_spaces
 from apps.core.models import DemoRequest, PlatformSettings
-from apps.core.tenancy import use_school
+from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
-from apps.timetable import checks, exams, schedule
+from apps.timetable import checks, exams, placement, schedule
 from apps.timetable.models import (
     ExamSchedule,
     Room,
@@ -75,9 +76,9 @@ def test_demo_creates_the_spaces_puts_them_back_and_runs_on_a_server(demo, setti
 
 def created(demo) -> None:
     """Première fois : écoles, comptes, élèves, organisation, double authentification."""
-    itig, volcans = demo["itig"], demo["volcans"]
-    assert set(demo) == {"itig", "volcans"}
-    assert itig.name == "ITIG DON BOSCO"
+    itig, volcans = demo["itig-demo"], demo["volcans"]
+    assert set(demo) == {"itig-demo", "volcans"}
+    assert itig.name == "ITIG-DEMO"
     assert itig.primary_color == "#003C6C"
     assert itig.status == School.Status.TRIAL
     assert volcans.status == School.Status.ACTIVE
@@ -104,11 +105,11 @@ def created(demo) -> None:
         assert AiAllowance.objects.get().monthly_credits == 5_000
     with use_school(volcans):
         assert AiAllowance.objects.get().uses == ["timetable_constraints"]
-    # EDT.1b : ateliers en deux séances dans un atelier, disponibilités ; EDT.3a : les classes
-    # techniques ramenées sous leur grille, plus rien de rouge avant le calcul.
+    # EDT.1b : ateliers en longs blocs (4 h au plus, proposés) dans un atelier, disponibilités ;
+    # EDT.3a : les classes techniques ramenées à leur grille, plus rien de rouge avant le calcul.
     with use_school(itig):
-        atelier = Course.objects.filter(name="Atelier électrique", weekly_hours__gte=4).first()
-        assert atelier.room_kind == "workshop" and "+" in atelier.lesson_pattern
+        atelier = Course.objects.filter(name="Atelier électrique", weekly_hours__gte=7).last()
+        assert atelier.room_kind == "workshop" and placement.sessions(atelier) == [4, 3]
         assert TeacherTimetableProfile.objects.count() == 2
         report = checks.run(AcademicYear.objects.get(is_current=True))
         assert report["errors"] == 0, report["issues"]
@@ -132,6 +133,11 @@ def created(demo) -> None:
         )
         draft = checks.draft(run.result)
         assert draft["errors"] == 0 and draft["left"] == [], draft["issues"]
+        # Toutes les places de la grille occupées, sans trou ; chaque cours a son enseignant.
+        assert {(row["placed"], row["due"]) for row in draft["classes"]} == {(39, 39)}
+        assert not Course.objects.filter(
+            class_group__academic_year__is_current=True, is_taught=True, teacher__isnull=True
+        ).exists()
         kept = [entry for entry in draft["entries"] if entry.course_id == locked.course_id]
         assert (1, 2, 6) in {(entry.weekday, entry.first, entry.length) for entry in kept}
         # EDT.5 : l'horaire des épreuves de la 1re période, publié et sans conflit.
@@ -170,23 +176,26 @@ def created(demo) -> None:
     with use_school(itig):
         year = AcademicYear.objects.get(is_current=True)
         classes = board.board(board.default_term(year, board.graded_terms(year)))
-        assert any(group.complete for group in classes)
+        # Toutes les classes notées complètes, sauf celles qui attendent une fiche envoyée et la
+        # classe tenue sur papier (8.4.7).
+        assert sum(group.complete for group in classes) >= 18
         states = {course.status for group in classes for course in group.courses}
-        assert {"validated", "submitted", "in_progress", "not_started"} <= states
+        assert {"validated", "submitted", "not_started"} <= states
         # Espace du titulaire (NB.3) : sa classe attend une seule fiche, puis « Bulletins prêts ».
         titular = next(group for group in classes if group.name == "3HT ÉLECTRICITÉ A")
         assert [c.status for c in titular.courses].count("submitted") == 1
         assert {c.status for c in titular.courses} == {"validated", "submitted"}
         assert titular.ready_at is None
 
-    # Un compte par rôle, chaque école nomme ses rôles à sa façon : pas de « Directeur » à l'ITIG.
+    # Un compte par rôle (et 40 enseignants), chaque école nomme ses rôles à sa façon : pas de
+    # « Directeur » à l'ITIG.
     names = [
         role
         for membership in Membership.objects.filter(school=itig)
         for role in roles_of(membership.user.phone, itig)
     ]
     with use_school(itig):
-        assert sorted(names) == sorted(Role.objects.values_list("name", flat=True))
+        assert sorted(set(names)) == sorted(Role.objects.values_list("name", flat=True))
         assert Role.objects.get(name="Chef d'atelier").permissions == ["students.view"]
     with use_school(volcans):
         assert not Role.objects.filter(name="Chef d'atelier").exists()
@@ -204,7 +213,7 @@ def created(demo) -> None:
     support = authenticate(username="0000000002", password=DEMO_PASSWORD)
     assert support.platform_roles == ["support"] and support.totp_enabled
     teacher = User.objects.get(phone="+243000001008")
-    assert {m.school.code for m in teacher.memberships.all()} == {"itig", "volcans"}
+    assert {m.school.code for m in teacher.memberships.all()} == {"itig-demo", "volcans"}
     assert roles_of(teacher.phone, volcans) == {"Enseignant"}
 
     # Double authentification : équipe de la plateforme, directeur, directeur des études (ITIG :
@@ -279,7 +288,7 @@ def rerun_puts_everything_back(demo, settings) -> None:
 
     from django.core.files.base import ContentFile
 
-    itig, volcans = demo["itig"], demo["volcans"]
+    itig, volcans = demo["itig-demo"], demo["volcans"]
     media = Path(settings.MEDIA_ROOT)
     volcans.logo.save("logo.png", ContentFile(b"\x89PNG\r\n\x1a\n" + b"\x00" * 8))
     stored = volcans.logo.name
@@ -308,7 +317,7 @@ def rerun_puts_everything_back(demo, settings) -> None:
 
     # Logos : celui ajouté aux Volcans effacé ; logo public de l'ITIG, un seul fichier gardé.
     volcans.refresh_from_db()
-    itig = School.objects.get(code="itig")
+    itig = School.objects.get(code="itig-demo")
     assert not volcans.logo
     assert not (media / stored).exists()
     assert itig.logo.name.endswith(".png")
@@ -326,7 +335,7 @@ def rerun_puts_everything_back(demo, settings) -> None:
     assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 2
     assert School.objects.count() == 2
     assert User.objects.filter(phone="+243000001001").count() == 1
-    assert Membership.objects.filter(school=itig).count() == 10
+    assert Membership.objects.filter(school=itig).count() == 10 + POOL_SIZE
     with use_school(itig):
         assert Role.objects.count() == 10
         cashier = Role.objects.get(name="Caissier")
@@ -369,6 +378,24 @@ def server_run(settings) -> None:
     assert not services.totp_required(cashier)
     for admin in User.objects.filter(phone__in=["+243000000000", "+243000000002"]):
         assert not admin.is_platform_admin and not admin.is_active and not admin.platform_roles
+
+
+def test_fresh_erases_the_demo_spaces_only():
+    """`make deploy-demo` (`demo --fresh`) : les espaces de `make demo` (et l'ancien `itig` encore
+    en démonstration) effacés entièrement avant d'être recréés ; jamais un espace d'essai ni un
+    espace réel, même sous un de ces codes. Sans `make demo` : une petite base suffit."""
+    old = SchoolFactory(code="itig", environment=School.Environment.DEMO)
+    demo = SchoolFactory(code="volcans", environment=School.Environment.DEMO)
+    trial = SchoolFactory(code="itig-demo", environment=School.Environment.TEST)
+    with use_school(old):
+        Level.objects.create(name="1re", cycle="secondary_technical", order=1)
+
+    with use_all_schools():
+        erased = _erase_demo_spaces()
+
+    assert sorted(erased) == ["itig", "volcans"]
+    assert list(School.objects.values_list("pk", flat=True)) == [trial.pk]
+    assert not Level.all_schools.filter(school_id__in=[old.pk, demo.pk]).exists()
 
 
 def test_demo_is_refused_outside_development_and_the_essai(settings):

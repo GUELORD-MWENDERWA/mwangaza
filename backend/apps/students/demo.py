@@ -128,7 +128,7 @@ def _student(
 
 def _create(space: DemoSpace, shared_guardians: list[Guardian]) -> None:
     school, count = space.school, DEMO_STUDENTS[space.profile]
-    rng = random.Random(f"mwangaza-demo-{school.code}")
+    rng = random.Random(f"mwangaza-demo-{space.profile}")
     year = AcademicYear.objects.get(is_current=True)
     groups = list(ClassGroup.objects.filter(academic_year=year).select_related("level", "track"))
     # Places dans les classes, au hasard, jusqu'au nombre d'élèves voulu.

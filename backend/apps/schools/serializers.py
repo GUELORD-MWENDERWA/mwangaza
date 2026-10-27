@@ -537,6 +537,9 @@ class PersonSerializer(serializers.ModelSerializer):
 class ClassGroupSerializer(serializers.ModelSerializer):
     name = serializers.CharField(read_only=True, help_text="« 3e Électricité A ».")
     homeroom_teacher = PersonSerializer(read_only=True, allow_null=True)
+    co_homeroom_teacher = PersonSerializer(
+        read_only=True, allow_null=True, help_text="Cotitulaire (NB.7)."
+    )
     student_count = serializers.IntegerField(
         read_only=True, help_text="Élèves inscrits et actifs (effectif)."
     )
@@ -553,6 +556,7 @@ class ClassGroupSerializer(serializers.ModelSerializer):
             "capacity",
             "student_count",
             "homeroom_teacher",
+            "co_homeroom_teacher",
         ]
         read_only_fields = fields
 
@@ -579,6 +583,12 @@ class ClassGroupUpdateSerializer(serializers.Serializer):
     )
     homeroom_teacher = HomeroomTeacherField(
         required=False, allow_null=True, help_text="Titulaire (`id` du compte)."
+    )
+    co_homeroom_teacher = HomeroomTeacherField(
+        required=False,
+        allow_null=True,
+        help_text="Cotitulaire (NB.7) : complète les fiches de cotes de la classe avec le "
+        "titulaire ; 400 `same_as_homeroom` si c'est le titulaire.",
     )
 
 

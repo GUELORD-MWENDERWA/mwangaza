@@ -34,7 +34,9 @@ PHONE_IN_USE = ApiError(
     409,
 )
 ALREADY_IN_TEAM = ApiError("already_in_team", _("This person is already in the team."), 409)
-LAST_OWNER = ApiError("last_owner", _("The platform must keep at least one owner."), 409)
+LAST_OWNER = ApiError(
+    "last_owner", _("The platform must keep at least one lead administrator."), 409
+)
 
 
 def members() -> QuerySet[User]:

@@ -1,0 +1,9 @@
+# NB.7 — Saisie par le titulaire, le cotitulaire ou un tiers ; démonstration au niveau de l'application (#400)
+
+**But** (demande du 2026-10-27, avant la première école réelle) : une fiche de cotes rendue sur papier se saisit par le titulaire, un cotitulaire ou le DE ; les tableaux à remplir gardent les noms visibles ; la démonstration montre l'application telle qu'elle est (bulletins complets, horaire sans trou, un enseignant par cours, ateliers en longs blocs) ; `itig` libre pour la vraie école ; console sans « Propriétaire ».
+**Fait** : `ClassGroup.co_homeroom_teacher` ; `notebook_access` → `TOTAL_ONLY` pour titulaire et cotitulaire ; `access` dans `/api/grading/` ; « Ma classe » du cotitulaire (sans « Bulletins prêts ») ; `<Table freeze>` ; cours pratique sans limite par jour, blocs de 4 h proposés ; démo : `itig-demo` (migration), 39 h par classe, 40 enseignants, P1 sans case vide et validée ; `demo --fresh` + `make deploy-demo` ; « Administrateur principal ».
+**Hors périmètre** : import du personnel (R.1, ajoutée à la file) ; EDT.5b.
+**Critères** : titulaire/cotitulaire saisissent et envoient un total ; carnet d'un enseignant refusé (`notebook_private`) ; cotitulaire refusé sur « Bulletins prêts » ; autre école : 404 ; démo : (39, 39) par classe, aucun cours sans enseignant, ≥ 18 classes complètes.
+**Tests** : `test_cotitular.py`, `test_a_workshop_takes_four_hours_in_a_row`, scénario de `test_demo.py` (`--fresh` compris), tests d'écrans (organisation, notes, Ma classe, équipe).
+**Documents** : 03, 04, 05 (NB.7, R.1, file), 06, 07 § 4, spec EDT § 4, reference, A-FAIRE (00, § 11), maquettes + README, skills deployer et design, CLAUDE.md (adresses).
+**Regard senior** : un cotitulaire par classe (une clé) suffit ; la démo coûte ≈ +30 s en CI (calcul de 20 s, trois fois) pour un horaire réaliste ; R.1 ajoutée car ~60 comptes à créer un par un ralentiraient la première école.

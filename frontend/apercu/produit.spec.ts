@@ -90,7 +90,7 @@ function gradedSheet(): string {
     `from apps.academics.models import GradeSheet
 from apps.core.tenancy import use_school
 from apps.schools.models import School
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     sheets = GradeSheet.objects.filter(term__kind="period").order_by(
         "term__order", "course__class_group__level__order", "course__order")
     sheet = (sheets.filter(status="draft").first()

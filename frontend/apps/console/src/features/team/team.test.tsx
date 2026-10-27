@@ -131,7 +131,7 @@ describe("Équipe de la plateforme", () => {
     // Le serveur garde au moins un propriétaire : son refus s'affiche, la fenêtre reste ouverte.
     await user.click(screen.getAllByRole("button", { name: "Rôles" })[0] as HTMLElement);
     const roles = await screen.findByRole("dialog");
-    await user.click(within(roles).getByRole("checkbox", { name: /Propriétaire/ }));
+    await user.click(within(roles).getByRole("checkbox", { name: /Administrateur principal/ }));
     await user.click(within(roles).getByRole("checkbox", { name: /Technique/ }));
     await user.click(within(roles).getByRole("button", { name: "Enregistrer" }));
     expect(await within(roles).findByText("last_owner")).toBeTruthy();

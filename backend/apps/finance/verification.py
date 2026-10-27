@@ -85,11 +85,13 @@ class Claim:
 def _offline_state(school: School, payment_id: UUID, claim: Claim) -> str:
     """Reçu pas (encore) sur le serveur : authentique s'il est signé par l'appareil dont le
     préfixe est dans son numéro (`ITIG-P1-26-000184`). Appareil inconnu ou déconnecté par
-    l'école, encaissement refusé à la synchronisation : inconnu."""
-    parts = claim.number.split("-")
-    if len(parts) != 4 or parts[0] != school.code.upper():
+    l'école, encaissement refusé à la synchronisation : inconnu. Le code de l'école peut avoir
+    des tirets (`ITIG-DEMO-P1-26-000184`) : le numéro se lit après lui."""
+    head = f"{school.code.upper()}-"
+    parts = claim.number.removeprefix(head).split("-")
+    if not claim.number.startswith(head) or len(parts) != 3:
         return UNKNOWN
-    device = Device.objects.filter(prefix=parts[1]).first()
+    device = Device.objects.filter(prefix=parts[0]).first()
     if device is None or device.revoked_at is not None:
         return UNKNOWN
     if SyncOperation.objects.filter(

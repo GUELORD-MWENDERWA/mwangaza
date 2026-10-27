@@ -79,11 +79,17 @@ class DemoSpace:
     with_logo: bool = False
 
 
+# Code (sous-domaine) des deux espaces de `make demo`, par profil : `itig-demo`, pour laisser
+# `itig` à la vraie école quand elle ouvre son espace (décision du 2026-10-27).
+DEMO_CODES = {"itig": "itig-demo", "volcans": "volcans"}
+
+
 def _make_demo_schools() -> dict[str, dict]:
+    """Par profil : nom, abonnement."""
     today = timezone.localdate()
     return {
         "itig": {
-            "name": "ITIG DON BOSCO",
+            "name": "ITIG-DEMO",
             "official_name": "INSTITUT TECHNIQUE INDUSTRIEL DE GOMA - ITIG DON BOSCO",
             "status": School.Status.TRIAL,
             "plan": "Essai",
@@ -136,7 +142,7 @@ def make_demo_refusal() -> str | None:
     if School.objects.filter(environment=School.Environment.LIVE).exists():
         return "Cette plateforme a un espace réel."
     taken = (
-        School.objects.filter(code__in=MAKE_DEMO_NUMBERS)
+        School.objects.filter(code__in=DEMO_CODES.values())
         .exclude(environment=School.Environment.DEMO)
         .values_list("code", flat=True)
     )
@@ -151,14 +157,16 @@ def create_demo_schools(*, password: str, shared_totp_key: bool) -> list[DemoSpa
     suspendus). Cherchés par code **et** type : le type d'un espace existant n'est jamais écrit
     (code pris par un autre type : `make_demo_refusal`, et la base refuse le doublon)."""
     spaces = []
-    for code, fields in _make_demo_schools().items():
+    for profile, fields in _make_demo_schools().items():
         school, _created = School.objects.update_or_create(
-            code=code,
+            code=DEMO_CODES[profile],
             environment=School.Environment.DEMO,
             defaults={**fields, "setup_completed_at": timezone.now(), "modules": ALL_MODULES},
         )
-        numbers = MAKE_DEMO_NUMBERS[code]
-        spaces.append(DemoSpace(school, code, numbers, password, shared_totp_key, with_logo=True))
+        numbers = MAKE_DEMO_NUMBERS[profile]
+        spaces.append(
+            DemoSpace(school, profile, numbers, password, shared_totp_key, with_logo=True)
+        )
     return spaces
 
 

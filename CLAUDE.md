@@ -102,7 +102,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | `make install` · `make hooks` | dépendances + contrôles pre-commit |
 | `make dev` · `make dev-local` · `make stop` · `make services` · `make reset-db` | tout dans Docker (PostgreSQL 5433, Redis, Django :8000, Gestion :5173, Portail :5174, Console :5175) ; ou sur la machine ; arrêter ; base et Redis seuls ; base effacée puis `migrate demo` |
 | `make migrate` · `make makemigrations app=<app> name=<nom>` | migrations |
-| `make demo` | données fictives : `itig` (800 élèves) et `volcans` (150), un compte par rôle (`0000001001`…, mot de passe `mwangaza-demo`), parent `0002000001` ; `make totp` : code de double authentification |
+| `make demo` | données fictives : `itig-demo` (800 élèves) et `volcans` (150), un compte par rôle (`0000001001`…, mot de passe `mwangaza-demo`), parent `0002000001` ; `make totp` : code de double authentification |
 | `make messages` | traductions du serveur ; **tout** traduit en français dans la même PR |
 | `make test-back` · `make test-front` · `make test-e2e` · `make lint` · `make format` | tests (en local : seulement le module touché, voir « Économie de tokens ») ; lint |
 | `make api` | schéma OpenAPI + types du client, après tout changement d'API (docstring de vue comprise) |
@@ -111,7 +111,7 @@ Outils : `uv` (Python, dans `~/.local/bin`), `pnpm` (via corepack), `make`, Dock
 | maquettes | `python3 maquettes/outils/maquettes.py menu` · `… index` ; `node maquettes/outils/captures.mjs <fichier.html>` |
 | GitHub Actions | lint, tests serveur et front, schéma à jour, build, parcours ; une PR ne lance que les contrôles de ses fichiers (`.github/scripts/changes.sh`) |
 
-Adresses en dev : Gestion `http://itig.localhost:5173/app/` (sous-domaine = code de l'école), Portail `http://localhost:5174/`, Console `http://admin.localhost:5175/` (super-admin), API `/api/…` par le proxy Vite, doc de l'API `/api/docs/` (`DEBUG`), administration Django `http://localhost:8000/admin/` (dépannage), site public de la plateforme `http://localhost:8000/` (7 pages en français et en anglais : `/ecoles/`, `/parents/`, `/modules/`, `/demonstration/`, `/trouver-mon-ecole/`, `/mentions-legales/`, et `/en/…` ; `/robots.txt`, `/sitemap.xml`, `/llms.txt`, image de partage `/partage/<page>-<langue>.jpg`). Chaque écran et chaque API : `docs/claude/reference.md` (à compléter à chaque nouvel écran ou API).
+Adresses en dev : Gestion `http://itig-demo.localhost:5173/app/` (sous-domaine = code de l'école), Portail `http://localhost:5174/`, Console `http://admin.localhost:5175/` (super-admin), API `/api/…` par le proxy Vite, doc de l'API `/api/docs/` (`DEBUG`), administration Django `http://localhost:8000/admin/` (dépannage), site public de la plateforme `http://localhost:8000/` (7 pages en français et en anglais : `/ecoles/`, `/parents/`, `/modules/`, `/demonstration/`, `/trouver-mon-ecole/`, `/mentions-legales/`, et `/en/…` ; `/robots.txt`, `/sitemap.xml`, `/llms.txt`, image de partage `/partage/<page>-<langue>.jpg`). Chaque écran et chaque API : `docs/claude/reference.md` (à compléter à chaque nouvel écran ou API).
 
 ## Façon de travailler
 
@@ -155,7 +155,7 @@ Côté utilisateur, la marche à suivre est dans `A-FAIRE.md` § 10 « Comment r
 
 ## Données de démonstration
 
-On travaille avec des données **fictives et réalistes**, en développement, dans les essais et sur le serveur de démonstration en ligne (mot de passe propre au serveur, ni double authentification ni équipe fictive de la plateforme) : `make demo` recrée, comme espaces de démonstration (`03` § 4 bis), l'école `itig` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
+On travaille avec des données **fictives et réalistes**, en développement, dans les essais et sur le serveur de démonstration en ligne (mot de passe propre au serveur, ni double authentification ni équipe fictive de la plateforme) : `make demo` recrée, comme espaces de démonstration (`03` § 4 bis), l'école `itig-demo` (démo : ~800 élèves avec familles, fratries et paiements sur plusieurs mois), une seconde école fictive `volcans`, plus petite, pour prouver l'isolation, et un compte par rôle (détail : `docs/07-a-fournir.md` § 4). Les vraies données, c'est l'école qui les saisit. Chaque tâche qui ajoute un modèle enrichit cette commande. Jamais de vraie donnée personnelle dans les données de démonstration ni dans les tests.
 
 ## Suivi du projet (obligatoire)
 

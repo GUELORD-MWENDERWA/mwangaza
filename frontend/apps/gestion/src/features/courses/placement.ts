@@ -16,9 +16,16 @@ export function parsePattern(text: string): number[] | null {
   return values.every((value) => value >= 1 && value <= MAX_SESSION) ? values : null;
 }
 
-/** Séances calculées : des blocs de 2 heures à partir de 4 heures, sinon des heures seules. */
-export function proposedPattern(hours: number): string {
+/** Séances calculées : des blocs de 2 heures à partir de 4 heures, sinon des heures seules ; un
+ *  cours pratique (atelier), des blocs de 4 heures au plus, à parts égales (comme le serveur). */
+export function proposedPattern(hours: number, practical = false): string {
   if (hours <= 0) return "";
+  if (practical) {
+    const count = Math.ceil(hours / 4);
+    const base = Math.floor(hours / count);
+    const extra = hours % count;
+    return Array.from({ length: count }, (_, index) => base + (index < extra ? 1 : 0)).join("+");
+  }
   const parts =
     hours >= 4
       ? [...Array<number>(Math.floor(hours / 2)).fill(2), ...(hours % 2 ? [1] : [])]

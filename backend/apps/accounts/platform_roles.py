@@ -46,7 +46,7 @@ OWNER = "owner"
 # Rôle → (libellé, droits). Les actions sans retour (arrêter un espace réel, l'équipe, l'identité)
 # restent au seul propriétaire.
 PLATFORM_ROLES: dict[str, tuple[Promise, frozenset[str]]] = {
-    OWNER: (_("Owner"), frozenset(PLATFORM_PERMISSIONS)),
+    OWNER: (_("Lead administrator"), frozenset(PLATFORM_PERMISSIONS)),
     "technical": (_("Technical"), frozenset({HEALTH_VIEW, AUDIT_VIEW, SCHOOLS_VIEW})),
     "support": (
         _("Support"),

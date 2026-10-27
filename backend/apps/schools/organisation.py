@@ -533,23 +533,24 @@ def homeroom_candidates():
     ).order_by("last_name", "middle_name", "first_name")
 
 
-def _check_teacher(user: User | None) -> None:
+def _check_teacher(user: User | None, field: str = "homeroom_teacher") -> None:
     if user is None:
         return
     school = require_current_school()
     active = Membership.objects.filter(user=user, school=school, is_active=True).exists()
     if not (active and user.is_active):
-        raise _invalid("homeroom_teacher", _("Choose a member of the school's staff."), "not_staff")
+        raise _invalid(field, _("Choose a member of the school's staff."), "not_staff")
 
 
 def _class_data(group: ClassGroup) -> dict:
-    teacher = group.homeroom_teacher
+    teacher, helper = group.homeroom_teacher, group.co_homeroom_teacher
     return {
         "level": group.level.name,
         "track": group.track.name if group.track else None,
         "section": group.section,
         "capacity": group.capacity,
         "homeroom_teacher": str(teacher) if teacher else None,
+        "co_homeroom_teacher": str(helper) if helper else None,
     }
 
 
@@ -564,7 +565,14 @@ def _check_class_unique(group: ClassGroup) -> None:
         raise BusinessError(CLASS_EXISTS)
 
 
-_CLASS_FIELDS = {"level", "track", "section", "capacity", "homeroom_teacher"}
+_CLASS_FIELDS = {
+    "level",
+    "track",
+    "section",
+    "capacity",
+    "homeroom_teacher",
+    "co_homeroom_teacher",
+}
 
 
 def _apply_class_fields(group: ClassGroup, fields: dict) -> None:
@@ -577,11 +585,19 @@ def _apply_class_fields(group: ClassGroup, fields: dict) -> None:
         setattr(group, name, value)
     if "homeroom_teacher" in fields:
         _check_teacher(group.homeroom_teacher)
+    if "co_homeroom_teacher" in fields:
+        _check_teacher(group.co_homeroom_teacher, "co_homeroom_teacher")
+    if group.co_homeroom_teacher_id and group.co_homeroom_teacher_id == group.homeroom_teacher_id:
+        raise _invalid(
+            "co_homeroom_teacher",
+            _("The co-homeroom teacher is someone other than the homeroom teacher."),
+            "same_as_homeroom",
+        )
 
 
 def create_class_group(*, actor: User, academic_year: AcademicYear, **fields) -> ClassGroup:
     """Nouvelle classe de l'année (C2) : `level`, `track`, `section`, `capacity`,
-    `homeroom_teacher`."""
+    `homeroom_teacher`, `co_homeroom_teacher` (NB.7)."""
     require_current_school()
     group = ClassGroup(academic_year=academic_year, created_by=actor)
     _apply_class_fields(group, {"section": "", **fields})

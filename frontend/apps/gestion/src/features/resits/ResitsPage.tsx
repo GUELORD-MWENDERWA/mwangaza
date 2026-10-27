@@ -270,7 +270,7 @@ export function ResitsPage() {
               <Banner tone="info">{t("resits.none")}</Banner>
             ) : (
               <>
-                <Table stacked>
+                <Table stacked freeze>
                   <thead>
                     <tr>
                       <th>{t("resits.student")}</th>

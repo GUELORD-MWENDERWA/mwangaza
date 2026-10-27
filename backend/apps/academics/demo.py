@@ -4,8 +4,9 @@ grille n'en donne pas, et quelques cours ont un enseignant parmi les comptes d'e
 les cours de la grille sont remis comme au départ, ceux ajoutés en essayant restent.
 
 Notes (8.2.1) : la 1re période de l'année est notée dans chaque cours (deux interrogations et un
-devoir), chaque élève avec son niveau ; quelques cases restent vides (« incomplet »). Rejouable :
-la 1re période est remise comme au départ, les autres restent.
+devoir), chaque élève avec son niveau, sans case vide ; ses fiches sont validées, sauf quelques-unes
+envoyées qui attendent le directeur des études (demandé le 2026-10-27 : des bulletins complets
+dans toutes les classes). Rejouable : la 1re période est remise comme au départ, les autres restent.
 
 Bulletins complets (8.3.4) : deux classes de l'ITIG (une sans Examen d'État, une avec) sont notées
 dans tous leurs cours, toutes les périodes et tous les examens, feuilles validées : leur bulletin
@@ -140,7 +141,6 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
 
 # Évaluations de la 1re période : nom et part du maximum du cours.
 EVALUATIONS = (("Interrogation 1", 0.25), ("Interrogation 2", 0.25), ("Devoir", 0.5))
-EMPTY_SHARE = 0.01
 
 
 def demo_evaluations(school) -> tuple:
@@ -151,7 +151,7 @@ def demo_evaluations(school) -> tuple:
 
 def create_demo_grades(spaces: list[DemoSpace]) -> None:
     for space in spaces:
-        draw = random.Random(f"grades-{space.school.code}")
+        draw = random.Random(f"grades-{space.profile}")
         with use_school(space.school):
             year = current_year()
             first = (
@@ -193,8 +193,6 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
             grades = []
             for evaluation in evaluations:
                 for enrollment in students[evaluation.course.class_group_id]:
-                    if draw.random() < EMPTY_SHARE:
-                        continue
                     ratio = min(1.0, max(0.0, level[enrollment.pk] + draw.uniform(-0.15, 0.15)))
                     # Au demi-point, comme la plupart des enseignants.
                     halves = round(ratio * evaluation.max_score * 2)
@@ -204,11 +202,12 @@ def create_demo_grades(spaces: list[DemoSpace]) -> None:
                         )
                     )
             Grade.objects.bulk_create(grades, batch_size=5000)
-            _create_demo_control(first)
-            _create_demo_homeroom(space, first)
+            validator = _validator(space)
+            _create_demo_control(first, validator)
+            _create_demo_homeroom(space, first, validator)
             _create_demo_discipline(first, students, draw)
             if space.profile == "itig":
-                _complete_demo_classes(year, students, draw)
+                _complete_demo_classes(year, students, draw, validator)
             if paper is not None:
                 _create_demo_prior_results(paper, year, draw)
 
@@ -252,32 +251,46 @@ def _create_demo_prior_results(group: ClassGroup, year, draw: random.Random) -> 
 
 # Contrôle des notes (8.2.2) : quelques feuilles envoyées (à valider) et validées, les autres en
 # brouillon, et une date limite encore ouverte.
-SENT_SHEETS, VALIDATED_SHEETS = 6, 10
+SENT_SHEETS = 6
 
 
-def _create_demo_control(term: Term) -> None:
+def _validator(space: DemoSpace) -> User | None:
+    """Qui valide les fiches de la démonstration : la directrice des études, sinon le chef."""
+    for phone in ("+243000001002", "+243000002001", "+243000001001"):
+        user = User.objects.filter(
+            phone=space.numbers.of(phone), memberships__school=space.school
+        ).first()
+        if user is not None:
+            return user
+    return None
+
+
+def _create_demo_control(term: Term, validator: User | None) -> None:
+    """Date limite ouverte ; les `SENT_SHEETS` premières fiches envoyées et signées (à valider),
+    toutes les autres validées : chaque classe a son bulletin de la période complet."""
     GradeDeadline.objects.update_or_create(
         term=term, defaults={"due_on": timezone.localdate() + timedelta(days=14)}
     )
     courses = list(Course.objects.filter(evaluations__term=term).distinct().order_by("pk"))
     now = timezone.now()
     sheets = []
-    for position, course in enumerate(courses[: SENT_SHEETS + VALIDATED_SHEETS]):
+    for position, course in enumerate(courses):
         validated = position >= SENT_SHEETS
         sheets.append(
             GradeSheet(
                 course=course,
                 term=term,
                 status=GradeSheet.Status.VALIDATED if validated else GradeSheet.Status.SUBMITTED,
-                submitted_at=now - timedelta(days=position + 1),
-                submitted_by=course.teacher,
+                submitted_at=now - timedelta(days=position % 10 + 1),
+                submitted_by_id=course.teacher_id,
                 validated_at=now if validated else None,
+                validated_by=validator if validated else None,
             )
         )
-    GradeSheet.objects.bulk_create(sheets)
+    GradeSheet.objects.bulk_create(sheets, batch_size=2000)
 
 
-def _create_demo_homeroom(space: DemoSpace, term: Term) -> None:
+def _create_demo_homeroom(space: DemoSpace, term: Term, validator: User | None) -> None:
     """Espace du titulaire (NB.3) : dans la classe du titulaire de la démonstration, toutes les
     fiches de la période validées sauf la dernière, envoyée et signée : le directeur des études la
     valide, puis le titulaire déclare les bulletins prêts."""
@@ -305,12 +318,15 @@ def _create_demo_homeroom(space: DemoSpace, term: Term) -> None:
             submitted_at=now - timedelta(days=2),
             submitted_by=course.teacher,
             validated_at=None if last else now - timedelta(days=1),
+            validated_by=None if last else validator,
         )
         for last, course in ((i == len(courses) - 1, c) for i, c in enumerate(courses))
     )
 
 
-def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
+def _complete_demo_classes(
+    year, students: dict, draw: random.Random, validator: User | None
+) -> None:
     """Toutes les périodes et tous les examens de deux classes, tous les élèves notés, feuilles
     validées (bulletin imprimable)."""
     groups = sorted(
@@ -384,6 +400,7 @@ def _complete_demo_classes(year, students: dict, draw: random.Random) -> None:
                     submitted_at=now,
                     submitted_by=course.teacher,
                     validated_at=now,
+                    validated_by=validator,
                 )
                 for term in terms
                 for course in courses
@@ -614,7 +631,7 @@ def create_demo_promotion(spaces: list[DemoSpace]) -> None:
     for space in spaces:
         if space.profile != "itig":
             continue
-        draw = random.Random(f"promotion-{space.school.code}")
+        draw = random.Random(f"promotion-{space.profile}")
         with use_school(space.school):
             year = current_year()
             family = Family.objects.order_by("created_at", "id").first()

@@ -68,7 +68,7 @@ function studentWithHistory(): string {
     `from apps.core.tenancy import use_school
 from apps.schools.models import School
 from apps.students.models import Enrollment
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     e = (Enrollment.objects.filter(status="active", payments__isnull=False, discounts__isnull=False)
          .order_by("student__matricule").first())
     print(e.student_id)`,

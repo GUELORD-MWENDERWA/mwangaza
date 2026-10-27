@@ -203,8 +203,9 @@ class OfflineGradesSerializer(SheetUpdateSerializer):
 
 
 def _save_grades(data: dict, device: Device, actor: User) -> dict:
-    """Mêmes règles qu'en ligne : seul l'enseignant du cours tient son carnet, `grades.enter_any`
-    n'y met qu'un total (NB.1), tout autre compte est refusé ; date limite passée, feuille validée
+    """Mêmes règles qu'en ligne : seul l'enseignant du cours tient son carnet, `grades.enter_any`,
+    le titulaire et le cotitulaire n'y mettent qu'un total (NB.1, NB.7), tout autre compte est
+    refusé ; date limite passée, feuille validée
     ou envoyée sans motif : refusée, la feuille du serveur reste."""
     course, term, permissions = data.pop("course"), data.pop("term"), data.pop("permissions")
     access = grades.notebook_access(actor, permissions, course)

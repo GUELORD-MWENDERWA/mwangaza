@@ -15,6 +15,7 @@ from datetime import time, timedelta
 from django.db.models import Q
 
 from apps.academics.models import MAIN, MORNING, PRACTICAL, Course
+from apps.accounts.demo import TEACHER_POOL
 from apps.accounts.models import User
 from apps.core.ids import uuid7
 from apps.core.tenancy import use_school
@@ -34,7 +35,7 @@ from apps.timetable.models import (
     TimetableRule,
     TimetableRun,
 )
-from apps.timetable.services import PRESET_LESSON_MINUTES, PRESET_START, week_shape
+from apps.timetable.services import PRESET_LESSON_MINUTES, PRESET_LESSONS, PRESET_START, week_shape
 
 WORKSHOP, LAB, COMPUTER, SPORTS = (
     Room.Kind.WORKSHOP,
@@ -76,12 +77,16 @@ AFTERNOON = {
     "lessons": {day: 6 for day in range(1, 6)},
     "breaks": ((3, 15),),
 }
-# Heures d'une classe de l'ITIG au plus (39 places dans sa grille), et d'un laboratoire : sa salle
-# reçoit sept classes et ferme le samedi.
-CLASS_HOURS, LAB_HOURS = 36, 3
+# Heures d'une classe de l'ITIG : toutes les places de sa grille (39), comme en RDC où une classe
+# étudie toutes les heures de sa grille, sans trou (demandé le 2026-10-27) ; un laboratoire : 3 h,
+# sa salle reçoit sept classes et ferme le samedi.
+CLASS_HOURS, LAB_HOURS = sum(PRESET_LESSONS.values()), 3
+# Charge d'un enseignant de `TEACHER_POOL` au plus, par semaine.
+POOL_HOURS = 24
 # Calcul de l'horaire de démonstration (refait à chaque `make demo`, trois fois dans son test) :
-# un premier horaire en ≈ 4 s, puis des souhaits mieux tenus.
-DEMO_SECONDS = 10
+# 23 classes pleines (39 h) et 43 enseignants, comme une vraie école : un premier horaire en
+# ≈ 10 s, puis des souhaits mieux tenus.
+DEMO_SECONDS = 20
 
 
 def _grid(name: str, *, is_default: bool, lesson_minutes: int, start: time, **shape) -> TimeGrid:
@@ -141,6 +146,8 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
                 TeacherTimetableProfile.objects.create(teacher=teacher, **fields)
             if space.profile == "itig":
                 _rules()
+                _fill_grid()
+                _assign_teachers(space)
                 _calculated()
                 _exams()
 
@@ -149,7 +156,7 @@ def _fit_hours() -> None:
     """Démonstration : tous les cours sont donnés, même ceux que le formulaire barre (décision du
     2026-10-16), et les classes techniques dépassent leur grille (41 à 62 h pour 39 places). Un
     laboratoire passe à 3 h, puis on retire une heure au plus gros cours qui n'est pas un atelier
-    (à un atelier en dernier) jusqu'à 36 h."""
+    (à un atelier en dernier) jusqu'aux 39 h de la grille ; `_fill_grid` complète ensuite."""
     courses = list(Course.objects.filter(class_group__academic_year=current_year(), is_taught=True))
     by_class = defaultdict(list)
     for course in courses:
@@ -171,16 +178,15 @@ def _fit_hours() -> None:
 
 
 def _place_courses(kinds: set[str]) -> None:
-    """Salle exigée par type (si l'école a ce type), ateliers en deux séances, cours principaux
-    le matin."""
+    """Salle exigée par type (si l'école a ce type), ateliers en longs blocs (les séances
+    proposées : 4 h au plus, `placement.proposed`), cours principaux le matin."""
     courses = list(Course.objects.filter(class_group__academic_year=current_year()))
     for course in courses:
         name = course.name.casefold()
         kind = ""
         if name.startswith("atelier") or name == "pratique professionnelle":
             kind = WORKSHOP
-            hours = course.weekly_hours or 0
-            course.lesson_pattern = f"{(hours + 1) // 2}+{hours // 2}" if hours >= 4 else ""
+            course.lesson_pattern = ""
         elif name.startswith("labo"):
             kind = LAB
         elif name.startswith("informatique"):
@@ -242,6 +248,59 @@ def _rules() -> None:
         TimetableRule(**constraints.clean({"kind": kind, "params": params, **extra}))
         for kind, params, extra in rows
     )
+
+
+def _fill_grid() -> None:
+    """Chaque classe de l'ITIG a exactement les heures de sa grille (des groupes en parallèle
+    comptés une fois) : il manque des heures (7e et 8e EB, classe aux groupes en parallèle), on en
+    ajoute une à la fois aux cours donnés en salle de classe (pas un atelier, un laboratoire ni un
+    cours d'un groupe), les cours principaux d'abord."""
+    ctx = checks.context(current_year())
+    hours = checks._class_hours(ctx.courses, ctx.parallel)
+    grouped = {course.pk for _rule, members in ctx.parallel + ctx.joint for course in members}
+    by_class = defaultdict(list)
+    for course in ctx.courses:
+        if not course.room_kind and course.category != PRACTICAL and course.pk not in grouped:
+            by_class[course.class_group_id].append(course)
+    changed = []
+    for group in ctx.groups:
+        week = ctx.week_of[group.pk]
+        missing = len(week.lessons) - hours[group.pk] if week else 0
+        eligible = sorted(
+            by_class[group.pk], key=lambda course: (course.category != MAIN, course.order)
+        )
+        for position in range(max(missing, 0)):
+            if not eligible:
+                break
+            course = eligible[position % len(eligible)]
+            course.weekly_hours = (course.weekly_hours or 0) + 1
+            changed.append(course)
+    Course.objects.bulk_update(set(changed), ["weekly_hours"])
+
+
+def _assign_teachers(space: DemoSpace) -> None:
+    """Chaque cours sans enseignant reçoit un enseignant de `TEACHER_POOL`, matière par matière
+    (cours rangés par nom, puis par classe), `POOL_HOURS` par semaine au plus ; le pool épuisé, le
+    moins chargé."""
+    phones = [space.numbers.of(account.phone) for account in TEACHER_POOL]
+    pool = list(User.objects.filter(phone__in=phones).order_by("phone"))
+    if not pool:
+        return
+    courses = list(
+        Course.objects.filter(
+            class_group__academic_year=current_year(), is_taught=True, teacher__isnull=True
+        ).order_by("name", "class_group__level__order", "class_group__section", "pk")
+    )
+    load: dict = defaultdict(int)
+    index = 0
+    for course in courses:
+        hours = course.weekly_hours or 0
+        while index < len(pool) and load[pool[index].pk] + hours > POOL_HOURS:
+            index += 1
+        teacher = pool[index] if index < len(pool) else min(pool, key=lambda u: load[u.pk])
+        course.teacher = teacher
+        load[teacher.pk] += hours
+    Course.objects.bulk_update(courses, ["teacher"])
 
 
 def _calculated() -> None:

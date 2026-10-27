@@ -382,7 +382,7 @@ function ClassBlock({
       </div>
       {expanded && (
         <div className="mt-3">
-          <Table stacked>
+          <Table stacked freeze>
             <thead>
               <tr>
                 <th>{t("gradeValidation.columns.course")}</th>

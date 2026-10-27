@@ -604,6 +604,16 @@ class ClassGroup(TenantModel):
         related_name="+",
         verbose_name=_("homeroom teacher"),
     )
+    # Cotitulaire (NB.7) : aide le titulaire (fiches de cotes de la classe, espace « Ma classe »),
+    # sans le remplacer : le titulaire seul déclare les bulletins prêts et signe le bulletin.
+    co_homeroom_teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("co-homeroom teacher"),
+    )
 
     class Meta:
         ordering = ["level__order", "level__name", "track__name", "section"]
@@ -617,6 +627,13 @@ class ClassGroup(TenantModel):
             )
         ]
         indexes = [models.Index(fields=["school", "academic_year"], name="class_school_year")]
+
+    def is_homeroom_of(self, user) -> bool:
+        """Titulaire ou cotitulaire de la classe (NB.7)."""
+        return user.pk is not None and user.pk in (
+            self.homeroom_teacher_id,
+            self.co_homeroom_teacher_id,
+        )
 
     def __str__(self) -> str:
         return self.name

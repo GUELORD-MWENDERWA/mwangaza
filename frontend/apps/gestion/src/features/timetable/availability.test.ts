@@ -40,7 +40,21 @@ describe("absences d'un enseignant", () => {
 
 describe("séances d'un cours", () => {
   it("proposées : des blocs de 2 h à partir de 4 h", () => {
-    expect([1, 3, 4, 5, 6].map(proposedPattern)).toEqual(["1", "1+1+1", "2+2", "2+2+1", "2+2+2"]);
+    expect([1, 3, 4, 5, 6].map((hours) => proposedPattern(hours))).toEqual([
+      "1",
+      "1+1+1",
+      "2+2",
+      "2+2+1",
+      "2+2+2",
+    ]);
+    // Un atelier : des blocs de 4 h au plus, à parts égales.
+    expect([3, 4, 7, 8, 9].map((hours) => proposedPattern(hours, true))).toEqual([
+      "3",
+      "4",
+      "4+3",
+      "4+4",
+      "3+3+3",
+    ]);
   });
 
   it("refusées avant l'envoi si elles ne font pas les heures", () => {

@@ -20,6 +20,8 @@ Tâche 4.6.3. Pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter ; commandes 
 
 `make deploy-init` (crée `serveur.env`, dit quoi remplir), `make deploy-setup` (une fois), `make deploy` (images construites par GitHub Actions puis téléchargées : ≈ 15 min la première fois, quelques minutes ensuite ; `GHCR_USER` et `GHCR_TOKEN` de `serveur.env` d'abord, `A-FAIRE.md` § 9 quinquies), `make deploy-check` (`ip=<IP>` : une instance pas encore derrière le DNS ; lignes « domaine » (expiration, verrou de transfert) et « e-mail » (MX, SPF, DKIM, DMARC ; `infra/README.md` « E-mail du domaine »), avertissement seulement), puis `make deploy-superuser`.
 
+`make deploy-demo` (NB.7) : efface puis recrée à neuf les espaces de démonstration de `make demo` (`itig-demo`, `volcans`) sur le serveur, après `make deploy` ; refusé dès qu'un espace réel existe. Le code `itig` reste libre pour la vraie école.
+
 ## Mise à jour
 
 `git switch main && git pull`, puis `make deploy` : code envoyé, images publiées par GitHub Actions seulement si le code des images a changé (`gh` connecté ; secours `CONSTRUIRE_SUR_SERVEUR=oui make deploy`) et téléchargées pendant que l'ancienne version reste en ligne, migrations puis droits du compte PostgreSQL de l'application par le conteneur `migrate` (S.5 : Django et Celery n'ont que le compte `mwangaza_app`, lignes seulement), tâche de chaque nuit remise dans le crontab du compte (`infra/backup/sauvegarde.sh`). Puis `make deploy-check`.

@@ -12,7 +12,7 @@ function currentEnrollments(): number {
 from apps.schools import organisation
 from apps.schools.models import School
 from apps.students.models import Enrollment
-with use_school(School.objects.get(code="itig")):
+with use_school(School.objects.get(code="itig-demo")):
     print(Enrollment.objects.filter(academic_year=organisation.current_year()).count())`,
   );
   // Dernière ligne : le shell annonce d'abord ses imports automatiques.
@@ -102,7 +102,9 @@ test("démarrage sans réseau : code PIN, puis la caisse encaisse sur l'appareil
   await page.getByRole("button", { name: new RegExp(student.matricule) }).click();
   await page.getByLabel("Montant reçu en USD").fill("10");
   await page.keyboard.press("F9");
-  await expect(page.getByText(/^Paiement enregistré : reçu ITIG-P\d+-26-\d{6}\.$/)).toBeVisible();
+  await expect(
+    page.getByText(/^Paiement enregistré : reçu ITIG-DEMO-P\d+-26-\d{6}\.$/),
+  ).toBeVisible();
   await expect(indicator).toHaveText("Hors ligne · 2 en attente");
 
   // Retour du réseau : la session du serveur est toujours là, tout part.

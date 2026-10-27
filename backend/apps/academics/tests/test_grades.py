@@ -92,7 +92,8 @@ def test_only_the_teacher_of_a_course_keeps_its_notebook(api, school, head, teac
     assert listed["classes"][0]["courses"][0]["teaches"] is True
     assert listed["academic_year"] == str(data["year"].pk) and listed["terms"]
 
-    # Le titulaire voit les cours de sa classe dans la liste, sans leur carnet.
+    # Le titulaire voit les cours de sa classe dans la liste, sans leur carnet (un total par
+    # élève seulement, NB.7 : `test_cotitular.py`).
     homeroom = MembershipFactory(school=school, roles=["teacher"]).user
     with use_school(school):
         ClassGroup.objects.filter(pk=data["a"].pk).update(homeroom_teacher=homeroom)
@@ -100,7 +101,7 @@ def test_only_the_teacher_of_a_course_keeps_its_notebook(api, school, head, teac
     assert {c["name"]: c["teaches"] for c in courses} == {"Physique": False, "Atelier": False}
     director = MembershipFactory(school=school, roles=["study_director"]).user
     for user, code in (
-        (homeroom, "not_your_course"),
+        (homeroom, "notebook_private"),
         (head, "permission_denied"),
         (director, "notebook_private"),
         (secretary, "notebook_private"),
@@ -109,7 +110,6 @@ def test_only_the_teacher_of_a_course_keeps_its_notebook(api, school, head, teac
         assert response.status_code == 403, user
         assert response.json()["code"] == code
         assert api(user).put(url, {"evaluations": [], "grades": []}).status_code == 403
-    assert api(homeroom).get(sheet_url(data["workshop"], data["p1"])).status_code == 403
     # `grades.enter_any` : toutes les classes dans la liste, un total seulement.
     assert len(api(secretary).get(GRADING).json()["classes"]) == 2
     total = api(secretary).get(sheet_url(data["workshop"], data["p1"]))

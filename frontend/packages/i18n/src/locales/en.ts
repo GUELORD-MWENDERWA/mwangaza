@@ -1059,6 +1059,10 @@ export const en: Messages<typeof fr> = {
       homeroom: "Homeroom teacher",
       noTrack: "No track",
       noTeacher: "No homeroom teacher",
+      coHomeroom: "Co-homeroom teacher",
+      coHomeroomHelp:
+        "Optional: helps the homeroom teacher. Like them, they complete the grade sheets handed in on paper; only the homeroom teacher declares the report cards ready.",
+      noCoTeacher: "No co-homeroom teacher",
       teachersAssigned: "Homeroom teachers assigned",
       missingTeachers_one: "{{count}} without homeroom teacher",
       missingTeachers_other: "{{count}} without homeroom teacher",
@@ -2394,7 +2398,13 @@ export const en: Messages<typeof fr> = {
     title: "My class",
     subtitle:
       "{{class}} · you are its homeroom teacher. The grade sheets received, a check of each student, then the report cards to declare ready.",
-    none: "You are not the homeroom teacher of any class this year. A class's homeroom teacher is chosen in “School organisation”.",
+    subtitleCo:
+      "{{class}} · you are its co-homeroom teacher. You complete the grade sheets handed in on paper; the homeroom teacher declares the report cards ready.",
+    coTitular_one:
+      "You are the co-homeroom teacher: complete the missing sheet from “Grades” (one total per student); the homeroom teacher then declares the report cards ready.",
+    coTitular_other:
+      "You are the co-homeroom teacher: complete the {{count}} missing sheets from “Grades” (one total per student); the homeroom teacher then declares the report cards ready.",
+    none: "You are neither the homeroom teacher nor the co-homeroom teacher of any class this year. They are chosen in “School organisation”.",
     noTerm: "No period: the school year is not divided yet.",
     classGroup: "Class",
     term: "Period",
@@ -4867,7 +4877,7 @@ export const en: Messages<typeof fr> = {
       removeText:
         "Their account is turned off and their sessions end at once. Their actions stay in the log. To come back, they must be invited again.",
       roleNames: {
-        owner: "Owner",
+        owner: "Lead administrator",
         technical: "Technical",
         support: "Support",
         commercial: "Sales",
