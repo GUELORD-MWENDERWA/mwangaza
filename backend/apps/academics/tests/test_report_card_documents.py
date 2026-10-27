@@ -14,7 +14,7 @@ from apps.academics.tests.test_report_cards import put
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
-from apps.schools.models import Level
+from apps.schools.models import ClassGroup, Level
 from apps.students.models import Enrollment
 from tests.factories import MembershipFactory
 
@@ -186,6 +186,34 @@ def test_pdf_is_audited_but_not_the_preview_and_needs_a_grades_right(
     teacher = MembershipFactory(school=school, roles=["teacher"]).user
     for user in (cashier, teacher):
         assert api(user).get(url(card), enrollment=card["amani"], output="html").status_code == 403
+
+
+def test_the_homeroom_teacher_prints_the_report_cards_of_the_class_only(
+    api, school, other_school, card
+):
+    """NB.8 : le titulaire (et le cotitulaire) imprime les bulletins de sa classe ; ni ceux d'une
+    autre classe, ni ceux d'une autre école ; la liste des élèves vient du contrôle du bulletin."""
+    validate_all(school, card)
+    titular = MembershipFactory(school=school, roles=["teacher"]).user
+    helper = MembershipFactory(school=school, roles=["teacher"]).user
+    with use_school(school):
+        ClassGroup.objects.filter(pk=card["a"].pk).update(
+            homeroom_teacher=titular, co_homeroom_teacher=helper
+        )
+    for user in (titular, helper):
+        client = api(user)
+        status = client.get(f"/api/class-groups/{card['a'].pk}/report-card-status/").json()
+        assert [row["enrollment"] for row in status["students"]] == [card["amani"], card["josue"]]
+        assert client.get(url(card), output="pdf")["Content-Type"] == "application/pdf"
+        other = f"/api/class-groups/{card['b_physics'].class_group_id}/"
+        refused = client.get(f"{other}report-card/", output="html", enrollment=card["b"])
+        assert (refused.status_code, refused.json()["code"]) == (403, "not_your_class")
+        assert client.get(f"{other}report-card-status/").status_code == 403
+    with use_school(school):
+        logs = AuditLog.objects.filter(action=Action.GRADES_REPORT_CARD_PRINTED)
+        assert {log.actor for log in logs} == {titular, helper}
+    outsider = MembershipFactory(school=other_school, roles=["teacher"]).user
+    assert api(outsider, host="beta.localhost").get(url(card), output="pdf").status_code == 404
 
 
 def test_the_whole_class_prints_in_one_pdf_and_each_student_is_audited(

@@ -1710,7 +1710,9 @@ export const fr = {
       lessons: "Séances",
       perDay: "Au plus par jour",
       room: "Salle exigée",
-      spanBreak: "Passe la récréation",
+      spanBreak: "Avant et après la récréation",
+      spanBreakHelp:
+        "Une séance peut se faire avant et après une récréation (un atelier de la 2e à la 7e heure) : les élèves prennent la récréation comme tout le monde, la séance reprend après.",
       part: "Moment",
       homeRoom: "— (salle de la classe)",
       kinds: "Un type de salle",
@@ -1811,7 +1813,7 @@ export const fr = {
         lock_outside_grid:
           "Verrouillé le {{day}}, {{hours}} ; ce jour-là, la grille n'a que {{lessons}} h de cours.",
         lock_crosses_break:
-          "Verrouillé le {{day}}, {{hours}}, par-dessus une récréation que le cours ne passe pas.",
+          "Verrouillé le {{day}}, {{hours}} : la séance serait coupée par une récréation, ce que ce cours ne permet pas.",
         lock_not_a_session:
           "Verrouillé le {{day}}, {{hours}} : {{length}} h d'affilée, ce n'est pas une de ses séances ({{sessions}}).",
         lock_on_absence: "Verrouillé le {{day}}, {{hours}} : {{teacher}} est absent à ces heures.",
@@ -1980,7 +1982,7 @@ export const fr = {
         entry_on_closed_room: "Salle fermée",
         entry_against_rule: "Contre une règle",
         entry_outside_grid: "Hors de la grille",
-        entry_crosses_break: "Sur une récréation",
+        entry_crosses_break: "Coupée par une récréation",
         room_missing: "Salle à choisir",
       },
       codes: {
@@ -1990,7 +1992,7 @@ export const fr = {
         entry_outside_grid:
           "Le {{day}}, {{hours}} : ce jour-là, la grille n'a que {{lessons}} h de cours.",
         entry_crosses_break:
-          "Le {{day}}, {{hours}}, par-dessus une récréation que le cours ne passe pas.",
+          "Le {{day}}, {{hours}} : la séance est coupée par une récréation, ce que ce cours ne permet pas.",
         entry_on_absence: "Le {{day}}, {{hours}} : {{teacher}} est absent à ces heures.",
         entry_on_closed_room: "Le {{day}}, {{hours}} : {{room}} est fermée à ces heures.",
         entry_against_rule: "Le {{day}}, {{hours}}, contre une règle obligatoire : « {{other}} ».",
@@ -2496,6 +2498,8 @@ export const fr = {
     },
     noTeacher: "Pas d'enseignant",
     open: "Ouvrir",
+    enter: "Saisir",
+    enterLabel: "Saisir les points de {{course}} (fiche rendue à la main)",
     check: {
       title: "Vérification avant les bulletins",
       subtitle: "Ce que porte le bulletin de cette période, élève par élève.",
@@ -2515,6 +2519,7 @@ export const fr = {
       title: "Imprimer",
       table: "Tableau synthétique",
       ranking: "Palmarès",
+      reportCards: "Bulletins de la classe",
       help: "Marqués « provisoire » tant qu'une fiche de la période n'est pas validée.",
     },
   },
@@ -2780,9 +2785,18 @@ export const fr = {
       groupCount_other: "{{count}} cours",
     },
     templates: {
-      title: "Modèles officiels",
+      title: "Programme officiel du ministère",
+      lead: "Remplit la grille de cette classe en un clic : les cours du programme officiel, leurs maxima, l'examen et les heures. À faire une fois par classe en début d'année, puis ajuster et enregistrer.",
       apply: "Appliquer",
-      help: "Un modèle remplace les lignes affichées ; un cours du même nom garde son enseignant. Rien n'est enregistré avant « Enregistrer ».",
+      summary_one: "{{count}} cours · maxima de la période : {{max}}",
+      summary_other: "{{count}} cours · maxima de la période : {{max}}",
+      hours: "{{hours}} h par semaine",
+      replaceTitle: "Remplacer la grille affichée ?",
+      replaceBody_one:
+        "Le cours affiché de la classe {{name}} est remplacé par le programme officiel. Un cours du même nom garde son enseignant. Rien n'est enregistré avant « Enregistrer ».",
+      replaceBody_other:
+        "Les {{count}} cours affichés de la classe {{name}} sont remplacés par le programme officiel. Un cours du même nom garde son enseignant. Rien n'est enregistré avant « Enregistrer ».",
+      help: "Ensuite, « Copier vers d'autres classes » donne la même grille aux autres sections de l'option. Un cours que l'école ne donne pas se décoche dans « Suivi par la classe ».",
       names: {
         basic_education: "7e – 8e EB",
         electricity: "Électricité 1re – 2e (3e – 4e année)",
@@ -6195,7 +6209,7 @@ export const fr = {
     not_due: "Ce cours n'a plus de séance de cette longueur à placer.",
     same_entry: "Choisir deux heures différentes.",
     outside_grid: "Ces heures ne sont pas dans la grille de la classe.",
-    crosses_break: "Ce cours ne passe pas une récréation.",
+    crosses_break: "Ce cours ne se fait pas de part et d'autre d'une récréation.",
     no_year: "Aucune année scolaire en cours.",
     incomplete_range: "Donnez le début et la fin, ou aucun des deux pour toute la journée.",
     bad_range: "La fin vient après le début.",

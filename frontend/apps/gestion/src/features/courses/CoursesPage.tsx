@@ -200,6 +200,8 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
   const [leaving, setLeaving] = useState<string | null>(null);
   const [copying, setCopying] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  // Programme officiel à appliquer sur une grille déjà remplie : confirmé d'abord.
+  const [replacing, setReplacing] = useState<OfficialGrid | null>(null);
 
   const save = useMutation({
     mutationFn: (rows: Draft[]) =>
@@ -429,26 +431,49 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{t("courses.templates.title")}</CardTitle>
+            <div>
+              <CardTitle>{t("courses.templates.title")}</CardTitle>
+              <p className="text-sm text-ink-3">{t("courses.templates.lead")}</p>
+            </div>
           </CardHeader>
           <CardContent>
             {grids.isError ? (
               <Banner tone="due">{errorMessage(grids.error, t)}</Banner>
             ) : (
               <List className="text-sm">
-                {(grids.data ?? []).map((grid) => (
-                  <div key={grid.key}>
-                    <span>
-                      {t(`courses.templates.names.${grid.key as "electricity"}`, {
-                        defaultValue: grid.key,
-                      })}{" "}
-                      · {grid.reference}
-                    </span>
-                    <Button variant="outline" size="sm" onClick={() => edit(fromGrid(grid, rows))}>
-                      {t("courses.templates.apply")}
-                    </Button>
-                  </div>
-                ))}
+                {(grids.data ?? []).map((grid) => {
+                  const taught = grid.courses.filter((course) => course.is_taught);
+                  const hours = taught.reduce((sum, course) => sum + (course.weekly_hours ?? 0), 0);
+                  const maximum = taught.reduce((sum, course) => sum + course.period_max, 0);
+                  return (
+                    <div key={grid.key}>
+                      <span>
+                        <b>
+                          {t(`courses.templates.names.${grid.key as "electricity"}`, {
+                            defaultValue: grid.key,
+                          })}
+                        </b>{" "}
+                        · {grid.reference}
+                        <span className="block text-xs text-ink-3">
+                          {t("courses.templates.summary", {
+                            count: taught.length,
+                            max: number(maximum),
+                          })}
+                          {hours > 0 && ` · ${t("courses.templates.hours", { hours })}`}
+                        </span>
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          rows.length > 0 ? setReplacing(grid) : edit(fromGrid(grid, rows))
+                        }
+                      >
+                        {t("courses.templates.apply")}
+                      </Button>
+                    </div>
+                  );
+                })}
               </List>
             )}
           </CardContent>
@@ -487,7 +512,8 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
             onChange={update}
           />
         ) : (
-          <Table>
+          // Tableau figé (2026-10-27) : la branche reste visible en allant jusqu'à l'enseignant.
+          <Table freeze>
             <thead>
               <tr>
                 <th>{t("courses.columns.name")}</th>
@@ -698,6 +724,19 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
           )}
         </CardFooter>
       </Card>
+      <ConfirmDialog
+        open={replacing !== null}
+        onOpenChange={(open) => !open && setReplacing(null)}
+        title={t("courses.templates.replaceTitle")}
+        confirmLabel={t("courses.templates.apply")}
+        cancelLabel={t("common.cancel")}
+        onConfirm={() => {
+          if (replacing) edit(fromGrid(replacing, rows));
+          setReplacing(null);
+        }}
+      >
+        {t("courses.templates.replaceBody", { count: rows.length, name: group.name })}
+      </ConfirmDialog>
       <ConfirmDialog
         open={leaving !== null}
         onOpenChange={(open) => !open && setLeaving(null)}

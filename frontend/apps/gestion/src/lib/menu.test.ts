@@ -83,6 +83,9 @@ describe("menu selon les permissions (04 § 8)", () => {
     const titular = me("teacher");
     titular.school = { ...titular.school!, homeroom: true };
     expect(keysOf(titular).slice(0, 3)).toEqual(["myTimetable", "grades", "homeroom"]);
+    // Et les bulletins de sa classe (NB.8) ; un enseignant qui n'est pas titulaire, non.
+    expect(keysOf(titular)).toContain("reportCards");
+    expect(keysOf(me("teacher"))).not.toContain("reportCards");
   });
 
   it("session support : droits de l'école sauf la caisse", () => {

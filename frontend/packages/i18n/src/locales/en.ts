@@ -1692,7 +1692,9 @@ export const en: Messages<typeof fr> = {
       lessons: "Lessons",
       perDay: "At most per day",
       room: "Required room",
-      spanBreak: "Spans the break",
+      spanBreak: "Before and after the break",
+      spanBreakHelp:
+        "A session may run before and after a break (a workshop from the 2nd to the 7th hour): students take the break like everyone, the session resumes after.",
       part: "Time of day",
       homeRoom: "— (the class's room)",
       kinds: "A type of room",
@@ -1792,7 +1794,8 @@ export const en: Messages<typeof fr> = {
           "Two locked lessons at the same time on {{day}}: {{first}} and {{second}}.",
         lock_outside_grid:
           "Locked on {{day}}, {{hours}}; that day the grid has only {{lessons}} lessons.",
-        lock_crosses_break: "Locked on {{day}}, {{hours}}, across a break the course cannot span.",
+        lock_crosses_break:
+          "Locked on {{day}}, {{hours}}: the session would be cut by a break, which this course does not allow.",
         lock_not_a_session:
           "Locked on {{day}}, {{hours}}: {{length}} h in a row is not one of its sessions ({{sessions}}).",
         lock_on_absence: "Locked on {{day}}, {{hours}}: {{teacher}} is away at those times.",
@@ -1958,7 +1961,7 @@ export const en: Messages<typeof fr> = {
         entry_on_closed_room: "Room closed",
         entry_against_rule: "Against a rule",
         entry_outside_grid: "Outside the grid",
-        entry_crosses_break: "Over a break",
+        entry_crosses_break: "Cut by a break",
         room_missing: "Room to choose",
       },
       codes: {
@@ -1968,7 +1971,8 @@ export const en: Messages<typeof fr> = {
           "On {{day}}: two lessons in the room at the same time ({{first}} and {{second}}).",
         entry_outside_grid:
           "On {{day}}, {{hours}}: that day, the grid only has {{lessons}} lessons.",
-        entry_crosses_break: "On {{day}}, {{hours}}, over a break the course does not run across.",
+        entry_crosses_break:
+          "On {{day}}, {{hours}}: the session is cut by a break, which this course does not allow.",
         entry_on_absence: "On {{day}}, {{hours}}: {{teacher}} is away at these hours.",
         entry_on_closed_room: "On {{day}}, {{hours}}: {{room}} is closed at these hours.",
         entry_against_rule: "On {{day}}, {{hours}}, against a required rule: “{{other}}”.",
@@ -2466,6 +2470,8 @@ export const en: Messages<typeof fr> = {
     },
     noTeacher: "No teacher",
     open: "Open",
+    enter: "Enter",
+    enterLabel: "Enter the marks of {{course}} (sheet handed in on paper)",
     check: {
       title: "Check before the report cards",
       subtitle: "What the report card of this period shows, student by student.",
@@ -2485,6 +2491,7 @@ export const en: Messages<typeof fr> = {
       title: "Print",
       table: "Summary table",
       ranking: "Ranking",
+      reportCards: "Class report cards",
       help: "Marked “provisional” while a sheet of the period is not validated.",
     },
   },
@@ -2748,9 +2755,18 @@ export const en: Messages<typeof fr> = {
       groupCount_other: "{{count}} courses",
     },
     templates: {
-      title: "Official templates",
+      title: "Ministry's official programme",
+      lead: "Fills this class's grid in one click: the courses of the official programme, their maxima, the exam and the hours. Do it once per class at the start of the year, then adjust and save.",
       apply: "Apply",
-      help: "A template replaces the rows shown; a course with the same name keeps its teacher. Nothing is saved before “Save”.",
+      summary_one: "{{count}} course · period maxima: {{max}}",
+      summary_other: "{{count}} courses · period maxima: {{max}}",
+      hours: "{{hours}} h per week",
+      replaceTitle: "Replace the grid shown?",
+      replaceBody_one:
+        "The course shown for {{name}} is replaced by the official programme. A course with the same name keeps its teacher. Nothing is saved before “Save”.",
+      replaceBody_other:
+        "The {{count}} courses shown for {{name}} are replaced by the official programme. A course with the same name keeps its teacher. Nothing is saved before “Save”.",
+      help: "Then “Copy to other classes” gives the same grid to the other sections of the option. A course the school does not teach is unticked in “Taken by the class”.",
       names: {
         basic_education: "7th – 8th basic education",
         electricity: "Electricity 1st – 2nd (3rd – 4th year)",
@@ -6122,7 +6138,7 @@ export const en: Messages<typeof fr> = {
     not_due: "This course has no lesson of this length left to place.",
     same_entry: "Choose two different lessons.",
     outside_grid: "These hours are not in the time grid of the class.",
-    crosses_break: "This course does not run across a break.",
+    crosses_break: "This course does not run before and after a break.",
     no_year: "There is no current school year.",
     incomplete_range: "Give both the start and the end, or neither for the whole day.",
     bad_range: "The end comes after the start.",
