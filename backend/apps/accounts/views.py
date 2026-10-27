@@ -1,5 +1,6 @@
 from django.contrib.auth import logout, update_session_auth_hash
 from django.db.models import Count, Exists, OuterRef, Prefetch, Q
+from django.http import HttpResponse
 from django.middleware.csrf import get_token
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
@@ -13,7 +14,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts import console, login, services, support, totp
+from apps.accounts import console, login, services, staff_import, support, totp
 from apps.accounts import platform_roles as team
 from apps.accounts import team as team_services
 from apps.accounts.console_serializers import (
@@ -35,6 +36,7 @@ from apps.accounts.permissions import (
 )
 from apps.accounts.roles import ROLES_MANAGE, sorted_permissions
 from apps.accounts.serializers import (
+    AccessLettersQuerySerializer,
     CodeSerializer,
     LoginCodeSerializer,
     LoginSerializer,
@@ -47,6 +49,8 @@ from apps.accounts.serializers import (
     StaffCreatedSerializer,
     StaffCreateSerializer,
     StaffFilterSerializer,
+    StaffImportSerializer,
+    StaffImportUploadSerializer,
     StaffSerializer,
     StaffUpdateSerializer,
     SupportSessionSerializer,
@@ -56,6 +60,7 @@ from apps.accounts.serializers import (
     TotpKeySerializer,
     TotpSetupSerializer,
 )
+from apps.core.documents import PRINT_RESPONSE, XLSX, XLSX_RESPONSE, file_response, render
 from apps.core.errors import BusinessError, ErrorSerializer
 from apps.core.middleware import is_console_host
 from apps.core.tenancy import use_all_schools
@@ -261,8 +266,10 @@ class StaffViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewS
     required_permission = ROLES_MANAGE
 
     def get_serializer_class(self):
-        if self.action in {"new_password", "reset_totp"}:
+        if self.action in {"new_password", "reset_totp", "access_letters", "import_template"}:
             return serializers.Serializer
+        if self.action == "import_file":
+            return StaffImportUploadSerializer
         # Selon la méthode (et non l'action) : l'API navigable affiche ainsi le bon formulaire.
         return {"POST": StaffCreateSerializer, "PATCH": StaffUpdateSerializer}.get(
             self.request.method, StaffSerializer
@@ -341,6 +348,62 @@ class StaffViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewS
         école (`account_managed_here`)."""
         password = services.set_temporary_password(self.get_object(), actor=request.user)
         return Response({"temporary_password": password})
+
+    @extend_schema(
+        request={"multipart/form-data": StaffImportUploadSerializer},
+        responses={
+            200: StaffImportSerializer,
+            201: StaffImportSerializer,
+            409: ErrorSerializer,
+            **ERRORS,
+        },
+    )
+    @action(detail=False, methods=["post"], url_path="import", parser_classes=[MultiPartParser])
+    def import_file(self, request: Request) -> Response:
+        """Import du personnel depuis Excel (R.1). Sans `expected` : aperçu ligne par ligne
+        (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu : comptes créés
+        d'un bloc, sans mot de passe avant leur lettre d'accès (201) ; 409 `preview_outdated`
+        si le résultat n'est plus celui de l'aperçu."""
+        params = StaffImportUploadSerializer(data=request.data)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        expected = data.get("expected")
+        if expected is None:
+            preview = staff_import.check(data["file"])
+        else:
+            preview = staff_import.record(data["file"], actor=request.user, expected=expected)
+        body = {
+            "recorded": expected is not None,
+            "ready_count": preview.count(staff_import.READY),
+            "skipped_count": preview.count(staff_import.SKIPPED),
+            "error_count": preview.count(staff_import.ERROR),
+            "lines": preview.lines,
+            "added": preview.added,
+        }
+        return Response(
+            StaffImportSerializer(body).data,
+            status=status.HTTP_200_OK if expected is None else status.HTTP_201_CREATED,
+        )
+
+    @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
+    @action(detail=False, url_path="import/template")
+    def import_template(self, request: Request) -> HttpResponse:
+        """Modèle Excel de l'import du personnel : nom, post-nom, prénom, téléphone, rôles."""
+        return file_response(staff_import.template_workbook(), XLSX, "modele-personnel.xlsx")
+
+    @extend_schema(
+        parameters=[AccessLettersQuerySerializer],
+        responses={**PRINT_RESPONSE, 400: ErrorSerializer, 409: ErrorSerializer, **ERRORS},
+    )
+    @action(detail=False, url_path="access-letters")
+    def access_letters(self, request: Request) -> HttpResponse:
+        """Lettres d'accès (R.1), deux par feuille A4 : chaque personne choisie qui ne s'est
+        jamais connectée, et dont le compte ne sert que dans cette école, reçoit un nouveau mot
+        de passe provisoire imprimé sur sa lettre (noté au journal) ; les autres sont ignorées."""
+        params = AccessLettersQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        context = staff_import.letters(params.validated_data["ids"], actor=request.user)
+        return render("accounts/access_letters.html", context, "pdf", "lettres-acces.pdf")
 
     @extend_schema(request=None, responses={200: StaffSerializer, 409: ErrorSerializer, **ERRORS})
     @action(detail=True, methods=["post"], url_path="reset-totp")

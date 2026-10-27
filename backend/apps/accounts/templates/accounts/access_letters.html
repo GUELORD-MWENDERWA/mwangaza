@@ -1,0 +1,42 @@
+{% extends "core/print_base.html" %}{% load i18n %}{% comment %}Lettres d'accès du personnel (R.1), comme les lettres d'invitation (H7) : deux par feuille A4, trait de coupe au milieu. Le QR ne porte que l'adresse de l'application, jamais le mot de passe.{% endcomment %}
+{% block title %}{% translate "Access letters" %}{% endblock %}
+{% block style %}
+@page { margin: 0; @bottom-right { content: none; } }
+@media screen { body { padding: 0; } .letter { border: 1px solid #CBD5E1; margin-bottom: 8px; } }
+.letter { height: 148mm; padding: 10mm 14mm 8mm; position: relative; overflow: hidden; font-size: 11pt; }
+.letter:nth-child(odd) { border-bottom: 1px dashed #5B677A; }
+.letter:nth-child(even) { break-after: page; }
+.letter:last-child { break-after: auto; }
+h1 { margin: .7em 0 .3em; font-size: 1.35em; }
+.contact { white-space: pre-line; }
+.access { margin-top: .8em; border: 2px solid #101828; border-radius: 8px; padding: .7em 1em; align-items: center; }
+.steps { line-height: 1.7; }
+.qr { width: 26mm; height: 26mm; }
+.code { border: 2px dashed #101828; border-radius: 6px; padding: .4em .8em; text-align: center; }
+.code b { display: block; font-size: 1.45em; letter-spacing: .05em; white-space: nowrap; font-family: "DejaVu Sans Mono", monospace; }
+.foot { position: absolute; left: 14mm; right: 14mm; bottom: 7mm; }
+{% endblock %}
+{% block content %}
+{% for letter in letters %}
+<section class="letter">
+  <div class="row">
+    {% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<div class="logo-text">{{ school_name|slice:":4"|upper }}</div>{% endif %}
+    <div><b>{{ school_name|upper }}</b>{% if contact %}<div class="small contact">{{ contact }}</div>{% endif %}</div>
+  </div>
+  <h1>{% blocktranslate with name=platform.name|upper %}YOUR ACCESS TO {{ name }}{% endblocktranslate %}</h1>
+  <p class="center">{% translate "For" %} <b>{{ letter.name }}</b>{% if letter.roles %} ({{ letter.roles }}){% endif %}</p>
+  <p>{% blocktranslate with name=platform.name %}The school uses {{ name }} for the cash desk, the students, the marks and the announcements. Here is your account.{% endblocktranslate %}</p>
+  <div class="row access">
+    <img class="qr" src="{{ qr }}" alt="">
+    <div class="grow steps">
+      1. {% blocktranslate %}Open <b>{{ app_url }}</b> or scan the QR code.{% endblocktranslate %}<br>
+      2. {% blocktranslate with phone=letter.phone %}Enter your number: <b>{{ phone }}</b>{% endblocktranslate %}<br>
+      3. {% translate "Enter the temporary password opposite, then choose your own." %}
+    </div>
+    <div class="code"><span class="small">{% translate "TEMPORARY PASSWORD" %}</span><b>{{ letter.password }}</b></div>
+  </div>
+  <p class="small"><b>{% translate "It only works for the first sign-in." %}</b> {% translate "Do not give it to anyone. A problem, or a lost letter? Ask the school's secretariat: it prints a new letter." %}</p>
+  <p class="small muted foot">{% blocktranslate with date=printed_at|date:"d/m/Y" %}Printed on {{ date }} by {{ printed_by }}{% endblocktranslate %}</p>
+</section>
+{% endfor %}
+{% endblock %}

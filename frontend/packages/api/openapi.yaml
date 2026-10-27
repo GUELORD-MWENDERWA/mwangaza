@@ -13694,6 +13694,139 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/staff/access-letters/:
+    get:
+      operationId: staff_access_letters_retrieve
+      description: |-
+        Lettres d'accès (R.1), deux par feuille A4 : chaque personne choisie qui ne s'est
+        jamais connectée, et dont le compte ne sert que dans cette école, reçoit un nouveau mot
+        de passe provisoire imprimé sur sa lettre (noté au journal) ; les autres sont ignorées.
+      parameters:
+      - in: query
+        name: ids
+        schema:
+          type: string
+          minLength: 1
+        description: 'Appartenances séparées par des virgules (50 au plus) : celles
+          qui attendent leur lettre reçoivent un nouveau mot de passe provisoire.'
+        required: true
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/staff/import/:
+    post:
+      operationId: staff_import_create
+      description: |-
+        Import du personnel depuis Excel (R.1). Sans `expected` : aperçu ligne par ligne
+        (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu : comptes créés
+        d'un bloc, sans mot de passe avant leur lettre d'accès (201) ; 409 `preview_outdated`
+        si le résultat n'est plus celui de l'aperçu.
+      tags:
+      - accounts
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/StaffImportUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffImport'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffImport'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/staff/import/template/:
+    get:
+      operationId: staff_import_template_retrieve
+      description: 'Modèle Excel de l''import du personnel : nom, post-nom, prénom,
+        téléphone, rôles.'
+      tags:
+      - accounts
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/student-charges/:
     get:
       operationId: student_charges_list
@@ -32434,6 +32567,156 @@ components:
       - created_at
       - existing_account
       - temporary_password
+    StaffImport:
+      type: object
+      description: Aperçu d'un fichier du personnel, ou son résultat une fois enregistré.
+      properties:
+        recorded:
+          type: boolean
+        ready_count:
+          type: integer
+          description: Lignes prêtes (ou enregistrées).
+        skipped_count:
+          type: integer
+          description: 'Déjà dans l''école : ignorées.'
+        error_count:
+          type: integer
+          description: 'Lignes en erreur : jamais enregistrées.'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffImportLine'
+          description: Toutes les lignes lues.
+        added:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffImportAdded'
+          description: Personnes ajoutées (enregistré).
+      required:
+      - recorded
+      - ready_count
+      - skipped_count
+      - error_count
+      - lines
+      - added
+    StaffImportAdded:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Appartenance créée (lettres d'accès).
+        name:
+          type: string
+        phone:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        existing_account:
+          type: boolean
+          description: 'Le numéro avait déjà un compte : la personne garde son mot
+            de passe.'
+        letter:
+          type: boolean
+          description: Une lettre d'accès lui donnera son mot de passe.
+      required:
+      - id
+      - name
+      - phone
+      - roles
+      - existing_account
+      - letter
+    StaffImportIssue:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/StaffImportIssueCodeEnum'
+        line:
+          type: integer
+          description: '`duplicate_phone` : ligne qui porte déjà ce numéro.'
+        role:
+          type: string
+          description: '`unknown_role` : rôle écrit.'
+      required:
+      - code
+      - line
+      - role
+    StaffImportIssueCodeEnum:
+      enum:
+      - missing_name
+      - missing_phone
+      - invalid_phone
+      - demo_number
+      - demo_space_number
+      - duplicate_phone
+      - missing_role
+      - unknown_role
+      - already_member
+      type: string
+      description: |-
+        * `missing_name` - missing_name
+        * `missing_phone` - missing_phone
+        * `invalid_phone` - invalid_phone
+        * `demo_number` - demo_number
+        * `demo_space_number` - demo_space_number
+        * `duplicate_phone` - duplicate_phone
+        * `missing_role` - missing_role
+        * `unknown_role` - unknown_role
+        * `already_member` - already_member
+    StaffImportLine:
+      type: object
+      properties:
+        line:
+          type: integer
+          description: Numéro de la ligne du fichier.
+        name:
+          type: string
+          description: Nom, post-nom et prénom tels qu'écrits.
+        phone_text:
+          type: string
+          description: Téléphone tel qu'il est écrit.
+        roles_text:
+          type: string
+          description: Rôles tels qu'ils sont écrits.
+        status:
+          $ref: '#/components/schemas/StaffImportLineStatusEnum'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffImportIssue'
+      required:
+      - line
+      - name
+      - phone_text
+      - roles_text
+      - status
+      - issues
+    StaffImportLineStatusEnum:
+      enum:
+      - ready
+      - skipped
+      - error
+      type: string
+      description: |-
+        * `ready` - Ready
+        * `skipped` - Already in this school: left as is
+        * `error` - Error: not recorded
+    StaffImportUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Excel (.xlsx) ou CSV, 150 personnes au plus.
+        expected:
+          type: integer
+          minimum: 1
+          description: 'Nombre de lignes prêtes de l''aperçu : présent, les comptes
+            sont créés.'
+      required:
+      - file
     StaffUser:
       type: object
       properties:

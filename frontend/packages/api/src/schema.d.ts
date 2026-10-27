@@ -4423,6 +4423,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/staff/access-letters/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Lettres d'accès (R.1), deux par feuille A4 : chaque personne choisie qui ne s'est
+         *     jamais connectée, et dont le compte ne sert que dans cette école, reçoit un nouveau mot
+         *     de passe provisoire imprimé sur sa lettre (noté au journal) ; les autres sont ignorées.
+         */
+        get: operations["staff_access_letters_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/import/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Import du personnel depuis Excel (R.1). Sans `expected` : aperçu ligne par ligne
+         *     (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu : comptes créés
+         *     d'un bloc, sans mot de passe avant leur lettre d'accès (201) ; 409 `preview_outdated`
+         *     si le résultat n'est plus celui de l'aperçu.
+         */
+        post: operations["staff_import_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/import/template/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Modèle Excel de l'import du personnel : nom, post-nom, prénom, téléphone, rôles. */
+        get: operations["staff_import_template_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/student-charges/": {
         parameters: {
             query?: never;
@@ -12458,6 +12518,82 @@ export interface components {
             existing_account: boolean;
             /** @description Nouveau compte seulement : affiché une seule fois, à changer à la connexion. */
             temporary_password: string | null;
+        };
+        /** @description Aperçu d'un fichier du personnel, ou son résultat une fois enregistré. */
+        StaffImport: {
+            recorded: boolean;
+            /** @description Lignes prêtes (ou enregistrées). */
+            ready_count: number;
+            /** @description Déjà dans l'école : ignorées. */
+            skipped_count: number;
+            /** @description Lignes en erreur : jamais enregistrées. */
+            error_count: number;
+            /** @description Toutes les lignes lues. */
+            lines: components["schemas"]["StaffImportLine"][];
+            /** @description Personnes ajoutées (enregistré). */
+            added: components["schemas"]["StaffImportAdded"][];
+        };
+        StaffImportAdded: {
+            /**
+             * Format: uuid
+             * @description Appartenance créée (lettres d'accès).
+             */
+            id: string;
+            name: string;
+            phone: string;
+            roles: string[];
+            /** @description Le numéro avait déjà un compte : la personne garde son mot de passe. */
+            existing_account: boolean;
+            /** @description Une lettre d'accès lui donnera son mot de passe. */
+            letter: boolean;
+        };
+        StaffImportIssue: {
+            code: components["schemas"]["StaffImportIssueCodeEnum"];
+            /** @description `duplicate_phone` : ligne qui porte déjà ce numéro. */
+            line: number;
+            /** @description `unknown_role` : rôle écrit. */
+            role: string;
+        };
+        /**
+         * @description * `missing_name` - missing_name
+         *     * `missing_phone` - missing_phone
+         *     * `invalid_phone` - invalid_phone
+         *     * `demo_number` - demo_number
+         *     * `demo_space_number` - demo_space_number
+         *     * `duplicate_phone` - duplicate_phone
+         *     * `missing_role` - missing_role
+         *     * `unknown_role` - unknown_role
+         *     * `already_member` - already_member
+         * @enum {string}
+         */
+        StaffImportIssueCodeEnum: "missing_name" | "missing_phone" | "invalid_phone" | "demo_number" | "demo_space_number" | "duplicate_phone" | "missing_role" | "unknown_role" | "already_member";
+        StaffImportLine: {
+            /** @description Numéro de la ligne du fichier. */
+            line: number;
+            /** @description Nom, post-nom et prénom tels qu'écrits. */
+            name: string;
+            /** @description Téléphone tel qu'il est écrit. */
+            phone_text: string;
+            /** @description Rôles tels qu'ils sont écrits. */
+            roles_text: string;
+            status: components["schemas"]["StaffImportLineStatusEnum"];
+            issues: components["schemas"]["StaffImportIssue"][];
+        };
+        /**
+         * @description * `ready` - Ready
+         *     * `skipped` - Already in this school: left as is
+         *     * `error` - Error: not recorded
+         * @enum {string}
+         */
+        StaffImportLineStatusEnum: "ready" | "skipped" | "error";
+        StaffImportUploadRequest: {
+            /**
+             * Format: binary
+             * @description Excel (.xlsx) ou CSV, 150 personnes au plus.
+             */
+            file: string;
+            /** @description Nombre de lignes prêtes de l'aperçu : présent, les comptes sont créés. */
+            expected?: number;
         };
         StaffUser: {
             /** Format: uuid */
@@ -27123,6 +27259,153 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    staff_access_letters_retrieve: {
+        parameters: {
+            query: {
+                /** @description Appartenances séparées par des virgules (50 au plus) : celles qui attendent leur lettre reçoivent un nouveau mot de passe provisoire. */
+                ids: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    staff_import_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["StaffImportUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffImport"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffImport"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    staff_import_template_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
