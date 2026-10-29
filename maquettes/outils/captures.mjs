@@ -1,11 +1,12 @@
 // Captures PNG des maquettes avec Chrome sans interface (protocole DevTools, aucune dépendance).
 // Usage : node maquettes/outils/captures.mjs [fichier.html …]   (sans argument : toutes les maquettes)
+//         node maquettes/outils/captures.mjs --logo   (PNG du logo, fond transparent, depuis maquettes/assets/logo/mwangaza-*.svg)
 // Bureau : 1440 px de large, page entière (toutes les applications : le portail aussi, 2026-10-14). Téléphone : 390 px, densité 1 (assez pour lire la mise en page, léger dans Git).
 // Site public (`site/`, WEB.1a) : aussi la tablette, 820 px (`captures/tablet/`), et en WebP (photos : un PNG pèserait ~1,5 Mo).
 // Chaque capture est contrôlée : un élément qui dépasse de l'écran (hors conteneur qui défile) est signalé
 // et la commande sort en erreur (code 2) — une maquette qui déborde n'est pas finie.
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readdirSync, writeFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, basename, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -40,6 +41,33 @@ function targets(file) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const LOGO_ONLY = process.argv[2] === "--logo";
+
+// PNG du logo (BRAND.1) : hauteur en pixels par fichier, fond transparent, rendu exact de Chrome.
+const LOGO_PNG = { "mwangaza-symbole": [16, 32, 512, 1024], "mwangaza-symbole-inverse": [512], "mwangaza-symbole-mono": [512],
+  "mwangaza-logo": [256], "mwangaza-logo-inverse": [256], "mwangaza-logo-mono": [256],
+  "mwangaza-logotype": [192], "mwangaza-logotype-inverse": [192], "mwangaza-logotype-mono": [192] };
+
+async function logoPng(send, sessionId) {
+  const dir = join(ROOT, "assets", "logo");
+  mkdirSync(join(dir, "png"), { recursive: true });
+  await send("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 0 } }, sessionId);
+  for (const [name, heights] of Object.entries(LOGO_PNG)) {
+    const file = join(dir, `${name}.svg`);
+    const [w, h] = readFileSync(file, "utf8").match(/viewBox="[-\d.]+ [-\d.]+ ([\d.]+) ([\d.]+)"/).slice(1).map(Number);
+    for (const px of heights) {
+      const scale = px / h;
+      const width = Math.ceil(w), height = Math.ceil(h);
+      await send("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: scale, mobile: false }, sessionId);
+      await send("Page.navigate", { url: pathToFileURL(file).href }, sessionId);
+      await sleep(200);
+      const { data } = await send("Page.captureScreenshot", { format: "png", clip: { x: 0, y: 0, width: w, height: h, scale: 1 } }, sessionId);
+      const out = join(dir, "png", `${name}-${px}.png`);
+      writeFileSync(out, Buffer.from(data, "base64"));
+      console.log(`${relative(ROOT, out)}  ${Math.round(w * scale)}×${px}`);
+    }
+  }
+}
 
 // Éléments qui dépassent à droite de l'écran sans être dans un conteneur qui défile (3 au plus).
 const OVERFLOW = `(() => {
@@ -94,8 +122,9 @@ async function main() {
   const { sessionId } = await send("Target.attachToTarget", { targetId, flatten: true });
   await send("Page.enable", {}, sessionId);
 
+  if (LOGO_ONLY) await logoPng(send, sessionId);
   const overflows = [];
-  for (const file of pages(process.argv.slice(2))) {
+  for (const file of LOGO_ONLY ? [] : pages(process.argv.slice(2))) {
     for (const t of targets(file)) {
       await send("Emulation.setDeviceMetricsOverride",
         { width: t.width, height: t.height, deviceScaleFactor: t.scale, mobile: t.kind !== "desktop" }, sessionId);
