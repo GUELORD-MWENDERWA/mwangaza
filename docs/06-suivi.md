@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | aucun : PR « Plan : 17 lots » à relire et fusionner |
-| Prochain lot | **Lot 1 — Marque Mwangaza** (`/tache lot 1`) |
-| Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | une par lot, créée au début du lot (jalon « V1 complète ») |
-| Branche | `plan/lots-v1` |
-| Dernière mise à jour | 2026-10-29 (plan regroupé en lots) |
+| Lot en cours | **Lot 1 — Marque Mwangaza**, partie 1/3 faite (trois pistes) : **à toi de choisir une piste** (`maquettes/marque/pistes.html`) ; fiche `docs/claude/plans/lot-1.md` |
+| Prochain lot | Lot 2 — Site public refait |
+| Toi, en parallèle | **choisir une piste de marque (lot 1)** ; `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
+| Issue GitHub | #409 (une par lot, jalon « V1 complète ») |
+| Branche | `lot/1-marque` |
+| Dernière mise à jour | 2026-10-29 (lot 1, partie 1/3 : trois pistes de marque) |
 
 ## Avancement
 
@@ -20,7 +20,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 
 | Lot | Parties faites | Parties |
 |---|:-:|:-:|
-| 1 — Marque Mwangaza | 0 | 3 |
+| 1 — Marque Mwangaza | 1 | 3 |
 | 2 — Site public refait | 0 | 3 |
 | 3 — Vendre : contrats, abonnements, factures | 0 | 3 |
 | 4 — Bulletins aux parents | 0 | 3 |

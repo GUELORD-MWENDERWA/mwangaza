@@ -433,6 +433,11 @@ SITE = [
     ("mentions", "Mentions légales et confidentialité", "Lancement", "WEB.1a", True),
 ]
 
+# Marque de la plateforme (lot 1, BRAND.1) : pistes, puis livre de marque.
+MARQUE = [
+    ("pistes", "Trois pistes de marque : logo, couleurs, police", "Lot 1", "BRAND.1", True),
+]
+
 # (lien, libellé) du menu du site ; l'entrée active est celle de la page (SITE_ACTIVE).
 SITE_NAV = [
     ("ecoles.html", "Écoles"),
@@ -539,11 +544,12 @@ def _card(app: str, name: str, title: str, lot: str, ref: str, new: bool) -> str
 
 
 def build_index() -> str:
-    todo = sum(1 for *_, new in GESTION + PORTAIL + CONSOLE + SITE if new)
+    todo = sum(1 for *_, new in GESTION + PORTAIL + CONSOLE + SITE + MARQUE if new)
     gestion = "".join(_card("gestion", *row) for row in GESTION)
     portail = "".join(_card("portail", *row) for row in PORTAIL)
     console = "".join(_card("console", *row) for row in CONSOLE)
     site = "".join(_card("site", *row) for row in SITE)
+    marque = "".join(_card("marque", *row) for row in MARQUE)
     return (
         head("Maquettes", "assets/styles.css")
         + '<body><div style="background:var(--night);color:var(--night-ink);padding:36px 32px">'
@@ -561,6 +567,8 @@ def build_index() -> str:
         f'style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{console}</div>\n'
         f'<h2 style="margin-top:12px">Site public de la plateforme — {len(SITE)} pages (390, 820 et 1440 px)</h2>'
         f'<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{site}</div>\n'
+        f'<h2 style="margin-top:12px">Marque de la plateforme — {len(MARQUE)} page</h2>'
+        f'<div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))">{marque}</div>\n'
         "</main></body></html>"
     )
 

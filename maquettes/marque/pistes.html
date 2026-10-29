@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marque — trois pistes</title>
+<!-- Polices des pistes (licence OFL) en fichiers locaux, comme les autres maquettes : la page marche hors ligne. Celles de la piste écartée seront retirées à la partie ②. -->
+<style>
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url(../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url(../assets/fonts/atkinson-hyperlegible-next-latin-700-normal.woff2) format("woff2");font-weight:700}
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url(../assets/fonts/atkinson-hyperlegible-next-latin-800-normal.woff2) format("woff2");font-weight:800}
+@font-face{font-family:"Lexend";src:url(../assets/fonts/lexend-latin-600-normal.woff2) format("woff2");font-weight:600}
+@font-face{font-family:"Lexend";src:url(../assets/fonts/lexend-latin-700-normal.woff2) format("woff2");font-weight:700}
+@font-face{font-family:"Source Serif 4";src:url(../assets/fonts/source-serif-4-latin-600-normal.woff2) format("woff2");font-weight:600}
+@font-face{font-family:"Source Serif 4";src:url(../assets/fonts/source-serif-4-latin-700-normal.woff2) format("woff2");font-weight:700}
+:root{--ink:#101828;--ink-2:#475467;--line:#E2E8F0;--bg:#F5F7FB}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Atkinson Hyperlegible Next",system-ui,sans-serif;color:var(--ink);background:#fff;line-height:1.5}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+@media (min-width:768px){.wrap{padding:0 40px}}
+a{color:inherit}
+
+/* En-tête */
+.top{background:var(--bg);border-bottom:1px solid var(--line);padding:40px 0 32px}
+.eyebrow,.label{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+h1{font-size:clamp(30px,5vw,48px);line-height:1.1;margin:8px 0 12px;font-weight:800;letter-spacing:-.01em}
+.lead{font-size:18px;max-width:62ch;color:var(--ink-2);margin:0}
+.common{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin:24px 0 0;padding:0;list-style:none}
+.common li{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;font-size:15px}
+.common b{display:block;margin-bottom:2px}
+.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.jump a{text-decoration:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;font-size:15px}
+
+/* Logo : symbole + logotype */
+.lockup{display:inline-flex;align-items:center;gap:.28em;line-height:1;font-size:var(--sz,64px);color:var(--word,var(--anc));white-space:nowrap}
+.lockup svg{width:1.18em;height:1.18em;flex:none}
+.word{font-family:var(--wfont);font-weight:var(--wweight);letter-spacing:var(--wls,0)}
+.v-color{--s-tile:var(--anc);--s-draw:#fff;--s-acc:var(--acc);--word:var(--anc)}
+.v-inverse{--s-tile:#fff;--s-draw:var(--anc);--s-acc:var(--acc);--word:#fff}
+.v-mono{--s-tile:#111;--s-draw:#fff;--s-acc:#fff;--word:#111}
+svg.sym{display:block}
+
+/* Une piste */
+.piste{padding:56px 0;border-bottom:1px solid var(--line)}
+.p-head{display:flex;gap:12px 16px;align-items:center;flex-wrap:wrap}
+.p-letter{font-size:52px;font-weight:800;color:var(--act);line-height:1}
+.p-name{font-family:var(--wfont);font-size:clamp(26px,4vw,36px);font-weight:700;margin:0;color:var(--anc);line-height:1.1}
+.badge{background:var(--anc);color:#fff;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:700}
+.p-idea{font-size:17px;max-width:70ch;color:var(--ink-2);margin:12px 0 0}
+.label{margin:36px 0 0}
+
+.hero{display:grid;grid-template-columns:1fr;margin-top:28px;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+@media (min-width:900px){.hero{grid-template-columns:1.6fr 1fr}}
+.hero-logo{display:flex;align-items:center;justify-content:center;padding:56px 16px;background:#fff;min-height:240px}
+.hero-logo .lockup{--sz:clamp(38px,7.5vw,84px)}
+.hero-side{background:var(--anc);color:#fff;padding:28px;display:flex;flex-direction:column;justify-content:center;gap:16px}
+.hero-side .lockup{--sz:30px}
+.hero-side p{color:rgba(255,255,255,.85);margin:0;font-size:15px}
+
+.versions{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));margin-top:12px}
+.tile{border:1px solid var(--line);border-radius:12px;padding:28px 16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:18px;min-height:160px}
+.tile .lockup{--sz:30px}
+.tile small{font-size:13px;color:var(--ink-2);align-self:flex-start}
+.tile.dark{background:var(--anc);border-color:var(--anc)}
+.tile.dark small{color:rgba(255,255,255,.8)}
+.icons{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;justify-content:center}
+.icons svg{flex:none}
+.tab{display:flex;align-items:center;gap:8px;background:#EEF1F6;border-radius:8px 8px 0 0;padding:7px 12px;font-size:13px;color:var(--ink)}
+
+/* Palette */
+.bar{display:flex;height:48px;border-radius:10px;overflow:hidden;margin-top:12px;border:1px solid var(--line)}
+.bar span{display:flex;align-items:flex-end;padding:4px 8px;font-size:12px;font-weight:700;color:var(--ink-2);min-width:0;overflow:hidden;white-space:nowrap}
+.swatches{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));margin-top:12px}
+.sw{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.sw i{display:block;height:64px;border-bottom:1px solid var(--line)}
+.sw div{padding:10px 12px;font-size:14px}
+.sw b{display:block}
+.sw code{font-size:13px;color:var(--ink-2)}
+.sw p{margin:4px 0 0;font-size:13px;color:var(--ink-2)}
+.contrast{font-size:14px;color:var(--ink-2);margin:10px 0 0}
+
+/* Typographie */
+.typo{display:grid;gap:16px;grid-template-columns:1fr;margin-top:12px;border:1px solid var(--line);border-radius:16px;padding:24px}
+@media (min-width:900px){.typo{grid-template-columns:auto 1fr;align-items:center;gap:40px;padding:32px}}
+.aa{font-family:var(--wfont);font-size:120px;line-height:1;font-weight:700;color:var(--anc)}
+.meta{font-size:14px;color:var(--ink-2);margin:6px 0 0}
+.glyphs{font-family:var(--wfont);font-size:18px;overflow-wrap:anywhere;margin:12px 0 0}
+.sample-h{font-family:var(--wfont);font-size:clamp(24px,3.2vw,34px);font-weight:700;line-height:1.15;margin:16px 0 8px;color:var(--anc)}
+.sample-p{font-size:17px;margin:0;max-width:60ch}
+
+/* Applications */
+.apps{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin-top:12px}
+.app{border:1px solid var(--line);border-radius:16px;padding:20px 16px;background:var(--bg);display:flex;flex-direction:column;align-items:center;gap:14px}
+.app small{align-self:flex-start;font-size:13px;color:var(--ink-2)}
+.phone{width:196px;height:300px;border-radius:30px;background:#151B28;border:6px solid #0A0D14;padding:30px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;align-content:start}
+.ic{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;color:#E5E9F0;min-width:0}
+.ic i{width:30px;height:30px;border-radius:8px;background:#2B3346;display:block}
+.ic svg{width:30px;height:30px}
+.gbar{width:100%;max-width:250px;background:var(--anc);border-radius:12px;padding:18px 10px;color:#fff}
+.gbar .lockup{--sz:20px;padding:0 6px 16px}
+.school{background:rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:10px;color:rgba(255,255,255,.9)}
+.gbar .m{display:block;padding:8px 12px;border-radius:8px;font-size:14px;color:rgba(255,255,255,.8);position:relative}
+.gbar .m.on{background:rgba(255,255,255,.1);color:#fff;font-weight:700}
+.gbar .m.on::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:2px;background:var(--mark,var(--acc))}
+.bcard{width:100%;max-width:300px;aspect-ratio:85/55;background:#fff;border-radius:6px;box-shadow:0 1px 2px rgba(16,24,40,.08),0 8px 24px rgba(16,24,40,.08);padding:18px 26px 16px 18px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.bcard::after{content:"";position:absolute;right:0;top:0;bottom:0;width:8px;background:var(--anc)}
+.bcard .acc{position:absolute;right:0;top:18px;width:8px;height:24px;background:var(--acc);z-index:1}
+.bcard .lockup{--sz:20px}
+.bcard .who b{display:block;font-size:14px;color:var(--anc)}
+.bcard .who span,.bcard .contact{font-size:11px;color:var(--ink-2)}
+.bcard .row{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+.bcard .contact{text-align:right}
+
+/* Pour / limites */
+.pc{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));margin-top:12px}
+.pc div{border-radius:12px;padding:16px 18px;border:1px solid var(--line)}
+.pc h4{margin:0 0 6px;font-size:15px}
+.pc ul{margin:0;padding-left:18px;font-size:15px}
+.pc li+li{margin-top:4px}
+
+/* Comparaison */
+.end{padding:56px 0 72px;background:var(--bg)}
+.end h2{font-size:clamp(26px,4vw,34px);margin:0 0 16px;line-height:1.15}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:680px;font-size:15px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+tbody th{font-weight:700;color:var(--ink-2);width:22%}
+.reco{margin-top:24px;background:#fff;border:2px solid #0F2A5F;border-radius:16px;padding:20px 22px}
+.reco h3{margin:0 0 6px;font-size:20px}
+.reco p{margin:0;font-size:16px}
+.answer{margin-top:16px;font-size:16px}
+</style>
+</head>
+<body>
+
+<!-- Symboles des trois pistes (grille 64 × 64, carré arrondi plein) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="sym-a" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="18" style="fill:var(--s-tile)"/>
+    <path d="M14 54V34a9 9 0 0 1 18 0v20M32 34a9 9 0 0 1 18 0v20" style="fill:none;stroke:var(--s-draw);stroke-width:8;stroke-linejoin:round"/>
+    <circle cx="32" cy="14.5" r="5.5" style="fill:var(--s-acc)"/>
+  </symbol>
+  <symbol id="sym-b" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="18" style="fill:var(--s-tile)"/>
+    <g transform="translate(0 -4)">
+      <path d="M14 46V18h8l10 13 10-13h8v28h-8V31L32 43 22 31v15Z" style="fill:var(--s-draw)"/>
+      <rect x="14" y="50" width="36" height="4.5" rx="2.25" style="fill:var(--s-acc)"/>
+    </g>
+  </symbol>
+  <symbol id="sym-c" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="18" style="fill:var(--s-tile)"/>
+    <g transform="translate(0 1.5)">
+      <path d="M10 20c7-4 16-3 22 2 6-5 15-6 22-2v25c-7-4-16-3-22 2-6-5-15-6-22-2Z" style="fill:var(--s-draw)"/>
+      <path d="M32 23v22" style="stroke:var(--s-tile);stroke-width:2.5"/>
+      <path d="M41 14h6v17l-3-2.6-3 2.6Z" style="fill:var(--s-acc);stroke:var(--s-tile);stroke-width:2;paint-order:stroke;stroke-linejoin:round"/>
+    </g>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Mwangaza · Lot 1 · Livre de marque, étape 1</div>
+    <h1>Trois pistes de marque</h1>
+    <p class="lead">Chaque piste propose un symbole, un logotype, une palette et une police pour les titres. Choisis-en une ; on peut aussi en mélanger deux. La piste choisie devient le livre de marque complet, puis la marque des trois applications.</p>
+    <ul class="common">
+      <li><b>Bleu et blanc d'abord</b>Les couleurs de l'uniforme scolaire. Un seul accent, sur moins de 5 % de la surface : fini le jaune en grand.</li>
+      <li><b>Un symbole plein</b>Épais, dans un carré arrondi, lisible de 16 px (onglet du navigateur) à 512 px (icône installée).</li>
+      <li><b>Le texte des écrans ne change pas</b>Atkinson Hyperlegible Next reste la police des applications (lisible, déjà hors ligne). La piste choisit celle du logo et des grands titres.</li>
+      <li><b>Toujours modifiable</b>La piste donne les valeurs de départ : nom, logo et couleurs restent réglables dans la console. Reçus et bulletins gardent l'identité de l'école.</li>
+    </ul>
+    <nav class="jump" aria-label="Pistes">
+      <a href="#piste-a">A · Lever du jour</a>
+      <a href="#piste-b">B · Horizon</a>
+      <a href="#piste-c">C · Registre</a>
+      <a href="#comparer">Comparer</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ============ PISTE A ============ -->
+<section class="piste" id="piste-a" style="--anc:#0F2A5F;--act:#1D4FB8;--nua:#E8EFFB;--acc:#F6A609;--wfont:'Lexend',sans-serif;--wweight:600;--wls:-.02em">
+  <div class="wrap">
+    <div class="p-head">
+      <span class="p-letter">A</span>
+      <h2 class="p-name">Lever du jour</h2>
+      <span class="badge">Recommandée</span>
+    </div>
+    <p class="p-idea"><em>Mwangaza</em> veut dire « lumière ». Le symbole est un m dont les deux arches, comme deux collines ou deux mains ouvertes, laissent se lever un point de lumière : l'école qui voit clair dans ses comptes, ses notes et ses élèves.</p>
+
+    <div class="hero">
+      <div class="hero-logo"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span></div>
+      <div class="hero-side">
+        <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span>
+        <p>Le point de lumière est la signature : seul, il marque un repère actif, un chiffre important, le début d'un titre. Jamais en grande surface.</p>
+      </div>
+    </div>
+
+    <h3 class="label">Versions</h3>
+    <div class="versions">
+      <div class="tile"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span><small>Couleur, sur fond clair</small></div>
+      <div class="tile dark"><span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span><small>Inversée, sur le bleu marine</small></div>
+      <div class="tile"><span class="lockup v-mono"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span><small>Une couleur (tampon, photocopie)</small></div>
+      <div class="tile"><div class="icons v-color"><svg class="sym" width="72" height="72" aria-hidden="true"><use href="#sym-a"/></svg><svg class="sym" width="32" height="32" aria-hidden="true"><use href="#sym-a"/></svg><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym-a"/></svg></div><div class="tab v-color"><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym-a"/></svg>Caisse — Mwangaza</div><small>Icône : 72, 32 et 16 px, onglet</small></div>
+    </div>
+
+    <h3 class="label">Palette et proportions</h3>
+    <div class="bar" aria-hidden="true"><span style="flex:60;background:#fff">60 %</span><span style="flex:20;background:#0F2A5F;color:#fff">20 %</span><span style="flex:12;background:#E8EFFB">12 %</span><span style="flex:5;background:#1D4FB8"></span><span style="flex:3;background:#F6A609"></span></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:#0F2A5F"></i><div><b>Marine</b><code>#0F2A5F</code><p>Ancrage · barres, en-têtes, fonds sombres</p></div></div>
+      <div class="sw"><i style="background:#1D4FB8"></i><div><b>Bleu uniforme</b><code>#1D4FB8</code><p>Action · boutons, liens, focus (5 %)</p></div></div>
+      <div class="sw"><i style="background:#E8EFFB"></i><div><b>Ciel pâle</b><code>#E8EFFB</code><p>Nuance · cartes, sélection</p></div></div>
+      <div class="sw"><i style="background:#FFFFFF"></i><div><b>Blanc</b><code>#FFFFFF</code><p>Respiration · fond de chaque page</p></div></div>
+      <div class="sw"><i style="background:#101828"></i><div><b>Encre</b><code>#101828</code><p>Texte</p></div></div>
+      <div class="sw"><i style="background:#F6A609"></i><div><b>Soleil</b><code>#F6A609</code><p>Accent · le point de lumière seulement (3 %)</p></div></div>
+    </div>
+    <p class="contrast">Contrastes : blanc sur marine 13,9:1 · bleu uniforme sur blanc 7,3:1 · soleil sur marine 6,8:1. Le soleil n'est jamais un texte sur fond blanc (2,0:1).</p>
+
+    <h3 class="label">Typographie</h3>
+    <div class="typo">
+      <div><div class="aa">Aa</div><p class="meta">Lexend · titres et logotype<br>600 et 700 · licence libre OFL</p></div>
+      <div>
+        <p class="meta">Dessinée pour rendre la lecture plus facile ; ronde et nette, comme le symbole.</p>
+        <p class="glyphs">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 é è à ç ô « »</p>
+        <p class="sample-h">L'école tenue au propre, du minerval au bulletin.</p>
+        <p class="sample-p">Texte des écrans en Atkinson Hyperlegible Next : le caissier encaisse même sans internet, le parent voit le reçu sur son téléphone, le préfet suit les impayés de chaque classe.</p>
+      </div>
+    </div>
+
+    <h3 class="label">Applications</h3>
+    <div class="apps">
+      <div class="app">
+        <div class="phone" aria-hidden="true">
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic v-color"><svg class="sym"><use href="#sym-a"/></svg>Mwangaza</div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+        </div>
+        <small>Icône sur l'écran d'accueil du téléphone</small>
+      </div>
+      <div class="app">
+        <div class="gbar">
+          <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span>
+          <div class="school">Institut Les Volcans</div>
+          <span class="m on">Tableau de bord</span><span class="m">Élèves</span><span class="m">Caisse</span><span class="m">Notes</span>
+        </div>
+        <small>Barre de l'application Gestion</small>
+      </div>
+      <div class="app">
+        <div class="bcard"><span class="acc"></span>
+          <span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-a"/></svg><span class="word">mwangaza</span></span>
+          <div class="row"><div class="who"><b>Amani Bahati</b><span>Conseillère des écoles</span></div><div class="contact">+243 000 000 000<br>mwangazaschool.com</div></div>
+        </div>
+        <small>Carte de visite</small>
+      </div>
+    </div>
+
+    <div class="pc">
+      <div><h4>Pour</h4><ul><li>Le nom et le symbole disent la même chose : on retient « le m au soleil ».</li><li>Lisible à 16 px : trois formes simples, un seul point de couleur.</li><li>Vaut pour toute la RDC, pas seulement pour Goma.</li><li>Lexend est pensée pour la lecture : un bon signal pour une école.</li></ul></div>
+      <div><h4>Limites</h4><ul><li>Nouveaux bleus : toutes les couleurs des applications changent (une seule fois, par les jetons).</li><li>Une police de plus (Lexend, environ 40 Ko) pour les titres du site, du livre et des documents de la plateforme.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PISTE B ============ -->
+<section class="piste" id="piste-b" style="--anc:#0B1C35;--act:#0B5FCC;--nua:#EAF1FC;--acc:#F2622E;--wfont:'Atkinson Hyperlegible Next',sans-serif;--wweight:800;--wls:-.01em">
+  <div class="wrap">
+    <div class="p-head">
+      <span class="p-letter">B</span>
+      <h2 class="p-name">Horizon</h2>
+    </div>
+    <p class="p-idea">Un M plein, posé sur une ligne d'horizon : le moment où la lumière se lève sur le lac. Un signe très simple, qu'on lit de loin et à toute taille, comme le carré d'Orange.</p>
+
+    <div class="hero">
+      <div class="hero-logo"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span></div>
+      <div class="hero-side">
+        <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span>
+        <p>L'orange de l'aurore remplace le jaune : il ne sert qu'à la ligne d'horizon et à quelques repères. Les bleus restent ceux d'aujourd'hui.</p>
+      </div>
+    </div>
+
+    <h3 class="label">Versions</h3>
+    <div class="versions">
+      <div class="tile"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span><small>Couleur, sur fond clair</small></div>
+      <div class="tile dark"><span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span><small>Inversée, sur la nuit du Kivu</small></div>
+      <div class="tile"><span class="lockup v-mono"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span><small>Une couleur (tampon, photocopie)</small></div>
+      <div class="tile"><div class="icons v-color"><svg class="sym" width="72" height="72" aria-hidden="true"><use href="#sym-b"/></svg><svg class="sym" width="32" height="32" aria-hidden="true"><use href="#sym-b"/></svg><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym-b"/></svg></div><div class="tab v-color"><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym-b"/></svg>Caisse — Mwangaza</div><small>Icône : 72, 32 et 16 px, onglet</small></div>
+    </div>
+
+    <h3 class="label">Palette et proportions</h3>
+    <div class="bar" aria-hidden="true"><span style="flex:60;background:#fff">60 %</span><span style="flex:20;background:#0B1C35;color:#fff">20 %</span><span style="flex:12;background:#EAF1FC">12 %</span><span style="flex:5;background:#0B5FCC"></span><span style="flex:3;background:#F2622E"></span></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:#0B1C35"></i><div><b>Nuit du Kivu</b><code>#0B1C35</code><p>Ancrage · barres, en-têtes (déjà utilisée)</p></div></div>
+      <div class="sw"><i style="background:#0B5FCC"></i><div><b>Bleu lac</b><code>#0B5FCC</code><p>Action · boutons, liens, focus (déjà utilisée)</p></div></div>
+      <div class="sw"><i style="background:#EAF1FC"></i><div><b>Brume</b><code>#EAF1FC</code><p>Nuance · cartes, sélection</p></div></div>
+      <div class="sw"><i style="background:#FFFFFF"></i><div><b>Blanc</b><code>#FFFFFF</code><p>Respiration · fond de chaque page</p></div></div>
+      <div class="sw"><i style="background:#101828"></i><div><b>Encre</b><code>#101828</code><p>Texte</p></div></div>
+      <div class="sw"><i style="background:#F2622E"></i><div><b>Aurore</b><code>#F2622E</code><p>Accent · la ligne d'horizon, les repères (3 %)</p></div></div>
+    </div>
+    <p class="contrast">Contrastes : blanc sur nuit 17,1:1 · bleu lac sur blanc 6,0:1 · aurore sur nuit 5,3:1. L'aurore n'est jamais un texte sur fond blanc (3,2:1).</p>
+
+    <h3 class="label">Typographie</h3>
+    <div class="typo">
+      <div><div class="aa">Aa</div><p class="meta">Atkinson Hyperlegible Next · partout<br>400 à 800 · licence libre OFL</p></div>
+      <div>
+        <p class="meta">Une seule police, déjà dans le projet : aucun fichier à ajouter, rien à revérifier.</p>
+        <p class="glyphs">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 é è à ç ô « »</p>
+        <p class="sample-h">L'école tenue au propre, du minerval au bulletin.</p>
+        <p class="sample-p">Le caissier encaisse même sans internet, le parent voit le reçu sur son téléphone, le préfet suit les impayés de chaque classe.</p>
+      </div>
+    </div>
+
+    <h3 class="label">Applications</h3>
+    <div class="apps">
+      <div class="app">
+        <div class="phone" aria-hidden="true">
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic v-color"><svg class="sym"><use href="#sym-b"/></svg>Mwangaza</div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+        </div>
+        <small>Icône sur l'écran d'accueil du téléphone</small>
+      </div>
+      <div class="app">
+        <div class="gbar">
+          <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span>
+          <div class="school">Institut Les Volcans</div>
+          <span class="m on">Tableau de bord</span><span class="m">Élèves</span><span class="m">Caisse</span><span class="m">Notes</span>
+        </div>
+        <small>Barre de l'application Gestion</small>
+      </div>
+      <div class="app">
+        <div class="bcard"><span class="acc"></span>
+          <span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-b"/></svg><span class="word">Mwangaza</span></span>
+          <div class="row"><div class="who"><b>Amani Bahati</b><span>Conseillère des écoles</span></div><div class="contact">+243 000 000 000<br>mwangazaschool.com</div></div>
+        </div>
+        <small>Carte de visite</small>
+      </div>
+    </div>
+
+    <div class="pc">
+      <div><h4>Pour</h4><ul><li>Garde les bleus actuels : le moins de changements dans les applications.</li><li>Une seule police partout, déjà dans le projet.</li><li>Le symbole le plus lisible des trois, même à 16 px ou en tampon.</li></ul></div>
+      <div><h4>Limites</h4><ul><li>Un M seul est un signe courant : la marque tient surtout à la ligne orange et au bleu.</li><li>Le sens du nom (la lumière) reste discret.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PISTE C ============ -->
+<section class="piste" id="piste-c" style="--anc:#14214D;--act:#2447B8;--nua:#EEF2FA;--acc:#D62839;--mark:#fff;--wfont:'Source Serif 4',Georgia,serif;--wweight:700;--wls:-.01em">
+  <div class="wrap">
+    <div class="p-head">
+      <span class="p-letter">C</span>
+      <h2 class="p-name">Registre</h2>
+    </div>
+    <p class="p-idea">Un cahier ouvert, vu de face, dont les pages forment un M ; un signet rouge marque la page. L'école tenue au propre, où l'on sait toujours où en est chaque élève.</p>
+
+    <div class="hero">
+      <div class="hero-logo"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span></div>
+      <div class="hero-side">
+        <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span>
+        <p>Le rouge du signet est le seul accent. Il reste dans le logo et les documents de la plateforme, jamais à côté d'un message d'erreur.</p>
+      </div>
+    </div>
+
+    <h3 class="label">Versions</h3>
+    <div class="versions">
+      <div class="tile"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span><small>Couleur, sur fond clair</small></div>
+      <div class="tile dark"><span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span><small>Inversée, sur le bleu encre</small></div>
+      <div class="tile"><span class="lockup v-mono"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span><small>Une couleur (tampon, photocopie)</small></div>
+      <div class="tile"><div class="icons v-color"><svg class="sym" width="72" height="72" aria-hidden="true"><use href="#sym-c"/></svg><svg class="sym" width="32" height="32" aria-hidden="true"><use href="#sym-c"/></svg><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym-c"/></svg></div><div class="tab v-color"><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym-c"/></svg>Caisse — Mwangaza</div><small>Icône : 72, 32 et 16 px, onglet</small></div>
+    </div>
+
+    <h3 class="label">Palette et proportions</h3>
+    <div class="bar" aria-hidden="true"><span style="flex:60;background:#fff">60 %</span><span style="flex:20;background:#14214D;color:#fff">20 %</span><span style="flex:13;background:#EEF2FA">13 %</span><span style="flex:5;background:#2447B8"></span><span style="flex:2;background:#D62839"></span></div>
+    <div class="swatches">
+      <div class="sw"><i style="background:#14214D"></i><div><b>Encre bleue</b><code>#14214D</code><p>Ancrage · barres, en-têtes, fonds sombres</p></div></div>
+      <div class="sw"><i style="background:#2447B8"></i><div><b>Bleu roi</b><code>#2447B8</code><p>Action · boutons, liens, focus (5 %)</p></div></div>
+      <div class="sw"><i style="background:#EEF2FA"></i><div><b>Papier</b><code>#EEF2FA</code><p>Nuance · cartes, sélection</p></div></div>
+      <div class="sw"><i style="background:#FFFFFF"></i><div><b>Blanc</b><code>#FFFFFF</code><p>Respiration · fond de chaque page</p></div></div>
+      <div class="sw"><i style="background:#101828"></i><div><b>Encre</b><code>#101828</code><p>Texte</p></div></div>
+      <div class="sw"><i style="background:#D62839"></i><div><b>Signet</b><code>#D62839</code><p>Accent · le signet seulement (2 %)</p></div></div>
+    </div>
+    <p class="contrast">Contrastes : blanc sur encre bleue 15,5:1 · bleu roi sur blanc 7,9:1 · signet sur blanc 5,0:1. Dans les applications, le repère actif reste blanc (le rouge y voudrait dire « erreur »).</p>
+
+    <h3 class="label">Typographie</h3>
+    <div class="typo">
+      <div><div class="aa">Aa</div><p class="meta">Source Serif 4 · titres et logotype<br>600 et 700 · licence libre OFL</p></div>
+      <div>
+        <p class="meta">Un caractère à empattements : le ton d'une institution, d'un registre bien tenu.</p>
+        <p class="glyphs">ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz 0123456789 é è à ç ô « »</p>
+        <p class="sample-h">L'école tenue au propre, du minerval au bulletin.</p>
+        <p class="sample-p">Texte des écrans en Atkinson Hyperlegible Next : le caissier encaisse même sans internet, le parent voit le reçu sur son téléphone, le préfet suit les impayés de chaque classe.</p>
+      </div>
+    </div>
+
+    <h3 class="label">Applications</h3>
+    <div class="apps">
+      <div class="app">
+        <div class="phone" aria-hidden="true">
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic v-color"><svg class="sym"><use href="#sym-c"/></svg>Mwangaza</div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+        </div>
+        <small>Icône sur l'écran d'accueil du téléphone</small>
+      </div>
+      <div class="app">
+        <div class="gbar">
+          <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span>
+          <div class="school">Institut Les Volcans</div>
+          <span class="m on">Tableau de bord</span><span class="m">Élèves</span><span class="m">Caisse</span><span class="m">Notes</span>
+        </div>
+        <small>Barre de l'application Gestion</small>
+      </div>
+      <div class="app">
+        <div class="bcard"><span class="acc"></span>
+          <span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym-c"/></svg><span class="word">Mwangaza</span></span>
+          <div class="row"><div class="who"><b>Amani Bahati</b><span>Conseillère des écoles</span></div><div class="contact">+243 000 000 000<br>mwangazaschool.com</div></div>
+        </div>
+        <small>Carte de visite</small>
+      </div>
+    </div>
+
+    <div class="pc">
+      <div><h4>Pour</h4><ul><li>Ton d'institution : rassure un préfet, un promoteur, un parent.</li><li>Les titres à empattements distinguent Mwangaza des logiciels qui se ressemblent tous.</li><li>Le cahier parle à toutes les écoles du pays.</li></ul></div>
+      <div><h4>Limites</h4><ul><li>Le livre ouvert est le symbole le plus courant de l'éducation : moins mémorable.</li><li>Le sens du nom (la lumière) n'apparaît pas dans le symbole.</li><li>Le rouge rappelle les erreurs : il ne peut pas servir dans les applications.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARER ============ -->
+<section class="end" id="comparer">
+  <div class="wrap">
+    <h2>Comparer et choisir</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th></th><th>A · Lever du jour</th><th>B · Horizon</th><th>C · Registre</th></tr></thead>
+        <tbody>
+          <tr><th>Idée</th><td>La lumière qui se lève : le sens du nom</td><td>Un M sur la ligne d'horizon : simple, lisible de loin</td><td>Le cahier ouvert et son signet : l'école tenue au propre</td></tr>
+          <tr><th>Bleus</th><td>Marine et bleu uniforme (nouveaux)</td><td>Nuit du Kivu et bleu lac (ceux d'aujourd'hui)</td><td>Encre bleue et bleu roi (nouveaux)</td></tr>
+          <tr><th>Accent</th><td>Soleil, 3 %</td><td>Aurore, 3 %</td><td>Rouge signet, 2 %, hors des applications</td></tr>
+          <tr><th>Titres</th><td>Lexend</td><td>Atkinson Hyperlegible Next</td><td>Source Serif 4</td></tr>
+          <tr><th>Sens du nom (lumière)</th><td>Montré par le symbole</td><td>Discret (la ligne d'horizon)</td><td>Absent du symbole</td></tr>
+          <tr><th>Changement dans les applications</th><td>Moyen : couleurs, logo, police des titres</td><td>Faible : logo et accent</td><td>Moyen : couleurs, logo, police des titres</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="reco">
+      <h3>Recommandation : piste A, Lever du jour</h3>
+      <p>Le nom dit « lumière » et le symbole le montre ; il reste lisible à 16 px, ne dépend d'aucune ville, et le jaune n'est plus qu'un point. Lexend, faite pour la lecture, donne aux titres un ton net et accueillant.</p>
+    </div>
+    <p class="answer"><b>Pour répondre</b> : « piste A » (ou B, ou C), avec ce que tu veux changer — une couleur, la police, un détail du symbole. Un mélange est possible, par exemple le symbole de A avec les couleurs de B.</p>
+  </div>
+</section>
+
+</body>
+</html>
