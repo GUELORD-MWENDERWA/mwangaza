@@ -16,9 +16,9 @@ export function AuthFrame({
 }) {
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-2">
-      <header className="relief bg-night px-4 pt-6 pb-8 text-night-ink lg:flex lg:items-center lg:px-16 lg:py-14">
+      <header className="bg-night px-4 pt-6 pb-8 text-night-ink lg:flex lg:items-center lg:px-16 lg:py-14">
         <div className="mx-auto flex max-w-[440px] flex-col gap-5 lg:mx-0 lg:max-w-[460px] lg:gap-8">
-          <Brand large />
+          <Brand large inverse />
           <div className="flex flex-col gap-2 lg:gap-3">
             <h1 className="text-2xl leading-tight lg:text-3xl">{title}</h1>
             <p className="text-base text-night-soft">{subtitle}</p>

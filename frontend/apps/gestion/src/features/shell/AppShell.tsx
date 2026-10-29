@@ -115,7 +115,7 @@ function MobileMenu({ me }: { me: Me }) {
       <SheetContent title={t("shell.mainMenu")}>
         <div className="flex items-center justify-between px-1.5 pt-0.5 pb-2.5">
           <Link to="/" onClick={close} className="text-night-ink no-underline">
-            <Brand />
+            <Brand inverse />
           </Link>
           <SheetClose className="grid size-11 cursor-pointer place-items-center text-night-soft">
             <Icon name="x" />

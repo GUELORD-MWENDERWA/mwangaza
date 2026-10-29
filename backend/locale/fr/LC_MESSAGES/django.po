@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-27 17:06+0200\n"
+"POT-Creation-Date: 2026-10-29 20:52+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -2089,7 +2089,7 @@ msgstr ""
 "Remplacez d'abord votre mot de passe provisoire à l'adresse de votre école."
 
 #: apps/accounts/models.py:64 apps/accounts/models.py:255
-#: apps/core/models.py:284 apps/students/models.py:70
+#: apps/core/models.py:285 apps/students/models.py:70
 msgid "phone"
 msgstr "téléphone"
 
@@ -2109,7 +2109,7 @@ msgstr "post-nom"
 msgid "first name"
 msgstr "prénom"
 
-#: apps/accounts/models.py:73 apps/core/models.py:288
+#: apps/accounts/models.py:73 apps/core/models.py:289
 msgid "language"
 msgstr "langue"
 
@@ -2158,11 +2158,11 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:174 apps/core/models.py:281
+#: apps/accounts/models.py:174 apps/core/models.py:282
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:200 apps/core/models.py:52 apps/core/models.py:282
+#: apps/accounts/models.py:200 apps/core/models.py:52 apps/core/models.py:283
 #: apps/notifications/models.py:344 apps/schools/admin.py:59
 #: apps/schools/models.py:231 apps/schools/models.py:355
 msgid "school"
@@ -2474,7 +2474,7 @@ msgstr "Directeur des études"
 msgid "Discipline master"
 msgstr "Directeur de discipline"
 
-#: apps/accounts/roles.py:181 apps/core/models.py:262
+#: apps/accounts/roles.py:181 apps/core/models.py:263
 #: apps/core/templates/core/site/home.html:129
 #: apps/core/templates/core/site/schools.html:12
 #: apps/core/templates/core/site/schools.html:42
@@ -2495,7 +2495,7 @@ msgstr "Caissier"
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: apps/accounts/roles.py:214 apps/core/models.py:260
+#: apps/accounts/roles.py:214 apps/core/models.py:261
 msgid "Promoter"
 msgstr "Promoteur"
 
@@ -2869,11 +2869,11 @@ msgstr "usage"
 msgid "Waiting"
 msgstr "En attente"
 
-#: apps/ai/models.py:100 apps/core/models.py:384
+#: apps/ai/models.py:100 apps/core/models.py:385
 msgid "Running"
 msgstr "En cours"
 
-#: apps/ai/models.py:101 apps/core/models.py:385 apps/timetable/models.py:353
+#: apps/ai/models.py:101 apps/core/models.py:386 apps/timetable/models.py:353
 msgid "Done"
 msgstr "Terminé"
 
@@ -2881,7 +2881,7 @@ msgstr "Terminé"
 msgid "Refused"
 msgstr "Refusé"
 
-#: apps/ai/models.py:103 apps/core/models.py:386 apps/schools/models.py:352
+#: apps/ai/models.py:103 apps/core/models.py:387 apps/schools/models.py:352
 #: apps/students/models.py:227 apps/timetable/models.py:356
 msgid "Failed"
 msgstr "Échec"
@@ -3829,8 +3829,8 @@ msgstr "L'image ne doit pas dépasser %(side)s pixels de côté."
 msgid "created at"
 msgstr "créé le"
 
-#: apps/core/models.py:24 apps/core/models.py:214 apps/core/models.py:279
-#: apps/core/models.py:345
+#: apps/core/models.py:24 apps/core/models.py:212 apps/core/models.py:280
+#: apps/core/models.py:346
 msgid "updated at"
 msgstr "modifié le"
 
@@ -3863,168 +3863,167 @@ msgstr ""
 msgid "logo"
 msgstr "logo"
 
-#: apps/core/models.py:162
+#: apps/core/models.py:161
 msgid ""
-"PNG, JPEG or SVG, 1 MB at most. Without it: the default symbol (M and flame)."
+"PNG, JPEG or SVG, 1 MB at most. Without it: the default symbol and the name."
 msgstr ""
-"PNG, JPEG ou SVG, 1 Mo au plus. Sans lui : le symbole par défaut (M et "
-"flamme)."
+"PNG, JPEG ou SVG, 1 Mo au plus. Sans lui : le symbole par défaut et le nom."
 
-#: apps/core/models.py:166
+#: apps/core/models.py:164
 msgid "application icon"
 msgstr "icône des applications"
 
-#: apps/core/models.py:170
+#: apps/core/models.py:168
 msgid ""
 "Square PNG of at least 512 x 512 pixels. Without it: the default symbol."
 msgstr ""
 "PNG carré d'au moins 512 x 512 pixels. Sans elle : le symbole par défaut."
 
-#: apps/core/models.py:173
+#: apps/core/models.py:171
 msgid "main colour"
 msgstr "couleur principale"
 
-#: apps/core/models.py:177
-msgid "Buttons and links of the interface."
-msgstr "Boutons et liens de l'interface."
+#: apps/core/models.py:175
+msgid "Menus, buttons and links of the interface."
+msgstr "Menus, boutons et liens de l'interface."
 
-#: apps/core/models.py:180
+#: apps/core/models.py:178
 msgid "accent colour"
 msgstr "couleur d'accent"
 
-#: apps/core/models.py:184
-msgid "Mark and highlights on the dark menu."
-msgstr "Marque et repères sur le menu sombre."
+#: apps/core/models.py:182
+msgid "Sun of the symbol and highlights on the menu (rarely)."
+msgstr "Soleil du symbole et repères sur le menu (avec mesure)."
 
-#: apps/core/models.py:186
+#: apps/core/models.py:184
 msgid "support phone"
 msgstr "téléphone du support"
 
-#: apps/core/models.py:187
+#: apps/core/models.py:185
 msgid "support email"
 msgstr "e-mail du support"
 
-#: apps/core/models.py:188
+#: apps/core/models.py:186
 msgid "legal notice"
 msgstr "mentions légales"
 
-#: apps/core/models.py:192 apps/students/models.py:111
+#: apps/core/models.py:190 apps/students/models.py:111
 msgid "address"
 msgstr "adresse"
 
-#: apps/core/models.py:192
+#: apps/core/models.py:190
 msgid "Street, number, district."
 msgstr "Rue, numéro, quartier."
 
-#: apps/core/models.py:194 apps/core/models.py:283 apps/schools/models.py:148
+#: apps/core/models.py:192 apps/core/models.py:284 apps/schools/models.py:148
 msgid "town"
 msgstr "ville"
 
-#: apps/core/models.py:195 apps/schools/models.py:147
+#: apps/core/models.py:193 apps/schools/models.py:147
 msgid "province"
 msgstr "province"
 
-#: apps/core/models.py:217 apps/core/models.py:218
+#: apps/core/models.py:215 apps/core/models.py:216
 msgid "platform identity"
 msgstr "identité de la plateforme"
 
-#: apps/core/models.py:259
+#: apps/core/models.py:260
 msgid "Prefect of studies"
 msgstr "Préfet des études"
 
-#: apps/core/models.py:261
+#: apps/core/models.py:262
 msgid "Head teacher"
 msgstr "Directeur"
 
-#: apps/core/models.py:263 apps/finance/models.py:33 apps/finance/models.py:231
+#: apps/core/models.py:264 apps/finance/models.py:33 apps/finance/models.py:231
 #: apps/notifications/models.py:85 apps/students/models.py:63
 #: apps/timetable/models.py:117
 msgid "Other"
 msgstr "Autre"
 
-#: apps/core/models.py:266
+#: apps/core/models.py:267
 msgid "Fewer than 300"
 msgstr "Moins de 300"
 
-#: apps/core/models.py:267
+#: apps/core/models.py:268
 msgid "300 to 800"
 msgstr "300 à 800"
 
-#: apps/core/models.py:268
+#: apps/core/models.py:269
 msgid "800 to 1,500"
 msgstr "800 à 1 500"
 
-#: apps/core/models.py:269
+#: apps/core/models.py:270
 msgid "More than 1,500"
 msgstr "Plus de 1 500"
 
-#: apps/core/models.py:272
+#: apps/core/models.py:273
 msgid "New"
 msgstr "Nouvelle"
 
-#: apps/core/models.py:273
+#: apps/core/models.py:274
 msgid "Called back"
 msgstr "Rappelée"
 
-#: apps/core/models.py:274
+#: apps/core/models.py:275
 msgid "Trial space opened"
 msgstr "Espace d'essai ouvert"
 
-#: apps/core/models.py:275
+#: apps/core/models.py:276
 msgid "No follow-up"
 msgstr "Sans suite"
 
-#: apps/core/models.py:278
+#: apps/core/models.py:279
 msgid "received at"
 msgstr "reçue le"
 
-#: apps/core/models.py:280 apps/students/models.py:68
+#: apps/core/models.py:281 apps/students/models.py:68
 msgid "full name"
 msgstr "nom complet"
 
-#: apps/core/models.py:285
+#: apps/core/models.py:286
 msgid "number of pupils"
 msgstr "nombre d'élèves"
 
-#: apps/core/models.py:286 apps/students/models.py:71
+#: apps/core/models.py:287 apps/students/models.py:71
 msgid "email"
 msgstr "e-mail"
 
-#: apps/core/models.py:287 apps/notifications/models.py:23
+#: apps/core/models.py:288 apps/notifications/models.py:23
 #: apps/notifications/models.py:168 apps/notifications/models.py:276
 msgid "message"
 msgstr "message"
 
-#: apps/core/models.py:290
+#: apps/core/models.py:291
 msgid "follow-up"
 msgstr "suivi"
 
-#: apps/core/models.py:292
+#: apps/core/models.py:293
 msgid "internal note"
 msgstr "note interne"
 
-#: apps/core/models.py:295
+#: apps/core/models.py:296
 msgid "demo request"
 msgstr "demande de démonstration"
 
-#: apps/core/models.py:296
+#: apps/core/models.py:297
 msgid "demo requests"
 msgstr "demandes de démonstration"
 
-#: apps/core/models.py:311
+#: apps/core/models.py:312
 msgid "Home page question"
 msgstr "Question de l'accueil"
 
-#: apps/core/models.py:312
+#: apps/core/models.py:313
 msgid "Parents page question"
 msgstr "Question de la page Parents"
 
-#: apps/core/models.py:313 apps/core/templates/core/site/modules.html:32
+#: apps/core/models.py:314 apps/core/templates/core/site/modules.html:32
 #: apps/core/templates/core/site/modules.html:34
 msgid "Coming soon"
 msgstr "Prochainement"
 
-#: apps/core/models.py:317 apps/finance/models.py:247
+#: apps/core/models.py:318 apps/finance/models.py:247
 #: apps/notifications/models.py:93 apps/notifications/models.py:274
 #: apps/schools/models.py:438 apps/sync/models.py:26
 #: apps/timetable/models.py:81 apps/timetable/models.py:120
@@ -4032,63 +4031,63 @@ msgstr "Prochainement"
 msgid "kind"
 msgstr "type"
 
-#: apps/core/models.py:318
+#: apps/core/models.py:319
 msgid "title in French"
 msgstr "titre en français"
 
-#: apps/core/models.py:319
+#: apps/core/models.py:320
 msgid "title in English"
 msgstr "titre en anglais"
 
-#: apps/core/models.py:320 apps/core/models.py:339
+#: apps/core/models.py:321 apps/core/models.py:340
 msgid "text in French"
 msgstr "texte en français"
 
-#: apps/core/models.py:321 apps/core/models.py:340
+#: apps/core/models.py:322 apps/core/models.py:341
 msgid "text in English"
 msgstr "texte en anglais"
 
-#: apps/core/models.py:322
+#: apps/core/models.py:323
 msgid "position"
 msgstr "rang"
 
-#: apps/core/models.py:323
+#: apps/core/models.py:324
 msgid "published"
 msgstr "publié"
 
-#: apps/core/models.py:327
+#: apps/core/models.py:328
 msgid "site content"
 msgstr "contenu du site"
 
-#: apps/core/models.py:328
+#: apps/core/models.py:329
 msgid "site contents"
 msgstr "contenus du site"
 
-#: apps/core/models.py:341 apps/notifications/models.py:278
+#: apps/core/models.py:342 apps/notifications/models.py:278
 msgid "link"
 msgstr "lien"
 
-#: apps/core/models.py:342
+#: apps/core/models.py:343
 msgid "from"
 msgstr "du"
 
-#: apps/core/models.py:343
+#: apps/core/models.py:344
 msgid "until"
 msgstr "au"
 
-#: apps/core/models.py:344
+#: apps/core/models.py:345
 msgid "shown"
 msgstr "affiché"
 
-#: apps/core/models.py:348 apps/core/models.py:349
+#: apps/core/models.py:349 apps/core/models.py:350
 msgid "site banner"
 msgstr "bandeau du site"
 
-#: apps/core/models.py:383
+#: apps/core/models.py:384
 msgid "Queued"
 msgstr "En attente"
 
-#: apps/core/models.py:391 apps/students/models.py:233
+#: apps/core/models.py:392 apps/students/models.py:233
 msgid "file name"
 msgstr "nom du fichier"
 
@@ -4100,19 +4099,19 @@ msgstr "Dollar américain"
 msgid "Congolese franc"
 msgstr "Franc congolais"
 
-#: apps/core/platform.py:53
+#: apps/core/platform.py:52
 msgid "The logo must be a PNG, JPEG or SVG image (SVG without scripts)."
 msgstr "Le logo doit être une image PNG, JPEG ou SVG (SVG sans script)."
 
-#: apps/core/platform.py:62
+#: apps/core/platform.py:61
 msgid "The icon must be a square PNG image of at least 512 x 512 pixels."
 msgstr "L'icône doit être une image PNG carrée d'au moins 512 x 512 pixels."
 
-#: apps/core/platform.py:87 apps/schools/colors.py:82
-msgid "Enter a colour as #RRGGBB, e.g. #0B5FCC."
-msgstr "Saisissez une couleur au format #RRGGBB, ex. #0B5FCC."
+#: apps/core/platform.py:86
+msgid "Enter a colour as #RRGGBB, e.g. #1A2F80."
+msgstr "Saisissez une couleur au format #RRGGBB, ex. #1A2F80."
 
-#: apps/core/platform.py:103
+#: apps/core/platform.py:102
 msgid ""
 "This colour is too light: white text on it, or the colour on a light "
 "background, is not readable."
@@ -4120,12 +4119,15 @@ msgstr ""
 "Cette couleur est trop claire : un texte blanc posé dessus, ou la couleur "
 "sur un fond clair, n'est pas lisible."
 
-#: apps/core/platform.py:113
-msgid "This colour is too dark: it is not readable on the dark menu."
+#: apps/core/platform.py:124
+msgid ""
+"This colour is not readable on the main colour (menus and symbol): choose a "
+"lighter one."
 msgstr ""
-"Cette couleur est trop sombre : elle n'est pas lisible sur le menu sombre."
+"Cette couleur n'est pas lisible sur la couleur principale (menus et "
+"symbole) : choisissez-en une plus claire."
 
-#: apps/core/platform.py:166
+#: apps/core/platform.py:178
 #, python-format
 msgid "This link must start with https:// and lead to %(site)s."
 msgstr "Ce lien doit commencer par https:// et mener à %(site)s."
@@ -4172,17 +4174,17 @@ msgstr "Trop de documents en préparation"
 msgid "Wait for the documents already requested to finish, then try again."
 msgstr "Attendez la fin des documents déjà demandés, puis réessayez."
 
-#: apps/core/serializers.py:154
+#: apps/core/serializers.py:166
 msgid "The kind of an entry cannot change."
 msgstr "La sorte d'une entrée ne change pas."
 
-#: apps/core/serializers.py:159
+#: apps/core/serializers.py:171
 #, python-format
 msgid "This list is full (%(max)s at most): delete an entry first."
 msgstr ""
 "Cette liste est pleine (%(max)s au plus) : supprimez d'abord une entrée."
 
-#: apps/core/serializers.py:207
+#: apps/core/serializers.py:219
 msgid ""
 "Give a page of the site (/demonstration/) or an address starting with "
 "https://."
@@ -4190,11 +4192,11 @@ msgstr ""
 "Donnez une page du site (/demonstration/) ou une adresse qui commence par "
 "https://."
 
-#: apps/core/serializers.py:217
+#: apps/core/serializers.py:229
 msgid "Write the text to show."
 msgstr "Écrivez le texte à afficher."
 
-#: apps/core/serializers.py:219
+#: apps/core/serializers.py:231
 msgid "The end comes before the start."
 msgstr "La fin vient avant le début."
 
@@ -8201,6 +8203,10 @@ msgstr "support"
 #: apps/schools/admin.py:93
 msgid "Open as the school"
 msgstr "Ouvrir en tant qu'école"
+
+#: apps/schools/colors.py:82
+msgid "Enter a colour as #RRGGBB, e.g. #0B5FCC."
+msgstr "Saisissez une couleur au format #RRGGBB, ex. #0B5FCC."
 
 #: apps/schools/colors.py:87
 #, python-format

@@ -113,9 +113,9 @@ export function Sidebar({ me }: { me: Me }) {
   const { t } = useTranslation();
   const { restart } = useGuide();
   return (
-    <aside className="relief sticky top-0 hidden h-screen flex-col gap-1 overflow-y-auto bg-night px-3 py-[18px] text-night-ink min-[900px]:flex">
+    <aside className="sticky top-0 hidden h-screen flex-col gap-1 overflow-y-auto bg-night px-3 py-[18px] text-night-ink min-[900px]:flex">
       <Link to="/" className="px-2.5 pt-1 pb-[18px] text-night-ink no-underline">
-        <Brand />
+        <Brand inverse />
       </Link>
       <SchoolSwitcher me={me} />
       <div className="mt-3">

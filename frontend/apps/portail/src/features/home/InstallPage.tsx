@@ -31,7 +31,7 @@ export function InstallPage() {
     <div className="min-h-screen bg-background">
       <header className="bg-night px-5 pt-7 pb-8 text-night-ink">
         <div className="mx-auto max-w-[640px]">
-          <Brand />
+          <Brand inverse />
           <h1 className="mt-5 text-2xl">{t("portal.install.title")}</h1>
           <p className="mt-1.5 text-night-muted">{t("portal.install.subtitle")}</p>
         </div>
@@ -40,7 +40,7 @@ export function InstallPage() {
         <Card className="overflow-hidden">
           <div
             aria-hidden="true"
-            className="grid place-items-center bg-[linear-gradient(160deg,var(--color-night),var(--color-lake))] py-6"
+            className="grid place-items-center bg-[linear-gradient(160deg,var(--color-ink-2),var(--color-ink))] py-6"
           >
             {icon ? (
               <img src={icon} alt="" className="size-[60px] rounded-[14px]" />

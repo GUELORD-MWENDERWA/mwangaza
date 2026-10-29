@@ -187,7 +187,7 @@ function BannerForm({ banner }: { banner: SiteBanner }) {
           )}
         </p>
         <div className="bg-night px-4 py-3 text-night-ink">
-          <Brand />
+          <Brand inverse />
         </div>
         <CardContent>
           <p className="text-sm text-ink-3">{t("console.site.banner.previewHint")}</p>

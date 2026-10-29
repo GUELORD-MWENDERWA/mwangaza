@@ -11,7 +11,7 @@ import { ConsoleTag } from "../shell/ConsoleTag";
 export function ConsoleFrame({ children }: { children: ReactNode }) {
   const { t } = useTranslation();
   return (
-    <div className="relief flex min-h-screen flex-col items-center justify-center gap-4 bg-night px-4 py-8">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-night px-4 py-8">
       <main className="flex w-full max-w-[420px] flex-col gap-4 rounded-dialog bg-white p-7 shadow-float">
         <div className="flex items-center gap-3">
           <Brand />

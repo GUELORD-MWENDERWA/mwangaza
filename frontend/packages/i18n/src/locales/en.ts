@@ -5183,19 +5183,20 @@ export const en: Messages<typeof fr> = {
         tiktok_url: "TikTok",
       },
       primary_color: {
-        help: "Buttons and links.",
+        help: "Menus, buttons and links.",
         unreadable:
           "Colour too light: white text on it, or the colour on a light background, is not readable.",
       },
       accent_color: {
-        help: "Highlights on the dark menu.",
-        unreadable: "Colour too dark: it is not readable on the dark menu.",
+        help: "Sun of the symbol and highlights on the menu (rarely).",
+        unreadable:
+          "Colour not readable on the main colour (menus and symbol): choose a lighter one.",
       },
       picker: "Pick the colour",
       logo: {
         label: "Logo",
         alt: "Platform logo",
-        help: "PNG or JPEG (2,048 px per side at most) or SVG, 1 MB at most. Without a logo: the default symbol (M and flame).",
+        help: "PNG or JPEG (2,048 px per side at most) or SVG, 1 MB at most. Without a logo: the default symbol and the name.",
         change: "Change the logo",
       },
       icon: {

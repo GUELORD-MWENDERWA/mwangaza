@@ -43,7 +43,7 @@ def test_each_change_is_journaled_once_with_only_what_changed(api, platform_admi
     changes = {
         "name": "Lumière",
         "site_name": "Lumière École",
-        "primary_color": "#1d4ed8",
+        "primary_color": "#1e3a8a",
         "support_phone": "0970000000",
     }
 
@@ -51,7 +51,7 @@ def test_each_change_is_journaled_once_with_only_what_changed(api, platform_admi
 
     assert (data["name"], data["primary_color"], data["support_phone"]) == (
         "Lumière",
-        "#1D4ED8",
+        "#1E3A8A",
         "+243970000000",
     )
     public = client.get("/api/platform/", HTTP_HOST="alpha.localhost").json()
@@ -65,13 +65,13 @@ def test_each_change_is_journaled_once_with_only_what_changed(api, platform_admi
     assert log.before == {
         "name": INITIAL_NAME,
         "site_name": "Mwangaza School",
-        "primary_color": "#0B5FCC",
+        "primary_color": "#1A2F80",
         "support_phone": "",
     }
     assert log.after == {
         "name": "Lumière",
         "site_name": "Lumière École",
-        "primary_color": "#1D4ED8",
+        "primary_color": "#1E3A8A",
         "support_phone": "+243970000000",
     }
     assert [entry["action"] for entry in data["history"]] == ["platform.updated"]

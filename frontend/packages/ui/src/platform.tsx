@@ -20,7 +20,7 @@ export interface PlatformIdentity {
   legal_notice: string;
 }
 
-/** Avant la première réponse sur un appareil neuf : la lampe, sans nom. */
+/** Avant la première réponse sur un appareil neuf : le symbole aux couleurs de la marque, sans nom. */
 export const NO_PLATFORM: PlatformIdentity = {
   name: "",
   short_name: "",
@@ -40,8 +40,8 @@ export function usePlatform() {
   return use(PlatformContext);
 }
 
-/** Couleurs de la plateforme dans le thème (jetons `lake` et `lamp`, teintes calculées comme
- *  celles du design) et icône de l'onglet. Le serveur a vérifié qu'elles restent lisibles. */
+/** Couleurs de la plateforme dans le thème (jetons `lake` et `lamp` ; les barres `night` suivent
+ *  `lake`, teintes calculées comme celles du design) et icône de l'onglet. Le serveur a vérifié qu'elles restent lisibles. */
 export function applyPlatform(platform: PlatformIdentity) {
   if (typeof document === "undefined") return;
   const style = document.documentElement.style;
@@ -53,6 +53,8 @@ export function applyPlatform(platform: PlatformIdentity) {
     style.setProperty("--color-lake-50", tint);
     style.setProperty("--color-info", primary);
     style.setProperty("--color-info-50", tint);
+    // Barre du système du téléphone : la couleur des barres de l'application.
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", primary);
   }
   const accent = platform.accent_color;
   if (accent) {

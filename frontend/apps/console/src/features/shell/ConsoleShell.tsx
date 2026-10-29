@@ -30,10 +30,10 @@ export function ConsoleShell() {
 
   return (
     <div className="min-h-screen bg-surface">
-      <header className="relief bg-night text-night-ink">
+      <header className="bg-night text-night-ink">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-2.5 px-4 pt-3 min-[820px]:px-6">
           <div className="flex items-center gap-3">
-            <Brand />
+            <Brand inverse />
             <ConsoleTag />
             <span className="flex-1" />
             <DropdownMenu>

@@ -154,6 +154,13 @@ def logo() -> None:
         haut2 = min(h2, cy - r)
         vb = (g2, haut2, d2 - g2, b2 - haut2)
         (LOGO / f"mwangaza-logotype{suffixe}.svg").write_text(svg(vb, corps))
+    # Icônes installées : carré plein cadre, que le système arrondit lui-même. Android
+    # (« maskable ») : m et soleil réduits dans le cercle sûr (80 % du côté) ; iPhone : tels quels.
+    plein = f'<path fill="{BLEU}" d="M0 0H64V64H0Z"/>'
+    dessin = f'<path fill="{CRAIE}" d="{M}"/><path fill="{SOLEIL}" d="{SOL}"/>'
+    reduit = f'<g transform="translate(32 32) scale(.8) translate(-32 -31.5)">{dessin}</g>'
+    (LOGO / "mwangaza-icone-maskable.svg").write_text(svg((0, 0, 64, 64), plein + reduit))
+    (LOGO / "mwangaza-icone-apple.svg").write_text(svg((0, 0, 64, 64), plein + dessin))
     print("SVG écrits dans", LOGO.relative_to(ROOT))
 
 

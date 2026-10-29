@@ -44,7 +44,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const LOGO_ONLY = process.argv[2] === "--logo";
 
 // PNG du logo (BRAND.1) : hauteur en pixels par fichier, fond transparent, rendu exact de Chrome.
-const LOGO_PNG = { "mwangaza-symbole": [16, 32, 512, 1024], "mwangaza-symbole-inverse": [512], "mwangaza-symbole-mono": [512],
+const LOGO_PNG = { "mwangaza-symbole": [16, 32, 192, 512, 1024], "mwangaza-icone-maskable": [512], "mwangaza-icone-apple": [180], "mwangaza-symbole-inverse": [512], "mwangaza-symbole-mono": [512],
   "mwangaza-logo": [256], "mwangaza-logo-inverse": [256], "mwangaza-logo-mono": [256],
   "mwangaza-logotype": [192], "mwangaza-logotype-inverse": [192], "mwangaza-logotype-mono": [192] };
 
