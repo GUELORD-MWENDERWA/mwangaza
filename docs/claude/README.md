@@ -5,7 +5,7 @@ Les fichiers de travail de Claude Code : ce qui prépare, justifie ou contrôle 
 | Dossier | Contenu | Nom des fichiers |
 |---|---|---|
 | `reference.md` | Détail des commandes (dont tout ce que crée `make demo`) et chaque écran, chaque API en développement : sorti de `CLAUDE.md` pour qu'il reste court. À compléter dans la PR de chaque tâche qui en ajoute. | — |
-| `plans/` | Plan de chaque tâche, écrit **avant** de coder : fichiers touchés, tests prévus, décisions à prendre. Mis à jour si le plan change en cours de route. | `tache-0.1.md` |
+| `plans/` | Fiche de chaque lot (depuis le 2026-10-29 ; avant : une par tâche), écrite **avant** de coder : but, parties cochées au fur et à mesure, tests prévus, décisions à prendre. Mise à jour si le plan change en cours de route. | `lot-1.md`, `tache-0.1.md` |
 | `recherches/` | Notes de recherche avec sources : informations web, comparaison de bibliothèques, règles scolaires RDC / EPST, formats officiels. | `AAAA-MM-JJ-sujet.md` |
 
 ## Règles

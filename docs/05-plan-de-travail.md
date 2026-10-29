@@ -1,10 +1,10 @@
 # Plan de travail — Mwangaza
 
-Révisé et validé le 2026-10-13 (tâche L.0), après vérification dans le code (les constats sont marqués **Vérifié**). L'ancien plan, avec tout l'historique « ajouté le… », est archivé dans `archives/05-plan-de-travail-2026-10-13.md` : ne pas le relire à chaque tâche.
+Révisé et validé le 2026-10-13 (tâche L.0), **regroupé en 17 lots le 2026-10-29** (§ 2 : un lot = une PR), après vérification dans le code (les constats sont marqués **Vérifié**). L'ancien plan, avec tout l'historique « ajouté le… », est archivé dans `archives/05-plan-de-travail-2026-10-13.md` : ne pas le relire à chaque tâche.
 
-Pour lancer une tâche dans Claude Code : `/tache M.2.1` (ou « Fais la tâche M.2.1 du plan de travail. »). **Toujours prendre la première tâche non cochée de la file (§ 2)**, sauf demande contraire. État, tâche en cours et journal : `06-suivi.md` (`/etat`). Ce qui manque encore : `07-a-fournir.md`. Les références (A1, F5…) renvoient à `02-perimetre-v1.md`.
+Pour lancer un lot dans Claude Code : `/tache lot 1` (ou « Fais le lot 1 du plan de travail. ») ; la même commande reprend un lot commencé à sa première partie non faite. **Toujours prendre le premier lot non fini de la file (§ 2)**, sauf demande contraire. État, tâche en cours et journal : `06-suivi.md` (`/etat`). Ce qui manque encore : `07-a-fournir.md`. Les références (A1, F5…) renvoient à `02-perimetre-v1.md`.
 
-Sur GitHub : chaque version est un jalon, chaque tâche une issue « X.Y — titre » ; la PR ferme son issue (`Closes #n`). Les numéros des tâches ne changent jamais (même quand l'ordre change), pour ne pas casser les issues.
+Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche une issue « X.Y — titre » ; depuis, **une issue par lot** « Lot N — titre » (jalon « V1 complète »), qui liste ses tâches ; la PR du lot ferme son issue et les anciennes issues encore ouvertes de ses tâches. Les numéros des tâches ne changent jamais (même quand l'ordre change), pour ne pas casser les issues.
 
 ---
 
@@ -27,97 +27,75 @@ Sur GitHub : chaque version est un jalon, chaque tâche une issue « X.Y — tit
 
 ---
 
-## 2. La file : l'ordre de travail
+## 2. La file : 17 lots, une PR chacun
 
-C'est la seule liste à suivre. Le détail de chaque tâche est plus bas. **Validée le 2026-10-13** par l'utilisateur (journal de `06`) : ordre, Cloudflare en proxy, lecture seule si abonnement impayé, dépendances `pip-audit`, OR-Tools et `anthropic` acceptées, IA sur `claude-opus-5-5` par défaut.
+**Regroupée le 2026-10-29** à la demande de l'utilisateur (« le projet avance trop lentement ») : il restait **62 tâches**, plus **9 qui manquaient** (§ 2 bis), soit plus de 70 PR au rythme d'avant. Elles forment maintenant **17 lots** : **un lot = une branche = une PR**. Déjà fait : 153 tâches (V1.0, V1.1, lancement, modules et rôles, sécurité S.1 à S.6, notes et bulletins, emploi du temps sauf EDT.5b et EDT.6, IA.1.1 et IA.2, équipe, site public WEB.1a à WEB.1d et SITE.1a) ; l'ancienne file, tâche par tâche : `archives/05-file-2026-10-29.md`.
 
-| # | Tâche | Prio | Taille | Qui |
-|---|---|---|---|---|
-| | **Lancement** (§ 3, § 4, § 4 bis) | | | |
-| 1 | ~~**L.0**~~ ✓ Installer ce plan et remettre les documents d'aplomb | P0 | S | 🤖 |
-| 2 | ~~**L.1**~~ ✓ Clés du serveur (`serveur.env`) : B2, Healthchecks, Sentry, UptimeRobot | P0 | S | 👤 |
-| 3 | ~~**S.1**~~ ✓ En-têtes de sécurité et CSP des trois applications (ex-L.3) | P0 | S | 🤖 |
-| 4 | ~~**S.2**~~ ✓ Dépendances et secrets surveillés (Dependabot, audit en CI, fuite de secrets) | P0 | S | 🤖 + 👤 |
-| 5 | ~~**M.2.1**~~ ✓ Modules : serveur et tâches de fond | P0 | M | 🤖 |
-| 6 | ~~**M.2.2**~~ ✓ Modules : écrans | P0 | S à M | 🤖 |
-| 7 | ~~**L.2**~~ ✓ Restauration réelle depuis B2 | P0 | S | 🤖 + 👤 |
-| 8 | ~~**S.3.1**~~ ✓ Comptes à privilèges : journal, session courte, adresses autorisées, alerte de l'école | P0 | S | 🤖 |
-| 8 bis | ~~**S.3.2**~~ ✓ Comptes à privilèges : alertes sur l'écran du super-admin (push dans la console) | P0 | S à M | 🤖 |
-| 9 | ~~**S.4**~~ ✓ Fichiers envoyés : logos sans SVG, images ré-encodées, limites de taille | P0 | S | 🤖 |
-| 10 | ~~**M.3.1**~~ ✓ Rôles : codes de rôle remplacés par des permissions | P0 | M | 🤖 |
-| 11 | ~~**M.3.2**~~ ✓ Rôles entièrement libres | P0 | M | 🤖 |
-| 12 | ~~**S.5**~~ ✓ Base de données : droits minimaux, paiements non effaçables | P0 | S | 🤖 |
-| 12 bis | ~~**PERF.1 → PERF.4**~~ ✓ Impression en tâche de fond, PDF gardés, bulletin plus léger, mesure et surveillance (§ 4 ter) | P0 | M à L | 🤖 |
-| 12 ter | ~~**PERF.5a → PERF.5c**~~ ✓ Stabilité du serveur de 2 Go : réglages mémoire et tâches de fond, tableau de santé compréhensible, images construites hors du serveur et passage du dépôt en privé (§ 4 ter ; demandé le 2026-10-16, nommé PERF.5 car PERF.2 existe) | P0 | M + M + M | 🤖 |
-| 12 quater | ~~**PERF.8**~~ ✓ Mémoire du serveur sans gaspillage (constat du 2026-10-20 : 28 % libre sans école réelle) : planificateur sans Django, travailleur rapide qui s'adapte, grosses bibliothèques chargées à la demande (§ 4 ter) | P0 | S | 🤖 |
-| 12 quinquies | **PERF.8b** Mémoire hors de l'application mesurée sur le serveur (`make deploy-memoire`) après la mise en ligne de PERF.8, et services inutiles de la machine retirés si elle le montre (§ 4 ter) | P0 | S | 👤 + 🤖 |
-| 13 | ~~**L.4** Essai sur de vrais téléphones et imprimantes~~ (fait 2026-10-15) | P0 | S | 👤 |
-| 14 | ~~**L.5**~~ ✓ Guide régénéré, version déclarée prête | P0 | S | 🤖 |
-| 14 bis | **OPS.1** Compte AWS sans piège : budget et alertes, double authentification, adresse, crédits suivis (§ 4 quater) | P0 | S | 👤 |
-| 14 ter | ~~**OPS.2**~~ ✓ Instantanés automatiques et alarmes Lightsail, retour d'un serveur entier essayé une fois | P0 | S | 🤖 + 👤 |
-| 14 quater | ~~**OPS.3**~~ ✓ Domaine et comptes de la plateforme protégés (LWS, Cloudflare, AWS, B2, GitHub) ; ta part : `A-FAIRE.md` 5 ter | P0 | S | 👤 + 🤖 |
-| 14 quinquies | ~~**OPS.4**~~ ✓ E-mail professionnel `@mwangazaschool.com` et domaine protégé contre l'usurpation (SPF, DKIM, DMARC) ; ta part : `A-FAIRE.md` § 9 nonies 3 c, 4 b-c | P0 | S | 👤 + 🤖 |
-| 14 sexies | ~~**L.6**~~ ✓ Travailler sans internet : code PIN proposé après la connexion (constaté le 2026-10-17) | P0 | S | 🤖 |
-| 14 septies | ~~**WEB.1a**~~ ✓ Site public : étude des grands sites, puis maquettes de chaque page (§ 6.3) — *avancé le 2026-10-17 à ta demande* | P0 | M | 🤖 |
-| 14 octies | ~~**WEB.1b**~~ ✓ Site public : pages pour les écoles et les parents, captures du produit, animations, « Trouver mon école » (§ 6.3) | P0 | M | 🤖 |
-| 14 nonies | ~~**WEB.1c**~~ ✓ Visibilité : images de partage, données structurées (DTMS, auteur), recherches courtes, Search Console (§ 6.3) | P0 | S | 🤖 + 👤 |
-| 14 decies | ~~**WEB.1d**~~ ✓ Site public : demande de démonstration rangée dans la console, alerte au super-admin, adresse et réseaux sociaux de la plateforme dans son identité (§ 6.3) — *découpée de WEB.1b le 2026-10-18* | P0 | M | 🤖 |
-| | **Recevoir les vraies données** (demandé le 2026-10-27 : une première école saisit ses données dans deux jours ; ordre ci-dessous, avant tout le reste) | | | |
-| 14 undecies | ~~**NB.7**~~ ✓ Fiche de cotes rendue sur papier saisie par le titulaire, le cotitulaire (nouveau) ou le directeur des études ; tableaux à remplir figés (noms et titres visibles) ; démonstration au niveau de l'application (`itig-demo`, bulletins complets, grilles pleines, un enseignant par cours, ateliers en longs blocs) ; « Administrateur principal » dans la console | P0 | M | 🤖 |
-| 14 undecies b | ~~**NB.8**~~ ✓ Titulaire : bulletins de sa classe, « Saisir » une fiche rendue à la main depuis « Ma classe » ; grille des cours figée ; programme officiel expliqué ; récréation gardée au milieu d'un long atelier | P0 | S à M | 🤖 |
-| 14 duodecies | ~~**Mise en ligne**~~ ✓ (2026-10-27) de `main` : l'espace de démonstration devient `itig-demo`, le code `itig` est libre ; démo remise à zéro depuis la console ; reste PERF.8b (12 quinquies) | P0 | S | 👤 + 🤖 |
-| 14 terdecies | ~~**R.1**~~ ✓ Import du personnel depuis Excel : nom, post-nom, prénom, numéro, rôle ; aperçu, numéros refusés et doublons montrés avant d'enregistrer, comptes créés avec mot de passe provisoire (§ 3) | P0 | S à M | 🤖 |
-| 14 quaterdecies | **OPS.1** (14 bis) puis identité de la plateforme (`A-FAIRE.md` § 9 quater, étape 6) | P0 | S | 👤 |
-| 15 | **🚀 Premier espace réel** (`A-FAIRE.md`, « Le jour du lancement ») : code `itig` ; l'école suit « Mise en route » (année, classes, frais, personnel avec R.1, élèves par l'import Excel, cours et enseignants) | — | — | 👤 |
-| 15 bis a | **EDT.5b** puis **HL.1** (inscriptions de la rentrée hors ligne) : les premières demandes probables d'une école qui commence ; ensuite la file reprend à 15 ter | P1 | M | 🤖 |
-| 15 a | ~~**NB.1 → NB.6**~~ ✓ (bloc fini le 2026-10-19) Notes et bulletins comme à l'école : carnet de l'enseignant privé, fiche de cotes envoyée au directeur des études et au titulaire, tableau du DE, espace du titulaire, règles de délibération du règlement de l'école, conseil par période et PV, seconde session (§ 5 ter) — *demandé le 2026-10-18, avant 8.4.6* | P1 | L | 🤖 |
-| 15 bis | ~~**EQ.1 → EQ.2**~~ ✓ (bloc fini le 2026-10-19) Équipe de la plateforme : membres, rôles fixes (propriétaire, technique, support, commercial, communication, finance), droits vérifiés par le serveur sur chaque point de la console (§ 6.3 bis) — *demandée le 2026-10-18* | P1 | M | 🤖 |
-| 15 ter | **SITE.1 → SITE.3** Site public géré depuis la console par la communication : questions, témoignages avec accord écrit, écoles de référence, bandeau, actualités, photos (§ 6.3 ter) ; SITE.4 (offres) avec ABO — *demandée le 2026-10-18* ; SITE.1a faite le 2026-10-19 | P1 | L | 🤖 |
-| 15 quater | **HL.1 → HL.3** Hors ligne là où le réseau manque : inscriptions de la rentrée, conduite, dernières données du Portail ; règle « hors ligne décidé dans chaque plan » (§ 5 bis) — *demandée le 2026-10-18* | P1 | M | 🤖 |
-| | **Aller vers les écoles : l'emploi du temps d'abord** (demandé le 2026-10-20 ; spécification complète : `docs/specs/emploi-du-temps.md`, § 6.4) | | | |
-| 15.1 | ~~**EDT.0**~~ ✓ Spécification du module et nouvel ordre de la file | P0 | S | 🤖 |
-| 15.2 | ~~**EDT.1a**~~ ✓ Grille horaire de l'école (jours, heures par jour, durée d'une heure, récréations, deux vacations) et salles ; capacité de chaque classe | P0 | M | 🤖 |
-| 15.3 | ~~**EDT.1b**~~ ✓ Placement des cours (séances, au plus N h par jour, salle), profil des enseignants (charge maximale, indisponibilités), **contrôles avant le calcul** 1 à 5 (classes, enseignants, salles surchargés) — *découpée le 2026-10-21* | P0 | M | 🤖 |
-| 15.3 bis | ~~**EDT.1c**~~ ✓ Règles (liste fermée, schéma par kind), éditeur « Règles et contrôles », contrôles 6 et 7, groupes parallèles et cours communs | P0 | M | 🤖 |
-| 15.4 | ~~**EDT.2a**~~ ✓ Éditeur : brouillon, vue par classe, placer, déplacer, échanger, verrouiller, annuler ; conflits montrés tout de suite ; heures placées / dues — *découpée le 2026-10-21* | P0 | M | 🤖 |
-| 15.4 bis | ~~**EDT.2b**~~ ✓ Éditeur : vues par enseignant (charge placée / due / maximum), par salle, horaire général | P0 | M | 🤖 |
-| 15.5 | ~~**EDT.3a**~~ ✓ Calcul automatique, serveur : solveur, calcul en tâche de fond, règle qui bloque, recalcul d'une partie — *découpée le 2026-10-22* | P0 | M | 🤖 |
-| 15.5 bis | ~~**EDT.3b**~~ ✓ Écran du calcul : « Calculer », suivi, annulation, règle qui bloque en phrases, temps réglable dans la console | P0 | M | 🤖 |
-| 15.6 | ~~**EDT.4a**~~ ✓ Publication : publier un brouillon (bloqué tant qu'il a des conflits), version publiée immuable, l'ancienne archivée, versions consultables — *découpée le 2026-10-22* | P0 | M | 🤖 |
-| 15.6 bis | ~~**EDT.4b**~~ ✓ Lecture de l'horaire publié : « Mon horaire » de l'enseignant (sans réseau), Portail, notification groupée | P0 | M | 🤖 |
-| 15.6 ter | ~~**EDT.4c**~~ ✓ Impressions : classe, enseignant avec sa charge, salle, horaire général | P0 | M | 🤖 |
-| 15.7 | ~~**IA.1.1**~~ ✓ Socle IA : usages, cinq verrous, crédits, plafond de la plateforme | P0 | M | 🤖 |
-| 15.8 | ~~**IA.2a**~~ ✓ ~~**IA.2b**~~ ✓ IA du directeur des études : consignes en phrases → règles ; analyse et propositions | P0 | M + M | 🤖 |
-| 15.9 | **EDT.6** Heures prestées : exceptions notées, fiche mensuelle imprimable, export pour la paie | P1 | M | 🤖 |
-| 15.10 | **IA.1.2** Console et crédits IA (avant de vendre l'IA à une école réelle) | P1 | M | 🤖 |
-| 15.11 | **EDT.5** (5a ✓, reste 5b, avancée en 15 bis a) Horaire des interrogations et des examens | P1 | S à M | 🤖 |
-| | **V1.2 — Notes, bulletins et finances de l'école** (§ 7) | | | |
-| 16 | ~~**A.2**~~ ✓ Purge des opérations de synchronisation (`SyncOperation` ; `ChangeLog` gardé) | P1 | S | 🤖 |
-| 17 | ~~**S.6.1**~~ ✓ Row Level Security PostgreSQL : socle et tables de finance (ex-9.15, avancée) | P1 | M | 🤖 |
-| 17 bis | ~~**S.6.2**~~ ✓ Row Level Security : toutes les autres tables d'une école | P1 | M | 🤖 |
-| 18 | ~~**8.1**~~ ✓ Cours, volumes horaires et charges des enseignants | P1 | M | 🤖 |
-| 19 | ~~**8.2.1**~~ ✓ Saisie des notes en ligne (évaluations, notes, droits, journal) | P1 | M | 🤖 |
-| 19 a | ~~**DOC.1** Signature et cachet de l'école sur tous les documents (§ 3)~~ | P0 | M | 🤖 |
-| 19 b | ~~**DOC.2** Reçu sur demi ou tiers de feuille A4 (§ 3)~~ | P0 | M | 🤖 |
-| 19 c | ~~**DOC.3** Registre des reçus : PDF et Excel par période et par caisse (§ 3)~~ | P0 | M | 🤖 |
-| 19 bis | ~~**8.2.2**~~ ✓ Contrôle des notes (date limite, envoi, validation) ; ~~**8.2.3**~~ ✓ notes hors ligne ; **~~8.3.1~~ ✓, ~~8.3.2~~ ✓, ~~8.3.3~~ ✓, ~~8.3.4~~ ✓, ~~8.3.5~~ ✓, ~~8.3.6~~ ✓, ~~8.5.1a~~ ✓, ~~8.5.1b~~ ✓, ~~8.5.1c~~ ✓, ~~8.4.0~~ ✓, ~~8.4.1~~ ✓, ~~8.4.2~~ ✓, ~~8.4.3~~ ✓, ~~8.4.4~~ ✓, ~~8.4.7~~ ✓, ~~8.4.5~~ ✓, 8.4.6, 8.1.2a, 8.1.2b, 8.2.5, 8.2.6, 8.8, PERF.6, S.10** bulletin fidèle, impression au choix, fiches de cotes, conduite, délibération, Portail | P1 | L | 🤖 |
-| 20 | **FIN.1 → FIN.3** Dépenses, sorties de caisse, budget | P1 | M | 🤖 |
-| 20 bis | **PERF.7** Écrans « Impayés » et tableau de bord plus légers ; **OPS.5** passage à 4 Go préparé (§ 4 quater) | P1 | S à M | 🤖 + 👤 |
-| | **V1.3 — Plateforme commerciale** | | | |
-| 21 | **ABO.1 → ABO.3** Abonnements par module, factures, échéances | P1 | L | 🤖 |
-| 22 | ~~**WEB.1**~~ avancée en WEB.1a → WEB.1c (lignes 14 septies à 14 nonies) ; ici : page des **prix** quand ABO et le tarif (T6) existent | P1 | S | 🤖 |
-| 23 | **S.7 → S.9** Protection des données, détection, revue ASVS | P1 | M | 🤖 |
-| | **V1.4 — Emploi du temps et intelligence artificielle** | | | |
-| 24 | ~~**EDT**~~ avancé en 15.1 → 15.11 (2026-10-20) | — | — | — |
-| 25 | **IA.5, IA.3, IA.4** Grille de cours depuis un PDF, assistant, rédaction (IA.1.1, IA.1.2 et IA.2 avancées en 15.7 → 15.10) | P1 / P2 | L | 🤖 |
-| | **V1.5 — Carte et présences** (QR d'abord) | P1 / P2 | L | 🤖 |
-| | **V1.6 — Bibliothèque et ateliers** (moteur commun INV) | P2 | L | 🤖 |
-| | **V1.7 — Sites des écoles, personnel et paie, vie scolaire** | P2 | L | 🤖 |
-| | **V2** (§ 7) | P2 / P3 | — | 🤖 |
+**Pourquoi c'était lent** (regard de développeur senior) :
+- chaque tâche payait le même coût fixe (relire les documents, branche, fiche, huit `.md` à jour, CI, essai, fusion, mise en ligne), même quand elle était petite : l'emploi du temps a fait 13 PR ;
+- la file changeait souvent (lignes « bis », « ter »… jusqu'à « terdecies ») et le suivi, relu à chaque conversation, faisait 1 380 lignes ;
+- on a peaufiné des modules finis (bulletins, emploi du temps) avant ce qui manque pour vendre et faire tourner une école : la V1.2 (bulletins aux parents, dépenses) et la V1.3 (contrats, abonnements, factures) sont **en retard**.
 
-> **Nouvel ordre du 2026-10-20** (demande de l'utilisateur : aller vers les écoles au plus vite) : après PERF.8 (mémoire du serveur), le bloc « Aller vers les écoles » (15.1 → 15.11) passe **avant tout le reste**. L'emploi du temps est ce qui distingue Mwangaza devant un préfet : la démonstration montre l'ITIG calculée en direct, l'atelier verrouillé, la classe surchargée détectée et l'IA qui explique. Il ne dépend que de la 8.1 (faite) ; l'IA.1.1 passe avec lui parce que l'IA.2 en dépend (crédits réglés par l'administration de dépannage jusqu'à l'IA.1.2, plafond de la plateforme actif dès l'IA.1.1). Ensuite la file reprend : **19 bis** (8.4.6 et 8.8 : bulletins aux parents, puis PERF.6, S.10), **15 ter** (SITE.1b…), **15 quater** (HL), 20 (FIN), 20 bis, puis la V1.3. Le bloc NB, EQ et SITE.1a sont faits.
->
-> **Pourquoi cet ordre** (2026-10-13) : d'abord ce qui protège les vraies données (P0), puis ce qu'une école utilise chaque trimestre (notes, bulletins), puis ce qui te fait vivre (abonnements, site de la plateforme), puis l'emploi du temps, qui a besoin des cours et des charges de la 8.1, et l'IA, qui a besoin d'un socle sûr. La bibliothèque et les ateliers partagent un même moteur de prêts et de stock : ils se font ensemble.
+**Ce qui change** :
+- **Un lot = une PR** de 2 à 7 tâches d'un même thème, testable d'un bout à l'autre. Il se fait en **parties** (une conversation chacune, 1 à 3 par lot) ; à la fin de chaque partie : commit et push de la branche (sauvegarde ; sans PR, la CI ne tourne pas). La PR s'ouvre une fois, à la fin du lot ; une mise en ligne par lot (§ 8.1).
+- **Maquettes de tous les écrans du lot en une passe**, au début ; documents `.md` mis à jour **une fois**, à la fin.
+- **La file est figée** : l'ordre des lots ne change que sur décision écrite au journal de `06`. Une demande nouvelle entre dans le lot de son thème (pas encore commencé) ou dans un lot ajouté à la fin, jamais en ligne « bis ».
+- La qualité ne baisse pas : 9 règles non négociables, définition de « fini » (§ 8.2), tests utiles, maquette avant le code, 390 et 1440 px.
+
+**Toi, en parallèle (👤, aucun lot n'attend)** : `make deploy` si NB.8 et R.1 ne sont pas encore en ligne, puis le lendemain PERF.8b (`make deploy-memoire`) ; OPS.1 (compte AWS) ; identité de la plateforme et premier espace réel `itig` (`A-FAIRE.md` § 9 quater). **Pour le lot 3** : le tarif (T6), les informations légales de la société (I20) et un juriste pour relire les textes.
+
+| Lot | Titre | Tâches | Parties (une conversation chacune) | 👤 toi |
+|:-:|---|---|---|---|
+| 1 | **Marque Mwangaza** | BRAND.1, BRAND.2 | ① trois pistes (logo, couleurs, police) sur une page : tu choisis ② livre de marque PDF et fichiers du logo ③ marque appliquée aux trois applications, aux icônes et aux guides | choisir une piste |
+| 2 | **Site public refait** | SITE.R, SITE.1b, SITE.2, SITE.3, SITE.5 | ① étude (grands sites, isig.ac.cd), maquettes, photos libres d'élèves congolais ② serveur et console : actualités, photothèque, témoignages, écoles de référence, réseaux sociaux ③ pages du site, captures du produit | accord écrit de chaque témoin |
+| 3 | **Vendre : contrats, abonnements, factures** | CTR.1, ABO.1, ABO.2, ABO.3, ABO.4, WEB.1 (prix), SITE.4 | ① offres, conditions générales, contrat PDF ② factures, avoirs, paiements, relevé ③ échéances, lecture seule, « Mon abonnement », page des prix | tarif (T6), informations légales (I20), juriste |
+| 4 | **Bulletins aux parents** | 8.4.6, 8.8, 8.2.6, HL.3, PERF.6, S.10 | ① proclamation liée aux frais, notifications des notes ② Portail : notes, bulletins, écrire à l'école, sans réseau ③ rapidité et revue de sécurité | — |
+| 5 | **Console finie** | CON.1, CON.2, CON.3, IA.1.2, S.8 | ① tableau de bord des affaires, fiche et cycle de vie d'une école, export complet ② prospects ③ IA et alertes de sécurité | — |
+| 6 | **Aide, guide et support** | AIDE.1, AIDE.2, SUP.1 | ① centre d'aide en ligne et guides PDF tirés des mêmes textes, « Quoi de neuf » ② bouton « Aide » sur chaque écran, demandes d'aide suivies dans la console | — |
+| 7 | **Finances et caisse complètes** | FIN.1, FIN.2, FIN.3, HL.1, PERF.7, OPS.5 | ① dépenses ② sorties de caisse, inscription hors ligne ③ budget, rapports, écrans plus légers | passage à 4 Go le moment venu |
+| 8 | **Cours communs et notes** | 8.1.2a, 8.1.2b, 8.2.5, 8.2.4, HL.2 | ① cours communs ② remplaçant, import Excel des notes, conduite hors ligne | — |
+| 9 | **Emploi du temps fini et IA** | EDT.5b, EDT.6, IA.5, IA.3, IA.4 | ① horaire des épreuves, heures prestées ② grille de cours depuis un PDF, assistant de questions, aide à la rédaction | — |
+| 10 | **Carte et présences** | 6.1, 6.3, 6.5, 6.6, A.5 | ① carte et impression ② pointage (caméra, borne, hors ligne) ③ suivi, rapports, parents prévenus | — |
+| 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 | ① moteur commun ② bibliothèque ③ ateliers | — |
+| 12 | **Personnel et paie** | 7.2, 7.3, 7.4 | ① dossier et contrats ② paie ③ espace enseignant | — |
+| 13 | **Messagerie et portail des élèves** | 8.5.2, 8.6 | ① messagerie, rendez-vous, mérites, sanctions ② portail des élèves | — |
+| 14 | **Inscriptions, transferts, langues** | 7.5, 8.7, 8.9, 7.6, I18N.1 | ① pénalités, inscription validée par le paiement, documents ② transfert, attestations, sondages ③ swahili, connexion Google | — |
+| 15 | **Sites des écoles** | WEB.2 | ① serveur et Gestion ② pages publiques | — |
+| 16 | **Cartes NFC et lecteurs** | 6.2, 6.4 | ① liaison des cartes ② lecteurs ESP32 | cartes et matériel |
+| 17 | **Revue finale de la V1** | S.9 | ① revue ASVS des trois applications, mesures, guides et présentation, V1 déclarée finie | test d'intrusion par une personne extérieure |
+
+Après le lot 17 : la **V2** (§ 7), dans un ordre à valider à ce moment-là.
+
+> **Pourquoi cet ordre** : d'abord ce qui fait vendre (marque, site, contrats et factures) ; les **bulletins aux parents en 4ᵉ**, parce que la première école en aura besoin à la fin de la première période ; puis la console et l'aide, sans lesquelles une école payante ne peut être ni suivie ni autonome ; puis ce qui complète la vie de l'école (finances, cours communs, emploi du temps) ; enfin les modules nouveaux (carte, bibliothèque, paie, vie scolaire, sites des écoles). Les cartes NFC et les lecteurs, qui attendent du matériel, passent en dernier.
+
+## 2 bis. Tâches ajoutées le 2026-10-29
+
+Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur fiche plus bas (numéros inchangés).
+
+**Lot 1 — Marque**
+
+- [ ] **BRAND.1** Livre de marque *(P1, M, 🤖 + 👤)* — sur le modèle du livre de marque fourni (`docs/ecole-pilote/prive/Ujuzi brand book.pdf` : fondation stratégique, concept créatif, construction du logo, versions, interdits, système visuel, applications). ① Étude de 6 à 8 marques reconnues (logiciels scolaires, grandes marques d'ici) ; **trois pistes** sur une page (symbole + logotype, palette, police) : l'utilisateur choisit. ② Livre complet en **PDF** (`docs/marque/livre-de-marque.pdf`, construit en HTML avec WeasyPrint, déjà dans le projet) : positionnement, personnalité, ton, valeurs, vision ; concept ; construction du logo ; versions (couleur, une couleur, inversée, icône d'application, favicon) ; zone de protection, tailles minimales, mauvaises utilisations ; palette et ses proportions ; typographie ; grille de mise en page ; style photographique ; iconographie ; applications (icône sur le téléphone, écran de connexion, facture de la plateforme, carte de visite, réseaux sociaux, kakémono, t-shirt). Logo en SVG et PNG dans `maquettes/assets/logo/`. **Couleurs** : bleu et blanc d'abord (l'uniforme des élèves congolais) ; plus de jaune en grande surface (le site paraît « jaunâtre ») ; un accent rare, à choisir dans les pistes. Police libre (licence OFL), en fichiers dans le dépôt (hors ligne), sans nouvelle dépendance.
+- [ ] **BRAND.2** Marque appliquée *(P1, M, 🤖)* — jetons de `maquettes/README.md` et thème de `frontend/packages/ui` ; barres, connexions et états vides des trois applications ; icônes installées et favicon ; valeurs **par défaut** de l'identité de la plateforme (migration ; règle 9 : rien en dur) ; skill `design` ; guides PDF et présentation régénérés (`make guide`). Les documents d'une école (reçu, bulletin) gardent l'identité **de l'école**. Chaque écran principal regardé à 390 et 1440 px.
+
+**Lot 2 — Site public**
+
+- [ ] **SITE.R** Site public refait *(P1, M, 🤖)* — ① Étude : 6 à 8 grands sites (logiciels scolaires, SaaS reconnus) **et** isig.ac.cd avec deux ou trois sites d'ici : page d'accueil, publication des articles, ce qu'ils montrent et ce qu'ils taisent ; note dans `docs/claude/recherches/`. ② Maquettes (accueil, écoles, parents, actualités, article) avec la nouvelle marque : **moins de texte**, seulement ce qui fait vendre (promesse, preuves, modules en bref, démonstration) ; mise en page éditoriale, **pas de grille de cartes identiques** ni d'air « fait par une IA ». ③ **Photos** : élèves africains et congolais (uniforme bleu et blanc), sous une licence qui permet l'usage commercial (licence Unsplash ou Pexels, CC0, CC BY, CC BY-SA ; **jamais NC ni ND**), crédits dans les mentions légales ; les photos de l'ITIG quittent le site. ④ Captures du produit refaites avec la nouvelle marque (`make captures-site`). Les pages qui ne servent pas à vendre sont fusionnées ou retirées (avec redirection).
+
+**Lot 3 — Vendre**
+
+- [ ] **CTR.1** Contrats et conditions générales *(P1, M, 🤖 + 👤)* — conditions générales d'utilisation et de vente, politique de confidentialité et registre des traitements (partie publique de S.7), **versionnés**, publiés sur le site et dans les trois applications ; l'administrateur principal d'une école les accepte à la première connexion et à chaque nouvelle version (version, date, compte, adresse : journal). **Contrat de l'école** en PDF, numéroté, immuable (un avenant = un nouveau document lié) : parties tirées de l'identité de la plateforme (société, RCCM, adresse, signataire : I20) et des paramètres de l'école, offre, modules, prix, durée, renouvellement, données personnelles ; signé par dépôt du scan ou par acceptation en ligne. Brouillons rédigés par Claude (T5) ; 👤 relus par un juriste avant la première école payante.
+- [ ] **ABO.4** « Mon abonnement » dans la Gestion *(P1, S à M, 🤖)* — avec une permission dédiée : offre, modules, contrat, factures et reçus (PDF), solde, prochaine échéance et comment payer ; demande d'ajout d'un module, rangée dans la console.
+
+**Lot 5 — Console**
+
+- [ ] **CON.1** Tableau de bord des affaires *(P1, M, 🤖)* — écoles par état (essai, payante, lecture seule, suspendue, résiliée), élèves facturés, facturé et encaissé du mois par devise, impayés, contrats à renouveler sous 30 jours, prospects ouverts, alertes ; exports Excel (écoles, factures, paiements). Chiffres calculés en SQL et gardés quelques minutes, pas recalculés à chaque ouverture ; ce que voit chaque rôle de l'équipe (EQ.1 : finance, commercial…) vérifié par le serveur.
+- [ ] **CON.2** Fiche et cycle de vie d'une école *(P1, M, 🤖)* — fiche : contacts, contrat, offre et modules, factures, utilisation (dernière activité, élèves, comptes), notes internes, historique. Cycle : essai avec date de fin → payante → lecture seule (ABO.3) → suspendue → résiliée ; à la résiliation, **export complet des données** de l'école (Excel et PDF, en tâche de fond, lien à durée limitée ; partie de S.7), puis espace archivé : plus de connexion, données gardées selon les durées de S.7 (les paiements d'un espace réel ne sont jamais effacés, règle 3). Chaque changement d'état : journal et e-mail à l'école.
+- [ ] **CON.3** Prospects *(P1, S à M, 🤖)* — les demandes de démonstration (WEB.1d) deviennent un suivi commercial : étape (nouvelle, contactée, démonstration faite, essai, signée, perdue avec motif), responsable (membre « commercial »), prochaine relance (rappel au responsable), notes ; « Créer l'espace d'essai » depuis le prospect.
+
+**Lot 6 — Aide**
+
+- [ ] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
+- [ ] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
 
 ---
 
@@ -218,7 +196,7 @@ Demande du 2026-10-13 : « la partie sécurité est à renforcer au maximum ». 
 
 - [x] **S.6.1** Row Level Security PostgreSQL : socle et tables de finance *(P1, M)* — ex-9.15, avancée de la V2 : chaque table d'une école refuse, dans la base elle-même, toute ligne d'une autre école. Deuxième barrière si un jour un `filter` est oublié. S.6 coupée en deux (S.6.1, S.6.2). **Fait** : portée de la connexion posée par `use_school`, `use_schools` (Portail : écoles des familles du parent) et `use_all_schools` (console et administration du super-admin, tâches de la plateforme), sans portée aucune ligne ; règle sur les 15 tables de finance, posée après chaque `migrate` ; toute la suite de tests tourne avec un compte soumis aux règles. **Simplifié** : pas de second compte PostgreSQL pour la console et la sauvegarde (`pg_dump` passe par le propriétaire, que les règles ne visent pas ; raison : `03`, journal du 2026-10-14).
 - [x] **S.6.2** Row Level Security : toutes les autres tables d'une école *(P1, M)* — `row_security.APPS` étendu à toutes les applications (élèves, familles, années et classes, rôles, notifications, synchronisation, journal d'audit) ; chemins qui lisent ces tables hors d'une école à mettre dans leur portée (envoi des notifications et leur purge, purge de la synchronisation, activation du Portail par code famille, console : comptes et journaux) ; la suite de tests sous le compte des tests les trouve. **Fait** : règle sur toute table `TenantModel` (plus de liste `APPS`) ; lectures de toute la plateforme dans `use_all_schools()` (code famille, identifiant déjà pris, famille par code au Portail, rôles d'un compte dans toutes ses écoles pour `/me` et la double authentification, planificateur, purges, envoi des notifications, import d'élèves, `make demo`) ; contrôle « rôle d'une autre école » qui ne dépend plus de leur visibilité. En test, chaque requête et chaque tâche Celery partent d'un contexte vide, comme sur le serveur.
-- [ ] **S.7** Protection des données *(P1, M)* — politique de confidentialité et registre des traitements (quelles données, pourquoi, combien de temps) publiés dans le Portail et le site de la plateforme ; durées de conservation appliquées (élève parti depuis N années : données réduites au minimum légal) ; export des données d'une famille sur demande ; règles des données envoyées à l'IA (§ 6, IA.1). 👤 faire relire par un juriste au fait du droit congolais.
+- [ ] **S.7** Protection des données *(P1, M)* — politique de confidentialité et registre des traitements (quelles données, pourquoi, combien de temps) publiés dans le Portail et le site de la plateforme ; durées de conservation appliquées (élève parti depuis N années : données réduites au minimum légal) ; export des données d'une famille sur demande ; règles des données envoyées à l'IA (§ 6, IA.1). 👤 faire relire par un juriste au fait du droit congolais. **Répartie le 2026-10-29** : textes et registre → CTR.1 (lot 3) ; export (école entière ou une famille) et durées de conservation → CON.2 (lot 5).
 - [ ] **S.8** Détection *(P1, S)* — alertes au super-admin : rafale de connexions ratées, export inhabituel (beaucoup de données d'un coup), nombre d'annulations hors norme, appareil révoqué qui insiste ; carte « Sécurité » dans la santé de la plateforme (4.25). Pas de nouvel outil : Sentry et le journal suffisent.
 - [ ] **S.9** Revue complète *(P1, M)* — revue des trois applications selon OWASP ASVS niveau 2 (accès, sessions, entrées, erreurs, journal), tests automatiques ajoutés pour chaque défaut trouvé ; 👤 test d'intrusion par une personne extérieure quand les revenus le permettent.
 
@@ -467,7 +445,7 @@ Les évaluations d'atelier (9.9) restent en V2.
 
 ## 7. Versions (validées le 2026-10-13)
 
-Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est redécoupée au moment de la commencer.
+Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, l'ordre de travail est celui des lots (§ 2)** ; les versions ci-dessous restent les jalons GitHub des anciennes issues, et une tâche **L** se découpe en parties de son lot, pas en PR.
 
 **Décidé le 2026-10-13** : les tâches P3 seront développées (elles sont dans la V1.5, la V1.7 et la V2) ; P3 fixe l'ordre, pas l'abandon. Chacune est un module que l'école active ou non, donc sans poids pour celles qui ne s'en servent pas. Seule réserve : 9.11 (supérieur LMD) demande les règles d'un vrai institut avant d'être découpée.
 
@@ -547,7 +525,7 @@ Les numéros des tâches existantes restent les mêmes. Chaque tâche **L** est 
 - [ ] **8.9** Sondages ; blocage des bulletins en cas de dette (désactivé par défaut) *(P2, S)*
 - [ ] **8.2.4** Import des points d'une classe depuis un classeur Excel (modèle fourni, erreurs montrées ligne par ligne, rien enregistré avant confirmation) *(P2, S)*
 - [ ] **I18N.1** Swahili (puis lingala) pour le Portail et les messages aux parents, à côté du français et de l'anglais *(P2, S)*
-- [ ] **SUP.1** Aide dans l'application (guide court par écran) et demande d'aide de l'école à la plateforme, suivie dans la console *(P2, M)*
+- [ ] **SUP.1** Aide dans l'application (guide court par écran) et demande d'aide de l'école à la plateforme, suivie dans la console *(P1, M ; avancée dans le lot 6 le 2026-10-29)*
 - [ ] **7.6** Connexion Google, champs complémentaires de la fiche élève *(P3, S)*
 
 ### V2 — après la V1.7 (ordre à valider avant de commencer)
@@ -581,17 +559,15 @@ Migration depuis d'autres logiciels ; rapports transmis aux sous-divisions EPST 
 
 ## 8. Méthode de travail (pour aller vite sans rien bâcler)
 
-### 8.1 Une tâche, du début à la fin
+### 8.1 Un lot, du début à la fin (depuis le 2026-10-29)
 
-1. **Lire l'état** : `docs/06-suivi.md`, puis **seulement** la section de ce plan et les passages utiles de `01` à `04`. Ne pas relire l'archive du plan.
-2. **Regard de développeur senior** : utile ? faisable ? coût pour le serveur (écritures par requête, tâches de fond, taille des tables) ? Retirer ou simplifier ce qui ne sert pas, et le dire. Taille L → proposer le découpage avant de coder.
-3. **Fiche de la tâche** dans `docs/claude/plans/tache-X.Y.md`, 20 lignes au plus, toujours avec ces rubriques :
-   - **But** (une phrase, pour l'école) · **Hors périmètre** · **Critères d'acceptation** (vérifiables) · **Tests obligatoires** · **Documents à mettre à jour** · **Risques / à vérifier dans le code**.
-4. **Démarrer** : issue « X.Y — titre », branche `tache/X.Y-mot-clé` depuis `main` à jour.
-5. **Construire** : tests utiles d'abord (isolation entre écoles, permissions, argent, audit, vraies règles métier), puis le code (logique dans `services.py`, pas de N+1, listes paginées, textes i18n, rien en dur). Lancer seulement les tests du module touché ; la suite complète tourne dans la CI.
-6. **Vérifier** : `make lint` + la **définition de « fini »** (§ 8.2).
-7. **Clôturer** : cocher la tâche ici, mettre à jour `06-suivi.md` et tous les `.md` que le changement rend faux. Un seul push, une seule PR (base `main`), jamais fusionnée par Claude.
-8. **PR** en français simple : ce qui change, tests, « À valider », « À tester toi-même », « Après la fusion », `Closes #n`. Surveiller la CI et corriger dans la même PR. Finir par : « Fusionne la PR, puis /clear et /tache <suivante de la file> ».
+1. **Lire l'état** : « État actuel » de `06-suivi.md`, la ligne du lot (§ 2) et la fiche de ses tâches ; seulement les passages utiles de `01` à `04`. Ne pas relire les archives.
+2. **Regard de développeur senior** : chaque tâche du lot est-elle utile, faisable, sans coût caché pour le serveur (écritures par requête, tâches de fond, taille des tables) ? Retirer ou simplifier, et le dire.
+3. **Fiche du lot** `docs/claude/plans/lot-N.md`, 30 lignes au plus : But (pour l'école) · Parties (une conversation chacune, cochées au fur et à mesure) · Hors périmètre · Critères d'acceptation · Tests obligatoires · Documents à mettre à jour · Risques.
+4. **Démarrer** : issue « Lot N — titre » (jalon « V1 complète »), branche `lot/N-mot-clé` depuis `main` à jour ; **maquettes de tous les écrans du lot d'abord**, en une passe.
+5. **Chaque partie** (une conversation) : tests utiles d'abord (isolation entre écoles, permissions, argent, audit, vraies règles métier), puis le code (logique dans `services.py`, pas de N+1, listes paginées, textes i18n, rien en dur) ; seulement les tests du module touché. À la fin : commit, `git push` de la branche (sauvegarde : sans PR, la CI ne tourne pas), partie cochée dans la fiche ; « Tape /clear puis /tache lot N » (la conversation suivante reprend à la première partie non cochée).
+6. **Fin du lot** : `make lint`, **définition de « fini »** (§ 8.2), `/verifier` ; cocher les tâches ici, `06-suivi.md` et tous les `.md` rendus faux, **une fois** ; une seule PR (base `main`), jamais fusionnée par Claude ; une mise en ligne par lot.
+7. **PR** en français simple : ce qui change (une puce par tâche), tests, « À valider », « À tester toi-même » (5 à 8 étapes), « Après la fusion », `Closes` l'issue du lot et les anciennes issues de ses tâches. Surveiller la CI et corriger dans la même PR. Finir par : « Fusionne la PR, puis /clear et /tache lot N+1 ».
 
 ### 8.2 Définition de « fini » (rien de superficiel)
 
@@ -607,12 +583,13 @@ Une tâche n'est cochée que si **tout** est vrai :
 - [ ] Les documents rendus faux sont corrigés dans la même PR.
 - [ ] Sécurité : aucune donnée d'une autre école, permission vérifiée côté serveur, entrée de l'utilisateur jamais affichée comme du HTML, envoi de fichier contrôlé (S.4), point public limité en nombre d'essais.
 - [ ] **Rapidité** : tout écran de liste ou d'impression a un nombre de requêtes borné (pas de N+1, testé), est paginé, et reste fluide avec 1 200 élèves ; les calculs lourds (classement, statistiques) sont faits une fois et gardés, pas à chaque ouverture.
+- [ ] **Aide** (à partir du lot 6) : chaque nouvel écran a son article dans le centre d'aide (AIDE.1).
 - [ ] La CI est verte.
 
 ### 8.3 Pour aller plus vite
 
 - **Ce plan reste court** : une tâche faite devient une ligne dans l'annexe ; le détail et l'historique vont dans `06-suivi.md` (journal) et dans l'archive. Plus de mentions « ajouté le… » dans le texte des tâches à faire : Claude Code relit moins et se trompe moins.
-- **Découper tôt, pas tard** : une PR = une chose qu'on peut tester seule.
+- **Regrouper, pas émietter** (2026-10-29) : une PR = un lot qu'on teste d'un bout à l'autre ; les parties découpent le travail en conversations, pas en PR.
 - **Regrouper les petites corrections** (moins d'une heure chacune, même module) dans une seule tâche « X.Y — corrections », au lieu d'une PR chacune.
 - **Une seule source par décision** : les décisions vont dans `docs/03` § décisions, le plan y renvoie.
 - **Mesurer avant d'optimiser** (comme la 4.23) : pas d'optimisation sans chiffre.

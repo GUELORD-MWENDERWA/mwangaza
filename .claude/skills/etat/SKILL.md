@@ -33,4 +33,4 @@ Lecture seule : ne modifie aucun fichier, sauf si l'utilisateur le demande ou si
 ❓ Questions à trancher bientôt : …
 ```
 
-Terminer par une proposition concrète : « Lancer `/tache X.Y` ? »
+Terminer par une proposition concrète : « Lancer `/tache lot N` ? » (ou la reprise du lot en cours)
