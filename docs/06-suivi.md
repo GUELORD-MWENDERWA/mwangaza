@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 1 — Marque Mwangaza**, partie 1/3 faite (trois pistes) : **à toi de choisir une piste** (`maquettes/marque/pistes.html`) ; fiche `docs/claude/plans/lot-1.md` |
+| Lot en cours | **Lot 1 — Marque Mwangaza**, partie 1/3 faite (piste A retenue : `maquettes/marque/marque.html`) ; prochaine : partie 2, livre de marque PDF ; fiche `docs/claude/plans/lot-1.md` |
 | Prochain lot | Lot 2 — Site public refait |
-| Toi, en parallèle | **choisir une piste de marque (lot 1)** ; `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
+| Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #409 (une par lot, jalon « V1 complète ») |
 | Branche | `lot/1-marque` |
-| Dernière mise à jour | 2026-10-29 (lot 1, partie 1/3 : trois pistes de marque) |
+| Dernière mise à jour | 2026-10-29 (lot 1, partie 1/3 : piste A retenue) |
 
 ## Avancement
 
@@ -65,6 +65,10 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-10-29 — Lot 1 : piste de marque choisie
+
+Trois pistes proposées (A « Lever du jour », B « Horizon », C « Registre ») ; l'utilisateur retient **A**, avec le logotype écrit comme celui d'Ujuzi (Poppins, minuscules, serré) et des couleurs qui ne fassent pas « IA » : Ardoise, Craie, Bleu uniforme `#1A2F80`, Brume du lac, Soleil levant `#FFA81E`. Il proposait de garder C comme second logo si c'était une bonne idée : **un seul logo** (raison : fiche du lot). Page : `maquettes/marque/marque.html`. Suite : partie 2, livre de marque PDF.
 
 ### 2026-10-29 — Plan regroupé en 17 lots (une PR chacun)
 - Demande : le projet avance trop lentement ; moins de PR, chacune plus complète ; finir toute la V1 avant la V2 ; marque refaite sur le modèle du livre de marque fourni (`docs/ecole-pilote/prive/`) ; site qui ne ressemble plus à une IA (grands sites, isig.ac.cd, photos d'élèves congolais) ; contrats, factures, abonnements, guide d'utilisation, console complète.

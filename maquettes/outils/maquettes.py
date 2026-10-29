@@ -433,9 +433,9 @@ SITE = [
     ("mentions", "Mentions légales et confidentialité", "Lancement", "WEB.1a", True),
 ]
 
-# Marque de la plateforme (lot 1, BRAND.1) : pistes, puis livre de marque.
+# Marque de la plateforme (lot 1, BRAND.1) : piste A retenue le 2026-10-29 (pistes : commit f39f60a9).
 MARQUE = [
-    ("pistes", "Trois pistes de marque : logo, couleurs, police", "Lot 1", "BRAND.1", True),
+    ("marque", "Marque retenue : logo, couleurs, police (piste A)", "Lot 1", "BRAND.1", True),
 ]
 
 # (lien, libellé) du menu du site ; l'entrée active est celle de la page (SITE_ACTIVE).

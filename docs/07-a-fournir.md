@@ -130,7 +130,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 | T4 | Comptes : hébergeur (**AWS Lightsail**, fait), Cloudflare (fait), stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | stockage objet et suivi d'erreurs avec 4.7.2 | [ ] |
 | T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude rédige les brouillons, un juriste les relit) | lot 3 (CTR.1) | [ ] |
 | T6 | Tarif des écoles (essai gratuit ?) | lot 3 (ABO.1) | [ ] |
-| T7 | Piste de marque (logo, couleurs, police) parmi les trois proposées | lot 1 (BRAND.1) | [ ] |
+| T7 | Piste de marque (logo, couleurs, police) parmi les trois proposées — **A « Lever du jour »** (2026-10-29), logotype en Poppins comme Ujuzi : `maquettes/marque/marque.html` | lot 1 (BRAND.1) | [x] |
 
 ## 4. Données de démonstration
 

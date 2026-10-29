@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marque Mwangaza</title>
+<!-- Marque retenue le 2026-10-29 : piste A « Lever du jour », logotype écrit comme celui du livre Ujuzi (Poppins).
+     Pistes B et C écartées : commit f39f60a9 (maquettes/marque/pistes.html). Polices en fichiers locaux (OFL). -->
+<style>
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-700-normal.woff2) format("woff2");font-weight:700}
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url(../assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Atkinson Hyperlegible Next";src:url(../assets/fonts/atkinson-hyperlegible-next-latin-700-normal.woff2) format("woff2");font-weight:700}
+:root{
+  --bleu:#1A2F80;   /* Bleu uniforme — ancrage */
+  --brume:#E2EAF7;  /* Brume du lac — appoint */
+  --soleil:#FFA81E; /* Soleil levant — accent */
+  --ardoise:#111418;/* Ardoise — texte */
+  --craie:#FFFFFF;  /* Craie — fond */
+  --gris:#5B6475;--trait:#DDE2EC;
+  --anc:var(--bleu);--acc:var(--soleil)
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Poppins",system-ui,sans-serif;color:var(--ardoise);background:var(--craie);line-height:1.55;font-size:15px}
+.wrap{max-width:1200px;margin:0 auto;padding:0 16px}
+@media (min-width:768px){.wrap{padding:0 48px}}
+
+/* Logo */
+.lockup{display:inline-flex;align-items:center;gap:.26em;line-height:1;font-size:var(--sz,64px);color:var(--word,var(--bleu));white-space:nowrap}
+.lockup svg{width:1.2em;height:1.2em;flex:none}
+.word{font-family:"Poppins",sans-serif;font-weight:600;letter-spacing:-.035em;line-height:1}
+.m1{position:relative;display:inline-block}
+.dot .m1::after{content:"";position:absolute;left:50%;top:-.02em;width:.19em;height:.19em;border-radius:50%;background:var(--s-acc,var(--soleil));transform:translateX(-50%)}
+.v-color{--s-tile:var(--bleu);--s-draw:#fff;--s-acc:var(--soleil);--word:var(--bleu)}
+.v-inverse{--s-tile:#fff;--s-draw:var(--bleu);--s-acc:var(--soleil);--word:#fff}
+.v-mono{--s-tile:var(--ardoise);--s-draw:#fff;--s-acc:#fff;--word:var(--ardoise)}
+svg.sym{display:block}
+
+/* Couverture, comme la première page du livre Ujuzi */
+.cover{background:var(--brume);padding:48px 0}
+.cover .wrap{display:grid;gap:32px;align-items:center}
+@media (min-width:900px){.cover .wrap{grid-template-columns:240px 1fr;min-height:340px}}
+.cover-meta{font-size:14px;line-height:1.5}
+.cover-meta b{display:block;font-size:15px;letter-spacing:.02em}
+.cover .lockup{--sz:clamp(64px,13vw,168px)}
+
+/* Sections */
+section{padding:56px 0;border-bottom:1px solid var(--trait)}
+.eyebrow{font-size:14px;letter-spacing:.04em;margin:0;max-width:none}
+h2{font-size:clamp(24px,3.4vw,32px);font-weight:700;text-transform:uppercase;line-height:1.1;margin:2px 0 24px;letter-spacing:.005em}
+h3{font-size:15px;font-weight:700;margin:0 0 8px}
+p{margin:0 0 12px;max-width:68ch}
+.num{float:right;font-size:13px;color:var(--gris)}
+.cols{display:grid;gap:24px 48px}
+@media (min-width:900px){.cols{grid-template-columns:1fr 1fr}}
+.cap{font-style:italic;color:#8A93A5;font-size:14px;margin-top:14px}
+
+/* Décisions */
+.decide{list-style:none;padding:0;margin:0;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.decide li{border-left:4px solid var(--bleu);background:#F6F8FC;padding:14px 16px;font-size:14px}
+.decide b{display:block;font-size:15px;margin-bottom:2px}
+
+/* Identité */
+.trio{display:grid;gap:32px;margin-top:32px;align-items:end}
+@media (min-width:900px){.trio{grid-template-columns:auto auto 1fr}}
+.trio .lockup{--sz:clamp(36px,5vw,56px)}
+.build{display:grid;gap:24px;margin-top:40px;align-items:center}
+@media (min-width:900px){.build{grid-template-columns:300px 1fr}}
+.build svg{width:100%;max-width:300px;height:auto}
+
+/* Versions */
+.versions{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.tile{border:1px solid var(--trait);padding:32px 16px 14px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:20px;min-height:170px}
+.tile .lockup{--sz:30px}
+.tile small{font-size:13px;color:var(--gris);align-self:flex-start;font-style:italic}
+.tile.on-bleu{background:var(--bleu);border-color:var(--bleu)}
+.tile.on-bleu small{color:rgba(255,255,255,.8)}
+.tile.on-brume{background:var(--brume);border-color:var(--brume)}
+.icons{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;justify-content:center}
+.tab{display:flex;align-items:center;gap:8px;background:#EEF1F6;border-radius:8px 8px 0 0;padding:7px 12px;font-size:13px;font-family:"Atkinson Hyperlegible Next",sans-serif}
+
+/* Palette, comme la page « Système visuel » d'Ujuzi */
+.bar{display:flex;height:18px;margin:0 0 6px}
+.bar span{display:block}
+.bar-legend{display:flex;font-size:13px;font-style:italic;line-height:1.3}
+.bar-legend span{min-width:0;padding-right:6px}
+.bar-legend b{font-style:normal;display:block}
+.groups{display:grid;gap:24px;margin-top:28px;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.group h3 small{font-weight:400;font-style:italic}
+.chip{display:flex;gap:10px;align-items:flex-start;margin:10px 0}
+.chip i{width:18px;height:18px;border-radius:50%;flex:none;margin-top:2px;border:1px solid var(--trait)}
+.chip b{display:block;font-size:13px}
+.chip span{font-size:13px}
+.group p{font-size:13px;color:#3A4252}
+.contrast{font-size:13px;color:var(--gris);margin-top:16px}
+
+/* Typographie */
+.type{display:grid;gap:16px;margin-top:8px}
+@media (min-width:900px){.type{grid-template-columns:1fr 1fr}}
+.spec{background:var(--bleu);color:#fff;padding:28px}
+.spec.light{background:var(--brume);color:var(--ardoise)}
+.spec h3{font-size:16px;margin-bottom:12px}
+.spec .aa{font-size:clamp(20px,2.6vw,26px);line-height:1.45;overflow-wrap:anywhere}
+.spec .digits{letter-spacing:.2em;margin-top:12px}
+.spec small{display:block;margin-top:14px;font-size:13px;opacity:.85}
+.atk{font-family:"Atkinson Hyperlegible Next",sans-serif}
+
+/* Applications */
+.apps{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.app{border:1px solid var(--trait);padding:22px 16px;background:#F6F8FC;display:flex;flex-direction:column;align-items:center;gap:14px}
+.app small{align-self:flex-start;font-size:13px;color:var(--gris);font-style:italic}
+.phone{width:196px;height:300px;border-radius:30px;background:#161A22;border:6px solid #0A0C10;padding:30px 14px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;align-content:start}
+.ic{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;color:#E5E9F0;min-width:0;font-family:"Atkinson Hyperlegible Next",sans-serif}
+.ic i{width:30px;height:30px;border-radius:8px;background:#2C3240;display:block}
+.ic svg{width:30px;height:30px}
+.gbar{width:100%;max-width:250px;background:var(--bleu);padding:18px 10px;color:#fff;font-family:"Atkinson Hyperlegible Next",sans-serif}
+.gbar .lockup{--sz:21px;padding:0 6px 16px}
+.school{background:rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:10px}
+.gbar .m{display:block;padding:8px 12px;border-radius:8px;font-size:14px;color:rgba(255,255,255,.82);position:relative}
+.gbar .m.on{background:rgba(255,255,255,.12);color:#fff;font-weight:700}
+.gbar .m.on::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:4px;border-radius:2px;background:var(--soleil)}
+.bcard{width:100%;max-width:300px;aspect-ratio:85/55;background:#fff;box-shadow:0 1px 2px rgba(17,20,24,.08),0 8px 24px rgba(17,20,24,.08);padding:18px;display:flex;flex-direction:column;justify-content:space-between}
+.bcard .lockup{--sz:20px}
+.bcard .row{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+.bcard b{display:block;font-size:13px;color:var(--bleu)}
+.bcard .row span{font-size:10.5px;color:var(--gris)}
+.bcard .contact{text-align:right}
+.bcard.back{background:var(--bleu);align-items:center;justify-content:center}
+.bcard.back .lockup{--sz:30px}
+.end{padding:40px 0 64px;background:var(--brume)}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Symbole : un m dont les arches laissent se lever le soleil (grille 64, carré arrondi plein) -->
+  <symbol id="sym" viewBox="0 0 64 64">
+    <rect width="64" height="64" rx="18" style="fill:var(--s-tile)"/>
+    <path d="M14 54V34a9 9 0 0 1 18 0v20M32 34a9 9 0 0 1 18 0v20" style="fill:none;stroke:var(--s-draw);stroke-width:8;stroke-linejoin:round"/>
+    <circle cx="32" cy="14.5" r="5.5" style="fill:var(--s-acc)"/>
+  </symbol>
+</svg>
+
+<header class="cover">
+  <div class="wrap">
+    <div class="cover-meta"><b>MWANGAZA</b>Marque de la plateforme<br><br>Octobre 2026<br>Piste A « Lever du jour », retenue</div>
+    <div><span class="lockup dot v-color"><span class="word"><span class="m1">m</span>wangaza</span></span></div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">MWANGAZA <span class="num">00</span></p>
+    <h2>Décisions du 29 octobre</h2>
+    <ul class="decide">
+      <li><b>Piste A retenue</b>Le m dont les arches laissent se lever le soleil : <em>mwangaza</em> veut dire « lumière ».</li>
+      <li><b>Un logotype dessiné comme celui d'Ujuzi</b>Poppins, minuscules, lettres serrées, graisse forte : net et stable, dans l'esprit du Swiss Design.</li>
+      <li><b>Un seul logo</b>Une marque se reconnaît à un seul signe, décliné en versions. La console permet toujours de changer de logo sans toucher au code.</li>
+      <li><b>Des couleurs tirées de l'école</b>L'ardoise et la craie du tableau, le bleu de l'uniforme, la brume du lac Kivu, le soleil levant.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">MWANGAZA <span class="num">01</span></p>
+    <h2>Identité visuelle</h2>
+    <div class="cols">
+      <div><h3>Construction du logo et du symbole</h3><p>L'identité associe deux éléments : le symbole et le logotype. Le symbole donne le sens — deux arches, comme deux collines ou deux mains ouvertes, laissent se lever un point de lumière. Le logotype donne la clarté : le nom écrit en minuscules, avec des proportions stables et des lettres serrées.</p></div>
+      <div><h3>Le logotype seul</h3><p>Sans le symbole, le soleil se pose au-dessus du premier m. Ce point garde la signature de la marque sur les petits formats, les signatures d'e-mail et les mises en page épurées.</p></div>
+    </div>
+    <div class="trio">
+      <div><svg class="sym v-color" width="72" height="72" aria-hidden="true"><use href="#sym"/></svg><div class="cap">Icône</div></div>
+      <div><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span><div class="cap">Icône + logotype (logo principal)</div></div>
+      <div><span class="lockup dot v-color"><span class="word"><span class="m1">m</span>wangaza</span></span><div class="cap">Logotype seul</div></div>
+    </div>
+    <div class="build">
+      <svg viewBox="-6 -6 76 76" role="img" aria-label="Construction du symbole sur une grille de 64">
+        <g stroke="#C9D2E3" stroke-width=".25">
+          <path d="M0 0V64M8 0V64M16 0V64M24 0V64M32 0V64M40 0V64M48 0V64M56 0V64M64 0V64M0 0H64M0 8H64M0 16H64M0 24H64M0 32H64M0 40H64M0 48H64M0 56H64M0 64H64"/>
+        </g>
+        <g class="v-color"><use href="#sym" width="64" height="64" style="opacity:.92"/></g>
+        <g fill="none" stroke="#E5484D" stroke-width=".4" stroke-dasharray="1.2 1">
+          <circle cx="23" cy="34" r="13"/><circle cx="41" cy="34" r="13"/><circle cx="32" cy="14.5" r="5.5"/>
+          <path d="M10 -4V68M54 -4V68M-4 10H68M-4 54H68"/>
+        </g>
+      </svg>
+      <div>
+        <h3>Une grille de 64</h3>
+        <p>Le carré arrondi (rayon 18) porte un m tracé d'un trait de 8 : deux arches de même rayon, des jambages droits. Le soleil (diamètre 11) se pose au-dessus du creux, à distance égale des deux arches. Marges de 10 de chaque côté : le symbole reste lisible de 16 px (onglet) à 512 px (icône installée).</p>
+        <p>Zone de protection : la hauteur du soleil tout autour du logo. Taille minimale : 24 px pour le logo complet, 16 px pour l'icône.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">MWANGAZA <span class="num">02</span></p>
+    <h2>Versions du logo</h2>
+    <div class="versions">
+      <div class="tile"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span><small>Principal, sur la craie</small></div>
+      <div class="tile on-bleu"><span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span><small>Inversée, sur le bleu uniforme</small></div>
+      <div class="tile on-brume"><span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span><small>Sur la brume du lac</small></div>
+      <div class="tile"><span class="lockup v-mono"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span><small>Une couleur (tampon, photocopie)</small></div>
+      <div class="tile on-bleu"><span class="lockup dot v-inverse"><span class="word"><span class="m1">m</span>wangaza</span></span><small>Logotype seul, inversé</small></div>
+      <div class="tile"><div class="icons v-color"><svg class="sym" width="72" height="72" aria-hidden="true"><use href="#sym"/></svg><svg class="sym" width="32" height="32" aria-hidden="true"><use href="#sym"/></svg><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym"/></svg></div><div class="tab v-color"><svg class="sym" width="16" height="16" aria-hidden="true"><use href="#sym"/></svg>Caisse — Mwangaza</div><small>Icône : 72, 32 et 16 px, onglet</small></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">MWANGAZA <span class="num">03</span></p>
+    <h2>Système visuel</h2>
+    <div class="cols">
+      <div><h3>Palette de couleurs</h3><p>Les couleurs viennent de la salle de classe. L'ardoise et la craie du tableau portent le texte et la respiration ; le bleu de l'uniforme est le fondement de la marque, profond et institutionnel. La brume du lac Kivu adoucit les surfaces. Le soleil levant, rare, réveille l'ensemble : c'est la lumière du nom.</p></div>
+      <div>
+        <div class="bar" aria-hidden="true"><span style="flex:52;background:#fff;border:1px solid var(--trait)"></span><span style="flex:8;background:var(--ardoise)"></span><span style="flex:22;background:var(--bleu)"></span><span style="flex:13;background:var(--brume)"></span><span style="flex:5;background:var(--soleil)"></span></div>
+        <div class="bar-legend"><span style="flex:60">Neutres<b>(60 %)</b></span><span style="flex:22">Ancrage<b>(22 %)</b></span><span style="flex:13">Appoint<b>(13 %)</b></span><span style="flex:5"></span></div>
+        <p style="font-size:13px;font-style:italic;margin-top:6px">Accent : 5 % au plus.</p>
+      </div>
+    </div>
+    <div class="groups">
+      <div class="group"><h3>Couleurs neutres <small>(60 %)</small></h3>
+        <div class="chip"><i style="background:#FFFFFF"></i><div><b>HEX : #FFFFFF</b><span>Craie</span></div></div>
+        <div class="chip"><i style="background:#111418"></i><div><b>HEX : #111418</b><span>Ardoise</span></div></div>
+        <p>La craie est le fond de chaque page ; l'ardoise, le texte et la version une couleur.</p></div>
+      <div class="group"><h3>Ancrage <small>(22 %)</small></h3>
+        <div class="chip"><i style="background:#1A2F80"></i><div><b>HEX : #1A2F80</b><span>Bleu uniforme</span></div></div>
+        <p>Barres des applications, en-têtes, boutons principaux, grands blocs. Le texte blanc y garde un contraste de 11,9:1.</p></div>
+      <div class="group"><h3>Appoint <small>(13 %)</small></h3>
+        <div class="chip"><i style="background:#E2EAF7"></i><div><b>HEX : #E2EAF7</b><span>Brume du lac</span></div></div>
+        <p>Fonds de cartes, lignes choisies, encadrés : de la fraîcheur sans jaune ni beige.</p></div>
+      <div class="group"><h3>Accent <small>(5 %)</small></h3>
+        <div class="chip"><i style="background:#FFA81E"></i><div><b>HEX : #FFA81E</b><span>Soleil levant</span></div></div>
+        <p>Le soleil du symbole, le repère de l'élément actif, un chiffre à remarquer. Jamais en grande surface, jamais en texte sur la craie.</p></div>
+    </div>
+    <p class="contrast">Contrastes vérifiés : craie sur bleu uniforme 11,9:1 · bleu uniforme sur brume 9,4:1 · ardoise sur brume 14,6:1 · soleil levant sur bleu uniforme 6,2:1.</p>
+
+    <h3 style="margin-top:40px">Typographie</h3>
+    <div class="type">
+      <div class="spec">
+        <h3>Poppins — logotype, titres, documents de la plateforme</h3>
+        <div class="aa">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz</div>
+        <div class="digits">0123456789</div>
+        <small>Géométrique, Swiss Design · 400, 600, 700 · licence libre OFL · fichiers dans le dépôt</small>
+      </div>
+      <div class="spec light atk">
+        <h3>Atkinson Hyperlegible Next — texte des écrans</h3>
+        <div class="aa">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz</div>
+        <div class="digits">0123456789</div>
+        <small>Dessinée pour la lisibilité · déjà dans les trois applications, hors ligne · inchangée</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <p class="eyebrow">MWANGAZA <span class="num">04</span></p>
+    <h2>Applications</h2>
+    <div class="apps">
+      <div class="app">
+        <div class="phone" aria-hidden="true">
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic v-color"><svg class="sym"><use href="#sym"/></svg>Mwangaza</div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+          <div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div>
+        </div>
+        <small>Icône sur l'écran d'accueil du téléphone</small>
+      </div>
+      <div class="app">
+        <div class="gbar">
+          <span class="lockup v-inverse"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span>
+          <div class="school">Institut Les Volcans</div>
+          <span class="m on">Tableau de bord</span><span class="m">Élèves</span><span class="m">Caisse</span><span class="m">Notes</span>
+        </div>
+        <small>Barre de l'application Gestion</small>
+      </div>
+      <div class="app">
+        <div class="bcard">
+          <span class="lockup v-color"><svg class="sym" aria-hidden="true"><use href="#sym"/></svg><span class="word">mwangaza</span></span>
+          <div class="row"><div><b>Amani Bahati</b><span>Conseillère des écoles</span></div><div class="contact"><span>+243 000 000 000<br>mwangazaschool.com</span></div></div>
+        </div>
+        <div class="bcard back"><span class="lockup dot v-inverse"><span class="word"><span class="m1">m</span>wangaza</span></span></div>
+        <small>Carte de visite, recto et verso</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="end">
+  <div class="wrap"><p style="margin:0"><b>Suite</b> : le livre de marque complet en PDF (positionnement, ton, construction, interdits, grille, photo, iconographie, applications), puis la marque dans les trois applications.</p></div>
+</footer>
+
+</body>
+</html>
