@@ -39,7 +39,7 @@ Une note ne crée jamais sa propre PR et ne se commite jamais sur `main`.
 |---|---|
 | Une tâche est en cours (branche `tache/…`) | commit sur cette branche : elle part dans la PR de la tâche |
 | La PR de la dernière tâche est ouverte, pas encore fusionnée | commit sur sa branche, push ; attendre que les contrôles GitHub repassent au vert ; le signaler à l'utilisateur (la PR contient une note de plus) |
-| Aucune PR ouverte, aucune tâche en cours | créer tout de suite la branche de la prochaine tâche depuis `main` à jour (`git switch main && git pull && git switch -c tache/<numéro>-<mot-clé>`), commiter la note dessus, sans ouvrir de PR : `/tache` reprendra cette branche |
+| Aucune PR ouverte, aucune tâche en cours | créer tout de suite la branche du prochain lot depuis `main` à jour (`git switch main && git pull && git switch -c lot/<N>-<mot-clé>`), commiter la note dessus, sans ouvrir de PR : `/tache` reprendra cette branche |
 | Décision importante que l'utilisateur doit valider **avant** que Claude continue | exception : PR séparée `docs/<sujet>`, `base: main`, avec les sections « À valider », « À tester toi-même » (souvent « rien de visible »), « Après la fusion » ; dire pourquoi elle est séparée |
 
 Commit en français : `docs: <ce qui est noté>`, terminé par la ligne Co-Authored-By.

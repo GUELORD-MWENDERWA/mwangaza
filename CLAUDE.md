@@ -15,7 +15,7 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 2. `docs/02-perimetre-v1.md` — **ce qu'on construit maintenant** et ce qu'on ne construit PAS encore
 3. `docs/03-architecture-technique.md` — stack, multi-écoles, hors-ligne, sécurité, hébergement
 4. `docs/04-modele-de-donnees.md` — entités et règles métier
-5. `docs/05-plan-de-travail.md` — **la file** (§ 2 : l'ordre de travail, priorités P0 à P3), le détail de chaque tâche et la **définition de « fini »** (§ 8.2) ; cocher au fur et à mesure (ancien plan : `docs/archives/`, ne pas le relire)
+5. `docs/05-plan-de-travail.md` — **la file** (§ 2 : 17 lots, une PR chacun ; § 2 bis : tâches ajoutées le 2026-10-29), le détail de chaque tâche et la **définition de « fini »** (§ 8.2) ; cocher au fur et à mesure (ancien plan : `docs/archives/`, ne pas le relire)
 6. `docs/06-suivi.md` — état actuel du projet et journal de chaque étape
 7. `docs/07-a-fournir.md` — maquettes, informations et décisions encore manquantes (et ce qu'on utilise en attendant)
 8. `docs/specs/` — spécification détaillée d'un module quand le plan y renvoie (emploi du temps : `emploi-du-temps.md`)
@@ -23,9 +23,9 @@ Lire `docs/06-suivi.md` (état actuel, tâche en cours, bloquants) avant toute a
 
 École pilote : `docs/ecole-pilote/fiche-itig.md` (ce qu'on sait), `depot/` (l'utilisateur y dépose ses fichiers, hors Git), `documents/` (rangés, sans données personnelles), `prive/` (données personnelles, hors Git).
 
-Espace de travail de Claude : `docs/claude/` — `reference.md` (commandes en détail, contenu de `make demo`, chaque écran et chaque API en développement), `plans/` (plan de chaque tâche avant de coder), `recherches/` (notes avec sources). Le résultat de `/verifier` va dans la PR.
+Espace de travail de Claude : `docs/claude/` — `reference.md` (commandes en détail, contenu de `make demo`, chaque écran et chaque API en développement), `plans/` (fiche de chaque lot avant de coder), `recherches/` (notes avec sources). Le résultat de `/verifier` va dans la PR.
 
-GitHub (dépôt `GUELORD-MWENDERWA/mwangaza`, public jusqu'à la fin de la V2 puis privé : `A-FAIRE.md` § 9 quinquies) : un jalon par version (V1.0, V1.1, Lancement, V1.2 à V1.7, V2 ; découpage du 2026-10-13 dans `05`), une issue par tâche titrée « <numéro> — … » ; la PR de la tâche contient `Closes #<n>`. Règles des PR : section « Travail avec GitHub ».
+GitHub (dépôt `GUELORD-MWENDERWA/mwangaza`, public jusqu'à la fin de la V2 puis privé : `A-FAIRE.md` § 9 quinquies) : jalons par version jusqu'au 2026-10-29, puis le jalon « V1 complète » : une issue par lot titrée « Lot N — … » (ses tâches en cases) ; la PR du lot contient `Closes #<n>` pour l'issue du lot et pour chaque ancienne issue de ses tâches encore ouverte. Règles des PR : section « Travail avec GitHub ».
 
 Si une demande sort du périmètre de `02-perimetre-v1.md`, le signaler avant de coder.
 
@@ -115,41 +115,41 @@ Adresses en dev : Gestion `http://itig-demo.localhost:5173/app/` (sous-domaine =
 
 ## Façon de travailler
 
-- Une tâche du plan = une branche = une PR, tests inclus (voir « Travail avec GitHub »).
+- **Un lot du plan (`05` § 2) = une branche = une PR**, tests inclus : 2 à 7 tâches d'un même thème, faites en parties (une conversation chacune), commit et push de sauvegarde à la fin de chaque partie, PR à la fin du lot (`05` § 8.1, « Travail avec GitHub »).
 - Avant de coder une fonction, relire la section correspondante du cahier des charges et du modèle de données.
 - **Regard de développeur senior, avant d'accepter une tâche, un plan ou une demande** (y compris de l'utilisateur) : est-ce vraiment utile ? faisable ? que coûtera-t-il au serveur plus tard (écritures par requête, tâches de fond, taille des tables, requêtes d'un écran chargé souvent) ? Retirer ou simplifier ce qui ne sert pas, le dire avec la raison dans le plan de la tâche et dans « À valider », puis travailler.
-- Après chaque tâche : cocher la case dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
+- À la fin d'un lot : cocher ses tâches dans `docs/05-plan-de-travail.md` et noter toute décision nouvelle dans la section « Journal des décisions » de `docs/03-architecture-technique.md`.
 - En cas de doute sur une règle scolaire RDC (bulletins, délibération, frais), demander plutôt que supposer.
 
 ## Économie de tokens (obligatoire)
 
-Le quota de tokens est limité et beaucoup de tâches restent (`05`) : une tâche doit tenir dans une conversation. La qualité ne baisse pas : les 9 règles non négociables, pas de requêtes N+1, listes paginées, pas de code bâclé ; une tâche = une branche = une PR (base `main`), Actions vert, l'utilisateur fusionne.
+Le quota de tokens est limité et beaucoup de lots restent (`05`) : une **partie de lot** doit tenir dans une conversation. La qualité ne baisse pas : les 9 règles non négociables, pas de requêtes N+1, listes paginées, pas de code bâclé ; un lot = une branche = une PR (base `main`), Actions vert, l'utilisateur fusionne.
 
 - **Tests peu nombreux, utiles, réalistes.** Écrire : isolation entre écoles, permissions, argent, audit, vraies règles métier ; Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne). Ne pas écrire : ce que Django, DRF ou React garantissent déjà, les variantes presque identiques, les libellés ou la mise en page, les cas irréalistes. Dans un fichier de tests ouvert pour la tâche, supprimer ou fusionner les tests redondants (pas de grand nettoyage à part) ; **ne jamais supprimer** un test d'isolation, de permission, d'argent ou d'audit. Erreurs glissées exprès seulement pour l'argent, l'isolation et le hors-ligne.
 - **Lancer peu.** Pendant le travail : les tests du module touché, depuis la racine — `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q | tail -3` (variables de `.env`, que `make` charge d'habitude) ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> | tail -5` (depuis `frontend/` : sa configuration). **Pas de suite complète en local** : la CI la lance (≈ 5 min, trois jobs en parallèle). **Un test ne refait jamais `make demo`** (≈ 1 min en CI chacun ; 24 fois = 25 min d'attente jusqu'au 2026-10-17) : sa vérification s'ajoute au scénario de `core/tests/test_demo.py` ; la CI affiche les 10 tests les plus lents.
 - **Vérifier peu.** Nouvel écran : une capture à 390 px et une à 1440 px, comparées à la maquette. Pas de rejeu des étapes « À tester toi-même ».
-- **Documents courts.** Plan (`docs/claude/plans/`) : 20 lignes maximum. Suivi : voir « Suivi du projet ». Courts ne veut pas dire oubliés : **à chaque tâche, tous les `.md` que le changement rend faux ou incomplets sont mis à jour dans la même PR** (liste : « Suivi du projet », fin d'une tâche). Pas de fichier dans `docs/claude/revues/` : le résultat de `/verifier` tient en quelques lignes dans la PR. Description de PR et message de fin courts : ce qui change, « À valider », « À tester toi-même » (3 à 5 étapes), « Après la fusion ».
+- **Documents courts.** Fiche du lot (`docs/claude/plans/lot-N.md`) : 30 lignes maximum. Suivi : voir « Suivi du projet ». Courts ne veut pas dire oubliés : **à chaque lot, tous les `.md` que le changement rend faux ou incomplets sont mis à jour dans la même PR** (liste : « Suivi du projet », fin d'un lot). Pas de fichier dans `docs/claude/revues/` : le résultat de `/verifier` tient en quelques lignes dans la PR. Description de PR et message de fin courts : ce qui change, « À valider », « À tester toi-même » (5 à 8 étapes), « Après la fusion ».
 - **Modèle et effort.** Ce qui coûte le plus : la réflexion (effort `high` par défaut, jamais `xhigh` ; Opus pour les tâches difficiles, Sonnet pour les simples) et le nombre d'appels d'outils (chacun relit tout le contexte) : regrouper les commandes, explorer en 5 à 10 appels au plus, une image seulement pour une vérification demandée.
 - **Lire peu.** Seulement les passages utiles (`grep -n`, `sed -n a,bp`), pas un fichier entier déjà connu ; ne pas relire un fichier qu'on vient de modifier ; filtrer les sorties longues (`tail`, `grep`). Pas de sous-agents sauf demande de l'utilisateur.
-- **Taille.** Une tâche qui dépasse à peu près un module serveur ou deux écrans : proposer de la découper dans `05` avant de coder.
-- **Une conversation par tâche.** Claude ne peut pas taper `/clear` ni `/compact` : à la fin d'une tâche, dire « Fusionne la PR, puis tape /clear et /tache X.Y » ; si la conversation devient longue en cours de tâche, dire « Tape /compact » juste après un commit. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
+- **Taille.** Un lot se découpe en **parties** dans sa fiche (une conversation chacune), jamais en plusieurs PR.
+- **Une conversation par partie de lot.** Claude ne peut pas taper `/clear` ni `/compact` : à la fin d'une partie, commit et push de la branche, puis « Tape /clear puis /tache lot N » ; à la fin du lot, « Fusionne la PR, puis tape /clear et /tache lot N+1 » ; conversation longue au milieu d'une partie : « Tape /compact » juste après un commit. Partie simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
 
 ## Travail avec GitHub
 
 Rôles : **Claude est le développeur** (code, teste, ouvre les PR). **L'utilisateur est le chef de projet et le relecteur** : il valide les décisions, teste ce qui est visible et fusionne. En relisant une PR, il regarde : contrôles verts, description conforme à la tâche, section « À valider », puis ses tests ; le code (*Files changed*) seulement pour apprendre ou vérifier un point précis. **La description doit donc suffire pour comprendre ce qui a changé sans lire le code.**
 
-1. **Une seule PR par tâche du plan** (1.1 → une PR). Les corrections, petites réparations et mises à jour de documents faites pendant la tâche vont dans cette PR, jamais dans des PR séparées.
+1. **Une seule PR par lot du plan** (lot 3 → une PR). Les corrections, petites réparations et mises à jour de documents faites pendant le lot vont dans cette PR, jamais dans des PR séparées.
 2. **PR séparée seulement dans deux cas** : une décision importante que l'utilisateur doit valider avant que Claude continue, ou une correction urgente qui bloque le travail. Dire clairement, dans la PR et dans la réponse, pourquoi elle est séparée.
-3. **Toujours `base: main`**, branche partie de `main` à jour. Jamais de PR empilée sur une autre branche : si la tâche a besoin d'une PR pas encore fusionnée, le dire et attendre la fusion.
+3. **Toujours `base: main`**, branche partie de `main` à jour. Jamais de PR empilée sur une autre branche : si le lot a besoin d'une PR pas encore fusionnée, le dire et attendre la fusion.
 4. **Ne jamais fusionner.** C'est toujours l'utilisateur qui fusionne.
-5. **Pas d'attente à vide** : un seul push à la fin, puis la PR est donnée tout de suite, contrôles en cours ; l'utilisateur commence ses tests pendant que Claude surveille la CI en arrière-plan et confirme « ✅ contrôles verts » (ou corrige dans la même PR et le dit). L'utilisateur ne fusionne qu'après le ✅ ou les coches vertes.
+5. **Pas d'attente à vide** : pendant le lot, push de sauvegarde de la branche à la fin de chaque partie (sans PR, la CI ne tourne pas) ; à la fin, dernier push, puis la PR est donnée tout de suite, contrôles en cours ; l'utilisateur commence ses tests pendant que Claude surveille la CI en arrière-plan et confirme « ✅ contrôles verts » (ou corrige dans la même PR et le dit). L'utilisateur ne fusionne qu'après le ✅ ou les coches vertes.
 6. **Description de la PR**, en français simple : ce qui change et pourquoi (sans jargon inutile), les tests, puis trois sections courtes :
    - **« À valider »** : les décisions ou propositions que l'utilisateur accepte en fusionnant, avec où les lire ; ou « Rien ».
-   - **« À tester toi-même »** : 3 à 5 étapes, commandes exactes et pages à ouvrir (adresses complètes), avec le résultat attendu pour chacune. Si rien n'est visible, le dire.
+   - **« À tester toi-même »** : 5 à 8 étapes, commandes exactes et pages à ouvrir (adresses complètes), avec le résultat attendu pour chacune. Si rien n'est visible, le dire.
    - **« Après la fusion »** : ce qu'il faut taper (ex. `git switch main && git pull && make install`) et la prochaine tâche.
 
-   Puis `Closes #<n>`. Modèle : skill `tache`, étape 5.
-7. **Message de fin dans le terminal** : il reprend ces trois sections, sans détails techniques inutiles, puis « Fusionne la PR, puis tape /clear et /tache X.Y » et la ligne `📍`.
+   Puis `Closes #<n>` (issue du lot et anciennes issues de ses tâches). Modèle : skill `tache`, étape 5.
+7. **Message de fin dans le terminal** : il reprend ces trois sections, sans détails techniques inutiles, puis « Fusionne la PR, puis tape /clear et /tache lot N+1 » et la ligne `📍`.
 
 Côté utilisateur, la marche à suivre est dans `A-FAIRE.md` § 10 « Comment relire et fusionner une PR ».
 
@@ -161,8 +161,8 @@ On travaille avec des données **fictives et réalistes**, en développement, da
 
 Chaque étape doit être notée pour savoir à tout moment où en est le projet.
 
-- **Début d'une tâche** : dans `docs/06-suivi.md`, mettre à jour « État actuel » (tâche en cours, branche).
-- **Fin d'une tâche** : cocher dans `docs/05-plan-de-travail.md` ; dans `06`, « État actuel », le compteur du bloc dans « Avancement » et une entrée datée de 3 à 5 lignes au « Journal » (fait, tests, décisions, suite). **Puis passer en revue tous les autres `.md`** et mettre à jour, dans la même PR, chacun que la tâche rend faux ou incomplet :
+- **Début d'un lot** : dans `docs/06-suivi.md`, mettre à jour « État actuel » (lot et partie en cours, branche). **Fin d'une partie** : partie cochée dans la fiche du lot et compteur de « Avancement ».
+- **Fin d'un lot** : cocher ses tâches dans `docs/05-plan-de-travail.md` ; dans `06`, « État actuel » et une entrée datée de 3 à 5 lignes au « Journal » (fait, tests, décisions, suite). **Puis passer en revue tous les autres `.md`** et mettre à jour, dans la même PR, chacun que la tâche rend faux ou incomplet :
   - `docs/claude/reference.md` (commande en détail, contenu de `make demo`, nouvel écran, nouvelle API), `CLAUDE.md` (tableau « Commandes » seulement pour une commande essentielle, il reste court) et `A-FAIRE.md` § 11 (mêmes commandes et adresses, en langage simple) — ensemble ;
   - `A-FAIRE.md` « Maintenant » et § 8–9 (action de l'utilisateur nouvelle, faite ou devenue urgente) ;
   - `docs/02` à `04` (règle précisée, entité ou champ, décision technique au « Journal des décisions » de `03`), `docs/07-a-fournir.md` (§ 1 maquette dessinée ou validée, § 2 information reçue, § 4 ce que crée `make demo`) ;
@@ -172,14 +172,14 @@ Chaque étape doit être notée pour savoir à tout moment où en est le projet.
 - **Tout autre événement** (document reçu de l'ITIG, décision, blocage levé, question tranchée) : entrée datée au « Journal ».
 - **Décision technique** : aussi dans le « Journal des décisions » de `docs/03-architecture-technique.md`.
 - **Action qui attend l'utilisateur** (installer, fusionner une PR, demander à l'ITIG, acheter, créer un compte) ou **commande nouvelle ou changée** : mettre à jour `A-FAIRE.md` (ce qu'il doit faire, comment, avec quelles commandes ; cocher ce qui est fait). Le signaler dans la réponse.
-- Terminer chaque réponse de travail par une ligne d'état : `📍 Tâche X.Y — étape — prochaine action`.
+- Terminer chaque réponse de travail par une ligne d'état : `📍 Lot N (partie k/n) — étape — prochaine action`.
 
 ## Skills du projet (`.claude/skills/`)
 
 | Commande | Quand |
 |---|---|
 | `/etat` | Faire le point : où on en est, prochaine tâche, bloquants |
-| `/tache 1.1` | Réaliser une tâche du plan de bout en bout (branche, tests, suivi) |
+| `/tache lot 1` | Réaliser un lot du plan : une partie par conversation, une PR à la fin (`/tache 1.1` : tâche isolée, exception) |
 | `/noter …` | Noter une étape, une décision, un document reçu, un blocage |
 | `/ecran caisse-encaissement` | Construire un écran à partir de sa maquette |
 | `/design` | Appliquer le système de design (jetons, composants, formats) |

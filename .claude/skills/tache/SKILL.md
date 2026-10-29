@@ -1,65 +1,55 @@
 ---
 name: tache
-description: Réaliser une tâche du plan de travail Mwangaza de bout en bout (ex. « /tache 1.1 », « fais la tâche 2.3 ») — relecture des documents, branche partie de main, tests d'abord, code, vérification des règles, cochage du plan, mise à jour du suivi, une seule PR avec contrôles GitHub verts et sections « À valider », « À tester toi-même », « Après la fusion ». À utiliser dès que l'utilisateur demande de faire, commencer, continuer ou terminer une tâche numérotée de docs/05-plan-de-travail.md.
-argument-hint: "<numéro de tâche, ex. 1.1>"
+description: Réaliser un lot du plan de travail Mwangaza (ex. « /tache lot 3 », « fais le lot suivant », « continue le lot ») — ou, par exception, une tâche isolée (« /tache 8.4.6 ») — de bout en bout : fiche du lot, branche partie de main, maquettes d'abord, une partie par conversation avec push de sauvegarde, tests utiles, vérification des règles, cochage du plan, suivi, une seule PR à la fin avec contrôles GitHub verts et sections « À valider », « À tester toi-même », « Après la fusion ». À utiliser dès que l'utilisateur demande de faire, commencer, continuer ou terminer un lot ou une tâche de docs/05-plan-de-travail.md.
+argument-hint: "lot <N> (ex. lot 1) — ou un numéro de tâche"
 ---
 
-# Réaliser la tâche $ARGUMENTS
+# Réaliser $ARGUMENTS
 
-Suivre les étapes dans l'ordre, en appliquant **« Économie de tokens » de `CLAUDE.md`** (lire peu, tests utiles, documents courts). Annoncer chaque étape en une ligne.
+Depuis le 2026-10-29 on travaille **par lots** (`05` § 2) : un lot = 2 à 7 tâches d'un thème = une branche = **une PR**, fait en **parties** (une conversation chacune). Appliquer **« Économie de tokens » de `CLAUDE.md`** (lire peu, tests utiles, documents courts). Annoncer chaque étape en une ligne.
 
-## 1. Préparer
+## 1. Où en est le lot
 
-1. `docs/06-suivi.md` : lire seulement « État actuel » et « Bloquants » (`grep -n`). Si une autre tâche est « en cours », demander s'il faut la terminer d'abord.
-2. Trouver la tâche dans `docs/05-plan-de-travail.md` ; vérifier que ses dépendances sont cochées. **Sans numéro** (« /tache » seul, « la suivante ») : prendre la première ligne non faite de la file (`05` § 2), sauf celles marquées 👤 (à rappeler à l'utilisateur).
-3. Relire seulement les passages utiles (`grep -n` sur les références A1, F5…, le nom des modèles) de `02-perimetre-v1.md`, `01`, `03`, `04`. Pas de lecture intégrale d'un document déjà connu.
-4. Périmètre : ce qui relève d'une version suivante (`05`, `02` § 1) → le signaler, ne pas le coder.
-5. **Regard senior** (`CLAUDE.md`, « Façon de travailler ») : chaque point de la tâche est-il vraiment utile, faisable, sans coût caché pour le serveur ? Retirer ou simplifier, noter la raison dans le plan (étape 2.4) et dans « À valider » de la PR.
-6. **Taille** : si la tâche dépasse à peu près un module serveur ou deux écrans, proposer de la découper dans `05` **avant de coder** et attendre la réponse. Tâche simple (écrans de saisie, documents) : rappeler que `/model` permet de passer à Sonnet.
-7. Bloquants et lignes de `07-a-fournir.md` qui touchent la tâche : valeur « en attendant » de `07`, le dire. Règle scolaire RDC floue : demander, ne pas supposer.
-8. Skills à suivre : modèle / service / endpoint → `backend` ; montants → `argent` ; synchronisation → `hors-ligne` ; écran → `ecran`.
+1. `docs/06-suivi.md` : « État actuel » seulement (`sed -n` jusqu'à « Avancement »).
+2. Le lot : sa ligne dans `05` § 2 et la fiche de chacune de ses tâches (`grep -n` sur le numéro dans `05`). **Sans argument** (« /tache », « le suivant ») : le premier lot non fini de la file.
+3. Fiche du lot `docs/claude/plans/lot-<N>.md` :
+   - elle existe → lire ses cases ; reprendre **à la première partie non cochée** (`git fsck`, `git switch lot/<N>-…`, `git pull`, `git merge main` si `main` a bougé) ; aller au § 3 ;
+   - elle n'existe pas → § 2.
 
-## 2. Démarrer
+## 2. Démarrer le lot (première conversation seulement)
 
-1. Issue : `gh issue list --state open --search "\"$ARGUMENTS —\" in:title" --json number,title` → `#n`.
-2. Branche **partie de `main` à jour** : `git switch main && git pull && git switch -c tache/<numéro>-<mot-clé>`. Branche déjà créée : `git switch` dessus puis `git merge main`. Si la tâche a besoin d'une PR pas encore fusionnée : le dire et attendre.
-3. `docs/06-suivi.md` → « État actuel » : tâche en cours, branche, issue, date.
-4. Plan dans `docs/claude/plans/tache-<numéro>.md`, **20 lignes maximum**, toujours avec ces rubriques (`05` § 8.1) : But · Hors périmètre · Critères d'acceptation · Tests obligatoires · Documents à mettre à jour · Risques / à vérifier dans le code ; le résumer en 3 lignes. Continuer sauf décision non couverte par les documents.
-5. `gh issue comment <n> --body "Démarrée — branche tache/…, plan : docs/claude/plans/tache-<numéro>.md"`.
+1. Relire seulement les passages utiles (`grep -n`) de `01` à `04` et de `07-a-fournir.md` (valeurs « en attendant »). Ce qui relève d'une version suivante → le signaler, ne pas le coder. Règle scolaire RDC floue : demander, ne pas supposer.
+2. **Regard senior** (`CLAUDE.md`, « Façon de travailler ») : chaque tâche du lot est-elle utile, faisable, sans coût caché pour le serveur ? Retirer ou simplifier ; noter la raison dans la fiche et dans « À valider ».
+3. Branche **partie de `main` à jour** : `git fsck`, puis `git switch main && git pull && git switch -c lot/<N>-<mot-clé>`. Si le lot a besoin d'une PR pas encore fusionnée : le dire et attendre.
+4. Issue : `gh issue list --state all --search "\"Lot <N> —\" in:title" --json number,title` ; absente → `gh issue create --title "Lot <N> — <titre>" --milestone "V1 complète" --body-file <fichier>` (tâches en cases, avec le `#n` de leurs anciennes issues : `gh issue list --state open --search "\"<numéro> —\" in:title"`). Jalon absent → `gh api repos/GUELORD-MWENDERWA/mwangaza/milestones -f title="V1 complète"`.
+5. Fiche `docs/claude/plans/lot-<N>.md`, **30 lignes maximum** : But (pour l'école) · Parties (`- [ ]`, une conversation chacune, reprises de `05` § 2) · Hors périmètre · Critères d'acceptation · Tests obligatoires · Documents à mettre à jour · Risques / à vérifier dans le code. La résumer en 3 lignes ; continuer sauf décision non couverte par les documents.
+6. `docs/06-suivi.md` → « État actuel » : lot et partie en cours, branche, issue, date. `gh issue comment <n> --body "Démarré — branche lot/…, fiche : docs/claude/plans/lot-<N>.md"`.
+7. **Maquettes de tous les écrans et documents du lot, en une passe**, avant le code (skill `design`, « Méthode » ; `maquettes/README.md`).
 
-## 3. Construire
+## 3. Une partie (une conversation)
 
-Tout ce qui est fait pendant la tâche va sur cette branche, dans la PR de la tâche (PR séparée seulement : décision importante à valider avant de continuer, ou correction urgente qui bloque ; dire pourquoi).
+1. Skills à suivre : modèle / service / endpoint → `backend` ; montants → `argent` ; synchronisation → `hors-ligne` ; écran → `ecran`.
+2. **Tests d'abord**, seulement ceux qui protègent quelque chose : isolation entre deux écoles, permissions (403), argent, audit, vraies règles métier. Pas de test de ce que Django / DRF / React garantissent, de variante presque identique, de libellé ou de mise en page. Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne). Dans un fichier de tests ouvert : supprimer ou fusionner les redondants ; jamais un test d'isolation, de permission, d'argent ou d'audit.
+3. Code minimal et propre (`CLAUDE.md` : glossaire, `services.py`, i18n, pas de nouvelle dépendance sans demander) ; pas de N+1 (`select_related` / `prefetch_related`, annotations), listes paginées. Nouveau modèle → `make demo` (`07` § 4) ; nouvelle clé vers un élève → `import_cancellation.py`.
+4. Lancer seulement les tests du module touché : `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q 2>&1 | tail -3` ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> 2>&1 | tail -5` ; types : `cd frontend && pnpm typecheck 2>&1 | grep 'error TS'`.
+5. Caisse ou hors-ligne : test Playwright qui coupe le réseau, encaisse deux paiements, rétablit le réseau, vérifie aucun doublon, reçus et soldes justes. Erreurs glissées exprès seulement pour l'argent, l'isolation et le hors-ligne.
+6. Nouvel écran : une capture à 390 px et une à 1440 px (`make apercu`), comparées à la maquette (alignement, débordement, textes bruts).
+7. **Fin de la partie** : cocher la partie dans la fiche et le compteur « Avancement » de `06` ; commit (français, style conventionnel, ligne Co-Authored-By) ; `git push -u origin lot/<N>-…` (sauvegarde : sans PR, la CI ne tourne pas). Pas la dernière partie → dire « Partie k/n faite et sauvegardée. Tape /clear puis /tache lot <N> », ligne `📍`, s'arrêter. Conversation longue au milieu d'une partie : commit, puis « Tape /compact ».
 
-1. **Tests d'abord**, seulement ceux qui protègent quelque chose : isolation entre deux écoles, permissions (403), argent, audit, vraies règles métier. Pas de test de ce que Django / DRF / React garantissent, de variante presque identique, de libellé ou de mise en page. Playwright seulement pour un chemin critique (connexion, caisse, hors-ligne).
-2. Dans un fichier de tests ouvert pour la tâche : supprimer ou fusionner les tests redondants ; jamais un test d'isolation, de permission, d'argent ou d'audit.
-3. Code minimal et propre (`CLAUDE.md` : glossaire, `services.py`, i18n, pas de nouvelle dépendance sans demander) ; pas de N+1 (`select_related` / `prefetch_related`, annotations), listes paginées.
-4. Pendant le travail, lancer seulement les tests du module touché (commandes de « Économie de tokens » de `CLAUDE.md`) : `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q 2>&1 | tail -3` ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> 2>&1 | tail -5`. Types : `cd frontend && pnpm typecheck 2>&1 | grep 'error TS'`.
-5. Nouveaux modèles → enrichir `make demo` (données fictives, `docs/07-a-fournir.md` § 4).
-6. Caisse ou hors-ligne : test Playwright qui coupe le réseau, encaisse deux paiements, rétablit le réseau, vérifie aucun doublon, reçus et soldes justes. Erreurs glissées exprès seulement pour l'argent, l'isolation et le hors-ligne.
-7. Conversation longue en cours de tâche : commiter, puis dire à l'utilisateur « Tape /compact ».
+## 4. Fin du lot (après la dernière partie)
 
-## 4. Vérifier
-
-0. Passer la **définition de « fini »** (`05` § 8.2), sécurité comprise : une case non remplie = tâche pas finie.
-1. **Une seule fois à la fin** : `make lint` (sortie filtrée avec `tail`) ; les tests des modules touchés sont déjà verts. **Pas de `make test` en local** : la CI lance la suite complète (≈ 5 min, en parallèle ; un test lent apparaît dans ses « slowest durations », jamais un nouveau `make demo` dans un test). `make test-e2e` en local seulement si un parcours Playwright a changé (sinon la CI le fait). Un échec → corriger.
-2. Skill `verifier` : résultat en quelques lignes, mis dans la PR.
-3. Nouvel écran : une capture à 390 px et une à 1440 px, comparées à la maquette (aucun débordement). Pas de rejeu des étapes « À tester toi-même ».
-
-## 5. Clôturer (obligatoire)
-
-1. `docs/05-plan-de-travail.md` : cocher `- [x]`.
-2. `docs/06-suivi.md` : « État actuel » (tâche en cours = aucune, prochaine, date), compteur du bloc dans « Avancement », bloquants réglés retirés, **journal : 3 à 5 lignes** en haut — `### AAAA-MM-JJ — Tâche X.Y : titre` puis fait, tests, décisions, suite.
-3. **Tous les autres `.md`, dans la même PR** (liste de `CLAUDE.md`, « Suivi du projet », fin d'une tâche). Pour chacun, se demander « la tâche le rend-il faux ou incomplet ? » et le corriger ; ne rien laisser « pour plus tard » :
-   - nouvel écran ou nouvelle API → « Adresses en développement » de `docs/claude/reference.md` **et** § 11 de `A-FAIRE.md` ; nouveau modèle dans `make demo` → ligne `make demo` de `reference.md` et de `A-FAIRE.md` § 11 **et** `07` § 4 ; commande nouvelle ou changée → tableau « Commandes » de `CLAUDE.md` (court) et détail dans `reference.md` ;
-   - action de l'utilisateur nouvelle, faite ou devenue urgente → `A-FAIRE.md` « Maintenant » (et § 8–9) ;
-   - décision technique → `03` « Journal des décisions » ; règle ou champ → `02` / `04` ; maquette dessinée, ou écran codé avec un écart à sa maquette → `07` § 1 et `maquettes/README.md` ;
-   - façon de faire, commande ou helper de test qui change → skills concernées (`.claude/skills/*/SKILL.md`) et README du dossier touché.
-   Vérification rapide : `git diff main --stat -- '*.md'` doit montrer chaque fichier concerné.
-4. Commits en français, style conventionnel, terminés par la ligne Co-Authored-By ; commit, push et PR sans redemander (autorisation générale de l'utilisateur).
-5. PR **unique**, `base: main` : `gh pr create --base main --title "<numéro> — <titre>" --body-file <fichier>` (modèle ci-dessous). **Ne jamais fusionner.** Corriger la description : `gh api -X PATCH repos/GUELORD-MWENDERWA/mwangaza/pulls/<n> -F body=@<fichier>` (`gh pr edit` échoue).
-6. **Pas d'attente à vide** (une PR ne lance que les contrôles concernés par ses fichiers, `.github/scripts/changes.sh` ; un contrôle « skipped » est normal) : surveiller la CI **en arrière-plan** — `gh run list --branch <branche> --limit 1` jusqu'à ce que le passage existe (`gh pr checks --watch` lancé trop tôt répond « no checks »), puis `gh run watch <id> --exit-status` — et répondre tout de suite à l'utilisateur (étape 6), contrôles en cours. Vert : « ✅ contrôles verts, tu peux fusionner ». Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, le dire.
-7. **Un seul push** : code, documents et suivi dans le même push (chaque push relance la CI et annule le passage en cours). Pas de numéro de PR dans `06` (il se retrouve par la branche), donc pas de commit après la PR.
+1. **Définition de « fini »** (`05` § 8.2), sécurité comprise, pour chaque tâche du lot : une case non remplie = lot pas fini. `make lint` une fois (sortie filtrée). Pas de suite complète en local (la CI la lance ; jamais un nouveau `make demo` dans un test) ; `make test-e2e` seulement si un parcours Playwright a changé. `.tsx` modifié : `apps/gestion/textes.test.ts` ; docstring de vue modifiée : `make api`.
+2. Skill `verifier` : résultat en quelques lignes, pour la PR.
+3. `docs/05-plan-de-travail.md` : cocher les tâches `- [x]` et barrer la ligne du lot dans § 2 (`~~**Lot N**~~ ✓`).
+4. `docs/06-suivi.md` : « État actuel » (aucun lot en cours, prochain lot, date), bloquants réglés retirés, **journal : 3 à 5 lignes** en haut — `### AAAA-MM-JJ — Lot N : titre` puis fait, tests, décisions, suite.
+5. **Tous les autres `.md`, une fois** (liste de `CLAUDE.md`, « Suivi du projet ») ; pour chacun : « le lot le rend-il faux ou incomplet ? » :
+   - nouvel écran ou API → « Adresses en développement » de `docs/claude/reference.md` **et** `A-FAIRE.md` § 11 ; `make demo` → `reference.md`, `A-FAIRE.md` § 11 **et** `07` § 4 ; commande → `CLAUDE.md` (court) et `reference.md` ;
+   - action de l'utilisateur nouvelle, faite ou urgente → `A-FAIRE.md` « Maintenant » (et § 8–9) ;
+   - décision technique → `03` « Journal des décisions » ; règle ou champ → `02` / `04` ; maquette → `07` § 1 et `maquettes/README.md` ;
+   - façon de faire, commande ou helper de test → skills concernées et README du dossier ; à partir du lot 6, un article d'aide par nouvel écran.
+   Contrôle : `git diff main --stat -- '*.md'`.
+6. Dernier commit et push, puis PR **unique**, `base: main` : `gh pr create --base main --title "Lot <N> — <titre>" --body-file <fichier>` (modèle ci-dessous). **Ne jamais fusionner.** Corriger la description : `gh api -X PATCH repos/GUELORD-MWENDERWA/mwangaza/pulls/<n> -F body=@<fichier>` (`gh pr edit` échoue).
+7. **Pas d'attente à vide** (une PR ne lance que les contrôles de ses fichiers, `.github/scripts/changes.sh` ; « skipped » est normal) : surveiller la CI **en arrière-plan** — `gh run list --branch <branche> --limit 1` jusqu'à ce que le passage existe, puis `gh run watch <id> --exit-status` — et répondre tout de suite (§ 5). Vert : « ✅ contrôles verts, tu peux fusionner ». Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, le dire.
 
 ### Modèle de description de PR
 
@@ -67,7 +57,7 @@ Français simple, court ; l'utilisateur comprend **sans lire le code**.
 
 ```markdown
 ## Ce que ça change
-2 à 5 puces : ce qui est nouveau pour l'école ou le projet, et pourquoi.
+Une puce par tâche du lot : ce qui est nouveau pour l'école ou la plateforme, et pourquoi.
 
 ## Tests
 Tests ajoutés, `make lint` et tests des modules touchés ; suite complète : CI. Vérification des règles : 2 à 4 lignes (✔ / points à noter).
@@ -76,19 +66,23 @@ Tests ajoutés, `make lint` et tests des modules touchés ; suite complète : CI
 Décisions acceptées en fusionnant (où les lire) ; nouvelles dépendances avec leur raison. Sinon : « Rien. »
 
 ## À tester toi-même
-3 à 5 étapes : commande ou adresse complète → résultat attendu (vrai aussi si l'étape est déjà faite).
-Rien de visible : le dire et donner la commande qui montre le résultat.
+5 à 8 étapes : commande ou adresse complète → résultat attendu.
 
 ## Après la fusion
-Fusionner sur GitHub, puis `git switch main && git pull` (+ `make install` / `make migrate` si besoin), puis `/clear` et `/tache X.Z`.
+Fusionner sur GitHub, puis `git switch main && git pull` (+ `make install` / `make migrate` si besoin), `make deploy` (ou « déploie » à Claude), puis `/clear` et `/tache lot <N+1>`.
 
-Closes #<n>
+Closes #<issue du lot>
+Closes #<ancienne issue de chaque tâche du lot encore ouverte>
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-## 6. Répondre à l'utilisateur
+## 5. Répondre à l'utilisateur
 
-Message court, sans attendre la CI : lien de la PR, « contrôles en cours, je te dis ✅ dès qu'ils sont verts », « À valider », « À tester toi-même », « Après la fusion » ; action nouvelle de `A-FAIRE.md` s'il y en a. Puis « Fusionne la PR, puis tape /clear et /tache X.Z » (et le rappel `/model` → Sonnet si X.Z est simple).
+Message court, sans attendre la CI : lien de la PR, « contrôles en cours, je te dis ✅ dès qu'ils sont verts », « À valider », « À tester toi-même », « Après la fusion » ; action nouvelle de `A-FAIRE.md` s'il y en a. Puis « Fusionne la PR, puis tape /clear et /tache lot <N+1> » (et le modèle conseillé : Sonnet pour un lot simple, Opus pour un lot difficile).
 
-Dernière ligne : `📍 Tâche X.Y terminée — prochaine : X.Z`.
+Dernière ligne : `📍 Lot <N> terminé — prochain : lot <N+1>`.
+
+## Tâche isolée (exception)
+
+`/tache <numéro>` : seulement pour une correction urgente ou une tâche hors lot demandée par l'utilisateur. Mêmes étapes en une conversation : branche `tache/<numéro>-<mot-clé>`, fiche `docs/claude/plans/tache-<numéro>.md` (20 lignes), issue « <numéro> — … », PR « <numéro> — … » ; dire pourquoi elle est hors lot.

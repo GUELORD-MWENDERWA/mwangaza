@@ -115,6 +115,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 | I14 | Grille salariale, primes, règle de répartition de la motivation des enseignants, statut SECOPE, avances, retenues | 5.2, 5.3 | [ ] |
 | I15 | Bulletin officiel vierge et rempli (photo ou scan), branches et maxima par classe et option — surtout 3e–4e (« 5e, 6e année »), Électronique, Mécanique automobile et 7e–8e. Formulaires IGE/P.S/094, /100 et /005 déjà trouvés en ligne (note de recherche du 2026-09-26) | 6.1, 6.3 | [ ] |
 | I19 | Bulletins officiels réels 3e et 4e HT (reçus le 2026-10-15) ; reste à fournir : le formulaire des autres options si différent, le barème de conduite réel de l'ITIG (liste d'infractions, seuils TB à MA) | 8.3.3, 8.5.1 | [x] reçus | En attendant : barème proposé dans `04` |
+| I20 | Informations légales de la société qui signe les contrats et les factures de la plateforme : raison sociale, RCCM, identification nationale, NIF, adresse, nom et fonction du signataire, comptes (banque, Mobile Money) | lot 3 (CTR.1, ABO.2) | [ ] | En attendant : champs vides dans l'identité de la plateforme, « à compléter » sur les brouillons |
 | I18 | Code de l'école (7 chiffres, imprimé sur les bulletins), N° ID et N° permanent des élèves ; bulletin officiel **pré-imprimé** acheté ou imprimé par l'école (question Q11) | 6.3 | [ ] En attendant (8.3.1, 8.3.3) : code fictif 9000001, province, ville, commune et numéros fictifs pour `itig` (l'école les saisit : Paramètres, fiche élève, import) ; échelle des mentions provisoire (≥ 80 % excellent, 70, 60, 50, sinon insuffisant) à confirmer avec un bulletin réel |
 | I16 | Règles de délibération (réussite, repêchage, passage), palmarès | 6.4 | [ ] — en attendant (NB.4, qui remplace 8.4.1) : préréglage « courant » (Q15 de `06`) — passe à 50 % du total et 50 % dans chaque cours ; repêchage avec le total à 50 %, 4 cours au plus, jamais deux cours principaux ensemble ni un cours pratique ; orientation sous 40 % ; exclusion de qui a déjà fait la classe, ou après 2 périodes de suite MA (3 ME ou moins) en conduite ; préréglage « réseau catholique » au choix (53 %, 2 options, 55 % sans échec pour la dernière classe, orientation sous 50 % sauf exception d'âge, 2 redoublements, application comptée) ; tout réglable dans les paramètres et par niveau (âge limite compris) ; catégorie de chaque cours dans la grille |
 | I17 | Cote de conduite et sanctions pratiquées | 6.7 | [ ] |
@@ -127,8 +128,9 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 | T2 | Valider les propositions Q1 à Q11 de `06-suivi.md` — **tranché le 2026-09-26** (journal de `06-suivi.md`) | avant 1.2 | [x] |
 | T3 | Maquettes : les fournir, ou laisser Claude les dessiner (défaut) — **tranché le 2026-09-26 : Claude dessine** ; reste à valider les maquettes dessinées (PR) | maintenant | [x] |
 | T4 | Comptes : hébergeur (**AWS Lightsail**, fait), Cloudflare (fait), stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | stockage objet et suivi d'erreurs avec 4.7.2 | [ ] |
-| T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude peut rédiger un brouillon) | avant les vraies données d'une école (4.6.3) | [ ] |
-| T6 | Tarif des écoles (essai gratuit ?) | avant les abonnements (9.2) | [ ] |
+| T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude rédige les brouillons, un juriste les relit) | lot 3 (CTR.1) | [ ] |
+| T6 | Tarif des écoles (essai gratuit ?) | lot 3 (ABO.1) | [ ] |
+| T7 | Piste de marque (logo, couleurs, police) parmi les trois proposées | lot 1 (BRAND.1) | [ ] |
 
 ## 4. Données de démonstration
 

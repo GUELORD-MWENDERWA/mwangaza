@@ -17,6 +17,8 @@ Objectif demandé : une première version utilisable en **un mois**, développé
 | **V1.7** — sites des écoles, personnel, vie scolaire | Site de chaque école rempli par elle (WEB.2), dossiers du personnel, paie, espace enseignant, discipline, messagerie, portail élèves, transferts. |
 | **V2** | Voir cahier des charges et `05` (Mobile Money, SMS / WhatsApp, rapports EPST, applications dans les stores…). |
 
+**Le 2026-10-29**, tout ce qui reste de la V1 (V1.2 à V1.7) est regroupé en **17 lots, une PR chacun** (`05` § 2), avec des ajouts : marque Mwangaza, site refait, contrats et conditions générales, « Mon abonnement » dans la Gestion, console des affaires (tableau de bord, prospects, cycle de vie d'une école), centre d'aide et support. Les versions ci-dessus gardent leur contenu ; l'ordre de travail est celui des lots.
+
 Découpage revu le 2026-10-02 à la demande de l'utilisateur, puis **le 2026-10-13** (plan révisé et validé, tâche L.0) : la sécurité et les modules avant les vraies données, les notes et bulletins avant la carte (chaque école sort des bulletins chaque période ; la carte NFC demande du matériel), les abonnements ensuite, puis l'emploi du temps et l'IA, la bibliothèque et les ateliers. **On n'attend rien de l'ITIG** : c'est l'école d'exemple ; comme toute école, elle saisit ses données elle-même.
 
 Pourquoi les finances d'abord : la rentrée a eu lieu le 1er septembre, les écoles encaissent maintenant, et la caisse est l'endroit où l'argent et la confiance se jouent. Pourquoi la paie en V1.1 : la première paie se fait en fin de mois, elle peut arriver quelques semaines après la caisse. Bulletins : V1.2 depuis le 2026-10-13 (la décision Q6 du 2026-09-26, « à partir de la P2 », reste remplacée).
