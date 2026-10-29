@@ -198,28 +198,27 @@ Pour dessiner un nouvel écran : d'abord regarder comment les grands logiciels f
 
 ## Système de design
 
-### Intention (refonte du 2026-10-14)
+### Intention (marque du lot 1, 2026-10-29)
 
-Recherche, références et raisons : `docs/claude/recherches/2026-10-14-refonte-design.md`. L'ancienne palette (basalte, beige, gris chauds) « ressemblait à l'IA » : l'identité est maintenant tirée du **lac Kivu** et du **drapeau du Congo**.
+Livre de marque : `docs/marque/livre-de-marque.pdf` (piste A, logotype en Poppins comme le livre Ujuzi ; recherche : `docs/claude/recherches/2026-10-29-marque.md`). Il remplace l'identité « lac Kivu, nuit et lumière » du 2026-10-14 : moins de jaune, le bleu et le blanc de l'uniforme d'abord.
 
-- **Nuit du Kivu** (bleu nuit) : barre latérale de la Gestion, en-tête et barre du haut du portail, barre de la console, panneau des connexions ; avec, en filigrane, les **lignes de relief** des volcans et des collines du Kivu (`assets/relief.svg`) : la signature de la marque.
-- **Lumière** (jaune) = *mwangaza* : logo, repère de l'élément actif, compteurs, points d'attention. Jamais en texte sur fond clair ni en grande surface.
-- **Bleu Kivu** : toutes les actions principales, liens, focus.
-- Neutres froids, légèrement bleutés ; jamais de beige ni de gris chaud.
+- **Bleu uniforme** `#1A2F80` (couleur principale de la plateforme) : barre latérale de la Gestion, en-tête et barre du haut du portail, barre de la console, panneau des connexions **et** actions principales, liens, focus. Plus de lignes de relief sur les barres (`assets/relief.svg` ne sert plus qu'aux maquettes du site, refaites au lot 2).
+- **Soleil levant** `#FFA81E` (accent, 5 % au plus) : soleil du symbole, repère de l'élément actif, compteurs. Jamais en texte sur fond clair ni en grande surface.
+- **Brume du lac** `#E2EAF7` : fonds d'encadrés ; **craie** (blanc) et **ardoise** `#111418` (texte) : les neutres.
 - Police **Atkinson Hyperlegible Next** (`assets/fonts/`, 400 · 600 · 700 · 800, embarquée pour le hors-ligne) : lisibilité pour des utilisateurs peu habitués à l'informatique et des écrans de faible qualité.
 - Chiffres toujours **tabulaires** et alignés à droite.
 
 ### Couleurs (reportées dans le thème Tailwind / variables shadcn)
 
-Le nom « Mwangaza », le symbole M-flamme et les couleurs `lamp` / `lake` sont les valeurs **de départ** de l'identité de la plateforme (5.1) : l'application lit le nom, le logo, l'icône et ces deux couleurs dans ses paramètres (défaut `#0B5FCC` / `#F2B632`, migré le 2026-10-14). Ajouts sans maquette : lien « Mentions légales » après les langues sous les connexions ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
+Le nom « Mwangaza », le symbole et les couleurs `lake` / `lamp` sont les valeurs **de départ** de l'identité de la plateforme (5.1) : l'application lit le nom, le logo, l'icône et ces deux couleurs dans ses paramètres (défaut `#1A2F80` / `#FFA81E`, migré au lot 1 sans toucher une couleur choisie dans la console) ; les barres (`night`) suivent `lake`. Ajouts sans maquette : lien « Mentions légales » après les langues sous les connexions ; téléphone et e-mail du support sous « École suspendue » et « Aucune école à cette adresse ».
 
 | Jeton | Valeur | Usage |
 |---|---|---|
-| `night` / `night-2` / `night-3` | `#0B1C35` / `#15294B` / `#213A63` | barres sombres / élément actif, encadré de l'école / bordures sur la nuit |
-| `night-ink` / `night-soft` / `night-muted` | `#E6ECF5` / `#C3CFE0` / `#94A3BB` | texte sur la nuit / entrées du menu / libellés de section |
-| `lamp` / `lamp-soft` | `#F2B632` / `#FEF5DA` | lumière / bandeaux de marque |
-| `lake` / `lake-700` / `lake-100` / `lake-50` | `#0B5FCC` / `#08459A` / `#D4E3F9` / `#EAF1FC` | bouton principal, liens, focus (= `primary`) / survol / anneau de focus / sélection |
-| `ink` / `ink-2` / `ink-3` | `#101828` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1) |
+| `night` / `night-2` / `night-3` | `#1A2F80` / `#36488F` / `#4C5D9C` | barres (= `lake`) / élément actif, encadré de l'école (+ 12 % de blanc) / bordures sur les barres (+ 22 %) |
+| `night-ink` / `night-soft` / `night-muted` | `#FFFFFF` / `#DADEEB` / `#B6BCD6` | texte sur les barres / entrées du menu / libellés de section |
+| `lamp` / `lamp-soft` | `#FFA81E` / `#FFF0D9` | soleil / petite pastille (jamais un grand fond) |
+| `lake` / `lake-700` / `lake-100` / `lake-50` | `#1A2F80` / `#14245F` / `#D4E3F9` / `#E8EAF2` | bouton principal, liens, focus (= `primary`) / survol / anneau de focus / sélection |
+| `ink` / `ink-2` / `ink-3` | `#111418` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1) |
 | `surface` / `card` / `table-head` | `#F3F5F9` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-têtes de tableau, pieds de carte |
 | `line` / `line-soft` | `#E2E8F0` / `#EDF1F6` | bordures / séparateurs |
 | `field` | `#7A8699` | bordure de champ (3,7:1 sur blanc) |
@@ -236,7 +235,9 @@ Le nom « Mwangaza », le symbole M-flamme et les couleurs `lamp` / `lake` sont 
 
 ### Logo
 
-Symbole **M-flamme** (*mwangaza* = la lumière) : un M **bleu nuit** épais (basalte jusqu'au 2026-10-14) surmonté d'une flamme, dans un carré arrondi jaune `lamp`. Forme pleine et fermée, lisible de 16 px (favicon) à 512 px (icône installée), la même sur fond sombre ou clair. Fichiers dans `assets/logo/` : `symbole.svg` (écrans, favicon ; classe `.mark`), `icone-application.svg` (icône installée), `icone-maskable.svg` (Android, plein cadre), `icone-apple.svg` (iPhone). Tailles : 36 px dans les barres (`.mark`), 48 px sur les connexions (`.brand.lg` + `.mark.lg`), 28 px dans une carte (`.mark.sm`).
+Symbole (lot 1) : un **m** blanc aux arches rondes et un **soleil** levant dans un carré arrondi bleu uniforme ; inversé (carré blanc, m bleu) sur les barres. Logotype : le nom en Poppins SemiBold, minuscules, lettres serrées ; symbole de 1,2 fois la taille du nom (`.brand` : `font-size` 1,6 rem dans les barres, 2 rem en `.brand.lg`, 1,3 rem dans les barres du portail). Fichiers dans `assets/logo/` : `mwangaza-symbole[-inverse|-mono].svg`, `mwangaza-logo…`, `mwangaza-logotype…`, icônes installées `mwangaza-icone-maskable.svg` (Android) et `mwangaza-icone-apple.svg` (iPhone), PNG dans `png/` ; règles d'usage et interdits : livre de marque. Classe `.mark` (36 px seule, `.mark.sm` 28 px), inversée d'office dans `.side`, `.ptop`, `.dtop`, `.authside`, `.ctop`, `.drawer`.
+
+**Captures** : refaites au lot 1 pour les écrans de référence de la marque (connexion et tableau de bord de la Gestion, accueil et connexion du portail, tableau de bord et identité de la console) ; les autres captures montrent encore les couleurs d'avant (même structure, mêmes libellés) — le HTML fait foi pour les couleurs. Les refaire toutes ajouterait ~50 Mo d'images au dépôt pour un gain nul : chaque écran retouché plus tard refait la sienne.
 
 ### Adaptation à chaque écran
 
@@ -251,7 +252,7 @@ Chaque application a sa mise en page à trois largeurs (2026-10-14 : le portail 
 
 Carte (en-tête / corps / pied sur fond gris clair), KPI (avec pastille d'icône `.chip`), tableau, pastille d'état (`ok`, `due`, `warn`, `info`, `gray`), bandeau (`info`, `warn`, `due`, `ok`, `lampb`), segmenté (piste grise, choix actif blanc), interrupteur, case à cocher, étapes, barre de progression, indicateur de synchronisation (toujours visible en haut de la Gestion).
 
-Ajoutés le 2026-09-26 (fin de `assets/styles.css`) : écran hors application (`authgrid`), fenêtre de dialogue (`overlay` + `dialog`), frise chronologique (`tl`), codes à recopier (`codes`, `code`), cadre de téléphone et menu coulissant (`frame`, `drawer`, `scrim`), mise en avant du guide (`spot`, `coach`), notification passagère (`toast`), pastille de couleur (`swatch`), A4 à l'italienne (`a4 land`), bulletin officiel (`bul`, `idbox`), onglets-liens (`.tabs>a`). Ajoutés le 2026-10-14 : barre d'ordinateur du portail (`dtop`), colonnes du portail (`pgrid`, `pcards`), connexions du portail en deux panneaux (`pauth`), tableau empilé (`tbl.stack`), motif de relief (`relief`).
+Ajoutés le 2026-09-26 (fin de `assets/styles.css`) : écran hors application (`authgrid`), fenêtre de dialogue (`overlay` + `dialog`), frise chronologique (`tl`), codes à recopier (`codes`, `code`), cadre de téléphone et menu coulissant (`frame`, `drawer`, `scrim`), mise en avant du guide (`spot`, `coach`), notification passagère (`toast`), pastille de couleur (`swatch`), A4 à l'italienne (`a4 land`), bulletin officiel (`bul`, `idbox`), onglets-liens (`.tabs>a`). Ajoutés le 2026-10-14 : barre d'ordinateur du portail (`dtop`), colonnes du portail (`pgrid`, `pcards`), connexions du portail en deux panneaux (`pauth`), tableau empilé (`tbl.stack`), motif de relief (`relief`, retiré des barres au lot 1).
 
 ### Formats d'affichage
 

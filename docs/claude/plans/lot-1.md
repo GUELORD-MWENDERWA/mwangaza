@@ -7,7 +7,7 @@ Issue #409 · branche `lot/1-marque` · démarré le 2026-10-29
 **Parties** (une conversation chacune)
 - [x] ① Étude de 8 marques (`docs/claude/recherches/2026-10-29-marque.md`), trois pistes (commit f39f60a9) : **piste A retenue**, logotype en Poppins comme Ujuzi, palette Ardoise, Craie, Bleu uniforme, Brume du lac, Soleil levant → `maquettes/marque/marque.html`
 - [x] ② Livre de marque PDF, 16 pages (`docs/marque/livre-de-marque.pdf`, source `.html`) ; 9 SVG `maquettes/assets/logo/mwangaza-*.svg` (logotype converti en tracés) et leurs PNG (`png/`) ; outils `maquettes/outils/marque.py` (logo, livre) et `captures.mjs --logo` (commandes : `reference.md`)
-- [ ] ③ Marque appliquée : jetons, thème `packages/ui`, barres et connexions des trois applications, icônes et favicon, valeurs par défaut de `PlatformSettings` (migration), skill `design`, guides PDF (`make guide`), captures 390 / 1440 px
+- [x] ③ Marque appliquée : jetons, thème `packages/ui`, barres et connexions des trois applications, icônes et favicon, valeurs par défaut de `PlatformSettings` (migration), skill `design`, guides PDF (`make guide`), captures 390 / 1440 px
 
 **Hors périmètre** : site public refait et photos (lot 2) ; facture réelle de la plateforme (lot 3 : seulement un exemple dans le livre) ; documents d'une école (reçu, bulletin : identité de l'école).
 

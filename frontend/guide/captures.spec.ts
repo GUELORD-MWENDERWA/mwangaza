@@ -189,7 +189,7 @@ test("secrétaire", async ({ page }) => {
 });
 
 test("directrice des études", async ({ page }) => {
-  await login(page, "0000001002");
+  await login(page, "0000001002", { code: true });
   await open(page, "organisation", "etudes-organisation");
   await open(page, "courses", "etudes-cours");
   await open(page, "teaching-loads", "etudes-charges");
@@ -230,7 +230,7 @@ test.describe("parent", () => {
     await settle(page);
     await shot(page, "parent-annonces");
     await page.goto(`${PORTAL}calendar`);
-    await expect(page.getByText(/L'école vous attend pour/)).toBeVisible();
+    await expect(page.getByText(/L'école vous attend pour/).first()).toBeVisible();
     await settle(page);
     await shot(page, "parent-calendrier");
   });
@@ -260,11 +260,11 @@ test("super-admin", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Tableau de bord" })).toBeVisible();
   await page.goto(`${CONSOLE}schools`);
   await page.getByRole("tab", { name: "Démonstration" }).click();
-  await expect(page.getByText("ITIG DON BOSCO")).toBeVisible();
+  await expect(page.getByText("ITIG-DEMO").first()).toBeVisible();
   await page.waitForLoadState("networkidle");
   await shot(page, "console-ecoles");
   // Modules de l'école (M.2) : la carte seule, sur la fiche de l'école.
-  await page.getByRole("link", { name: "ITIG DON BOSCO" }).click();
+  await page.getByRole("link", { name: "ITIG-DEMO" }).first().click();
   const modules = page
     .locator("section")
     .filter({ has: page.getByRole("heading", { name: "Fonctions de l'école" }) })

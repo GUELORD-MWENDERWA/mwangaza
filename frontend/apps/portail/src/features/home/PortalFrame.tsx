@@ -85,7 +85,7 @@ export function PortalFrame({
             </>
           ) : title === undefined ? (
             <>
-              <Brand inverse />
+              <Brand inverse className="text-xl" />
               <div className="flex items-center gap-1">
                 <NotificationBell />
                 <Button

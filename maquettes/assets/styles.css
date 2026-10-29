@@ -5,26 +5,29 @@
 @font-face{font-family:"Atkinson Hyperlegible Next";src:url(fonts/atkinson-hyperlegible-next-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
 @font-face{font-family:"Atkinson Hyperlegible Next";src:url(fonts/atkinson-hyperlegible-next-latin-700-normal.woff2) format("woff2");font-weight:700;font-display:swap}
 @font-face{font-family:"Atkinson Hyperlegible Next";src:url(fonts/atkinson-hyperlegible-next-latin-800-normal.woff2) format("woff2");font-weight:800;font-display:swap}
+/* Poppins SemiBold (OFL) : seulement le nom de la plateforme dans son logo (lot 1, livre de marque). */
+@font-face{font-family:"Poppins";src:url(fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
 
 :root{
-  /* Marque (2026-10-14, docs/claude/recherches/2026-10-14-refonte-design.md) : le lac Kivu et le
-     drapeau du Congo. Nuit = barres et en-têtes ; lac = actions ; lampe = lumière (logo, repère
-     actif, attention), jamais en texte sur fond clair ni en grande surface. */
-  --night:#0B1C35;       /* nuit du Kivu : barre latérale, en-têtes, connexions */
-  --night-2:#15294B;     /* élément actif, encadré de l'école */
-  --night-3:#213A63;     /* bordures sur la nuit */
-  --night-ink:#E6ECF5;   /* texte sur la nuit */
-  --night-muted:#94A3BB;
-  --night-soft:#C3CFE0;
-  --lamp:#F2B632;        /* mwangaza = la lumière : repère actif, logo, points d'attention */
-  --lamp-soft:#FEF5DA;
-  --lake:#0B5FCC;        /* bleu du lac Kivu : actions, liens, focus */
-  --lake-700:#08459A;
+  /* Marque (lot 1, docs/marque/livre-de-marque.pdf) : bleu uniforme (lake = couleur principale de
+     la plateforme) pour les barres, en-têtes et actions ; nuit = les barres, la même couleur et
+     ses nuances mêlées de blanc ; soleil levant (lamp) : soleil du symbole, repère actif, compteur,
+     jamais en texte sur fond clair ni en grande surface. */
+  --night:#1A2F80;       /* nuit du Kivu : barre latérale, en-têtes, connexions */
+  --night-2:#36488F;     /* élément actif, encadré de l'école */
+  --night-3:#4C5D9C;     /* bordures sur la nuit */
+  --night-ink:#FFFFFF;   /* texte sur la nuit */
+  --night-muted:#B6BCD6;
+  --night-soft:#DADEEB;
+  --lamp:#FFA81E;        /* mwangaza = la lumière : repère actif, logo, points d'attention */
+  --lamp-soft:#FFF0D9;
+  --lake:#1A2F80;        /* bleu du lac Kivu : actions, liens, focus */
+  --lake-700:#14245F;
   --lake-100:#D4E3F9;
-  --lake-50:#EAF1FC;
+  --lake-50:#E8EAF2;
   /* Neutres froids, légèrement bleutés (jamais de beige ni de gris chaud).
      ink-3 ≥ 5:1 sur surface ; bordure de champ (field) ≥ 3,5:1 sur blanc. */
-  --ink:#101828;
+  --ink:#111418;
   --ink-2:#475467;
   --ink-3:#5B677A;
   --surface:#F3F5F9;
@@ -65,16 +68,17 @@ a{color:var(--lake)}
 
 /* ---------- Coquille application Gestion ---------- */
 .app{display:grid;grid-template-columns:256px 1fr;min-height:100vh}
-/* Signature : lignes de relief (volcans et collines du Kivu) en filigrane sur la nuit. */
-.relief,.side,.ptop,.dtop,.authside,.ctop,.drawer{background-image:url(relief.svg);background-size:cover;background-position:center}
 .side{background-color:var(--night);color:var(--night-ink);padding:18px 12px;display:flex;flex-direction:column;gap:4px}
-.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px}
-/* Marque : symbole M-flamme (logo/symbole.svg), le même sur fond sombre ou clair ; 36 px dans
-   les barres, `.mark.lg` (48 px) sur les pages de connexion, `.mark.sm` (28 px) dans les cartes. */
-.mark{display:inline-block;width:36px;height:36px;flex:none;background:url(logo/symbole.svg) center/contain no-repeat}
+.brand{display:flex;align-items:center;gap:.26em;padding:4px 10px 18px;font-size:1.6rem}
+/* Marque (lot 1) : symbole en couleur (logo/mwangaza-symbole.svg) sur fond clair, inversé sur les
+   barres bleues ; 1,2 fois la taille du nom, nom en Poppins SemiBold, minuscules, lettres serrées. */
+.mark{display:inline-block;width:1.2em;height:1.2em;flex:none;background:url(logo/mwangaza-symbole.svg) center/contain no-repeat}
+.side .mark,.ptop .mark,.dtop .mark,.authside .mark,.ctop .mark,.drawer .mark,.relief .mark{background-image:url(logo/mwangaza-symbole-inverse.svg)}
 .mark.lg{width:48px;height:48px}.mark.sm{width:28px;height:28px}
-.brand b{font-size:1.3rem;letter-spacing:-.01em;line-height:1.1}
-.brand.lg{gap:14px}.brand.lg b{font-size:1.7rem}
+.brand .mark{width:1.2em;height:1.2em}
+.brand b{font-family:"Poppins",sans-serif;font-weight:600;text-transform:lowercase;letter-spacing:-.035em;line-height:1.3;color:var(--lake)}
+:is(.side,.ptop,.dtop,.authside,.ctop,.drawer,.relief) .brand b{color:#fff}
+.brand.lg{font-size:2rem}
 .school{background:var(--night-2);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:.85rem;box-shadow:inset 0 0 0 1px var(--night-3)}
 .school b{display:block;font-size:.92rem}
 .navlabel{font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--night-muted);padding:16px 10px 6px}
@@ -204,7 +208,7 @@ label.f .req{color:var(--due)}
 /* ---------- Portail (mobile) ---------- */
 .phone{max-width:430px;margin:0 auto;min-height:100vh;background:var(--surface);display:flex;flex-direction:column}
 .ptop{background-color:var(--night);color:var(--night-ink);padding:14px 16px 20px}
-.ptop .brand{padding:0}
+.ptop .brand{padding:0;font-size:1.3rem}
 .ptop .mark:not(.lg){width:32px;height:32px}
 .pbody{padding:16px;display:flex;flex-direction:column;gap:14px;flex:1}
 .pnav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding:6px 4px 10px;box-shadow:0 -4px 12px rgba(16,24,40,.04)}
@@ -228,7 +232,7 @@ label.f .req{color:var(--due)}
   .m-only{display:none!important}
   .d-only{display:block}
   .dtop{display:flex;align-items:center;gap:28px;height:64px;padding:0 max(32px,calc((100% - 1120px)/2));background-color:var(--night);color:var(--night-ink);border-bottom:1px solid var(--night-3);position:sticky;top:0;z-index:5}
-  .dtop .brand{padding:0;color:var(--night-ink);text-decoration:none}.dtop .brand b{font-size:1.15rem}
+  .dtop .brand{padding:0;color:var(--night-ink);text-decoration:none;font-size:1.3rem}
   .dtop nav{display:flex;gap:2px;align-self:stretch}
   .dtop nav a{display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--night-soft);text-decoration:none;font-weight:600;font-size:.92rem;border-top:3px solid transparent;border-bottom:3px solid transparent}
   .dtop nav a:hover{color:#fff}

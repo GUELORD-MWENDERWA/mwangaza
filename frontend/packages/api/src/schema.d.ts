@@ -7219,12 +7219,12 @@ export interface components {
             readonly icon: string | null;
             /**
              * Main colour
-             * @description Buttons and links of the interface.
+             * @description Menus, buttons and links of the interface.
              */
             primary_color: string;
             /**
              * Accent colour
-             * @description Mark and highlights on the dark menu.
+             * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color: string;
             /** @description 0970000000 ou +243970000000 ; vide : aucun. */
@@ -10330,12 +10330,12 @@ export interface components {
             site_name?: string;
             /**
              * Main colour
-             * @description Buttons and links of the interface.
+             * @description Menus, buttons and links of the interface.
              */
             primary_color?: string;
             /**
              * Accent colour
-             * @description Mark and highlights on the dark menu.
+             * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color?: string;
             /** @description 0970000000 ou +243970000000 ; vide : aucun. */
@@ -10896,12 +10896,12 @@ export interface components {
             icon: string | null;
             /**
              * Main colour
-             * @description Buttons and links of the interface.
+             * @description Menus, buttons and links of the interface.
              */
             primary_color: string;
             /**
              * Accent colour
-             * @description Mark and highlights on the dark menu.
+             * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color: string;
             support_phone: string;
