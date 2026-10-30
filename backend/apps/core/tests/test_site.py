@@ -116,7 +116,9 @@ def test_platform_figures_count_live_schools_only_and_stay_hidden_below_five(cli
     SchoolFactory(environment=School.Environment.LIVE, status=School.Status.STOPPED)
     assert site.platform_stats() == []
     # Sous 5 écoles réelles, la bande montre les chiffres des écoles de référence d'exemple.
-    assert 'data-count="3200"' in client.get("/").content.decode()
+    pupils = site._reference_figures()[1][1]
+    assert pupils > 0
+    assert f'data-count="{pupils}"' in client.get("/").content.decode()
 
     cache.delete(site.STATS_CACHE)
     SchoolFactory(environment=School.Environment.LIVE)
