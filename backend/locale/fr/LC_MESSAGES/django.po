@@ -5993,7 +5993,7 @@ msgid "What school teams say"
 msgstr "Ce que disent les équipes des écoles"
 
 #: apps/core/templates/core/site/home.html:187
-msgid "Made in Goma"
+msgid "Born in Goma"
 msgstr "Né à Goma"
 
 #: apps/core/templates/core/site/home.html:187
