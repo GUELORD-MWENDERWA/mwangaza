@@ -222,7 +222,7 @@ class Membership(BaseModel):
         indexes = [models.Index(fields=["school", "is_active"], name="membership_school_active")]
 
     def __str__(self) -> str:
-        return f"{self.user} — {self.school}"
+        return f"{self.user} | {self.school}"
 
 
 class RecoveryCode(BaseModel):
@@ -266,4 +266,4 @@ class LoginFailure(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.phone} — {self.created_at:%Y-%m-%d %H:%M}"
+        return f"{self.phone} | {self.created_at:%Y-%m-%d %H:%M}"

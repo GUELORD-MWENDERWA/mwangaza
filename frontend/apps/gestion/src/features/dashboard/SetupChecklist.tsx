@@ -107,7 +107,7 @@ export function SetupChecklist() {
                     {step.optional && <Tag>{t("setup.optional")}</Tag>}
                     <span className="sr-only">
                       {" "}
-                      — {t(step.done ? "setup.stateDone" : "setup.stateTodo")}
+                      | {t(step.done ? "setup.stateDone" : "setup.stateTodo")}
                     </span>
                   </div>
                   {!step.done && (

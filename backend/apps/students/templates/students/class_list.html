@@ -1,5 +1,5 @@
 {% extends "core/print_base.html" %}{% load i18n %}
-{% block title %}{% translate "Class list" %} — {{ class_group.name }}{% endblock %}
+{% block title %}{% translate "Class list" %} | {{ class_group.name }}{% endblock %}
 {% block style %}
 td.blank, th.blank { width: 18mm; }
 td.sex { text-align: center; }
@@ -8,7 +8,7 @@ td.sex { text-align: center; }
 {% include "core/_document_header.html" with service=_("Secretariat") service_code="SEC" %}
 <div class="lh-extra">{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}</div>
 
-<h1>{% blocktranslate with name=class_group.name %}LIST OF STUDENTS — {{ name }}{% endblocktranslate %}</h1>
+<h1>{% blocktranslate with name=class_group.name %}LIST OF STUDENTS | {{ name }}{% endblocktranslate %}</h1>
 <p class="center small">{% if teacher %}{% blocktranslate %}Homeroom teacher: {{ teacher }}{% endblocktranslate %} · {% endif %}{% blocktranslate with total=rows|length %}Enrolment: <b>{{ total }}</b>{% endblocktranslate %} ({% blocktranslate %}boys {{ boys }}, girls {{ girls }}{% endblocktranslate %})</p>
 
 <table>

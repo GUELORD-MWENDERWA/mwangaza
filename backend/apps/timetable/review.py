@@ -8,7 +8,7 @@ le directeur relance le calcul : le solveur vérifie, l'IA ne garantit rien. Auc
 déplace une séance : les heures verrouillées d'un horaire restent à leur place.
 
 Ce qui part à l'API : noms de classes, de cours, d'enseignants et de salles, chiffres des
-contrôles, règles — jamais un élève, un téléphone ni un montant. Règles, cours, enseignants et
+contrôles, règles | jamais un élève, un téléphone ni un montant. Règles, cours, enseignants et
 salles sont nommés par un code court (comme `assistant`)."""
 
 import json

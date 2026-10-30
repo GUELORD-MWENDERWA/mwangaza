@@ -110,7 +110,7 @@ export const fr = {
       finish: "Terminer",
       fileName: "codes-de-secours.txt",
       fileTitle: "Codes de secours {{platform}}",
-      fileHeader: "Codes de secours {{platform}} — compte {{phone}}",
+      fileHeader: "Codes de secours {{platform}} | compte {{phone}}",
       fileHelp: "Chaque code ne sert qu'une fois. Gardez cette feuille dans un endroit sûr.",
       currentCode: "Code actuel de l'application, ou un code de secours",
       askKey: "Afficher la nouvelle clé",
@@ -402,7 +402,7 @@ export const fr = {
     reasonHelp: "200 caractères au plus.",
     submit: "Ouvrir la session support",
     banner:
-      "<b>Session support</b> — vous agissez en tant que <b>{{school}}</b>, jusqu'à {{time}}.",
+      "<b>Session support</b> | vous agissez en tant que <b>{{school}}</b>, jusqu'à {{time}}.",
     bannerReason: "Motif : {{reason}}",
     bannerLabel: "Session support",
     quit: "Quitter",
@@ -871,7 +871,7 @@ export const fr = {
       inactive: "désactivé",
     },
     type: {
-      heading: "{{name}} — {{year}}",
+      heading: "{{name}} | {{year}}",
       category: "Catégorie : {{category}}",
       account: "Compte SYSCOHADA : {{code}}",
       active: "Type de frais actif",
@@ -899,8 +899,8 @@ export const fr = {
       installments_other: "{{count}} tranches",
     },
     editor: {
-      newTitle: "Nouveau barème — {{type}}",
-      title: "Tranches — {{scope}}",
+      newTitle: "Nouveau barème | {{type}}",
+      title: "Tranches | {{scope}}",
       kind: "Découpage",
       kinds: {
         installments: "Tranches",
@@ -992,7 +992,7 @@ export const fr = {
       submit: "Créer l'année",
     },
     templates: {
-      secondary: "Secondaire RDC — 2 semestres, 4 périodes, 2 examens",
+      secondary: "Secondaire RDC | 2 semestres, 4 périodes, 2 examens",
       trimesters: "3 trimestres, 6 périodes, 3 examens",
       empty: "Vide : je saisis le découpage moi-même",
     },
@@ -2647,7 +2647,7 @@ export const fr = {
       percent: "%",
     },
     percentValue: "{{value}} %",
-    scoreLabel: "{{evaluation}} — {{student}}",
+    scoreLabel: "{{evaluation}} | {{student}}",
     incomplete: "incomplet",
     left: "parti",
     hint: "Entrée = case suivante · une case vide laisse la note de la période incomplète",
@@ -3800,7 +3800,7 @@ export const fr = {
       message: "Message",
       familyLetter: "Lettre d'invitation",
       familyMessage: "Message à partager",
-      messageTitle: "Message à partager — {{name}}",
+      messageTitle: "Message à partager | {{name}}",
       messageLabel: "Message",
       messageHelp:
         "Envoyez-le au tuteur principal. Il contient le code famille : son ouverture est notée au journal.",
@@ -4855,9 +4855,9 @@ export const fr = {
     },
   },
   space: {
-    demo: "Démonstration — données fictives",
-    test: "Essai — pas de vraies données",
-    specimen: "SPÉCIMEN — sans valeur",
+    demo: "Démonstration | données fictives",
+    test: "Essai | pas de vraies données",
+    specimen: "SPÉCIMEN | sans valeur",
   },
   platformNews: {
     title: "Annonces de {{platform}}",
@@ -5061,7 +5061,7 @@ export const fr = {
     dashboard: {
       title: "Tableau de bord",
       subtitle:
-        "Les écoles réelles de la plateforme — {{day}}. Les espaces d'essai et de démonstration ne comptent pas.",
+        "Les écoles réelles de la plateforme | {{day}}. Les espaces d'essai et de démonstration ne comptent pas.",
       activeSchools: "Écoles actives",
       schoolsSub:
         "{{trial}} en essai gratuit ({{ending}} finit dans moins de 30 j) · {{suspended}} suspendue(s)",
@@ -6070,7 +6070,7 @@ export const fr = {
     login: {
       title: "Bon retour",
       subtitle: "Paiements, reçus et annonces des écoles de vos enfants.",
-      pageTitle: "Espace parents — {{name}}",
+      pageTitle: "Espace parents | {{name}}",
       pageDescription:
         "Suivez l'école de vos enfants sur votre téléphone : paiements, reçus, reste à payer, annonces et convocations. Connectez-vous avec le numéro donné à l'école.",
       heading: "Se connecter",

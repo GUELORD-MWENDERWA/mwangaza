@@ -109,7 +109,7 @@ class FeeRule(TenantModel):
         indexes = [models.Index(fields=["school", "academic_year"], name="fee_rule_school_year")]
 
     def __str__(self) -> str:
-        return f"{self.fee_type} — {self.scope_name}"
+        return f"{self.fee_type} | {self.scope_name}"
 
     @property
     def scope_name(self) -> str:
@@ -209,7 +209,7 @@ class StudentCharge(TenantModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.fee_type} — {self.label}"
+        return f"{self.fee_type} | {self.label}"
 
 
 class Discount(TenantModel):

@@ -32,13 +32,13 @@ Marque : livre de marque `docs/marque/livre-de-marque.pdf` (lot 1, piste A). Pro
 | `night` / `night-2` / `night-3` | `lake` / `lake` + 12 % de blanc / + 22 % | barres / élément actif, encadré de l'école / bordures sur les barres |
 | `night-ink` / `night-soft` / `night-muted` | `#FFFFFF` / `lake` + 84 % de blanc / + 68 % | texte sur les barres (11,9:1) / entrées du menu, sous-titres / libellés de section |
 | `lamp` / `lamp-soft` | `#FFA81E` / `#FFF0D9` | soleil (voir Intention) / petite pastille, étiquette V1.x (jamais un grand fond) |
-| `lake` / `lake-700` / `lake-100` / `lake-50` | `#1A2F80` / `#14245F` / `#D4E3F9` / `#E8EAF2` | `primary` (11,9:1 sur blanc) / survol, texte sur `lake-50` / anneau de focus, sélection / ligne choisie, fond d'avatar |
-| `ink` / `ink-2` / `ink-3` | `#101828` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1 sur `surface`) |
-| `surface` / `card` / `table-head` | `#F3F5F9` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-tête et pied de tableau, pied de carte |
-| `line` / `line-soft` / `gray-50` | `#E2E8F0` / `#EDF1F6` / `#EDF1F6` | bordures / séparateurs / fond neutre (piste du `Segmented`, étiquette) |
+| `lake` / `lake-700` / `lake-100` / `lake-50` | `#1A2F80` / `#14245F` / `#D4E3F9` / `#E2EAF7` | `primary` (11,9:1 sur blanc) / survol, texte sur `lake-50` / anneau de focus, sélection / ligne choisie, fond d'avatar |
+| `ink` / `ink-2` / `ink-3` | `#101828` / `#475467` / `#5B6475` | texte / secondaire / tertiaire (≥ 5:1 sur `surface`) |
+| `surface` / `card` / `table-head` | `#F6F8FC` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-tête et pied de tableau, pied de carte |
+| `line` / `line-soft` / `gray-50` | `#DDE2EC` / `#EDF1F6` / `#EDF1F6` | bordures / séparateurs / fond neutre (piste du `Segmented`, étiquette) |
 | `field` | `#7A8699` | bordure de champ, case (3,7:1 sur blanc) |
 | `ok` / `due` / `warn` / `info` (+ `-50`, `-200`, `-900`) | `#127A48` / `#B42318` / `#985A06` / `lake` | états, **toujours avec un texte** |
-| `chart-1` / `chart-2` / `chart-grid` | `lake` / `#C47F00` / `#E2E8F0` | séries de graphique (validées par la skill `dataviz`) / grille |
+| `chart-1` / `chart-2` / `chart-grid` | `lake` / `#C47F00` / `#DDE2EC` | séries de graphique (validées par la skill `dataviz`) / grille |
 | `--color-course-1` … `-10` | `lake`, `#7C3AED`, `#B45309`, `#DB2777`, `#16A34A`, `#0891B2`, `#EA580C`, `#CA8A04`, `#0F766E`, `#64748B` | couleur d'un cours dans l'emploi du temps (filet gauche de la carte, `colorOf(nom)`), dans `:root` hors `@theme` car lue par `style` |
 | `scrim` | nuit à 55 % | voile sous un tiroir ou une fenêtre |
 
@@ -109,7 +109,7 @@ Skill `dataviz` : séries `chart-1` (lac) puis `chart-2` (ambre), validées (dal
 
 **En-tête commun** (`core/_document_header.html`, exemplaire fourni le 2026-10-15) : logo de l'école à gauche, drapeau à droite, lignes centrées (République, ministère, école, adresse, service), filet épais, titre souligné avec N° de référence à compléter ; maquette `gestion/impression-options.html`. Panneau « Imprimer » (papier, sens, exemplaires) : `features/printing`. Aucun ajout sans maquette, regardé à 390 et 1440 px. Tableau très large (fiches de cotes, 8.3.6) : pas de texte vertical (`writing-mode` n'est pas fiable dans WeasyPrint), colonnes numérotées avec une légende dessous.
 
-`core/print_base.html` (documents du serveur, WeasyPrint) : noir et gris d'abord (lisible photocopié), titres et filet sous l'en-tête de l'école en bleu nuit, police de la marque intégrée, tableaux à filets gris clair, marges ≥ 10 mm ; un gabarit qui a ses propres styles n'utilise que les gris de la palette (`#101828`, `#475467`, `#5B677A`, `#A9B4C4`, `#CBD5E1`, `#EDF1F6`), jamais de noir pur ni de gris chaud. Vérifier : `make apercu ecran=documents` (chaque document dans `frontend/apercu/captures/documents/`). Guides PDF (`frontend/guide/`, `make guide`) : jetons de la refonte dans `guide.css`, texte et captures mis à jour quand l'apparence ou les écrans changent. Reçus de caisse (`features/cash/receipt.css`) : noir et blanc, réglés au millimètre pour le ticket 58 / 80 mm et les feuilles A4 (A6, A5, petit format) — ne pas y ajouter de couleur.
+`core/print_base.html` (documents du serveur, WeasyPrint) : noir et gris d'abord (lisible photocopié), titres et filet sous l'en-tête de l'école en bleu nuit, police de la marque intégrée, tableaux à filets gris clair, marges ≥ 10 mm ; un gabarit qui a ses propres styles n'utilise que les gris de la palette (`#101828`, `#475467`, `#5B6475`, `#A9B4C4`, `#CBD5E1`, `#EDF1F6`), jamais de noir pur ni de gris chaud. Vérifier : `make apercu ecran=documents` (chaque document dans `frontend/apercu/captures/documents/`). Guides PDF (`frontend/guide/`, `make guide`) : jetons de la refonte dans `guide.css`, texte et captures mis à jour quand l'apparence ou les écrans changent. Reçus de caisse (`features/cash/receipt.css`) : noir et blanc, réglés au millimètre pour le ticket 58 / 80 mm et les feuilles A4 (A6, A5, petit format) — ne pas y ajouter de couleur.
 
 ## Formats d'affichage
 

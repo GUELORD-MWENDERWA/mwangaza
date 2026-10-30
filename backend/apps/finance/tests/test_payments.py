@@ -230,8 +230,8 @@ def test_default_allocation_pays_the_oldest_charges_in_the_received_currency_fir
     recorded = entries(school, Action.FINANCE_PAYMENT_RECORDED)[0]
     assert recorded.actor == cashier
     assert recorded.after["allocations"] == [
-        {"fee": "Minerval — 1re tranche", "amount_minor": 12000, "currency": "USD"},
-        {"fee": "Minerval — 2e tranche", "amount_minor": 3000, "currency": "USD"},
+        {"fee": "Minerval | 1re tranche", "amount_minor": 12000, "currency": "USD"},
+        {"fee": "Minerval | 2e tranche", "amount_minor": 3000, "currency": "USD"},
     ]
 
 

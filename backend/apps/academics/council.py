@@ -1,4 +1,4 @@
-"""Conseil de délibération d'une classe (NB.5) : ses membres — ceux qui valident les notes
+"""Conseil de délibération d'une classe (NB.5) : ses membres | ceux qui valident les notes
 (direction des études : préfet, directeur des études), le titulaire et les enseignants des cours
 de la classe —, le secret (eux seuls lisent le tableau avant la proclamation ; seule la direction
 des études écrit), les présents, le président et le secrétaire de séance, les observations.

@@ -85,15 +85,15 @@
   --color-lake: #1a2f80;
   --color-lake-700: #14245f;
   --color-lake-100: #d4e3f9;
-  --color-lake-50: #e8eaf2;
+  --color-lake-50: #e2eaf7;
   /* Neutres froids, légèrement bleutés comme le lac (jamais de beige ni de gris chaud).
      Contrastes : ink-3 ≥ 5:1 sur surface et gray-50 ; bordure de champ ≥ 3,5:1 sur blanc. */
   --color-ink: #111418;
   --color-ink-2: #475467;
-  --color-ink-3: #5b677a;
-  --color-surface: #f3f5f9;
+  --color-ink-3: #5b6475;
+  --color-surface: #f6f8fc;
   --color-card: #ffffff;
-  --color-line: #e2e8f0;
+  --color-line: #dde2ec;
   --color-line-soft: #edf1f6;
   --color-field: #7a8699;
   --color-gray-50: #edf1f6;
@@ -120,7 +120,7 @@
      lac, série 2 = ambre (la lampe est trop claire pour une surface de donnée). */
   --color-chart-1: var(--color-lake);
   --color-chart-2: #c47f00;
-  --color-chart-grid: #e2e8f0;
+  --color-chart-grid: #dde2ec;
   /* En-tête et pied de tableau ; voile sous un tiroir ou une fenêtre. */
   --color-table-head: #f7f9fc;
   --color-scrim: rgba(17, 20, 24, 0.55);

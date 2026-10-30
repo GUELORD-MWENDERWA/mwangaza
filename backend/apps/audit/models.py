@@ -95,7 +95,7 @@ class AuditLog(TenantModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.get_action_display()} — {self.entity_label}"
+        return f"{self.get_action_display()} | {self.entity_label}"
 
     def get_action_display(self) -> str:
         try:
@@ -148,7 +148,7 @@ class PlatformAuditLog(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.get_action_display()} — {self.entity_label}"
+        return f"{self.get_action_display()} | {self.entity_label}"
 
     def get_action_display(self) -> str:
         try:

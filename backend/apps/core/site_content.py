@@ -28,8 +28,8 @@ from apps.core.models import (
     Testimonial,
 )
 
-CACHE_KEY = "site:content"
-NEWS_KEY = "site:news:{lang}"
+CACHE_KEY = "site:content:2"  # changer avec la forme du contenu : un cache d'avant fait un 500
+NEWS_KEY = "site:news:2:{lang}"
 CACHE_TIMEOUT = 24 * 3600  # vidé à chaque changement ; la durée ne sert qu'à libérer la mémoire
 ENTRY_FIELDS = ("kind", "title_fr", "title_en", "text_fr", "text_en")
 BANNER_FIELDS = ("text_fr", "text_en", "link", "starts_on", "ends_on")
@@ -388,4 +388,17 @@ MODULE_FEATURES = {
 # Écoles présentées sur l'accueil (faits publics, logo et photo avec l'accord de l'école).
 # `quote` : les vrais mots d'une personne de l'école, avec son nom, sa fonction et l'accord écrit
 # de l'école ; jamais inventés. Vide : la carte s'affiche sans citation.
-REFERENCES: tuple[dict, ...] = ()
+REFERENCES = (
+    {
+        "name": "ITIG Don Bosco Goma",
+        "kind": _("Industrial technical institute · Goma, North Kivu"),
+        "logo": "core/site/photos/itig-logo.webp",
+        "facts": (
+            (_("1,000+"), _("students")),
+            ("4", _("technical options")),
+            ("1981", _("founded")),
+        ),
+        "quote": "",
+        "quote_by": "",
+    },
+)

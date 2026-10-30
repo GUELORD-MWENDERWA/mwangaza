@@ -58,7 +58,7 @@ def test_a_request_is_kept_for_the_console_and_alerts_the_admin_once(
     request = DemoRequest.objects.get()
     assert (request.phone, request.language, request.status) == ("+243971234567", "fr", "new")
     assert alerts == [
-        (console.DEMO_REQUEST, request.pk, "Institut Les Volcans, Goma — MUHINDO KAKULE Jean-Paul")
+        (console.DEMO_REQUEST, request.pk, "Institut Les Volcans, Goma | MUHINDO KAKULE Jean-Paul")
     ]
     (email,) = mailoutbox
     assert email.to == ["patron@example.com"]

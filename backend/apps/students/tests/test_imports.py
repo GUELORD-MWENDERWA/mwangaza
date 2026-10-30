@@ -54,7 +54,7 @@ ROWS = [
 def xlsx(rows=ROWS, headers=HEADERS, name="liste.xlsx") -> SimpleUploadedFile:
     book = openpyxl.Workbook()
     sheet = book.active
-    sheet.append(["ÉCOLE ALPHA — LISTE DES ÉLÈVES (fictive)"])
+    sheet.append(["ÉCOLE ALPHA | LISTE DES ÉLÈVES (fictive)"])
     sheet.append(headers)
     for row in rows:
         sheet.append(row)

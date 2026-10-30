@@ -66,6 +66,9 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
 
+### 2026-10-30 — Lot 2 : retouches après la mise en ligne
+Site en erreur 500 après le déploiement : le cache gardait le contenu au format d'avant (clé du cache changée, `site_content.py`). Section de l'ITIG remise sur l'accueil ; nom d'école du bulletin d'exemple remplacé par « Institut technique d'exemple » ; « — » remplacé par « | » dans les textes (interface, documents imprimés, traductions) ; motif de relief blanc visible (20 %) sur les fonds bleus ; teintes neutres alignées sur le livre de marque (brume, gris, trait, fond) dans le site, `packages/ui`, les maquettes et la skill `design`. `test_demo` expire (« timeout ») sur cette machine, avec ou sans ces changements : la CI tranche.
+
 ### 2026-10-30 — Lot 2 : fini et en ligne (partie 9)
 Retouches demandées : chat du site non fixe (suit l'écran et s'arrête au pied de page), bandeau « données fictives » masqué sur les captures, section « école pilote » ITIG retirée de l'accueil, partenaires vides au départ (ajoutés dans la console), deux écoles de référence au lieu de quatre. `make deploy ref=origin/lot/2-site` fait, `deploy-check` vert. Reste à toi : saisir les coordonnées de la plateforme dans la console (Identité) ; captures du site à refaire (`make captures-site`) pour effacer le bandeau des images déjà publiées.
 

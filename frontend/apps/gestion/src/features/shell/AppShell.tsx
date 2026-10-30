@@ -84,7 +84,7 @@ function TopBar({ me }: { me: Me }) {
       <Link
         to="/account"
         className="flex items-center gap-2.5 text-sm text-ink no-underline"
-        aria-label={`${displayName(me)} — ${t("shell.account")}`}
+        aria-label={`${displayName(me)} | ${t("shell.account")}`}
       >
         <span className="hidden text-right min-[900px]:block">
           <b>{displayName(me)}</b>

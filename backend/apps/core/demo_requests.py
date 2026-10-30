@@ -96,7 +96,7 @@ def submit(data: dict, language: str) -> DemoRequest | None:
     if DemoRequest.objects.filter(phone=data["phone"], created_at__gte=since).exists():
         return None
     request = DemoRequest.objects.create(**data, language=language)
-    detail = f"{request.school_name}, {request.town} — {request.name}"
+    detail = f"{request.school_name}, {request.town} | {request.name}"
     console.alert(console.DEMO_REQUEST, request.pk, detail)
     if email_configured():
         transaction.on_commit(lambda: _enqueue_email(str(request.pk)))
@@ -110,7 +110,7 @@ def submit_chat(data: dict, language: str) -> DemoRequest | None:
     if data.pop("site_web"):
         return None
     request = DemoRequest.objects.create(**data, source=DemoRequest.Source.CHAT, language=language)
-    console.alert(console.DEMO_REQUEST, request.pk, f"{request.name} — {request.message[:80]}")
+    console.alert(console.DEMO_REQUEST, request.pk, f"{request.name} | {request.message[:80]}")
     if email_configured():
         transaction.on_commit(lambda: _enqueue_email(str(request.pk)))
     return request

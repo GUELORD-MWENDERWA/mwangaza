@@ -1,6 +1,6 @@
-"""Notes (8.2.1) : la feuille d'un cours dans une période ou des examens — ses évaluations
+"""Notes (8.2.1) : la feuille d'un cours dans une période ou des examens | ses évaluations
 (interrogations, devoirs, travaux pratiques : nom et maximum libres) et les notes des élèves de la
-classe — se lit et s'enregistre d'un seul envoi.
+classe | se lit et s'enregistre d'un seul envoi.
 
 Note de la période = somme des notes ramenée au maximum de la période (examens : deux fois le
 maximum du cours) par une règle de trois, arrondie au dixième (décisions du 2026-10-15) ; calculée,

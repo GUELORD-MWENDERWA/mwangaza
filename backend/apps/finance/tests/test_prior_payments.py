@@ -1,5 +1,5 @@
 """Reprise en cours d'année (4.19, E6) : ce que chaque élève avait payé avant que l'école
-n'utilise l'application, importé d'un fichier — isolation entre écoles, permission dédiée,
+n'utilise l'application, importé d'un fichier | isolation entre écoles, permission dédiée,
 aperçu qui n'écrit rien, enregistrement hors caisse et sans reçu, lignes en erreur laissées,
 fichier envoyé deux fois, aperçu périmé, correction par l'annulation habituelle ; audit."""
 

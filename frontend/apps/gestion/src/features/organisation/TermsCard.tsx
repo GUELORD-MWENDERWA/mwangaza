@@ -228,7 +228,7 @@ function TermsEditor({ year, drafts, onChange, onDone }: EditorProps) {
       <tr key={draft.key}>
         <td className={cn(child && "pl-7")}>
           <Input
-            aria-label={`${t("organisation.terms.name")} — ${fallback}`}
+            aria-label={`${t("organisation.terms.name")} | ${fallback}`}
             value={draft.name}
             placeholder={fallback}
             onChange={(event) => update(draft, { name: event.target.value })}
@@ -244,7 +244,7 @@ function TermsEditor({ year, drafts, onChange, onDone }: EditorProps) {
           <td key={bound}>
             <Input
               type="date"
-              aria-label={`${t(bound === "starts_on" ? "organisation.terms.starts" : "organisation.terms.ends")} — ${fallback}`}
+              aria-label={`${t(bound === "starts_on" ? "organisation.terms.starts" : "organisation.terms.ends")} | ${fallback}`}
               aria-invalid={fieldError(`${path}.${bound}`) ? true : undefined}
               value={draft[bound]}
               onChange={(event) => update(draft, { [bound]: event.target.value })}

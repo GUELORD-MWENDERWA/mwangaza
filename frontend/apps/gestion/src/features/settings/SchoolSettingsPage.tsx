@@ -422,10 +422,10 @@ function IdentityCard({ form, code }: CardProps & { code: string }) {
           {(control) => (
             <Select {...control} {...form.register("timezone")}>
               <option value="Africa/Lubumbashi">
-                {`Africa/Lubumbashi — ${t("settings.identity.zoneLubumbashi")}`}
+                {`Africa/Lubumbashi | ${t("settings.identity.zoneLubumbashi")}`}
               </option>
               <option value="Africa/Kinshasa">
-                {`Africa/Kinshasa — ${t("settings.identity.zoneKinshasa")}`}
+                {`Africa/Kinshasa | ${t("settings.identity.zoneKinshasa")}`}
               </option>
               <optgroup label={t("settings.identity.otherZones")}>
                 {zones.map((zone) => (

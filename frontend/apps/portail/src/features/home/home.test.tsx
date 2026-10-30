@@ -43,7 +43,7 @@ describe("accueil du portail", () => {
       "GET /api/portal/families/": [{ ...ITIG, school_environment: "demo" }],
     });
     renderApp("/");
-    expect(await screen.findByText("Démonstration — données fictives")).toBeTruthy();
+    expect(await screen.findByText("Démonstration | données fictives")).toBeTruthy();
   });
 
   it("le menu ne propose que ce que l'école a : sans frais ni annonces, ni Paiements ni Annonces", async () => {

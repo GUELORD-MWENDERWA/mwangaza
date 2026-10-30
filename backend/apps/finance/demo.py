@@ -1,5 +1,5 @@
 """Frais de démonstration (I5 en attendant la grille de l'ITIG) : grille fictive réaliste, à
-partir de celle des maquettes — minerval en tranches USD, fonctionnement et frais connexes en une
+partir de celle des maquettes | minerval en tranches USD, fonctionnement et frais connexes en une
 fois, atelier par option, motivation des enseignants mensuelle en FC, Exetat en 4e —, le taux
 de l'année, ce que doit chaque élève inscrit, quelques réductions, les caisses, des paiements
 depuis la rentrée et deux crédits d'élèves par école. Écrits directement dans les modèles :

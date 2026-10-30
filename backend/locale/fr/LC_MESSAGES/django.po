@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-30 13:50+0200\n"
+"POT-Creation-Date: 2026-10-30 15:11+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -320,7 +320,7 @@ msgid "T.G."
 msgstr "T.G."
 
 #: apps/academics/gradebook.py:37 apps/academics/report_card_documents.py:137
-#: apps/core/templates/core/site/home.html:108
+#: apps/core/templates/core/site/home.html:104
 msgid "EXAM."
 msgstr "EXAM."
 
@@ -909,7 +909,7 @@ msgstr "NOM"
 
 #: apps/academics/prior_results.py:355
 #: apps/academics/templates/academics/report_card.html:91
-#: apps/core/templates/core/site/home.html:104
+#: apps/core/templates/core/site/home.html:100
 #: apps/finance/prior_payments.py:379
 msgid "CLASS"
 msgstr "CLASSE"
@@ -920,7 +920,7 @@ msgstr "DÉCISION"
 
 #: apps/academics/prior_results.py:357
 #: apps/academics/templates/academics/report_card.html:125
-#: apps/core/templates/core/site/home.html:122
+#: apps/core/templates/core/site/home.html:118
 msgid "PERCENTAGE"
 msgstr "POURCENTAGE"
 
@@ -981,7 +981,7 @@ msgid "TERM"
 msgstr "TRIMESTRE"
 
 #: apps/academics/report_card_documents.py:119
-#: apps/core/templates/core/site/home.html:108
+#: apps/core/templates/core/site/home.html:104
 msgid "1st P."
 msgstr "1ère P."
 
@@ -991,7 +991,7 @@ msgid "P%(n)d"
 msgstr "%(n)de P."
 
 #: apps/academics/report_card_documents.py:135
-#: apps/core/templates/core/site/home.html:108
+#: apps/core/templates/core/site/home.html:104
 msgid "TOT."
 msgstr "TOT."
 
@@ -1053,7 +1053,7 @@ msgstr "Pour témoignage"
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/academics/templates/academics/report_card.html:144
 #: apps/academics/templates/academics/situation.html:216
-#: apps/core/templates/core/site/home.html:129 apps/schools/signatures.py:68
+#: apps/core/templates/core/site/home.html:125 apps/schools/signatures.py:68
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
@@ -1330,8 +1330,8 @@ msgstr "Année scolaire %(year)s · imprimé le %(date)s"
 
 #: apps/academics/templates/academics/grade_sheet.html:24
 #, python-format
-msgid "RANKING — %(name)s (%(column)s)"
-msgstr "PALMARÈS — %(name)s (%(column)s)"
+msgid "RANKING | %(name)s (%(column)s)"
+msgstr "PALMARÈS | %(name)s (%(column)s)"
 
 #: apps/academics/templates/academics/grade_sheet.html:25
 #: apps/academics/templates/academics/grade_sheet.html:28
@@ -1347,18 +1347,18 @@ msgstr "Effectif : <b>%(size)s</b>"
 
 #: apps/academics/templates/academics/grade_sheet.html:27
 #, python-format
-msgid "SUMMARY TABLE — %(name)s (%(column)s)"
-msgstr "TABLEAU SYNTHÉTIQUE — %(name)s (%(column)s)"
+msgid "SUMMARY TABLE | %(name)s (%(column)s)"
+msgstr "TABLEAU SYNTHÉTIQUE | %(name)s (%(column)s)"
 
 #: apps/academics/templates/academics/grade_sheet.html:30
 #, python-format
-msgid "BLANK GRADE SHEET — %(course)s"
-msgstr "FICHE DE COTES VIERGE — %(course)s"
+msgid "BLANK GRADE SHEET | %(course)s"
+msgstr "FICHE DE COTES VIERGE | %(course)s"
 
 #: apps/academics/templates/academics/grade_sheet.html:30
 #, python-format
-msgid "GRADE SHEET — %(course)s"
-msgstr "FICHE DE COTES — %(course)s"
+msgid "GRADE SHEET | %(course)s"
+msgstr "FICHE DE COTES | %(course)s"
 
 #: apps/academics/templates/academics/grade_sheet.html:31
 #, python-format
@@ -1457,13 +1457,13 @@ msgstr[1] ""
 "peut pas s'imprimer tant qu'elles ne le sont pas."
 
 #: apps/academics/templates/academics/report_card.html:76
-#: apps/core/templates/core/site/home.html:100
+#: apps/core/templates/core/site/home.html:96
 msgid "DEMOCRATIC REPUBLIC OF THE CONGO"
 msgstr "RÉPUBLIQUE DÉMOCRATIQUE DU CONGO"
 
 #: apps/academics/templates/academics/report_card.html:76
 #: apps/core/templates/core/_document_header.html:6
-#: apps/core/templates/core/site/home.html:100
+#: apps/core/templates/core/site/home.html:96
 msgid "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION"
 msgstr "MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE"
 
@@ -1472,12 +1472,12 @@ msgid "ID NO."
 msgstr "N° ID"
 
 #: apps/academics/templates/academics/report_card.html:80
-#: apps/core/templates/core/site/home.html:101
+#: apps/core/templates/core/site/home.html:97
 msgid "PROVINCE"
 msgstr "PROVINCE"
 
 #: apps/academics/templates/academics/report_card.html:83
-#: apps/core/templates/core/site/home.html:103
+#: apps/core/templates/core/site/home.html:99
 msgid "TOWN"
 msgstr "VILLE"
 
@@ -1486,7 +1486,7 @@ msgid "COMMUNE / TERRITORY"
 msgstr "COMMUNE / TERRITOIRE"
 
 #: apps/academics/templates/academics/report_card.html:85
-#: apps/core/templates/core/site/home.html:103
+#: apps/core/templates/core/site/home.html:99
 msgid "SCHOOL"
 msgstr "ÉCOLE"
 
@@ -1495,13 +1495,13 @@ msgid "CODE"
 msgstr "CODE"
 
 #: apps/academics/templates/academics/report_card.html:89
-#: apps/core/templates/core/site/home.html:104
+#: apps/core/templates/core/site/home.html:100
 #: apps/students/templates/students/registration_form.html:21
 msgid "STUDENT"
 msgstr "ÉLÈVE"
 
 #: apps/academics/templates/academics/report_card.html:89
-#: apps/core/templates/core/site/home.html:104
+#: apps/core/templates/core/site/home.html:100
 msgid "SEX"
 msgstr "SEXE"
 
@@ -1518,17 +1518,17 @@ msgid "PERM. NO."
 msgstr "N° PERM."
 
 #: apps/academics/templates/academics/report_card.html:95
-#: apps/core/templates/core/site/home.html:106
+#: apps/core/templates/core/site/home.html:102
 msgid "REPORT CARD OF"
 msgstr "BULLETIN DE LA"
 
 #: apps/academics/templates/academics/report_card.html:95
-#: apps/core/templates/core/site/home.html:106
+#: apps/core/templates/core/site/home.html:102
 msgid "SCHOOL YEAR"
 msgstr "ANNÉE SCOLAIRE"
 
 #: apps/academics/templates/academics/report_card.html:102
-#: apps/core/templates/core/site/home.html:108
+#: apps/core/templates/core/site/home.html:104
 msgid "SUBJECTS"
 msgstr "BRANCHES"
 
@@ -1545,24 +1545,24 @@ msgid "Teacher's sign."
 msgstr "Sign. prof."
 
 #: apps/academics/templates/academics/report_card.html:113
-#: apps/core/templates/core/site/home.html:110
-#: apps/core/templates/core/site/home.html:113
-#: apps/core/templates/core/site/home.html:116
+#: apps/core/templates/core/site/home.html:106
+#: apps/core/templates/core/site/home.html:109
+#: apps/core/templates/core/site/home.html:112
 msgid "MAXIMA"
 msgstr "MAXIMA"
 
 #: apps/academics/templates/academics/report_card.html:121
-#: apps/core/templates/core/site/home.html:120
+#: apps/core/templates/core/site/home.html:116
 msgid "GENERAL MAXIMA"
 msgstr "MAXIMA GÉNÉRAUX"
 
 #: apps/academics/templates/academics/report_card.html:124
-#: apps/core/templates/core/site/home.html:121
+#: apps/core/templates/core/site/home.html:117
 msgid "TOTALS"
 msgstr "TOTAUX"
 
 #: apps/academics/templates/academics/report_card.html:126
-#: apps/core/templates/core/site/home.html:123
+#: apps/core/templates/core/site/home.html:119
 msgid "PLACE / NUMBER OF STUDENTS"
 msgstr "PLACE / NBRE D'ÉLÈVES"
 
@@ -1571,7 +1571,7 @@ msgid "APPLICATION"
 msgstr "APPLICATION"
 
 #: apps/academics/templates/academics/report_card.html:128
-#: apps/core/templates/core/site/home.html:124
+#: apps/core/templates/core/site/home.html:120
 msgid "CONDUCT"
 msgstr "CONDUITE"
 
@@ -1603,7 +1603,7 @@ msgid "Student's signature"
 msgstr "Signature de l'élève"
 
 #: apps/academics/templates/academics/report_card.html:143
-#: apps/core/templates/core/site/home.html:129
+#: apps/core/templates/core/site/home.html:125
 #, python-format
 msgid "Done at %(city)s, on %(date)s"
 msgstr "Fait à %(city)s, le %(date)s"
@@ -1634,7 +1634,7 @@ msgstr ""
 "prévues par la loi."
 
 #: apps/academics/templates/academics/report_card.html:150
-#: apps/core/templates/core/site/home.html:128
+#: apps/core/templates/core/site/home.html:124
 msgid "Scan the QR code to check this report card."
 msgstr "Scannez le QR code pour vérifier ce bulletin."
 
@@ -1742,8 +1742,8 @@ msgstr "Situation de l'école"
 
 #: apps/academics/templates/academics/situation.html:17
 #, python-format
-msgid "SITUATION OF THE CLASS — %(name)s"
-msgstr "SITUATION DE LA CLASSE — %(name)s"
+msgid "SITUATION OF THE CLASS | %(name)s"
+msgstr "SITUATION DE LA CLASSE | %(name)s"
 
 #: apps/academics/templates/academics/situation.html:19
 msgid "SITUATION OF THE SCHOOL"
@@ -2479,7 +2479,7 @@ msgid "Discipline master"
 msgstr "Directeur de discipline"
 
 #: apps/accounts/roles.py:181 apps/core/models.py:265
-#: apps/core/templates/core/site/home.html:141
+#: apps/core/templates/core/site/home.html:137
 #: apps/core/templates/core/site/schools.html:12
 #: apps/core/templates/core/site/schools.html:42
 msgid "Accountant"
@@ -2487,7 +2487,7 @@ msgstr "Comptable"
 
 #: apps/accounts/roles.py:196 apps/core/templates/core/site/home.html:72
 #: apps/core/templates/core/site/home.html:73
-#: apps/core/templates/core/site/home.html:142
+#: apps/core/templates/core/site/home.html:138
 #: apps/core/templates/core/site/schools.html:13
 #: apps/core/templates/core/site/schools.html:59 apps/finance/documents.py:68
 #: apps/finance/documents.py:404
@@ -2504,7 +2504,7 @@ msgid "Promoter"
 msgstr "Promoteur"
 
 #: apps/accounts/roles.py:217 apps/core/templates/core/site/home.html:75
-#: apps/core/templates/core/site/home.html:143
+#: apps/core/templates/core/site/home.html:139
 #: apps/core/templates/core/site/schools.html:14
 msgid "Teacher"
 msgstr "Enseignant"
@@ -4323,7 +4323,7 @@ msgstr "Parents"
 #: apps/core/templates/core/site/_menu.html:1
 #: apps/core/templates/core/site/article.html:6
 #: apps/core/templates/core/site/base.html:85
-#: apps/core/templates/core/site/home.html:236
+#: apps/core/templates/core/site/home.html:232
 #: apps/core/templates/core/site/news.html:6
 msgid "News"
 msgstr "Actualités"
@@ -4488,7 +4488,7 @@ msgstr "partenaires"
 msgid "Published"
 msgstr "Publié"
 
-#: apps/core/models.py:643 apps/core/templates/core/site/home.html:112
+#: apps/core/models.py:643 apps/core/templates/core/site/home.html:108
 msgid "French"
 msgstr "Français"
 
@@ -5076,7 +5076,7 @@ msgstr "Chaque école choisit ses modules"
 msgid "See %(name)s with your school"
 msgstr "Voyez %(name)s avec votre école"
 
-#: apps/core/site.py:919 apps/core/templates/core/site/home.html:236
+#: apps/core/site.py:919 apps/core/templates/core/site/home.html:232
 #: apps/core/templates/core/site/news.html:7
 #, python-format
 msgid "What is changing in %(name)s"
@@ -5233,8 +5233,7 @@ msgid "We answer on WhatsApp"
 msgstr "Nous répondons sur WhatsApp"
 
 #: apps/core/templates/core/site/_chat.html:7
-#: apps/core/templates/core/site/home.html:80
-#: apps/core/templates/core/site/home.html:180
+#: apps/core/templates/core/site/home.html:176
 msgid "Close"
 msgstr "Fermer"
 
@@ -5360,7 +5359,7 @@ msgstr "Autres actualités"
 
 #
 #: apps/core/templates/core/site/article.html:22
-#: apps/core/templates/core/site/home.html:238
+#: apps/core/templates/core/site/home.html:234
 msgid "All the news"
 msgstr "Toutes les actualités"
 
@@ -5416,7 +5415,7 @@ msgid "For parents"
 msgstr "Pour les parents"
 
 #: apps/core/templates/core/site/base.html:86
-#: apps/core/templates/core/site/home.html:244
+#: apps/core/templates/core/site/home.html:240
 #: apps/core/templates/core/site/llms.txt:21
 msgid "Frequently asked questions"
 msgstr "Questions fréquentes"
@@ -5828,19 +5827,15 @@ msgstr ""
 msgid "Cashier, head"
 msgstr "Caissière, préfet"
 
-#: apps/core/templates/core/site/home.html:79
-msgid "A day with the software"
-msgstr "Une journée avec le logiciel"
-
-#: apps/core/templates/core/site/home.html:89
+#: apps/core/templates/core/site/home.html:85
 msgid "Marks and report cards"
 msgstr "Notes et bulletins"
 
-#: apps/core/templates/core/site/home.html:90
+#: apps/core/templates/core/site/home.html:86
 msgid "Marks become an authenticated report card"
 msgstr "Les points deviennent un bulletin authentifié"
 
-#: apps/core/templates/core/site/home.html:91
+#: apps/core/templates/core/site/home.html:87
 #, python-format
 msgid ""
 "The teacher enters the marks. %(name)s works out the totals, the percentage, "
@@ -5851,26 +5846,26 @@ msgstr ""
 "la place et la conduite, puis imprime le bulletin au format de l'école, avec "
 "un code QR qui prouve qu'il est vrai."
 
-#: apps/core/templates/core/site/home.html:93
+#: apps/core/templates/core/site/home.html:89
 msgid ""
 "Totals, percentages and ranks worked out automatically, with no calculation "
 "errors"
 msgstr "Totaux, pourcentages et places calculés seuls, sans erreur de calcul"
 
-#: apps/core/templates/core/site/home.html:94
+#: apps/core/templates/core/site/home.html:90
 msgid "Deliberation, resits and end-of-year summaries"
 msgstr "Délibération, repêchage et situations de fin d'année"
 
-#: apps/core/templates/core/site/home.html:95
+#: apps/core/templates/core/site/home.html:91
 msgid "Full report card, or the marks alone on the official form"
 msgstr "Bulletin complet, ou les notes seules sur le formulaire officiel"
 
-#: apps/core/templates/core/site/home.html:96
+#: apps/core/templates/core/site/home.html:92
 msgid "QR code: a parent or another school checks that it has not been forged"
 msgstr ""
 "Code QR : un parent ou une autre école vérifie qu'il n'est pas falsifié"
 
-#: apps/core/templates/core/site/home.html:99
+#: apps/core/templates/core/site/home.html:95
 msgid ""
 "Sample report card in the official format: the marks fill in, the totals, "
 "percentage and rank are worked out, then the QR code proves it is genuine"
@@ -5879,57 +5874,61 @@ msgstr ""
 "totaux, le pourcentage et la place se calculent, puis le code QR prouve "
 "qu'il est authentique"
 
-#: apps/core/templates/core/site/home.html:108
+#: apps/core/templates/core/site/home.html:99
+msgid "Example technical institute"
+msgstr "Institut technique d'exemple"
+
+#: apps/core/templates/core/site/home.html:104
 msgid "FIRST SEMESTER"
 msgstr "PREMIER SEMESTRE"
 
-#: apps/core/templates/core/site/home.html:108
+#: apps/core/templates/core/site/home.html:104
 msgid "2nd P."
 msgstr "2e P."
 
-#: apps/core/templates/core/site/home.html:111
+#: apps/core/templates/core/site/home.html:107
 msgid "Religion"
 msgstr "Religion"
 
-#: apps/core/templates/core/site/home.html:114
+#: apps/core/templates/core/site/home.html:110
 msgid "Mathematics"
 msgstr "Mathématiques"
 
-#: apps/core/templates/core/site/home.html:115
+#: apps/core/templates/core/site/home.html:111
 msgid "Electricity"
 msgstr "Électricité"
 
-#: apps/core/templates/core/site/home.html:117
+#: apps/core/templates/core/site/home.html:113
 msgid "Electrical workshop"
 msgstr "Atelier électrique"
 
-#: apps/core/templates/core/site/home.html:124
+#: apps/core/templates/core/site/home.html:120
 msgctxt "conduct grade"
 msgid "VG"
 msgstr "TB"
 
-#: apps/core/templates/core/site/home.html:124
+#: apps/core/templates/core/site/home.html:120
 msgctxt "conduct grade"
 msgid "G"
 msgstr "B"
 
-#: apps/core/templates/core/site/home.html:131
+#: apps/core/templates/core/site/home.html:127
 msgid "Genuine report card"
 msgstr "Bulletin authentique"
 
-#: apps/core/templates/core/site/home.html:131
+#: apps/core/templates/core/site/home.html:127
 msgid "checked by QR code, signed by the school"
 msgstr "vérifié par code QR, signé par l'école"
 
-#: apps/core/templates/core/site/home.html:138
+#: apps/core/templates/core/site/home.html:134
 msgid "A screen for each person"
 msgstr "Chacun son écran"
 
-#: apps/core/templates/core/site/home.html:138
+#: apps/core/templates/core/site/home.html:134
 msgid "Each person sees what concerns them"
 msgstr "Chacun voit ce qui le concerne"
 
-#: apps/core/templates/core/site/home.html:138
+#: apps/core/templates/core/site/home.html:134
 msgid ""
 "The school gives everyone a role: management, accountant, cashier, teacher, "
 "secretary. It can also create its own roles."
@@ -5937,99 +5936,99 @@ msgstr ""
 "L'école donne à chacun un rôle : direction, comptable, caissier, enseignant, "
 "secrétaire. Elle peut aussi créer ses propres rôles."
 
-#: apps/core/templates/core/site/home.html:140
+#: apps/core/templates/core/site/home.html:136
 #: apps/core/templates/core/site/schools.html:11
 #: apps/notifications/templates/notifications/circular.html:11
 #: apps/notifications/templates/notifications/summons.html:15
 msgid "Management"
 msgstr "Direction"
 
-#: apps/core/templates/core/site/home.html:140
+#: apps/core/templates/core/site/home.html:136
 msgid "Takings, unpaid fees and today's cash desks, class results."
 msgstr "Recettes, impayés et caisses du jour, résultats des classes."
 
-#: apps/core/templates/core/site/home.html:140
-#: apps/core/templates/core/site/home.html:141
-#: apps/core/templates/core/site/home.html:142
-#: apps/core/templates/core/site/home.html:143
+#: apps/core/templates/core/site/home.html:136
+#: apps/core/templates/core/site/home.html:137
+#: apps/core/templates/core/site/home.html:138
+#: apps/core/templates/core/site/home.html:139
 msgid "See"
 msgstr "Voir"
 
-#: apps/core/templates/core/site/home.html:141
+#: apps/core/templates/core/site/home.html:137
 msgid "Fee scales, instalments, discounts, cancellations and cash counts."
 msgstr "Barèmes, tranches, réductions, annulations et clôtures."
 
-#: apps/core/templates/core/site/home.html:142
+#: apps/core/templates/core/site/home.html:138
 msgid "Take payments and print the receipt, even without internet."
 msgstr "Encaisser et imprimer le reçu, même sans internet."
 
-#: apps/core/templates/core/site/home.html:143
+#: apps/core/templates/core/site/home.html:139
 msgid "Marks, conduct and report cards of their class."
 msgstr "Points, conduite et bulletins de sa classe."
 
-#: apps/core/templates/core/site/home.html:145
+#: apps/core/templates/core/site/home.html:141
 msgid "And parents? See the parent space"
 msgstr "Et les parents ? Voir l'espace parents"
 
-#: apps/core/templates/core/site/home.html:150
-#: apps/core/templates/core/site/home.html:152
+#: apps/core/templates/core/site/home.html:146
+#: apps/core/templates/core/site/home.html:148
 msgid "Partners"
 msgstr "Partenaires"
 
-#: apps/core/templates/core/site/home.html:162
+#: apps/core/templates/core/site/home.html:158
 #, python-format
 msgid "%(name)s today"
 msgstr "%(name)s aujourd'hui"
 
-#: apps/core/templates/core/site/home.html:162
+#: apps/core/templates/core/site/home.html:158
 msgid "Schools that use it every day"
 msgstr "Des écoles qui l'utilisent chaque jour"
 
-#: apps/core/templates/core/site/home.html:173
+#: apps/core/templates/core/site/home.html:169
 msgid "They use it"
 msgstr "Ils l'utilisent"
 
-#: apps/core/templates/core/site/home.html:173
+#: apps/core/templates/core/site/home.html:169
 msgid "What school teams say"
 msgstr "Ce que disent les équipes des écoles"
 
-#: apps/core/templates/core/site/home.html:191
+#: apps/core/templates/core/site/home.html:187
 msgid "Pilot school"
 msgstr "École pilote"
 
-#: apps/core/templates/core/site/home.html:191
+#: apps/core/templates/core/site/home.html:187
 msgid "Designed with a real school in Goma"
 msgstr "Conçu avec une vraie école de Goma"
 
-#: apps/core/templates/core/site/home.html:195
+#: apps/core/templates/core/site/home.html:191
 #, python-format
 msgid "%(name)s logo"
 msgstr "Logo de %(name)s"
 
-#: apps/core/templates/core/site/home.html:206
+#: apps/core/templates/core/site/home.html:202
 #: apps/core/templates/core/site/legal.html:21
 #: apps/core/templates/core/site/legal.html:62
 msgid "Security"
 msgstr "Sécurité"
 
-#: apps/core/templates/core/site/home.html:206
+#: apps/core/templates/core/site/home.html:202
 msgid "The school's data stays with the school"
 msgstr "Les données de l'école restent à l'école"
 
-#: apps/core/templates/core/site/home.html:208
+#: apps/core/templates/core/site/home.html:204
 msgid "Each school on its own"
 msgstr "Chaque école à part"
 
-#: apps/core/templates/core/site/home.html:208
+#: apps/core/templates/core/site/home.html:204
 msgid "A school never sees the students, payments or marks of another."
 msgstr ""
 "Une école ne voit jamais les élèves, les paiements ni les notes d'une autre."
 
-#: apps/core/templates/core/site/home.html:209
+#: apps/core/templates/core/site/home.html:205
 msgid "Double check for money"
 msgstr "Double vérification pour l'argent"
 
-#: apps/core/templates/core/site/home.html:209
+#: apps/core/templates/core/site/home.html:205
 msgid ""
 "Management, accountant and cashiers sign in with a code on top of the "
 "password."
@@ -6037,58 +6036,58 @@ msgstr ""
 "Direction, comptable et caissiers entrent avec un code en plus du mot de "
 "passe."
 
-#: apps/core/templates/core/site/home.html:210
+#: apps/core/templates/core/site/home.html:206
 msgid "A payment is never erased"
 msgstr "Un paiement ne s'efface jamais"
 
-#: apps/core/templates/core/site/home.html:210
+#: apps/core/templates/core/site/home.html:206
 msgid ""
 "A mistake is fixed by a cancellation, with a reason and a manager's approval."
 msgstr ""
 "Une erreur se corrige par une annulation, avec un motif et la validation "
 "d'un responsable."
 
-#: apps/core/templates/core/site/home.html:211
+#: apps/core/templates/core/site/home.html:207
 msgid "Everything is logged"
 msgstr "Tout est noté"
 
-#: apps/core/templates/core/site/home.html:211
+#: apps/core/templates/core/site/home.html:207
 msgid "Payments, marks and staff rights: each change keeps who, when and what."
 msgstr ""
 "Paiements, notes et droits du personnel : chaque changement garde qui, quand "
 "et quoi."
 
-#: apps/core/templates/core/site/home.html:212
+#: apps/core/templates/core/site/home.html:208
 msgid "Backup every night"
 msgstr "Sauvegarde chaque nuit"
 
-#: apps/core/templates/core/site/home.html:212
+#: apps/core/templates/core/site/home.html:208
 msgid "An encrypted copy of all the data, kept away from the server."
 msgstr "Copie chiffrée de toutes les données, gardée hors du serveur."
 
-#: apps/core/templates/core/site/home.html:213
+#: apps/core/templates/core/site/home.html:209
 msgid "Receipts you can check"
 msgstr "Reçu vérifiable"
 
-#: apps/core/templates/core/site/home.html:213
+#: apps/core/templates/core/site/home.html:209
 msgid ""
 "The receipt's QR code shows whether it is genuine, with no account or "
 "password."
 msgstr "Le code QR du reçu montre s'il est vrai, sans compte ni mot de passe."
 
-#: apps/core/templates/core/site/home.html:220
+#: apps/core/templates/core/site/home.html:216
 msgid "Goma and Lake Kivu seen from the heights"
 msgstr "Goma et le lac Kivu vus des hauteurs"
 
-#: apps/core/templates/core/site/home.html:222
+#: apps/core/templates/core/site/home.html:218
 msgid "Made in Goma"
 msgstr "Conçu à Goma"
 
-#: apps/core/templates/core/site/home.html:223
+#: apps/core/templates/core/site/home.html:219
 msgid "With schools here, for them"
 msgstr "Avec les écoles d'ici, pour elles"
 
-#: apps/core/templates/core/site/home.html:224
+#: apps/core/templates/core/site/home.html:220
 #, python-format
 msgid ""
 "%(name)s is designed and supported in Goma. We help you get started: a trial "
@@ -6099,19 +6098,19 @@ msgstr ""
 "d'essai avec vos classes et vos frais, l'import de votre liste d'élèves, la "
 "prise en main avec votre personnel."
 
-#: apps/core/templates/core/site/home.html:226
+#: apps/core/templates/core/site/home.html:222
 msgid "An answer on WhatsApp, in French or English"
 msgstr "Une réponse sur WhatsApp, en français ou en anglais"
 
-#: apps/core/templates/core/site/home.html:227
+#: apps/core/templates/core/site/home.html:223
 msgid "A phone, a tablet or an old computer is enough"
 msgstr "Un téléphone, une tablette ou un vieil ordinateur suffit"
 
-#: apps/core/templates/core/site/home.html:228
+#: apps/core/templates/core/site/home.html:224
 msgid "Nothing to install from an app store"
 msgstr "Rien à installer depuis un magasin d'applications"
 
-#: apps/core/templates/core/site/home.html:244
+#: apps/core/templates/core/site/home.html:240
 msgid "What people often ask us"
 msgstr "Ce qu'on nous demande souvent"
 
@@ -6981,8 +6980,8 @@ msgstr ""
 
 #: apps/core/views.py:156
 #, python-format
-msgid "%(platform)s — Parents"
-msgstr "%(platform)s — Parents"
+msgid "%(platform)s | Parents"
+msgstr "%(platform)s | Parents"
 
 #
 #: apps/core/views.py:650
@@ -8070,8 +8069,8 @@ msgstr "Année scolaire %(year)s · situation au %(date)s à %(time)s"
 
 #: apps/finance/templates/finance/unpaid.html:20
 #, python-format
-msgid "STUDENTS LATE WITH PAYMENTS — %(name)s"
-msgstr "ÉLÈVES EN RETARD DE PAIEMENT — %(name)s"
+msgid "STUDENTS LATE WITH PAYMENTS | %(name)s"
+msgstr "ÉLÈVES EN RETARD DE PAIEMENT | %(name)s"
 
 #: apps/finance/templates/finance/unpaid.html:20
 msgid "STUDENTS LATE WITH PAYMENTS"
@@ -9397,7 +9396,7 @@ msgstr "Une période retirée est déjà utilisée."
 
 #: apps/schools/organisation.py:68
 msgid "RDC secondary: 2 semesters, 4 periods, 2 exam sessions"
-msgstr "Secondaire RDC — 2 semestres, 4 périodes, 2 examens"
+msgstr "Secondaire RDC | 2 semestres, 4 périodes, 2 examens"
 
 #: apps/schools/organisation.py:69
 msgid "3 terms, 6 periods, 3 exam sessions"
@@ -9491,8 +9490,8 @@ msgstr "Il manque encore des étapes avant que l'école puisse encaisser."
 
 #: apps/schools/templates/schools/access_sheet.html:2
 #, python-format
-msgid "Access sheet — %(name)s"
-msgstr "Fiche d'accès — %(name)s"
+msgid "Access sheet | %(name)s"
+msgstr "Fiche d'accès | %(name)s"
 
 #: apps/schools/templates/schools/access_sheet.html:14
 msgid "Demonstration access sheet"
@@ -10127,8 +10126,8 @@ msgstr "Secrétariat"
 
 #: apps/students/templates/students/class_list.html:11
 #, python-format
-msgid "LIST OF STUDENTS — %(name)s"
-msgstr "LISTE DES ÉLÈVES — %(name)s"
+msgid "LIST OF STUDENTS | %(name)s"
+msgstr "LISTE DES ÉLÈVES | %(name)s"
 
 #: apps/students/templates/students/class_list.html:12
 #, python-format
@@ -10941,8 +10940,8 @@ msgid "Not found."
 msgstr "Introuvable."
 
 #: apps/timetable/prints.py:161
-msgid "DRAFT — not published"
-msgstr "BROUILLON — non publié"
+msgid "DRAFT | not published"
+msgstr "BROUILLON | non publié"
 
 #: apps/timetable/prints.py:164
 #, python-format
