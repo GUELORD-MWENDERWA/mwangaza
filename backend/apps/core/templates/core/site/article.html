@@ -1,0 +1,26 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block main %}
+<article class="art">
+  <div class="wrap">
+    <div class="col">
+      <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}"><a href="{{ links.home }}">{% translate "Home" %}</a><span aria-hidden="true">/</span><a href="{{ links.news }}">{% translate "News" %}</a></nav>
+      <h1 class="display">{{ article.title }}</h1>
+      <p class="lead">{{ article.summary }}</p>
+      <p class="byline"><time datetime="{{ article.published_at|date:'Y-m-d' }}">{{ article.published_at|date:"j F Y" }}</time><span>{% blocktranslate with author=author_name %}By {{ author }}{% endblocktranslate %}</span><span>{% blocktranslate with n=article.minutes %}{{ n }} min read{% endblocktranslate %}</span></p>
+    </div>
+    {% if article.photo %}<figure class="pic cover" style="aspect-ratio:2/1"><img src="{{ article.photo.url }}" alt="{{ article.photo.alt }}" width="{{ article.photo.width }}" height="{{ article.photo.height }}" fetchpriority="high"></figure>{% endif %}
+    <div class="col body">{{ article.html }}</div>
+    <div class="col">
+      <div class="share"><b>{% translate "Share" %}</b><button type="button" data-copy="{{ url }}" data-done="{% translate 'Link copied' %}">{% translate "Copy the link" %}</button></div>
+      {% if others %}<div style="margin-top:56px">
+        <span class="kicker">{% translate "More news" %}</span>
+        <ul class="alist" style="margin-top:16px">
+          {% for item in others %}<li><a class="arow" href="{{ item.path }}"><span><span class="date">{{ item.published_at|date:"j F Y" }}</span><span class="h3s">{{ item.title }}</span></span></a></li>
+          {% endfor %}
+        </ul>
+        <p style="margin-top:24px"><a class="more" href="{{ links.news }}">{% translate "All the news" %}</a></p>
+      </div>{% endif %}
+    </div>
+  </div>
+</article>
+{% endblock %}

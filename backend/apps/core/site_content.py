@@ -35,7 +35,15 @@ TESTIMONIAL_FIELDS = ("name", "role", "school_name", "town", "quote_fr", "quote_
 REFERENCE_FIELDS = ("name", "town", "pupils", "link", "logo_id")
 PAGE_FIELDS = ("key", "title_fr", "title_en", "description_fr", "description_en", "photo_id")
 PHOTO_FIELDS = ("id", "width", "height", "alt_fr", "alt_en")
-ARTICLE_FIELDS = ("slug", "title", "summary", "published_at", "author_name", "photo_id")
+ARTICLE_FIELDS = (
+    "slug",
+    "title",
+    "summary",
+    "published_at",
+    "updated_at",
+    "author_name",
+    "photo_id",
+)
 NEWS_PER_PAGE = 10
 NEWS_PATHS = {"fr": "/actualites/", "en": "/en/news/"}
 
@@ -158,18 +166,45 @@ def _news(lang: str) -> list[dict]:
         articles = Article.objects.filter(language=lang, status=Article.Status.PUBLISHED)
         rows = list(
             articles.order_by("-published_at").values(
-                *ARTICLE_FIELDS, "photo__alt_fr", "photo__alt_en"
+                *ARTICLE_FIELDS, "photo__alt_fr", "photo__alt_en", "photo__width", "photo__height"
             )
         )
         cache.set(key, rows, CACHE_TIMEOUT)
     return rows
 
 
+def news_photo(photo_id, alt: dict, width: int, height: int, lang: str) -> dict | None:
+    """Photo d'un article (dans la photothèque), sans requête de plus."""
+    if not photo_id:
+        return None
+    return {
+        "url": photo_url(photo_id),
+        "small": photo_url(photo_id, 600),
+        "alt": alt.get(lang) or alt["fr"],
+        "width": width,
+        "height": height,
+    }
+
+
 def news(lang: str, now: datetime | None = None) -> list[dict]:
-    """Articles parus dans cette langue (date de publication passée), les plus récents d'abord ;
-    pour la liste paginée, l'accueil et le `sitemap.xml`."""
+    """Articles parus dans cette langue (date de publication passée), les plus récents d'abord,
+    avec leur adresse et leur photo ; pour la liste paginée, l'accueil et le `sitemap.xml`."""
     now = now or timezone.now()
-    return [row for row in _news(lang) if row["published_at"] <= now]
+    return [
+        {
+            **row,
+            "path": article_path(lang, row["slug"]),
+            "photo": news_photo(
+                row["photo_id"],
+                {"fr": row["photo__alt_fr"], "en": row["photo__alt_en"]},
+                row["photo__width"],
+                row["photo__height"],
+                lang,
+            ),
+        }
+        for row in _news(lang)
+        if row["published_at"] <= now
+    ]
 
 
 def news_page(lang: str, number: int) -> tuple[list[dict], int]:
@@ -205,7 +240,15 @@ def article(lang: str, slug: str) -> dict | None:
         "author_name": found.author_name,
         "html": markdown.render(found.body),
         "minutes": markdown.reading_minutes(found.body),
-        "photo_id": found.photo_id,
+        "photo": news_photo(
+            found.photo_id,
+            {"fr": found.photo.alt_fr, "en": found.photo.alt_en},
+            found.photo.width,
+            found.photo.height,
+            lang,
+        )
+        if found.photo_id
+        else None,
     }
 
 
@@ -263,25 +306,3 @@ MODULE_FEATURES = {
         _("PIN code on known devices"),
     ),
 }
-
-# Écoles présentées sur l'accueil (faits publics, logo et photo avec l'accord de l'école).
-# `quote` : les vrais mots d'une personne de l'école, avec son nom, sa fonction et l'accord écrit
-# de l'école ; jamais inventés. Vide : la carte s'affiche sans citation.
-REFERENCES = (
-    {
-        "name": "ITIG Don Bosco Goma",
-        "kind": _("Industrial technical institute · Goma, North Kivu"),
-        "logo": "core/site/photos/itig-logo.webp",
-        "photo": "itig-cour",
-        "photo_alt": _(
-            "ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag"
-        ),
-        "facts": (
-            (_("1,000+"), _("students")),
-            ("4", _("technical options")),
-            ("1981", _("founded")),
-        ),
-        "quote": "",
-        "quote_by": "",
-    },
-)

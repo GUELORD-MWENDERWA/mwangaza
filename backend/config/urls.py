@@ -4,7 +4,7 @@ from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.academics.verification import verify_report_card
-from apps.core import site
+from apps.core import site, site_content
 from apps.core import urls as core_urls
 from apps.finance.verification import verify_receipt, verify_statement
 from apps.schools.views import (
@@ -34,6 +34,24 @@ urlpatterns = [
             name=f"site-{key}-{lang}",
         )
         for key, paths in site.PAGES.items()
+        for lang in ("fr", "en")
+    ],
+    *[
+        path(
+            f"{site_content.NEWS_PATHS[lang][1:]}<slug:slug>/",
+            site.news_article,
+            {"lang": lang},
+            name=f"site-article-{lang}",
+        )
+        for lang in ("fr", "en")
+    ],
+    *[
+        path(
+            site.MODULES_MOVED[lang][1:],
+            site.modules_moved,
+            {"lang": lang},
+            name=f"site-modules-{lang}",
+        )
         for lang in ("fr", "en")
     ],
     path("confidentialite/", site.privacy, {"lang": "fr"}, name="site-privacy-fr"),

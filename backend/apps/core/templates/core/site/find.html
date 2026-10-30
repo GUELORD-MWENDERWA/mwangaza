@@ -1,7 +1,7 @@
 {% extends "core/site/base.html" %}{% load i18n site_tags %}
 {% block robots %}{% if error %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
 {% block main %}
-<section class="finder night relief">
+<section class="finder blue">
   <div class="wrap">
     <form class="findcard" action="{{ links.find }}" method="get" data-finder="{{ school_pattern }}">
       <span class="chipic">{% icon "school" %}</span>

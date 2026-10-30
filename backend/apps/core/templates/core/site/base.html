@@ -8,16 +8,16 @@
 <meta name="author" content="{{ author }}">
 <meta name="robots" content="{% block robots %}index, follow, max-image-preview:large{% endblock %}">
 <link rel="canonical" href="{{ url }}">
-<link rel="alternate" hreflang="fr" href="{{ site }}{{ alternates.fr }}">
-<link rel="alternate" hreflang="en" href="{{ site }}{{ alternates.en }}">
-<link rel="alternate" hreflang="x-default" href="{{ site }}{{ alternates.fr }}">
+{% if alternates.fr %}<link rel="alternate" hreflang="fr" href="{{ site }}{{ alternates.fr }}">{% endif %}
+{% if alternates.en %}<link rel="alternate" hreflang="en" href="{{ site }}{{ alternates.en }}">{% endif %}
+<link rel="alternate" hreflang="x-default" href="{{ site }}{% if alternates.fr %}{{ alternates.fr }}{% else %}{{ alternates.en }}{% endif %}">
 <link rel="alternate" type="text/markdown" title="llms.txt" href="{{ site }}/llms.txt">
 <meta name="theme-color" content="{{ platform.primary_color }}">
 {% if platform.icon_url %}<link rel="icon" href="{{ platform.icon_url }}">
 <link rel="apple-touch-icon" href="{{ platform.icon_url }}">{% else %}<link rel="icon" type="image/svg+xml" href="{% static 'core/site/symbole.svg' %}">
 <link rel="icon" type="image/png" sizes="192x192" href="{% static 'core/site/icon-192.png' %}">
 <link rel="apple-touch-icon" href="{% static 'core/site/apple-touch-icon.png' %}">{% endif %}
-<meta property="og:type" content="website">
+<meta property="og:type" content="{% if article %}article{% else %}website{% endif %}">
 <meta property="og:site_name" content="{{ platform.site_name }}">
 <meta property="og:title" content="{{ title }}">
 <meta property="og:description" content="{{ description }}">
@@ -47,10 +47,10 @@
     <div class="sact">
       <a class="slang" href="{{ other_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ other_lang_name }}</a>
       <a class="slink" href="{{ links.find }}">{% translate "Find my school" %}</a>
-      <a class="btn lamp sm" href="{{ links.contact }}"><span class="hide-s">{% translate "Request a demo" %}</span><span class="show-s">{% translate "Demo" %}</span></a>
+      <a class="btn primary sm" href="{{ links.contact }}"><span class="hide-s">{% translate "Request a demo" %}</span><span class="show-s">{% translate "Demo" %}</span></a>
       <details class="smenu">
         <summary aria-label="{% translate 'Open the menu' %}">{% icon "menu" %}</summary>
-        <nav class="smpanel relief" aria-label="{% translate 'Main menu' %}">
+        <nav class="smpanel" aria-label="{% translate 'Main menu' %}">
           {% include "core/site/_menu.html" %}
           <a href="{{ links.find }}">{% icon "search" %} {% translate "Find my school" %}</a>
           <a href="{{ portal_url }}">{% icon "users" %} {% translate "Parent space" %}</a>
@@ -63,7 +63,7 @@
 <main id="contenu">
 {% block main %}{% endblock %}
 </main>
-<footer class="sf relief">
+<footer class="sf">
   <div class="wrap">
     <div class="sfgrid">
       <div class="sfabout">
@@ -81,8 +81,8 @@
         <ul>
           <li><a href="{{ links.schools }}">{% translate "For schools" %}</a></li>
           <li><a href="{{ links.parents }}">{% translate "For parents" %}</a></li>
-          <li><a href="{{ links.modules }}">{% translate "Modules" %}</a></li>
-          <li><a href="{{ links.home }}#questions">{% translate "Frequently asked questions" %}</a></li>
+          <li><a href="{{ links.schools }}#modules">{% translate "Modules" %}</a></li>
+          <li><a href="{{ links.news }}">{% translate "News" %}</a></li>
         </ul>
       </div>
       <div>
@@ -98,12 +98,13 @@
         <ul>
           <li><a href="{{ links.legal }}">{% translate "Legal notice" %}</a></li>
           <li><a href="{{ links.legal }}#confidentialite">{% translate "Privacy" %}</a></li>
+          <li><a href="{{ links.home }}#questions">{% translate "Frequently asked questions" %}</a></li>
           <li><a href="{{ links.contact }}">{% translate "Contact" %}</a></li>
         </ul>
       </div>
     </div>
     <div class="sfbottom">
-      <p class="sflang"><a href="{{ alternates.fr }}" hreflang="fr" lang="fr"{% if lang == "fr" %} aria-current="true"{% endif %}>Français</a> · <a href="{{ alternates.en }}" hreflang="en" lang="en"{% if lang == "en" %} aria-current="true"{% endif %}>English</a></p>
+      <p class="sflang">{% if lang == "fr" %}<a href="{{ url }}" hreflang="fr" lang="fr" aria-current="true">Français</a> · <a href="{{ other_url }}" hreflang="en" lang="en">English</a>{% else %}<a href="{{ other_url }}" hreflang="fr" lang="fr">Français</a> · <a href="{{ url }}" hreflang="en" lang="en" aria-current="true">English</a>{% endif %}</p>
       <p>© {{ year }} <a href="{{ copyright_url }}">{{ copyright }}</a>. {% translate "All rights reserved." %}</p>
     </div>
   </div>

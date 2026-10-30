@@ -4,6 +4,7 @@
 
 | Besoin | Choix | Pourquoi |
 |---|---|---|
+| 2026-10-30 | **Site public refait (lot 2)** : page Modules fusionnée dans Écoles (301) ; bande de chiffres de l'accueil supprimée (8 sections au plus) ; actualités paginées lues d'une liste en cache par langue (article programmé : date comparée à chaque lecture, sans tâche de fond) ; un article n'a pas de version dans l'autre langue (pas de `hreflang` alterné) ; photos du site : sept photos libres de droits, plus aucune photo ni nom de l'ITIG ; titres de recherche et photo du haut réglés dans la console, sinon valeurs du code | Une page, un sujet ; rien d'inventé (sections vides cachées) ; aucune requête de plus par page |
 | Serveur | **Python + Django 5.2 LTS + Django REST Framework** | Tu maîtrises déjà Python et Django. Django apporte admin, migrations, authentification, sécurité, i18n. Version LTS = mises à jour de sécurité longues. |
 | Base de données | **PostgreSQL 16+** | Fiable pour l'argent (transactions strictes), JSON, recherche plein texte, sécurité par ligne possible plus tard. |
 | Tâches de fond | **Celery + Redis** | PDF lourds, notifications push, relances, imports Excel volumineux. |

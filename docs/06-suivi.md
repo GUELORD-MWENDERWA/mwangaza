@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 2 — Site public refait**, parties 1 à 4/5 faites (étude et maquettes ; serveur ; console ; visuels : cadres d'appareils `appareils.css`, captures tablette et téléphone, photos de profil de démo), prochaine : 5/5 pages du site ; fiche `docs/claude/plans/lot-2.md` |
+| Lot en cours | Aucun (lot 2 fini, PR à fusionner) |
 | Prochain lot | Lot 3 — Vendre : contrats, abonnements, factures |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
-| Branche | `lot/2-site` (lot 1 fusionné : PR #410) |
-| Dernière mise à jour | 2026-10-30 (lot 2, partie 4/5) |
+| Branche | `lot/2-site` (PR du lot 2) |
+| Dernière mise à jour | 2026-10-30 (lot 2 fini) |
 
 ## Avancement
 
@@ -21,7 +21,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | Lot | Parties faites | Parties |
 |---|:-:|:-:|
 | 1 — Marque Mwangaza | 3 ✓ | 3 |
-| 2 — Site public refait | 4 | 5 |
+| 2 — Site public refait | 5 ✓ | 5 |
 | 3 — Vendre : contrats, abonnements, factures | 0 | 3 |
 | 4 — Bulletins aux parents | 0 | 3 |
 | 5 — Console finie | 0 | 3 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Cartes NFC et lecteurs | 0 | 2 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **0 lot sur 17** | **43** |
+| **V1 complète** | **2 lots sur 17** | **43** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -65,6 +65,10 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-10-30 — Lot 2 : site public refait (fini)
+Partie 5 : pages à la nouvelle marque d'après les maquettes (accueil de 8 sections, écoles avec les modules, parents, actualités paginées, article, contact, trouver mon école, mentions avec les crédits photo), `site.css` refait, titres de recherche et photo du haut lus de la console, témoignages, écoles de référence et actualités à l'accueil (cachés si vides), `/modules/` redirigé (301), articles dans `sitemap.xml`, photos de l'ITIG et du lac Kivu retirées, bande de chiffres supprimée (8 sections au plus).
+Tests : articles paru / programmé / brouillon / autre langue, redirection des modules, `sitemap.xml` ; captures 390 et 1440 px sans débordement. Suite : lot 3 (vendre).
 
 ### 2026-10-30 — Lot 2 : serveur du site (partie 2/5) et visuels décidés
 - Fait : témoignages, écoles de référence, titres de recherche et photo du haut des pages, actualités (programmées sans tâche de fond, petit Markdown), photothèque (WebP sans métadonnées, accords privés), réseaux pour la communication ; API console, journal, cache, 4 articles dans `make demo` ; tests des droits, du journal, des accords, de l'article programmé, du Markdown et des photos.

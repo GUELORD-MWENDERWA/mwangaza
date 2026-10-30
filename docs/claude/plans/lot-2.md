@@ -9,7 +9,7 @@ Issue #411 · branche `lot/2-site` · démarré le 2026-10-30
 - [x] ② Serveur : `Testimonial`, `ReferenceSchool`, `SitePage` (titres de recherche + photo du haut), `Article`, `SitePhoto` ; API console (droit `platform.site.edit`), journal, cache, `make demo` (4 articles) ; tests
 - [x] ③ Console : onglets de l'écran Site (témoignages, écoles, titres de recherche, réseaux), écrans Actualités (`/news`) et Photothèque (`/photos`) ; capture 390 / 1440 px à faire avec la partie 5
 - [x] ④ Visuels du produit (demande du 2026-10-30, comme ShuleSystem) : `make captures-site` refait — vrais écrans de la démo posés dans des téléphones, une tablette et un ordinateur dessinés (SVG / CSS, sans dépendance), gros plans inclinés, WebP ; maquettes de l'accueil, des écoles et des parents revues avec ces visuels et leurs animations. **Exigence du 2026-10-30** : cadres d'appareils soignés et professionnels (pas « commodes ») d'après les grands sites ; photos de profil générées et icône de l'application dans les écrans des téléphones et tablettes
-- [ ] ⑤ Pages du site (gabarits, `site.css`, `site.js`, actualités, redirections, `sitemap.xml`), photos Wikimedia retirées, documents
+- [x] ⑤ Pages du site (gabarits, `site.css`, `site.js`, actualités, redirections, `sitemap.xml`), photos Wikimedia retirées, documents
 
 **Hors périmètre** : page des prix (lot 3, SITE.4) ; sites des écoles (lot 15).
 

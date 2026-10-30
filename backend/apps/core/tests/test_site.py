@@ -12,8 +12,6 @@ from PIL import Image
 
 from apps.core import site
 from apps.core.models import PlatformSettings
-from apps.schools.models import School
-from tests.factories import SchoolFactory
 
 
 def structured_data(html: str) -> dict:
@@ -104,26 +102,6 @@ def test_every_page_answers_in_both_languages_and_points_to_the_other(client, db
         for image in site.PAGE_IMAGES[key]:
             assert (site.STATIC_SITE / image).is_file(), image
             assert f"<image:loc>http://testserver/static/core/site/{image}</image:loc>" in sitemap
-
-
-def test_platform_figures_count_live_schools_only_and_stay_hidden_below_five(client, db):
-    cache.delete(site.STATS_CACHE)
-    for _ in range(4):
-        SchoolFactory(environment=School.Environment.LIVE)
-    # Essai, démonstration et espace arrêté ne comptent pas (A7).
-    SchoolFactory(environment=School.Environment.TEST)
-    SchoolFactory(environment=School.Environment.DEMO)
-    SchoolFactory(environment=School.Environment.LIVE, status=School.Status.STOPPED)
-    assert site.platform_stats() == []
-    assert 'class="nums' not in client.get("/").content.decode()
-
-    cache.delete(site.STATS_CACHE)
-    SchoolFactory(environment=School.Environment.LIVE)
-    figures = site.platform_stats()
-    assert figures[0][1] == 5
-    assert [number for _value, number, _label in figures[1:]] == [0, 0, 0]
-    assert 'data-count="5"' in client.get("/").content.decode()
-    cache.delete(site.STATS_CACHE)
 
 
 def test_files_for_search_engines_and_assistants(client, db):

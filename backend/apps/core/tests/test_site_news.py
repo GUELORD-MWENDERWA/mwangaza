@@ -190,3 +190,36 @@ def test_a_photo_is_cleaned_kept_with_its_consent_and_protected_while_shown(
         ).count()
         == 2
     )
+
+
+def test_public_news_pages_show_only_published_articles_in_their_language(client):
+    now = timezone.now()
+    base = {"summary": "Résumé", "body": "Un texte.", "status": Article.Status.PUBLISHED}
+    Article.objects.create(
+        language="fr", title="Paru", slug="paru", published_at=now - timedelta(days=1), **base
+    )
+    Article.objects.create(
+        language="fr", title="Bientôt", slug="bientot", published_at=now + timedelta(days=2), **base
+    )
+    Article.objects.create(language="en", title="Out", slug="out", published_at=now, **base)
+    Article.objects.create(
+        language="fr", title="Brouillon", slug="brouillon", summary="r", body="t"
+    )
+
+    listing = client.get("/actualites/").content.decode()
+    assert "Paru" in listing and "Bientôt" not in listing and "Out" not in listing
+    assert client.get("/actualites/paru/").status_code == 200
+    # Programmé, brouillon, autre langue : introuvable.
+    for path in ("/actualites/bientot/", "/actualites/brouillon/", "/actualites/out/"):
+        assert client.get(path).status_code == 404
+    # L'article n'existe que dans sa langue : pas de lien alterné vers une page absente.
+    page = client.get("/actualites/paru/").content.decode()
+    assert 'hreflang="en" href' not in page.replace('hreflang="en" lang="en"', "")
+    sitemap = client.get("/sitemap.xml").content.decode()
+    assert "/actualites/paru/" in sitemap and "bientot" not in sitemap
+
+
+def test_the_old_modules_page_redirects_to_the_schools_page(client):
+    for old, new in (("/modules/", "/ecoles/#modules"), ("/en/modules/", "/en/schools/#modules")):
+        response = client.get(old)
+        assert (response.status_code, response["Location"]) == (301, new)

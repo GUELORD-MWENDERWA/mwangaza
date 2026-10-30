@@ -90,4 +90,13 @@
     });
     show();
   }
+
+  // Copier le lien d'un article.
+  for (const button of document.querySelectorAll("button[data-copy]")) {
+    button.addEventListener("click", () => {
+      navigator.clipboard?.writeText(button.dataset.copy).then(() => {
+        button.textContent = button.dataset.done;
+      });
+    });
+  }
 })();
