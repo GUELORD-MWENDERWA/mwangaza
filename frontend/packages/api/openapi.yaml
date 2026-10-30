@@ -21520,12 +21520,12 @@ components:
         primary_color:
           type: string
           title: Main colour
-          description: Buttons and links of the interface.
+          description: Menus, buttons and links of the interface.
           maxLength: 7
         accent_color:
           type: string
           title: Accent colour
-          description: Mark and highlights on the dark menu.
+          description: Sun of the symbol and highlights on the menu (rarely).
           maxLength: 7
         support_phone:
           type: string
@@ -28002,13 +28002,13 @@ components:
           type: string
           minLength: 1
           title: Main colour
-          description: Buttons and links of the interface.
+          description: Menus, buttons and links of the interface.
           maxLength: 7
         accent_color:
           type: string
           minLength: 1
           title: Accent colour
-          description: Mark and highlights on the dark menu.
+          description: Sun of the symbol and highlights on the menu (rarely).
           maxLength: 7
         support_phone:
           type: string
@@ -29143,12 +29143,12 @@ components:
         primary_color:
           type: string
           title: Main colour
-          description: Buttons and links of the interface.
+          description: Menus, buttons and links of the interface.
           maxLength: 7
         accent_color:
           type: string
           title: Accent colour
-          description: Mark and highlights on the dark menu.
+          description: Sun of the symbol and highlights on the menu (rarely).
           maxLength: 7
         support_phone:
           type: string

@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Mwangaza — Livre de marque</title>
+<meta name="author" content="DTMS">
+<meta name="description" content="Livre de marque de la plateforme Mwangaza : fondation, logo, versions, interdits, couleurs, typographie, mise en page, photographie, iconographie, applications.">
+<!-- Source du PDF (BRAND.1, lot 1) : cd backend && uv run python ../maquettes/outils/marque.py livre
+     Structure reprise du livre de marque fourni (docs/ecole-pilote/prive/Ujuzi brand book.pdf). Logos : les fichiers livrés
+     (maquettes/assets/logo/), jamais redessinés ici. Couleurs écrites en clair : WeasyPrint ne lit pas les variables dans le SVG. -->
+<style>
+@font-face{font-family:"Poppins";src:url(../../maquettes/assets/fonts/poppins-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:"Poppins";src:url(../../maquettes/assets/fonts/poppins-latin-600-normal.woff2);font-weight:600}
+@font-face{font-family:"Poppins";src:url(../../maquettes/assets/fonts/poppins-latin-700-normal.woff2);font-weight:700}
+@font-face{font-family:"Atkinson";src:url(../../maquettes/assets/fonts/atkinson-hyperlegible-next-latin-400-normal.woff2);font-weight:400}
+@font-face{font-family:"Atkinson";src:url(../../maquettes/assets/fonts/atkinson-hyperlegible-next-latin-700-normal.woff2);font-weight:700}
+@page{size:297mm 210mm;margin:0}
+:root{--bleu:#1A2F80;--brume:#E2EAF7;--soleil:#FFA81E;--ardoise:#111418;--gris:#5B6475;--pale:#8A93A5;--trait:#DDE2EC;--fond:#F6F8FC}
+*{box-sizing:border-box}
+html{font-family:"Poppins",sans-serif;font-size:8.4pt;line-height:1.5;color:var(--ardoise)}
+body{margin:0}
+.page{width:297mm;height:210mm;padding:14mm 16mm 12mm;position:relative;overflow:hidden;break-after:page;background:#fff}
+.page:last-child{break-after:auto}
+.n{position:absolute;top:12mm;right:16mm;font-size:7.5pt;font-weight:600}
+.eyebrow{font-size:7pt;font-weight:600;letter-spacing:.08em;margin:0}
+h2{font-size:19pt;font-weight:700;text-transform:uppercase;line-height:1.08;margin:1mm 0 8mm;letter-spacing:.005em}
+h3{font-size:8.6pt;font-weight:600;margin:0 0 2mm}
+h3 i{font-weight:400}
+p{margin:0 0 2.4mm}
+ul{margin:0;padding:0;list-style:none}
+li{margin:0 0 1.2mm;padding-left:3.2mm;position:relative}
+li::before{content:"";position:absolute;left:0;top:1.7mm;width:1.3mm;height:1.3mm;border-radius:50%;background:var(--ardoise)}
+.cap{font-style:italic;color:var(--pale);font-size:7pt;margin-top:2mm}
+.sun{display:inline-block;width:2.6mm;height:2.6mm;border-radius:50%;background:var(--soleil)}
+.foot{position:absolute;right:16mm;bottom:12mm;width:78mm;text-align:right;font-size:7pt;line-height:1.45}
+.foot .sun{width:2.2mm;height:2.2mm;margin-left:1.6mm;vertical-align:-.3mm}
+.grid{display:grid;column-gap:8mm}
+.atk{font-family:"Atkinson",sans-serif}
+img{display:block}
+
+/* Couverture et pages pleines */
+.cover{background:var(--brume)}
+.cover .meta{position:absolute;left:16mm;top:84mm;font-size:8pt;line-height:1.5}
+.cover .meta b{display:block;font-size:8.6pt;letter-spacing:.04em}
+.cover .big{position:absolute;right:16mm;top:76mm;height:40mm}
+.blue{background:var(--bleu);color:#fff}
+.toc{position:absolute;left:118mm;top:30mm;width:150mm}
+.toc h2{font-size:15pt;margin-bottom:10mm}
+.toc h2 .sun{margin-right:2mm;vertical-align:1mm}
+.toc a{display:flex;align-items:flex-end;gap:2mm;color:#fff;text-decoration:none;font-size:7.4pt;font-weight:600;text-transform:uppercase;margin-bottom:6.4mm}
+.toc a span{flex:1;border-bottom:.3mm dotted rgba(255,255,255,.55);margin-bottom:1.2mm}
+
+/* Identité */
+.trio{display:flex;align-items:flex-end;gap:16mm;margin-top:12mm}
+.trio .cap{margin-top:3mm}
+.dim text{font-family:"Poppins";font-size:11px;fill:#E5484D}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.tile{border:.3mm solid var(--trait);height:34mm;padding:5mm 4mm 3mm;display:flex;flex-direction:column;justify-content:space-between;align-items:center}
+.tile small{align-self:flex-start;font-style:italic;font-size:6.6pt;color:var(--gris)}
+.tile.b{background:var(--bleu);border-color:var(--bleu)}
+.tile.b small{color:rgba(255,255,255,.8)}
+.tile.m{background:var(--brume);border-color:var(--brume)}
+.tile.a{background:var(--ardoise);border-color:var(--ardoise)}
+.tile.a small{color:rgba(255,255,255,.75)}
+
+/* Interdits */
+.bad{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm 5mm}
+.bad div{height:26mm;border:.3mm solid var(--trait);display:flex;align-items:center;justify-content:center;position:relative}
+.bad small{display:block;font-size:6.6pt;color:var(--gris);margin-top:1.4mm}
+.bad svg.x{position:absolute;right:2mm;bottom:2mm;width:3.4mm;height:3.4mm}
+
+/* Palette */
+.bar{display:flex;height:4mm;margin-bottom:1.6mm}
+.bar span{display:block}
+.legend{display:flex;font-size:6.8pt;font-style:italic;line-height:1.3}
+.legend span{padding-right:2mm}
+.legend b{display:block;font-style:normal}
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:7mm;margin-top:9mm}
+.chip{display:flex;gap:2.4mm;align-items:flex-start;margin:0 0 3mm}
+.chip i{width:4.6mm;height:4.6mm;border-radius:50%;flex:none;border:.25mm solid var(--trait)}
+.chip b{display:block;font-size:7pt}
+.chip span{display:block;font-size:6.8pt;color:var(--gris)}
+.chips p{font-size:7pt;color:#3A4252}
+.state{display:flex;gap:6mm;margin-top:2mm}
+.state div{display:flex;align-items:center;gap:1.6mm;font-size:7pt}
+.state i{display:block;width:3.4mm;height:3.4mm;border-radius:50%}
+
+/* Typographie */
+.spec{padding:6mm;border-radius:2.4mm}
+.spec.b{background:var(--bleu);color:#fff}
+.spec.m{background:var(--brume)}
+.spec h3{font-size:8.6pt;margin-bottom:3mm}
+.spec .aa{font-size:14pt;line-height:1.35}
+.spec .dg{letter-spacing:.18em;margin-top:2mm;font-size:11pt}
+.spec small{display:block;margin-top:3mm;font-size:6.8pt;opacity:.85}
+table{border-collapse:collapse;width:100%}
+td{padding:1.6mm 0;border-bottom:.25mm solid var(--trait);vertical-align:top;font-size:7.4pt}
+td:first-child{width:32%;font-weight:600}
+
+/* Applications */
+.apps{display:flex;gap:7mm;align-items:flex-end}
+.app .cap{margin-top:3mm}
+.phone{width:58mm;height:112mm;border-radius:7mm;background:#161A22;border:1.4mm solid #0A0C10;padding:4mm 3.6mm}
+.phone .t{color:#E5E9F0;font-family:"Atkinson";font-size:7pt;text-align:center;margin-bottom:6mm}
+.phone .row{display:flex;margin-bottom:4mm}
+.ic{width:25%;display:flex;flex-direction:column;align-items:center;gap:1mm;font-family:"Atkinson";font-size:5pt;color:#E5E9F0}
+.ic i{display:block;width:9.4mm;height:9.4mm;border-radius:2.4mm;background:#2C3240}
+.ic img{width:9.4mm;height:9.4mm}
+.login{width:72mm;height:112mm;background:var(--brume);border-radius:3mm;padding:9mm 6mm;font-family:"Atkinson"}
+.login .card{background:#fff;border-radius:2.6mm;padding:6mm 5mm}
+.login .t1{font-weight:700;font-size:10pt;margin:5mm 0 0}
+.login .t2{font-size:6.8pt;color:var(--gris);margin-bottom:4mm}
+.login label{display:block;font-size:6.4pt;font-weight:700;margin-bottom:1mm}
+.login .f{height:7mm;border:.3mm solid #C8D0DD;border-radius:1.6mm;margin-bottom:3mm;font-size:6.6pt;padding:1.6mm 2mm;color:var(--gris)}
+.login .btn{background:var(--bleu);color:#fff;border-radius:1.6mm;text-align:center;font-weight:700;font-size:7pt;padding:2mm 0;margin-top:1mm}
+.login .lk{font-size:6.4pt;color:var(--bleu);text-align:center;margin-top:3mm;font-weight:700}
+.gbar{width:60mm;height:112mm;background:var(--bleu);color:#fff;padding:6mm 3mm;font-family:"Atkinson";border-radius:3mm}
+.gbar .school{background:rgba(255,255,255,.1);border-radius:1.8mm;padding:2mm 2.6mm;font-size:6.8pt;margin:6mm 0 4mm}
+.gbar .mi{display:block;padding:2mm 3mm;border-radius:1.8mm;font-size:7pt;color:rgba(255,255,255,.82);position:relative;margin-bottom:.6mm}
+.gbar .mi.on{background:rgba(255,255,255,.12);color:#fff;font-weight:700}
+.gbar .mi.on::before{content:"";position:absolute;left:0;top:1.8mm;bottom:1.8mm;width:.9mm;border-radius:.5mm;background:var(--soleil)}
+.tab{display:flex;align-items:center;gap:2mm;background:#EEF1F6;border-radius:2mm 2mm 0 0;padding:2mm 3.4mm;font-family:"Atkinson";font-size:7pt;white-space:nowrap}
+.tab img{width:4mm;height:4mm}
+.bcard{width:85mm;height:55mm;background:#fff;border:.25mm solid var(--trait);padding:6mm;display:flex;flex-direction:column;justify-content:space-between}
+.bcard .row{display:flex;justify-content:space-between;align-items:flex-end}
+.bcard b{display:block;font-size:8pt;color:var(--bleu)}
+.bcard span{font-size:6.4pt;color:var(--gris);line-height:1.45}
+.bcard.back{background:var(--bleu);border-color:var(--bleu);align-items:center;justify-content:center}
+.invoice{width:96mm;height:136mm;border:.25mm solid var(--trait);padding:8mm 7mm;font-size:5.6pt;line-height:1.45;position:relative}
+.invoice .hd{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:.8mm solid var(--bleu);padding-bottom:3mm;margin-bottom:4mm}
+.invoice h4{margin:0;font-size:10pt;font-weight:700;letter-spacing:.04em;text-align:right;color:var(--bleu)}
+.invoice .ref{text-align:right;color:var(--gris)}
+.invoice .two{display:flex;justify-content:space-between;margin-bottom:5mm}
+.invoice .two b{display:block;font-size:6pt}
+.invoice table td{font-size:5.6pt;padding:1.4mm 0;font-weight:400;width:auto}
+.invoice table th{font-size:5.4pt;text-align:left;color:var(--gris);font-weight:600;border-bottom:.4mm solid var(--ardoise);padding:1mm 0}
+.invoice .r{text-align:right}
+.invoice .tot td{font-weight:700;font-size:7pt;border-bottom:none;color:var(--bleu)}
+.invoice .ft{position:absolute;left:7mm;right:7mm;bottom:7mm;border-top:.25mm solid var(--trait);padding-top:2mm;color:var(--gris);display:flex;justify-content:space-between}
+.mail{border-left:.8mm solid var(--soleil);padding:1mm 0 1mm 4mm;font-size:6.8pt;line-height:1.5}
+.mail b{display:block;font-size:7.6pt}
+.post{width:50mm;height:50mm;position:relative;overflow:hidden}
+.post.b{background:var(--bleu);color:#fff;padding:6mm}
+.post.m{background:var(--brume);padding:6mm}
+.post .big{font-size:12.5pt;font-weight:700;line-height:1.15}
+.post .lg{position:absolute;left:6mm;bottom:5mm;height:4.6mm}
+.post.ph{background:var(--brume)}
+.post.ph .win{position:absolute;left:5mm;right:5mm;top:5mm;bottom:13mm;border-radius:21mm 21mm 0 0;overflow:hidden}
+.post.ph .win img{width:100%;height:100%;object-fit:cover}
+.post.ph .lg{left:5mm;bottom:4.4mm}
+.avatar{width:22mm;height:22mm;border-radius:50%;background:var(--bleu);display:flex;align-items:center;justify-content:center}
+.kake{width:42mm;height:100mm;background:var(--bleu);color:#fff;position:relative;border:.25mm solid var(--trait)}
+.kake .top{padding:8mm 5mm 0}
+.kake .tg{font-size:11pt;font-weight:700;line-height:1.15;margin-top:9mm}
+.kake ul{margin-top:5mm}
+.kake li{font-size:6.4pt;padding-left:3mm}
+.kake li::before{background:var(--soleil);top:1.3mm;width:1.2mm;height:1.2mm}
+.kake .bt{position:absolute;left:0;right:0;bottom:0;height:20mm;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4mm;color:var(--bleu);font-size:6.2pt;font-weight:600}
+.kake .bt img{width:8mm;height:8mm}
+</style>
+</head>
+<body>
+
+<!-- Couverture -->
+<section class="page cover">
+  <div class="meta"><b>MWANGAZA</b>Livre de marque<br><br>Octobre 2026<br>par DTMS</div>
+  <img class="big" src="../../maquettes/assets/logo/mwangaza-logotype.svg" alt="mwangaza">
+</section>
+
+<!-- 01 Table de contenu -->
+<section class="page blue">
+  <span class="n">01</span>
+  <div class="toc">
+    <h2><span class="sun"></span>Table de contenu</h2>
+    <a href="#fondation">Fondation stratégique<span></span>03</a>
+    <a href="#concept">Concept créatif<span></span>04</a>
+    <a href="#identite">Identité visuelle<span></span>05</a>
+    <a href="#construction">Construction du logo<span></span>06</a>
+    <a href="#versions">Versions du logo &amp; éléments<span></span>07</a>
+    <a href="#interdits">Bonnes pratiques &amp; interdits<span></span>08</a>
+    <a href="#palette">Système visuel : couleurs<span></span>09</a>
+    <a href="#typo">Typographie &amp; mise en page<span></span>10</a>
+    <a href="#photo">Photographie &amp; iconographie<span></span>11</a>
+    <a href="#applications">Applications de marque<span></span>12</a>
+  </div>
+</section>
+
+<!-- 02 Manifeste -->
+<section class="page">
+  <span class="n">02</span>
+  <div style="position:absolute;left:126mm;top:58mm;width:116mm">
+    <p><em>Mwangaza</em> veut dire « lumière » en swahili. La plateforme est née à Goma d'une conviction simple : une école bien tenue est une école où chacun voit clair — le préfet sur ses classes, le comptable sur chaque franc, le parent sur le parcours de son enfant.</p>
+    <p>Mwangaza réunit en un seul endroit ce que les écoles de la République démocratique du Congo tiennent encore dans des cahiers : les inscriptions, la caisse et les reçus, les notes et les bulletins, les messages aux parents. Elle marche même quand internet coupe, et chaque école y garde ses propres règles, ses frais et son nom.</p>
+  </div>
+  <div class="foot">Mettre l'école en pleine lumière : des comptes justes, des bulletins à l'heure, des parents informés.<span class="sun"></span></div>
+</section>
+
+<!-- 03 Fondation stratégique -->
+<section class="page" id="fondation">
+  <span class="n">03</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Fondation stratégique</h2>
+  <div class="grid" style="grid-template-columns:1fr 1fr 1.1fr;margin-top:14mm">
+    <div>
+      <h3>Positionnement</h3>
+      <p>Mwangaza est la plateforme de gestion scolaire pensée pour les écoles de la RDC. Elle part de leur réalité : des frais en dollars et en francs, payés par tranches ; les bulletins du programme national ; le courant et internet qui coupent ; le téléphone comme premier écran des parents.</p>
+      <p>Son ambition dépasse le logiciel : rendre la gestion de l'école lisible et digne de confiance pour tous ceux qui y ont part — promoteur, préfet, comptable, enseignant, parent.</p>
+    </div>
+    <div>
+      <h3>Personnalité de marque</h3>
+      <p>Sérieuse, proche et claire. Mwangaza a la rigueur d'un bon comptable et la patience d'un bon enseignant. Fière d'être née à Goma, moderne sans suivre la mode, elle ne promet que ce qu'elle tient.</p>
+      <h3 style="margin-top:6mm">Valeurs</h3>
+      <ul>
+        <li><b>Clarté</b> — chaque chiffre se lit et se vérifie.</li>
+        <li><b>Confiance</b> — un paiement ne s'efface jamais ; chaque geste laisse une trace.</li>
+        <li><b>Proximité</b> — pensée à Goma, avec les écoles, dans leur langue.</li>
+        <li><b>Fiabilité</b> — elle marche sans internet, sur un petit téléphone.</li>
+        <li><b>Respect</b> — des données de chaque école, des élèves et des familles.</li>
+      </ul>
+    </div>
+    <div>
+      <div style="border-top:.4mm solid var(--soleil);width:26mm;margin:0 0 4mm"></div>
+      <h3>Ton</h3>
+      <p>Simple, poli et précis. Des phrases courtes, en français courant ; on dit ce qui se passe et ce qu'il faut faire. Ni banque ni start-up : pas de jargon, pas de superlatifs, pas de point d'exclamation. Les montants, les dates et les noms s'écrivent en entier.</p>
+      <table style="margin-top:3mm">
+        <tr><td style="width:50%;font-weight:600">On écrit</td><td style="font-weight:600;color:var(--pale)">On n'écrit pas</td></tr>
+        <tr><td style="font-weight:400">Paiement enregistré. Reçu n° GOM-000124.</td><td style="color:var(--pale)">Transaction effectuée avec succès !</td></tr>
+        <tr><td style="font-weight:400">Pas d'internet : le reçu est gardé et partira au retour du réseau.</td><td style="color:var(--pale)">Erreur réseau (code 503).</td></tr>
+        <tr><td style="font-weight:400">Il reste 45,00 USD à payer sur la 2<sup>e</sup> tranche.</td><td style="color:var(--pale)">Solde débiteur détecté.</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><b>Vision</b><br>Que chaque école du Congo, grande ou petite, se gère avec la même clarté que les meilleures, et que chaque parent sache où en est son enfant.<span class="sun"></span></div>
+</section>
+
+<!-- 04 Concept créatif -->
+<section class="page" id="concept">
+  <span class="n">04</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Concept créatif</h2>
+  <div class="grid" style="grid-template-columns:96mm 96mm;column-gap:12mm;margin-top:14mm">
+    <div>
+      <h3>Concept central : le lever du jour</h3>
+      <p>Le symbole montre un m dont les deux arches laissent se lever le soleil. Les arches sont les collines qui entourent Goma et le lac Kivu, deux mains ouvertes, la porte d'une classe ; le soleil est la lumière du nom, le savoir qui se lève chaque matin avec la rentrée des élèves.</p>
+      <p>Le système visuel prolonge cette idée avec peu de moyens : un bleu profond, beaucoup de blanc, un seul point de lumière. Le symbole n'est pas toute l'identité ; il lui donne un sens et un signe, reconnaissable sur l'écran d'un téléphone comme sur une affiche.</p>
+    </div>
+    <div>
+      <h3>Inspirations &amp; références</h3>
+      <p>L'univers visuel s'inspire de :</p>
+      <ul>
+        <li>la salle de classe congolaise : l'ardoise, la craie, l'uniforme bleu et blanc ;</li>
+        <li>le lac Kivu au petit matin et les collines autour de Goma ;</li>
+        <li>la grille et la rigueur du Swiss Design ;</li>
+        <li>les grandes marques d'ici qui possèdent une couleur : Orange, Rawbank, Equity BCDC ;</li>
+        <li>la clarté des grands logiciels : GitHub, PowerSchool.</li>
+      </ul>
+      <p style="margin-top:3mm">Ces références nourrissent la réflexion ; Mwangaza en tire sa propre logique, sans les copier.</p>
+    </div>
+  </div>
+  <div style="position:absolute;right:16mm;top:92mm;width:34mm;height:92mm;background:var(--bleu)"></div>
+  <div style="position:absolute;right:28.5mm;top:80mm;width:9mm;height:9mm;border-radius:50%;background:var(--soleil)"></div>
+</section>
+
+<!-- 05 Identité visuelle -->
+<section class="page" id="identite">
+  <span class="n">05</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Identité visuelle</h2>
+  <h3>Construction du logo et du symbole</h3>
+  <p style="width:150mm">L'identité associe deux éléments : le symbole et le logotype. Le logotype donne la clarté — le nom en minuscules, en Poppins SemiBold, aux lettres légèrement serrées, sans majuscule pour rester proche. Le symbole donne le sens et l'impact ; il porte seul la marque sur l'icône du téléphone et dans l'onglet du navigateur.</p>
+  <div class="grid" style="grid-template-columns:150mm 1fr;column-gap:14mm;margin-top:8mm">
+    <div><h3>Logo principal <i>(symbole et logotype)</i></h3><p>La version à utiliser par défaut : barres des applications, site, documents de la plateforme, cartes de visite. Le symbole se place toujours à gauche du nom, centré sur sa ligne.</p></div>
+    <div><h3>Le logotype seul</h3><p>Sans le symbole, le soleil se pose au-dessus du premier m. Ce point garde la signature de la marque sur les formats étroits, les signatures d'e-mail et les mises en page épurées.</p></div>
+  </div>
+  <div class="trio">
+    <div><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:21mm" alt=""><div class="cap">Icône</div></div>
+    <div><img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:18.3mm" alt=""><div class="cap">Icône + logotype</div></div>
+    <div style="margin-left:6mm"><img src="../../maquettes/assets/logo/mwangaza-logotype.svg" style="height:17mm" alt=""><div class="cap">Logotype seul</div></div>
+  </div>
+  <div class="foot">Le système s'adapte au format — symbole seul, logo complet ou logotype — sans jamais changer ses éléments.<span class="sun"></span></div>
+</section>
+
+<!-- 06 Construction -->
+<section class="page" id="construction">
+  <span class="n">06</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Construction du logo</h2>
+  <div class="grid" style="grid-template-columns:76mm 1fr;column-gap:14mm">
+    <div>
+      <svg viewBox="-6 -6 76 76" width="76mm" height="76mm" role="img" aria-label="Construction du symbole sur une grille de 64">
+        <path stroke="#C9D2E3" stroke-width=".25" fill="none" d="M0 0V64M8 0V64M16 0V64M24 0V64M32 0V64M40 0V64M48 0V64M56 0V64M64 0V64M0 0H64M0 8H64M0 16H64M0 24H64M0 32H64M0 40H64M0 48H64M0 56H64M0 64H64"/>
+        <g opacity=".92">
+          <path fill="#1A2F80" d="M18 0H46A18 18 0 0 1 64 18V46A18 18 0 0 1 46 64H18A18 18 0 0 1 0 46V18A18 18 0 0 1 18 0Z"/>
+          <path fill="#FFFFFF" d="M10 54V34A13 13 0 0 1 32 24.62A13 13 0 0 1 54 34V54H46V34A5 5 0 0 0 36 34V54H28V34A5 5 0 0 0 18 34V54Z"/>
+          <circle fill="#FFA81E" cx="32" cy="14.5" r="5.5"/>
+        </g>
+        <g fill="none" stroke="#E5484D" stroke-width=".35" stroke-dasharray="1.2 1">
+          <circle cx="23" cy="34" r="13"/><circle cx="41" cy="34" r="13"/><circle cx="23" cy="34" r="5"/><circle cx="41" cy="34" r="5"/><circle cx="32" cy="14.5" r="7.5"/>
+          <path d="M10 -4V68M54 -4V68M-4 54H68M-4 34H68"/>
+        </g>
+      </svg>
+      <div class="cap">Le symbole sur sa grille de 64. En pointillés : les arches, l'axe des centres, les marges.</div>
+    </div>
+    <div>
+      <h3>Une grille de 64</h3>
+      <p>Le carré arrondi (rayon 18) porte un m tracé d'un trait de 8 : deux arches de même rayon (13 à l'extérieur, 5 à l'intérieur), trois jambages droits. Le soleil (diamètre 11) se pose au-dessus du creux des arches, sur l'axe du symbole, avec 2 d'air tout autour. Marges de 10 à gauche, à droite et en bas : le symbole reste lisible de 16 px (onglet) à 512 px (icône installée).</p>
+      <h3 style="margin-top:7mm">Proportions du logo complet</h3>
+      <p>Le symbole mesure 1,2 fois le corps du mot ; l'espace entre les deux vaut 0,22 fois la hauteur du symbole ; le symbole est centré sur la ligne du mot. Le logotype est le mot <em>mwangaza</em> en Poppins SemiBold, approche −3,5 %, converti en tracés : il ne dépend d'aucune police installée.</p>
+      <svg viewBox="-70 -150 900 220" width="160mm" height="39.1mm" style="margin-top:5mm" role="img" aria-label="Proportions du logo complet">
+        <image href="../../maquettes/assets/logo/mwangaza-logo.svg" x="0" y="-95" width="689.5" height="122.3"/>
+        <g stroke="#E5484D" stroke-width="1.6" fill="none">
+          <path d="M-30 -95V25M-38 -95H-22M-38 25H-22"/>
+          <path d="M120 -112H146M120 -120V-104M146 -120V-104"/>
+          <path d="M146 0H700M146 -55.4H700" stroke-dasharray="6 4"/>
+          <path d="M-12 -35H700" stroke-dasharray="2 4"/>
+        </g>
+        <g class="dim">
+          <text x="-62" y="-31">h</text>
+          <text x="104" y="-126">0,22 h</text>
+          <text x="706" y="-51">hauteur d'x</text>
+          <text x="706" y="4">ligne de base</text>
+          <text x="706" y="-31">axe</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 07 Versions -->
+<section class="page" id="versions">
+  <span class="n">07</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Versions du logo<br>&amp; éléments</h2>
+  <div class="grid" style="grid-template-columns:168mm 1fr;column-gap:12mm">
+    <div>
+      <h3>Logo <i>(versions)</i></h3>
+      <div class="tiles">
+        <div class="tile"><img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:6.8mm" alt=""><small>Principal, sur la craie</small></div>
+        <div class="tile b"><img src="../../maquettes/assets/logo/mwangaza-logo-inverse.svg" style="height:6.8mm" alt=""><small>Inversée, sur le bleu uniforme</small></div>
+        <div class="tile m"><img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:6.8mm" alt=""><small>Sur la brume du lac</small></div>
+        <div class="tile"><img src="../../maquettes/assets/logo/mwangaza-logo-mono.svg" style="height:6.8mm" alt=""><small>Une couleur : tampon, photocopie, gravure</small></div>
+        <div class="tile"><img src="../../maquettes/assets/logo/mwangaza-logotype.svg" style="height:6.4mm" alt=""><small>Logotype seul</small></div>
+        <div class="tile b"><img src="../../maquettes/assets/logo/mwangaza-logotype-inverse.svg" style="height:6.4mm" alt=""><small>Logotype seul, inversé</small></div>
+      </div>
+      <h3 style="margin-top:6mm">Icône d'application et favicon</h3>
+      <div style="display:flex;align-items:flex-end;gap:7mm">
+        <img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:20mm" alt="">
+        <img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:8.5mm" alt="">
+        <img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:4.2mm" alt="">
+        <img src="../../maquettes/assets/logo/mwangaza-symbole-inverse.svg" style="height:20mm;border:.25mm solid var(--trait);border-radius:5.6mm" alt="">
+        <div class="tab"><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" alt="">Caisse — Mwangaza</div>
+      </div>
+      <div class="cap">Le symbole est l'icône : 512, 32 et 16 px ; version inversée ; onglet du navigateur.</div>
+    </div>
+    <div>
+      <h3>Éléments graphiques</h3>
+      <div style="display:flex;gap:3mm;align-items:flex-start;margin:4mm 0 2mm"><span class="sun" style="width:6mm;height:6mm;flex:none"></span><p><b>Le soleil.</b> Signature de la marque : repère de l'élément actif, puce, point sur un chiffre à remarquer. Toujours un disque plein, un ou deux par page au plus.</p></div>
+      <div style="display:flex;gap:3mm;align-items:flex-start;margin:4mm 0 2mm"><span style="width:8mm;height:6mm;flex:none;border:1.4mm solid var(--bleu);border-bottom:none;border-radius:4mm 4mm 0 0"></span><p><b>L'arche.</b> Le demi-cercle du m : haut d'un cadre photo, fenêtre d'une affiche. Un seul arrondi, toujours en haut.</p></div>
+      <div style="display:flex;gap:3mm;align-items:flex-start;margin:4mm 0 2mm"><span style="width:8mm;height:2.4mm;flex:none;background:var(--bleu);margin-top:1.4mm"></span><p><b>Le filet.</b> Trait épais, de l'épaisseur des arches : sépare l'en-tête d'un document de son contenu.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 Bonnes pratiques & interdits -->
+<section class="page" id="interdits">
+  <span class="n">08</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Bonnes pratiques<br>&amp; interdits</h2>
+  <div class="grid" style="grid-template-columns:120mm 1fr;column-gap:16mm">
+    <div>
+      <h3>Zone de protection</h3>
+      <p>Autour du logo, un espace vide égal au diamètre du soleil (11 / 64 de la hauteur du symbole). Aucun texte, aucune image, aucun bord de page n'y entre.</p>
+      <svg viewBox="-50 -135 790 202" width="112mm" height="28.6mm" style="margin:3mm 0 7mm" role="img" aria-label="Zone de protection du logo">
+        <image href="../../maquettes/assets/logo/mwangaza-logo.svg" x="0" y="-95" width="689.5" height="122.3"/>
+        <rect x="-20.6" y="-115.6" width="730.7" height="163.5" fill="none" stroke="#E5484D" stroke-width="1.4" stroke-dasharray="6 4"/>
+        <g fill="#FFA81E" opacity=".75"><circle cx="-10.3" cy="-35" r="10.3"/><circle cx="699.8" cy="-35" r="10.3"/><circle cx="60" cy="-105.3" r="10.3"/><circle cx="60" cy="37.6" r="10.3"/></g>
+      </svg>
+      <h3>Tailles minimales</h3>
+      <div style="display:flex;gap:10mm;align-items:flex-end">
+        <div><img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:6.4mm" alt=""><p class="cap" style="font-style:normal;color:var(--ardoise)"><b>Logo complet</b><br>24 px de haut (écran) · 8 mm (impression)</p></div>
+        <div><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:4.2mm" alt=""><p class="cap" style="font-style:normal;color:var(--ardoise)"><b>Icône</b><br>16 px (écran) · 5 mm (impression)</p></div>
+      </div>
+      <p style="font-size:7pt;color:var(--gris)">En dessous de la taille minimale du logo complet, utiliser l'icône seule.</p>
+    </div>
+    <div>
+      <h3>Mauvaises utilisations</h3>
+      <p>Pour garder l'identité intacte, il est interdit de :</p>
+      <div class="bad" style="margin-top:3mm">
+        <div><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:12mm;transform:scaleX(1.6)" alt=""><svg class="x" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#D92D20" stroke-width="1.6"/></svg></div>
+        <div><svg viewBox="0 0 64 64" width="12mm" height="12mm"><path fill="#2E9E5B" d="M18 0H46A18 18 0 0 1 64 18V46A18 18 0 0 1 46 64H18A18 18 0 0 1 0 46V18A18 18 0 0 1 18 0Z"/><path fill="#fff" d="M10 54V34A13 13 0 0 1 32 24.62A13 13 0 0 1 54 34V54H46V34A5 5 0 0 0 36 34V54H28V34A5 5 0 0 0 18 34V54Z"/><circle fill="#D92D20" cx="32" cy="14.5" r="5.5"/></svg><svg class="x" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#D92D20" stroke-width="1.6"/></svg></div>
+        <div><svg viewBox="0 0 64 64" width="12mm" height="12mm"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D3FD9"/><stop offset="1" stop-color="#1A2F80"/></linearGradient></defs><path fill="url(#dg)" d="M18 0H46A18 18 0 0 1 64 18V46A18 18 0 0 1 46 64H18A18 18 0 0 1 0 46V18A18 18 0 0 1 18 0Z"/><path fill="#fff" d="M10 54V34A13 13 0 0 1 32 24.62A13 13 0 0 1 54 34V54H46V34A5 5 0 0 0 36 34V54H28V34A5 5 0 0 0 18 34V54Z"/><circle fill="#FFA81E" cx="32" cy="14.5" r="5.5"/></svg><svg class="x" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#D92D20" stroke-width="1.6"/></svg></div>
+        <div><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:12mm;transform:rotate(-16deg)" alt=""><svg class="x" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#D92D20" stroke-width="1.6"/></svg></div>
+        <div style="gap:2mm"><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:7mm" alt=""><span class="atk" style="font-weight:700;font-size:11pt;color:var(--bleu)">MWANGAZA</span><svg class="x" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#D92D20" stroke-width="1.6"/></svg></div>
+        <div style="background:var(--brume)"><img src="../../maquettes/assets/logo/mwangaza-logo-inverse.svg" style="height:6mm" alt=""><svg class="x" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#D92D20" stroke-width="1.6"/></svg></div>
+      </div>
+      <div class="bad" style="margin-top:1mm">
+        <small>Déformer le logo ou changer ses proportions</small>
+        <small>Changer ses couleurs</small>
+        <small>Ajouter un effet : dégradé, ombre, texture</small>
+        <small>Le faire pivoter</small>
+        <small>Recomposer le nom dans une autre police</small>
+        <small>Le poser sur un fond sans contraste</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 Palette -->
+<section class="page" id="palette">
+  <span class="n">09</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Système visuel</h2>
+  <div class="grid" style="grid-template-columns:96mm 1fr;column-gap:16mm">
+    <div>
+      <h3>Palette de couleurs</h3>
+      <p>Les couleurs viennent de la salle de classe. L'ardoise et la craie du tableau portent le texte et la respiration ; le bleu de l'uniforme est le fondement de la marque, profond et institutionnel. La brume du lac Kivu adoucit les surfaces. Le soleil levant, rare, réveille l'ensemble : c'est la lumière du nom.</p>
+      <p>Le blanc domine toujours. Jamais de jaune ni de beige en grande surface, jamais de dégradé.</p>
+    </div>
+    <div style="padding-top:6mm">
+      <div class="bar"><span style="width:52%;background:#fff;border:.25mm solid var(--trait)"></span><span style="width:8%;background:var(--ardoise)"></span><span style="width:22%;background:var(--bleu)"></span><span style="width:13%;background:var(--brume)"></span><span style="width:5%;background:var(--soleil)"></span></div>
+      <div class="legend"><span style="width:60%">Couleurs neutres<b>(60 %)</b></span><span style="width:22%">Ancrage<b>(22 %)</b></span><span style="width:13%">Appoint<b>(13 %)</b></span><span style="width:5%;padding:0">Accent<b>(5 %)</b></span></div>
+    </div>
+  </div>
+  <div class="chips">
+    <div><h3>Couleurs neutres <i>(60 %)</i></h3>
+      <div class="chip"><i style="background:#FFFFFF"></i><div><b>Craie</b><span>HEX #FFFFFF · RVB 255 255 255</span></div></div>
+      <div class="chip"><i style="background:#111418;border-color:#111418"></i><div><b>Ardoise</b><span>HEX #111418 · RVB 17 20 24</span></div></div>
+      <p>La craie est le fond de chaque page ; l'ardoise, le texte et la version une couleur.</p></div>
+    <div><h3>Ancrage <i>(22 %)</i></h3>
+      <div class="chip"><i style="background:#1A2F80;border-color:#1A2F80"></i><div><b>Bleu uniforme</b><span>HEX #1A2F80 · RVB 26 47 128</span></div></div>
+      <p>Barres des applications, en-têtes, boutons principaux, grands blocs. Le texte blanc y garde un contraste de 11,9 : 1.</p></div>
+    <div><h3>Appoint <i>(13 %)</i></h3>
+      <div class="chip"><i style="background:#E2EAF7;border-color:#E2EAF7"></i><div><b>Brume du lac</b><span>HEX #E2EAF7 · RVB 226 234 247</span></div></div>
+      <p>Fonds de cartes, lignes choisies, encadrés : de la fraîcheur sans jaune ni beige.</p></div>
+    <div><h3>Accent <i>(5 % au plus)</i></h3>
+      <div class="chip"><i style="background:#FFA81E;border-color:#FFA81E"></i><div><b>Soleil levant</b><span>HEX #FFA81E · RVB 255 168 30</span></div></div>
+      <p>Le soleil du symbole, le repère de l'élément actif, un chiffre à remarquer. Jamais en grande surface, jamais en texte sur la craie (1,9 : 1).</p></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr;column-gap:16mm;margin-top:4mm">
+    <div>
+      <h3>Couleurs d'information <i>(écrans et documents)</i></h3>
+      <div class="state"><div><i style="background:#127A48"></i>Payé, à jour</div><div><i style="background:#985A06"></i>À surveiller</div><div><i style="background:#B42318"></i>En retard, dû</div></div>
+      <p style="margin-top:2mm;font-size:7pt;color:#3A4252">Elles informent et ne décorent jamais ; toujours avec un mot ou une icône, jamais la couleur seule.</p>
+    </div>
+    <div>
+      <h3>Contrastes vérifiés <i>(WCAG)</i></h3>
+      <p style="font-size:7pt;color:#3A4252">Craie sur bleu uniforme 11,9 : 1 · bleu uniforme sur brume 9,8 : 1 · ardoise sur brume 15,3 : 1 · soleil levant sur bleu uniforme 6,2 : 1. Pour l'impression, demander à l'imprimeur la quadrichromie la plus proche, sur épreuve papier, avant tout tirage.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 Typographie et mise en page -->
+<section class="page" id="typo">
+  <span class="n">10</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Typographie<br>&amp; mise en page</h2>
+  <div class="grid" style="grid-template-columns:1fr 1fr 1fr;column-gap:9mm">
+    <div>
+      <h3>Typographie</h3>
+      <p>Deux familles libres (licence OFL), installées avec les applications pour marcher sans internet. Poppins, géométrique et stable, porte la marque : le logotype, les titres, les documents de la plateforme. Atkinson Hyperlegible Next, dessinée pour la lisibilité, porte le texte des écrans, les montants et les tableaux.</p>
+      <table style="margin-top:3mm">
+        <tr><td>Titre de document</td><td>Poppins Bold, capitales, 18 à 28 pt</td></tr>
+        <tr><td>Titre de section</td><td>Poppins SemiBold, 9 à 14 pt</td></tr>
+        <tr><td>Texte de document</td><td>Poppins Regular, 8 à 10 pt</td></tr>
+        <tr><td>Texte des écrans</td><td class="atk">Atkinson Hyperlegible Next, 16 px</td></tr>
+        <tr><td>Montants</td><td class="atk">Atkinson, chiffres alignés : 1 250,00 USD</td></tr>
+      </table>
+    </div>
+    <div>
+      <div class="spec b"><h3>Poppins</h3><div class="aa">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz</div><div class="dg">0123456789</div><small>400 · 600 · 700 — logotype, titres, documents</small></div>
+      <div class="spec m atk" style="margin-top:4mm"><h3>Atkinson Hyperlegible Next</h3><div class="aa">Aa Bb Cc Dd Ee Ff Gg Hh Ii Jj Kk Ll Mm Nn Oo Pp Qq Rr Ss Tt Uu Vv Ww Xx Yy Zz</div><div class="dg">0123456789</div><small>400 · 700 — texte des écrans, montants, tableaux</small></div>
+    </div>
+    <div>
+      <h3>Mise en page</h3>
+      <p>Une grille stricte et beaucoup de blanc. Le texte s'aligne à gauche ; un titre en capitales ouvre chaque page ; une seule couleur forte par page. L'espace vide compte autant que le contenu.</p>
+      <svg viewBox="0 0 297 210" width="100%" height="53mm" style="margin-top:2mm" role="img" aria-label="Grille de 12 colonnes sur une page A4">
+        <rect width="297" height="210" fill="#fff" stroke="#DDE2EC" stroke-width="1"/>
+        <g fill="#E2EAF7"><rect x="16" y="14" width="17.6" height="184"/><rect x="38.6" y="14" width="17.6" height="184"/><rect x="61.2" y="14" width="17.6" height="184"/><rect x="83.8" y="14" width="17.6" height="184"/><rect x="106.4" y="14" width="17.6" height="184"/><rect x="129" y="14" width="17.6" height="184"/><rect x="151.6" y="14" width="17.6" height="184"/><rect x="174.2" y="14" width="17.6" height="184"/><rect x="196.8" y="14" width="17.6" height="184"/><rect x="219.4" y="14" width="17.6" height="184"/><rect x="242" y="14" width="17.6" height="184"/><rect x="264.6" y="14" width="17.6" height="184"/></g>
+        <rect x="16" y="22" width="85" height="10" fill="#111418"/>
+        <rect x="16" y="56" width="63" height="4" fill="#5B6475"/><rect x="16" y="64" width="63" height="4" fill="#5B6475"/><rect x="16" y="72" width="45" height="4" fill="#5B6475"/>
+        <rect x="106.4" y="56" width="85.4" height="96" fill="#1A2F80"/>
+        <circle cx="264" cy="186" r="4" fill="#FFA81E"/>
+      </svg>
+      <p class="cap">A4 paysage : 12 colonnes, marges de 16 mm, gouttières de 5 mm. Écrans : 4 colonnes au téléphone, 12 à l'ordinateur.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 11 Photographie et iconographie -->
+<section class="page" id="photo">
+  <span class="n">11</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Photographie<br>&amp; iconographie</h2>
+  <div class="grid" style="grid-template-columns:118mm 1fr;column-gap:14mm">
+    <div>
+      <div style="position:relative;width:118mm;height:78.7mm"><img src="../../maquettes/assets/photos/goma-lac-kivu.jpg" style="width:118mm;height:78.7mm;object-fit:cover" alt="Goma et le lac Kivu">
+      <div style="position:absolute;left:4mm;bottom:4mm;display:flex;align-items:center;gap:2mm;color:#fff;font-size:6.6pt;font-weight:600;line-height:1.25"><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" style="height:7mm" alt=""><span style="white-space:nowrap">Goma, lac Kivu<br>2026</span></div></div>
+      <div class="cap">Signature photo : l'icône, le lieu et l'année, en bas à gauche.</div>
+    </div>
+    <div>
+      <h3>Style photographique</h3>
+      <p>La photographie montre la vraie vie des écoles du Congo, en lumière naturelle.</p>
+      <ul>
+        <li>Des gestes plutôt que des poses : une main qui écrit, un reçu tendu, un cahier ouvert, un atelier.</li>
+        <li>L'uniforme bleu et blanc quand il y a des élèves, de dos ou de loin ; aucun visage d'enfant en gros plan sans l'accord écrit des parents et de l'école.</li>
+        <li>Pas de filtre, pas de dégradé posé sur l'image, pas d'image générée ni de photo de banque d'images étrangère.</li>
+        <li>Une licence qui permet l'usage commercial, et le crédit de l'auteur.</li>
+      </ul>
+      <h3 style="margin-top:6mm">Iconographie</h3>
+      <p>Les icônes des applications sont dessinées pour Mwangaza sur une grille de 24 : trait de 1,8, bouts et angles arrondis, comme les arches du symbole. Une icône accompagne un mot ; elle ne le remplace pas.</p>
+      <div style="display:flex;gap:5mm;margin-top:3mm">
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.4.2 4.2 1.9 5 4.9"/></svg>
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v5M18 9.5v5"/></svg>
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7.5h14a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M4 7.5 15 4v3.5M15.5 13.5h2"/></svg>
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9 12 4l10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg>
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>
+        <svg viewBox="0 0 24 24" width="9mm" height="9mm" fill="none" stroke="#1A2F80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5-2.7M14.5 10.4a10 10 0 0 1 4.5 2.5M2 9.3a15 15 0 0 1 4.3-2.6M11 5.1A15 15 0 0 1 22 9.3"/><path d="M12 20h.01"/></svg>
+      </div>
+      <div class="cap">Élèves, caisse, portefeuille, calendrier, école, impression, hors ligne.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 Applications : écrans -->
+<section class="page" id="applications">
+  <span class="n">12</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Applications de marque</h2>
+  <div class="apps">
+    <div class="app">
+      <div class="phone">
+        <div class="t">08:15</div>
+        <div class="row"><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div></div>
+        <div class="row"><div class="ic"><i></i></div><div class="ic"><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" alt="">Mwangaza</div><div class="ic"><i></i></div><div class="ic"><i></i></div></div>
+        <div class="row"><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div></div>
+        <div class="row"><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div><div class="ic"><i></i></div></div>
+      </div>
+      <div class="cap">Icône sur l'écran d'accueil du téléphone</div>
+    </div>
+    <div class="app">
+      <div class="login">
+        <div class="card">
+          <img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:6.4mm" alt="">
+          <p class="t1">Connexion</p>
+          <p class="t2">Institut Les Volcans · Gestion</p>
+          <label>Numéro de compte</label><div class="f">0000001001</div>
+          <label>Mot de passe</label><div class="f">••••••••</div>
+          <div class="btn">Se connecter</div>
+          <div class="lk">Mot de passe oublié ?</div>
+        </div>
+      </div>
+      <div class="cap">Écran de connexion</div>
+    </div>
+    <div class="app">
+      <div class="gbar">
+        <img src="../../maquettes/assets/logo/mwangaza-logo-inverse.svg" style="height:6mm;margin-left:2mm" alt="">
+        <div class="school">Institut Les Volcans</div>
+        <span class="mi on">Tableau de bord</span><span class="mi">Élèves</span><span class="mi">Caisse</span><span class="mi">Notes</span><span class="mi">Bulletins</span><span class="mi">Messages</span>
+      </div>
+      <div class="cap">Barre de l'application Gestion</div>
+    </div>
+    <div class="app" style="flex:1">
+      <div class="tab"><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" alt="">Caisse — Mwangaza</div>
+      <div style="height:.25mm;background:var(--trait)"></div>
+      <div class="cap">Onglet du navigateur : le symbole en favicon</div>
+      <p style="margin-top:10mm;font-size:7.4pt">Dans les applications, la marque reste discrète : le logo dans la barre et à la connexion, le bleu uniforme pour les actions principales, le soleil pour l'élément actif. Le reste de l'écran appartient à l'école — son nom, son logo, ses documents.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 13 Applications : documents -->
+<section class="page">
+  <span class="n">13</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Applications de marque</h2>
+  <div class="apps" style="gap:12mm">
+    <div class="app">
+      <div class="invoice">
+        <div class="hd">
+          <img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:6.4mm" alt="">
+          <div><h4>FACTURE</h4><div class="ref">N° MWZ-2026-0042<br>Goma, le 2 novembre 2026</div></div>
+        </div>
+        <div class="two">
+          <div><b>De</b>Mwangaza<br>Goma, Nord-Kivu, RDC<br>mwangazaschool.com</div>
+          <div style="text-align:right"><b>À</b>Institut Les Volcans<br>Quartier Himbi, Goma<br>Code école : volcans</div>
+        </div>
+        <table>
+          <tr><th>Désignation</th><th class="r">Qté</th><th class="r">Prix</th><th class="r">Montant</th></tr>
+          <tr><td>Abonnement annuel 2026-2027</td><td class="r">150</td><td class="r">2,00 USD</td><td class="r">300,00 USD</td></tr>
+          <tr><td>Formation de l'équipe (une journée)</td><td class="r">1</td><td class="r">50,00 USD</td><td class="r">50,00 USD</td></tr>
+          <tr class="tot"><td colspan="3">Total à payer</td><td class="r">350,00 USD</td></tr>
+        </table>
+        <p style="margin-top:4mm">Arrêtée la présente facture à la somme de trois cent cinquante dollars américains.</p>
+        <p style="color:var(--gris)">À payer avant le 30 novembre 2026, par Mobile Money ou virement.</p>
+        <div class="ft"><span>Mwangaza · mwangazaschool.com</span><span>Page 1 / 1</span></div>
+      </div>
+      <div class="cap">Facture de la plateforme (exemple, montants fictifs)</div>
+    </div>
+    <div class="app">
+      <div class="bcard">
+        <img src="../../maquettes/assets/logo/mwangaza-logo.svg" style="height:6.4mm;align-self:flex-start" alt="">
+        <div class="row"><div><b>Amani Bahati</b><span>Conseillère des écoles</span></div><div style="text-align:right"><span>+243 000 000 000<br>amani@mwangazaschool.com<br>mwangazaschool.com</span></div></div>
+      </div>
+      <div class="bcard back" style="margin-top:5mm"><img src="../../maquettes/assets/logo/mwangaza-logotype-inverse.svg" style="height:9mm" alt=""></div>
+      <div class="cap">Carte de visite, recto et verso (85 × 55 mm, taille réelle)</div>
+    </div>
+    <div class="app" style="flex:1;align-self:flex-start">
+      <h3>Signature d'e-mail</h3>
+      <div class="mail" style="margin-top:3mm"><b>Amani Bahati</b>Conseillère des écoles<br>+243 000 000 000<br><img src="../../maquettes/assets/logo/mwangaza-logotype.svg" style="height:4.4mm;margin-top:2.4mm" alt=""></div>
+      <p style="margin-top:9mm;font-size:7.4pt">Les documents de la plateforme (facture, contrat, guide) portent le logo complet en haut à gauche et le filet bleu sous l'en-tête. Les documents d'une école — reçu, bulletin, circulaire — portent l'identité de l'école, jamais celle de Mwangaza.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 14 Applications : communication -->
+<section class="page">
+  <span class="n">14</span>
+  <p class="eyebrow">MWANGAZA</p>
+  <h2>Applications de marque</h2>
+  <div class="apps" style="gap:9mm">
+    <div class="app">
+      <div style="display:flex;align-items:center;gap:4mm;margin-bottom:5mm">
+        <div class="avatar"><img src="../../maquettes/assets/logo/mwangaza-symbole-inverse.svg" style="height:13mm" alt=""></div>
+        <div style="font-size:7pt;line-height:1.4"><b>Mwangaza</b><br>Gestion scolaire · Goma, RDC<br>mwangazaschool.com</div>
+      </div>
+      <div style="display:flex;gap:4mm">
+        <div class="post b"><div class="big">La caisse marche, même sans internet.</div><img class="lg" src="../../maquettes/assets/logo/mwangaza-logo-inverse.svg" alt=""></div>
+        <div class="post ph"><div class="win"><img src="../../maquettes/assets/photos/goma-lac-kivu.jpg" alt=""></div><img class="lg" src="../../maquettes/assets/logo/mwangaza-logo.svg" alt=""></div>
+        <div class="post m"><div class="big" style="color:var(--bleu)">Les bulletins prêts dès la fin de la période.</div><span class="sun" style="position:absolute;right:6mm;top:6mm"></span><img class="lg" src="../../maquettes/assets/logo/mwangaza-logo.svg" alt=""></div>
+      </div>
+      <div class="cap">Réseaux sociaux : photo de profil et publications (1 080 × 1 080 px)</div>
+    </div>
+    <div class="app">
+      <div class="kake">
+        <div class="top">
+          <img src="../../maquettes/assets/logo/mwangaza-logotype-inverse.svg" style="height:6mm" alt="">
+          <div class="tg">L'école en pleine lumière.</div>
+          <ul><li>Caisse et reçus</li><li>Notes et bulletins</li><li>Parents informés</li><li>Même sans internet</li></ul>
+        </div>
+        <div class="bt"><img src="../../maquettes/assets/logo/mwangaza-symbole.svg" alt="">mwangazaschool.com</div>
+      </div>
+      <div class="cap">Kakémono (85 × 200 cm)</div>
+    </div>
+    <div class="app">
+      <div style="display:flex;flex-direction:column;gap:3mm">
+        <svg viewBox="0 0 100 100" width="44mm" height="44mm"><path d="M33 8 18 12 2 30l12 13 8-7v58h56V36l8 7 12-13-16-18-15-4c-2 6-8 10-17 10s-15-4-17-10z" fill="#1A2F80"/><image href="../../maquettes/assets/logo/mwangaza-logotype-inverse.svg" x="32" y="34" width="36" height="7.7"/></svg>
+        <svg viewBox="0 0 100 100" width="44mm" height="44mm"><path d="M33 8 18 12 2 30l12 13 8-7v58h56V36l8 7 12-13-16-18-15-4c-2 6-8 10-17 10s-15-4-17-10z" fill="#fff" stroke="#C9D2E3" stroke-width=".8"/><image href="../../maquettes/assets/logo/mwangaza-symbole.svg" x="58" y="28" width="11" height="11"/></svg>
+      </div>
+      <div class="cap" style="width:44mm">T-shirts de l'équipe : logotype inversé sur le bleu, icône sur le blanc</div>
+    </div>
+  </div>
+</section>
+
+<!-- Dos -->
+<section class="page blue">
+  <img src="../../maquettes/assets/logo/mwangaza-logotype-inverse.svg" style="position:absolute;left:16mm;top:84mm;height:24mm" alt="mwangaza">
+  <div style="position:absolute;left:16mm;right:16mm;bottom:12mm;display:flex;justify-content:space-between;font-size:7pt;line-height:1.5">
+    <div><b>Mwangaza</b><br>une plateforme de DTMS<br>© DTMS 2026. Tous droits réservés.</div>
+    <div><b>Contact</b><br>mwangazaschool.com<br>Goma, Nord-Kivu, RDC</div>
+    <div style="width:92mm"><b>Crédits</b><br>Photo du lac Kivu : Ericnkurunziza, CC BY-SA 4.0 (Wikimedia Commons). Polices Poppins et Atkinson Hyperlegible Next : SIL Open Font License.</div>
+  </div>
+</section>
+
+</body>
+</html>

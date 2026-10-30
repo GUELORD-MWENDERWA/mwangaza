@@ -1,39 +1,40 @@
 import { usePlatform } from "../platform";
 import { cn } from "../lib/cn";
 
+// Tracés du symbole sur une grille de 64 (`maquettes/outils/marque.py`) : carré arrondi, m.
+const TILE =
+  "M18 0H46A18 18 0 0 1 64 18V46A18 18 0 0 1 46 64H18A18 18 0 0 1 0 46V18A18 18 0 0 1 18 0Z";
+const M =
+  "M10 54V34A13 13 0 0 1 32 24.62A13 13 0 0 1 54 34V54H46V34A5 5 0 0 0 36 34V54H28V34A5 5 0 0 0 18 34V54Z";
+
 /**
- * Symbole M-flamme (`maquettes/assets/logo/symbole.svg`) : marque de la plateforme sans logo.
- * Carré arrondi à la couleur d'accent (`lamp`, que la plateforme peut remplacer : toujours
- * lisible avec le bleu nuit, 4,5:1 vérifié par le serveur), M et flamme en bleu nuit ; le même sur
- * fond sombre ou clair. 36 px dans les barres, 48 px sur les pages de connexion.
+ * Symbole de la plateforme sans logo (lot 1, `maquettes/assets/logo/mwangaza-symbole.svg`) :
+ * carré arrondi à la couleur principale (`lake`), m blanc, soleil à la couleur d'accent (`lamp`),
+ * couleurs que la plateforme peut changer. `inverse` : sur les barres, qui ont la couleur
+ * principale — carré blanc, m à la couleur principale.
  */
-export function BrandMark({ className }: { className?: string }) {
+export function BrandMark({ className, inverse }: { className?: string; inverse?: boolean }) {
   return (
     <svg aria-hidden="true" viewBox="0 0 64 64" className={cn("size-9 shrink-0", className)}>
-      <rect width="64" height="64" rx="16" fill="var(--color-lamp)" />
-      <g transform="translate(0 1.5)" fill="var(--color-night)">
-        <path
-          d="M15.5 49V24L32 40.5L48.5 24V49"
-          fill="none"
-          stroke="var(--color-night)"
-          strokeWidth="8.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path d="M33.5 4.5C35 10 40 12.5 40 19.5A8 8 0 0 1 24 19.5C24 15.6 25.9 13.2 28.4 11.6C28.5 14 29.4 15.6 31 16.3C30.3 12 31.3 7.8 33.5 4.5Z" />
-        <path
-          d="M32 14.5C33.6 17 35 18.3 35 20.5A3 3 0 0 1 29 20.5C29 18.6 30.3 16.8 32 14.5Z"
-          fill="var(--color-lamp)"
-        />
-      </g>
+      <path d={TILE} fill={inverse ? "white" : "var(--color-lake)"} />
+      <path d={M} fill={inverse ? "var(--color-lake)" : "white"} />
+      <circle cx="32" cy="14.5" r="5.5" fill="var(--color-lamp)" />
     </svg>
   );
 }
 
 /** Logo de la plateforme, sinon le symbole ; `large` : pages de connexion (48 px de haut). */
-export function PlatformMark({ className, large }: { className?: string; large?: boolean }) {
+export function PlatformMark({
+  className,
+  large,
+  inverse,
+}: {
+  className?: string;
+  large?: boolean;
+  inverse?: boolean;
+}) {
   const { logo } = usePlatform();
-  if (!logo) return <BrandMark className={cn(large && "size-12", className)} />;
+  if (!logo) return <BrandMark inverse={inverse} className={cn(large && "size-12", className)} />;
   return (
     <img
       src={logo}
@@ -47,13 +48,39 @@ export function PlatformMark({ className, large }: { className?: string; large?:
   );
 }
 
-/** Marque de la plateforme : son logo (sinon le symbole) et son nom, qui n'est pas traduit. */
-export function Brand({ className, large }: { className?: string; large?: boolean }) {
-  const { name } = usePlatform();
+/**
+ * Logo de la plateforme : son logo envoyé, sinon le symbole et son nom (non traduit) en logotype —
+ * Poppins SemiBold, minuscules, lettres serrées de 3,5 % ; symbole de 1,2 fois la taille du nom,
+ * à 0,26 fois cette taille du nom, centré sur sa ligne (livre de marque, « Proportions »).
+ * `large` : pages de connexion ; `inverse` : sur une barre à la couleur principale.
+ */
+export function Brand({
+  className,
+  large,
+  inverse,
+}: {
+  className?: string;
+  large?: boolean;
+  inverse?: boolean;
+}) {
+  const { name, logo } = usePlatform();
   return (
-    <div className={cn("flex items-center", large ? "gap-3.5" : "gap-2.5", className)}>
-      <PlatformMark large={large} />
-      <b className={cn("leading-tight tracking-[-.01em]", large ? "text-2xl" : "text-xl")}>
+    <div
+      className={cn(
+        "flex min-w-0 items-center",
+        logo ? (large ? "gap-3.5" : "gap-2.5") : "gap-[.26em]",
+        large ? "text-3xl" : "text-2xl",
+        className,
+      )}
+    >
+      <PlatformMark large={large} inverse={inverse} className={logo ? undefined : "size-[1.2em]"} />
+      <b
+        className={cn(
+          "min-w-0 truncate font-brand leading-[1.3] font-semibold tracking-[-.035em]",
+          logo ? (large ? "text-2xl" : "text-xl") : "lowercase",
+          !logo && !inverse && "text-lake",
+        )}
+      >
         {name}
       </b>
     </div>

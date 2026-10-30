@@ -67,7 +67,7 @@ describe("Identité de la plateforme", () => {
     await user.type(accent, "#1E262C");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
-    expect(await screen.findByText(/Couleur trop sombre/)).toBeTruthy();
+    expect(await screen.findByText(/Couleur illisible sur la couleur principale/)).toBeTruthy();
     expect(requests.find((r) => r.method === "PATCH")?.body).toMatchObject({
       name: "Lumière",
       accent_color: "#1E262C",

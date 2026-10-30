@@ -5237,19 +5237,20 @@ export const fr = {
         tiktok_url: "TikTok",
       },
       primary_color: {
-        help: "Boutons et liens.",
+        help: "Menus, boutons et liens.",
         unreadable:
           "Couleur trop claire : un texte blanc dessus, ou elle sur fond clair, ne se lit pas.",
       },
       accent_color: {
-        help: "Repères sur le menu sombre.",
-        unreadable: "Couleur trop sombre : elle ne se lit pas sur le menu sombre.",
+        help: "Soleil du symbole et repères sur le menu (avec mesure).",
+        unreadable:
+          "Couleur illisible sur la couleur principale (menus et symbole) : choisissez-en une plus claire.",
       },
       picker: "Choisir la couleur",
       logo: {
         label: "Logo",
         alt: "Logo de la plateforme",
-        help: "PNG ou JPEG (2 048 px de côté au plus) ou SVG, 1 Mo au plus. Sans logo : le symbole par défaut (M et flamme).",
+        help: "PNG ou JPEG (2 048 px de côté au plus) ou SVG, 1 Mo au plus. Sans logo : le symbole par défaut et le nom.",
         change: "Changer le logo",
       },
       icon: {

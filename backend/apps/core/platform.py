@@ -23,7 +23,6 @@ from apps.schools.colors import contrast, normalize
 from apps.schools.logos import logo_kind
 
 ICON_MIN_SIDE = 512
-NIGHT = "#0B1C35"  # fond du menu (design), sous l'accent
 MIN_CONTRAST = 4.5
 # Adresses publiques (sans école) ; `?v=` change avec chaque fichier (cache des navigateurs).
 ADDRESSES = {"logo": "/api/platform/logo/", "icon": "/api/platform/icon/"}
@@ -84,7 +83,7 @@ def _color(value: str) -> str:
         return normalize(value)
     except ValueError:
         raise ValidationError(
-            _("Enter a colour as #RRGGBB, e.g. #0B5FCC."), code="invalid_color"
+            _("Enter a colour as #RRGGBB, e.g. #1A2F80."), code="invalid_color"
         ) from None
 
 
@@ -108,11 +107,24 @@ def validate_primary_color(value: str) -> None:
 
 
 def validate_accent_color(value: str) -> None:
-    if contrast(_color(value), NIGHT) < MIN_CONTRAST:
-        raise ValidationError(
-            _("This colour is too dark: it is not readable on the dark menu."),
-            code="unreadable_color",
+    """Format seulement : sa lisibilité dépend de la couleur principale (`check_colors`)."""
+    _color(value)
+
+
+def check_colors(primary: str, accent: str) -> None:
+    """L'accent (soleil du symbole, repère du menu, compteurs) se pose sur la couleur principale,
+    qui est aussi celle des barres (lot 1, marque) : 4,5 : 1 au moins entre les deux."""
+    try:
+        pair = normalize(primary), normalize(accent)
+        validate_primary_color(primary)
+    except (ValueError, ValidationError):
+        return  # déjà refusée par le validateur de son champ
+    if contrast(*pair) < MIN_CONTRAST:
+        message = _(
+            "This colour is not readable on the main colour (menus and symbol): "
+            "choose a lighter one."
         )
+        raise ValidationError({"accent_color": ValidationError(message, code="unreadable_color")})
 
 
 def _path(prefix: str, kind: str) -> str:

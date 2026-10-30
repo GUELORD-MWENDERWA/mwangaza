@@ -158,9 +158,7 @@ class PlatformSettings(models.Model):
         upload_to=platform.logo_path,
         blank=True,
         validators=[platform.validate_logo],
-        help_text=_(
-            "PNG, JPEG or SVG, 1 MB at most. Without it: the default symbol (M and flame)."
-        ),
+        help_text=_("PNG, JPEG or SVG, 1 MB at most. Without it: the default symbol and the name."),
     )
     icon = models.FileField(
         _("application icon"),
@@ -172,16 +170,16 @@ class PlatformSettings(models.Model):
     primary_color = models.CharField(
         _("main colour"),
         max_length=7,
-        default="#0B5FCC",
+        default="#1A2F80",
         validators=[platform.validate_primary_color],
-        help_text=_("Buttons and links of the interface."),
+        help_text=_("Menus, buttons and links of the interface."),
     )
     accent_color = models.CharField(
         _("accent colour"),
         max_length=7,
-        default="#F2B632",
+        default="#FFA81E",
         validators=[platform.validate_accent_color],
-        help_text=_("Mark and highlights on the dark menu."),
+        help_text=_("Sun of the symbol and highlights on the menu (rarely)."),
     )
     support_phone = PhoneNumberField(_("support phone"), blank=True)
     support_email = models.EmailField(_("support email"), blank=True)
@@ -227,6 +225,9 @@ class PlatformSettings(models.Model):
         self.primary_color = self.primary_color.upper()
         self.accent_color = self.accent_color.upper()
         super().save(*args, **kwargs)
+
+    def clean(self) -> None:
+        platform.check_colors(self.primary_color, self.accent_color)
 
     @property
     def logo_url(self) -> str | None:

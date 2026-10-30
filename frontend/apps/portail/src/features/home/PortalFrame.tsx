@@ -69,7 +69,7 @@ export function PortalFrame({
           onLogout={() => logout.mutate()}
         />
       )}
-      <header className="relief bg-night px-4 py-4 text-night-ink sm:px-6 lg:px-8 lg:pt-7 lg:pb-8">
+      <header className="bg-night px-4 py-4 text-night-ink sm:px-6 lg:px-8 lg:pt-7 lg:pb-8">
         <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3 sm:max-w-[712px] lg:max-w-[1120px]">
           {desktop && home ? (
             <h1 className="text-2xl text-white">{subtitle}</h1>
@@ -78,14 +78,14 @@ export function PortalFrame({
           ) : heading !== undefined ? (
             <>
               <div className="flex items-center gap-2.5">
-                <PlatformMark />
+                <PlatformMark inverse />
                 <h1 className="text-lg text-night-ink">{heading}</h1>
               </div>
               <NotificationBell />
             </>
           ) : title === undefined ? (
             <>
-              <Brand />
+              <Brand inverse className="text-xl" />
               <div className="flex items-center gap-1">
                 <NotificationBell />
                 <Button
@@ -145,10 +145,10 @@ function DesktopBar({
   const { t } = useTranslation();
   const items = useNavItems(childId);
   return (
-    <div className="relief sticky top-0 z-30 h-16 border-b border-night-3 bg-night px-8 text-night-ink">
+    <div className="sticky top-0 z-30 h-16 border-b border-night-3 bg-night px-8 text-night-ink">
       <div className="mx-auto flex h-full max-w-[1120px] items-center gap-7">
         <Link to="/" className="text-night-ink no-underline">
-          <Brand />
+          <Brand inverse />
         </Link>
         <nav aria-label={t("portal.nav.label")} className="flex h-full gap-0.5">
           {items.map((item) => (

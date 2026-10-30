@@ -329,7 +329,7 @@ def rerun_puts_everything_back(demo, settings) -> None:
     assert volcans.primary_color == "#7A3E00"
     # Plateforme, comptes et rôles remis, sans double.
     platform = PlatformSettings.load()
-    assert (platform.name, platform.primary_color) == ("Mwangaza", "#0B5FCC")
+    assert (platform.name, platform.primary_color) == ("Mwangaza", "#1A2F80")
     assert platform.support_phone and platform.legal_notice
     # Demandes de démonstration fictives pour la console (WEB.1d).
     assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 2

@@ -44,9 +44,9 @@ APPS = {
     "gestion": {"start_url": "/app/", "icons": "/app/icons/"},
     "portail": {"start_url": "/", "icons": "/icons/"},
 }
-# Couleurs du design (fond de l'écran de démarrage, barre du système) : pas celles de la plateforme.
+# Fond de l'écran de démarrage (design) ; la barre du système prend la couleur principale de la
+# plateforme, celle de ses barres (lot 1, marque).
 BACKGROUND = "#F3F5F9"
-THEME = "#0B1C35"
 
 
 @extend_schema(responses={200: PlatformSerializer}, tags=["platform"])
@@ -76,7 +76,7 @@ def platform_icon(request: HttpRequest) -> HttpResponse:
     de cette application (notifications envoyées au téléphone)."""
     app = APPS.get(request.GET.get("app", ""))
     if app and not PlatformSettings.load().icon:
-        return HttpResponseRedirect(f"{app['icons']}icon-192.png")
+        return HttpResponseRedirect(f"{app['icons']}symbole-192.png")
     return _image("icon")
 
 
@@ -91,10 +91,10 @@ def _icons(platform: PlatformSettings, default: str) -> list[dict]:
             sizes = f"{size[0]}x{size[1]}"
             return [{"src": platform.icon_url, "sizes": sizes, "type": "image/png"}]
     return [
-        {"src": f"{default}icon-192.png", "sizes": "192x192", "type": "image/png"},
-        {"src": f"{default}icon-512.png", "sizes": "512x512", "type": "image/png"},
+        {"src": f"{default}symbole-192.png", "sizes": "192x192", "type": "image/png"},
+        {"src": f"{default}symbole-512.png", "sizes": "512x512", "type": "image/png"},
         {
-            "src": f"{default}icon-maskable-512.png",
+            "src": f"{default}symbole-maskable-512.png",
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable",
@@ -120,7 +120,7 @@ def platform_manifest(request: HttpRequest, app: str) -> HttpResponse:
         "scope": APPS[app]["start_url"],
         "display": "standalone",
         "background_color": BACKGROUND,
-        "theme_color": THEME,
+        "theme_color": platform.primary_color,
         "icons": _icons(platform, APPS[app]["icons"]),
     }
     response = JsonResponse(manifest, content_type="application/manifest+json")

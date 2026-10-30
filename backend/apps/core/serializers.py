@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import get_error_detail
 
 from apps.accounts.serializers import PhoneField
 from apps.audit.actions import PlatformAction
@@ -11,7 +12,7 @@ from apps.audit.models import PlatformAuditLog
 from apps.audit.serializers import AuditActorSerializer
 from apps.core.images import CleanedFileField
 from apps.core.models import DemoRequest, PlatformSettings, SiteBanner, SiteEntry
-from apps.core.platform import clean_icon, clean_logo
+from apps.core.platform import check_colors, clean_icon, clean_logo
 
 PUBLIC_FIELDS = [
     "name",
@@ -82,6 +83,17 @@ class ConsolePlatformSerializer(PlatformSerializer):
 
     class Meta(PlatformSerializer.Meta):
         fields = [*PUBLIC_FIELDS, "updated_at", "history"]
+
+    def validate(self, attrs: dict) -> dict:
+        current = self.instance or PlatformSettings()
+        try:
+            check_colors(
+                attrs.get("primary_color", current.primary_color),
+                attrs.get("accent_color", current.accent_color),
+            )
+        except DjangoValidationError as error:
+            raise serializers.ValidationError(get_error_detail(error)) from None
+        return attrs
 
     @extend_schema_field(PlatformChangeSerializer(many=True))
     def get_history(self, platform: PlatformSettings) -> list[dict]:

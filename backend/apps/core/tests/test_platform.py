@@ -2,9 +2,11 @@
 
 import re
 import uuid
+from importlib import import_module
 from pathlib import Path
 
 import pytest
+from django.apps import apps as django_apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -44,10 +46,10 @@ def test_a_new_name_is_used_everywhere_without_code(client, school):
         "Lumi",
         "/app/",
     )
-    assert gestion["icons"][0]["src"] == "/app/icons/icon-192.png"  # pas d'icône : le symbole
+    assert gestion["icons"][0]["src"] == "/app/icons/symbole-192.png"  # pas d'icône : le symbole
     # Notifications : l'icône par défaut de l'application.
     icon = client.get("/api/platform/icon/?app=portail", HTTP_HOST="localhost")
-    assert (icon.status_code, icon["Location"]) == (302, "/icons/icon-192.png")
+    assert (icon.status_code, icon["Location"]) == (302, "/icons/symbole-192.png")
     portail = client.get("/api/platform/manifest/portail/", HTTP_HOST="localhost").json()
     assert portail["name"] == "Lumière — Parents"
     assert "issuer=Lumi%C3%A8re" in totp.provisioning_uri("SECRET", "+243970000000")
@@ -57,13 +59,31 @@ def test_a_new_name_is_used_everywhere_without_code(client, school):
 
 
 def test_unreadable_colours_and_wrong_icon_are_refused(db):
+    PlatformSettings().full_clean()  # couleurs de la marque (lot 1) : acceptées
     platform = PlatformSettings.load()
     platform.primary_color = "#F2B632"  # trop clair sous un texte blanc
-    platform.accent_color = "#0E5C6B"  # trop sombre sur le menu
     platform.icon = png(600, 500)
     with pytest.raises(ValidationError) as refused:
         platform.full_clean()
-    assert set(refused.value.message_dict) == {"primary_color", "accent_color", "icon"}
+    assert set(refused.value.message_dict) == {"primary_color", "icon"}
+    platform = PlatformSettings.load()
+    platform.accent_color = "#3B5BDB"  # bleu sur les barres bleues : illisible
+    with pytest.raises(ValidationError) as refused:
+        platform.full_clean()
+    assert set(refused.value.message_dict) == {"accent_color"}
+
+
+def test_brand_migration_keeps_a_colour_chosen_in_the_console(db):
+    recolour = import_module("apps.core.migrations.0010_marque_bleu_uniforme").recolour
+    PlatformSettings.load()
+    PlatformSettings.objects.update(primary_color="#0B5FCC", accent_color="#F2B632")
+    recolour(django_apps, None)
+    platform = PlatformSettings.load()
+    assert (platform.primary_color, platform.accent_color) == ("#1A2F80", "#FFA81E")
+    PlatformSettings.objects.update(primary_color="#1F3A2E", accent_color="#F2B632")
+    recolour(django_apps, None)
+    platform = PlatformSettings.load()
+    assert (platform.primary_color, platform.accent_color) == ("#1F3A2E", "#FFA81E")
 
 
 def test_uploaded_icon_and_logo_are_served(client, db):

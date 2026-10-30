@@ -10,6 +10,8 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 
 30 maquettes ont été fournies. Le 2026-09-26, à la demande de l'utilisateur (T3), Claude a dessiné dans le même système de design les écrans qui manquaient pour la V1.0, plus les bulletins officiels et les cours / maxima (V1.2) : **61 maquettes** au total (`maquettes/index.html`). **Valider** = fusionner la PR des maquettes ; une remarque sur un écran = commentaire de PR, Claude corrige avant de coder l'écran. Pour les lots suivants, même règle : si une maquette n'est pas fournie avant sa tâche, Claude la dessine, code avec elle sans attendre l'accord et la signale dans « À valider » de la PR (décision du 2026-09-29). **Documents imprimables** (reçus, listes, rapports, bulletins…) : même règle, Claude propose le design dans le système de design, état « à valider » (décision du 2026-09-26).
 
+**Marque du lot 1 (2026-10-29)** : maquettes passées au bleu uniforme et au soleil (jetons de `assets/styles.css`, symbole, logotype en Poppins, plus de relief sur les barres) ; captures refaites pour 6 écrans de référence, les autres gardent les couleurs d'avant (`maquettes/README.md` § Logo).
+
 **Refonte du design du 2026-10-14** (demande de l'utilisateur, à valider avec la PR #247) : toutes les maquettes passées à la nouvelle identité (bleu Kivu, nuit, lumière, lignes de relief, Atkinson Hyperlegible Next) et recapturées ; **portail dessiné aussi pour l'ordinateur** (barre du haut, colonnes : `portail/accueil`, `portail/enfant-paiements`, pages de lecture ; connexions en deux panneaux) et capturé à 1440 px comme les autres applications ; tableau empilé au téléphone pour `gestion/eleves-liste` et `gestion/impayes`. Désormais : jamais d'écran sans maquette, et une maquette commence par regarder les grands logiciels (skill `design`, « Méthode »).
 
 ### V1.0
@@ -130,7 +132,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 | T4 | Comptes : hébergeur (**AWS Lightsail**, fait), Cloudflare (fait), stockage objet, suivi d'erreurs (Sentry ou GlitchTip) | stockage objet et suivi d'erreurs avec 4.7.2 | [ ] |
 | T5 | Conditions d'utilisation, politique de confidentialité, contrat de traitement des données avec chaque école (Claude rédige les brouillons, un juriste les relit) | lot 3 (CTR.1) | [ ] |
 | T6 | Tarif des écoles (essai gratuit ?) | lot 3 (ABO.1) | [ ] |
-| T7 | Piste de marque (logo, couleurs, police) parmi les trois proposées | lot 1 (BRAND.1) | [ ] |
+| T7 | Piste de marque (logo, couleurs, police) parmi les trois proposées — **A « Lever du jour »** (2026-10-29), logotype en Poppins comme Ujuzi : `maquettes/marque/marque.html` | lot 1 (BRAND.1) | [x] |
 
 ## 4. Données de démonstration
 

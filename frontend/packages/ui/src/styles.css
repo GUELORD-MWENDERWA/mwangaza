@@ -33,8 +33,18 @@
   font-display: swap;
 }
 
+/* Poppins SemiBold (licence OFL) : le nom de la plateforme dans son logo (lot 1, livre de marque
+   `docs/marque/livre-de-marque.pdf`), seulement lui ; le texte des écrans reste en Atkinson. */
+@font-face {
+  font-family: "Poppins";
+  src: url("./fonts/poppins-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
 @theme {
   --font-sans: "Atkinson Hyperlegible Next", system-ui, sans-serif;
+  --font-brand: "Poppins", var(--font-sans);
   --font-mono: ui-monospace, Consolas, monospace;
 
   /* Espacements en pixels, comme les maquettes (la base du texte est 15 px). */
@@ -59,24 +69,26 @@
   --text-3xl: 2rem;
   --text-3xl--line-height: 1.1;
 
-  /* Marque (2026-10-14, `docs/claude/recherches/2026-10-14-refonte-design.md`) : le lac Kivu et
-     le drapeau du Congo. Nuit = barres et en-têtes ; lac = actions ; lampe = lumière (logo,
-     repère actif, attention), jamais en texte sur fond clair ni en grande surface. */
-  --color-night: #0b1c35;
-  --color-night-2: #15294b;
-  --color-night-3: #213a63;
-  --color-night-ink: #e6ecf5;
-  --color-night-muted: #94a3bb;
-  --color-night-soft: #c3cfe0;
-  --color-lamp: #f2b632;
-  --color-lamp-soft: #fef5da;
-  --color-lake: #0b5fcc;
-  --color-lake-700: #08459a;
+  /* Marque (lot 1, livre de marque `docs/marque/livre-de-marque.pdf`) : bleu uniforme (couleur
+     principale de la plateforme, `lake`) pour les barres, en-têtes et actions principales ;
+     soleil levant (accent, `lamp`) pour le soleil du symbole, le repère de l'élément actif et un
+     compteur, jamais en texte sur fond clair ni en grande surface. `night` = les barres : la
+     couleur principale (que la plateforme peut changer), ses nuances mêlées de blanc. */
+  --color-night: var(--color-lake);
+  --color-night-2: color-mix(in srgb, white 12%, var(--color-lake));
+  --color-night-3: color-mix(in srgb, white 22%, var(--color-lake));
+  --color-night-ink: #ffffff;
+  --color-night-muted: color-mix(in srgb, white 68%, var(--color-lake));
+  --color-night-soft: color-mix(in srgb, white 84%, var(--color-lake));
+  --color-lamp: #ffa81e;
+  --color-lamp-soft: #fff0d9;
+  --color-lake: #1a2f80;
+  --color-lake-700: #14245f;
   --color-lake-100: #d4e3f9;
-  --color-lake-50: #eaf1fc;
+  --color-lake-50: #e8eaf2;
   /* Neutres froids, légèrement bleutés comme le lac (jamais de beige ni de gris chaud).
      Contrastes : ink-3 ≥ 5:1 sur surface et gray-50 ; bordure de champ ≥ 3,5:1 sur blanc. */
-  --color-ink: #101828;
+  --color-ink: #111418;
   --color-ink-2: #475467;
   --color-ink-3: #5b677a;
   --color-surface: #f3f5f9;
@@ -92,8 +104,8 @@
   --color-due-50: #fdecea;
   --color-warn: #985a06;
   --color-warn-50: #fef3dc;
-  --color-info: #0b5fcc;
-  --color-info-50: #eaf1fc;
+  --color-info: var(--color-lake);
+  --color-info-50: var(--color-lake-50);
   /* Nuances d'état : -200 bordure d'un bandeau ou d'un bouton, -900 texte sur le fond -50. */
   --color-info-200: #c4d8f6;
   --color-ok-200: #bce3cd;
@@ -102,8 +114,8 @@
   --color-due-900: #7a1810;
   --color-warn-200: #f5dca6;
   --color-warn-900: #683d00;
-  --color-lamp-200: #f6dc8f;
-  --color-lamp-900: #5c4300;
+  --color-lamp-200: #ffdca5;
+  --color-lamp-900: #6b3d00;
   /* Graphiques (skill `dataviz`, validés : daltonisme, luminosité, contraste ≥ 3:1) : série 1 =
      lac, série 2 = ambre (la lampe est trop claire pour une surface de donnée). */
   --color-chart-1: var(--color-lake);
@@ -111,7 +123,7 @@
   --color-chart-grid: #e2e8f0;
   /* En-tête et pied de tableau ; voile sous un tiroir ou une fenêtre. */
   --color-table-head: #f7f9fc;
-  --color-scrim: rgba(11, 28, 53, 0.55);
+  --color-scrim: rgba(17, 20, 24, 0.55);
 
   /* Noms de shadcn/ui (skill `design`, « Correspondance shadcn/ui »). */
   --color-background: var(--color-surface);
@@ -139,7 +151,7 @@
   --shadow-button: 0 1px 2px rgba(16, 24, 40, 0.06);
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.05), 0 2px 6px rgba(16, 24, 40, 0.04);
   --shadow-raised: 0 4px 12px rgba(16, 24, 40, 0.08), 0 1px 3px rgba(16, 24, 40, 0.06);
-  --shadow-float: 0 16px 40px rgba(11, 28, 53, 0.2), 0 2px 6px rgba(11, 28, 53, 0.08);
+  --shadow-float: 0 16px 40px rgba(17, 20, 24, 0.2), 0 2px 6px rgba(17, 20, 24, 0.08);
 
   --animate-drawer-in: drawer-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --animate-fade-in: fade-in 180ms ease-out;
@@ -329,14 +341,6 @@
       padding-top: 2px !important;
     }
   }
-}
-
-/* Signature de la marque : lignes de relief (volcans et collines du Kivu) en filigrane, sur les
-   surfaces nuit seulement (barre latérale, en-têtes, panneau des connexions). */
-@utility relief {
-  background-image: url("./relief.svg");
-  background-size: cover;
-  background-position: center;
 }
 
 /* Chiffres : tabulaires, alignés à droite, sans retour à la ligne. */

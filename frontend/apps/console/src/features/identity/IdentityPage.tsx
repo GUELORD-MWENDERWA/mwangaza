@@ -160,7 +160,7 @@ function IdentityForm({ identity }: { identity: Identity }) {
     },
     onError: (error) => {
       setGeneral(applyServerErrors(error, [...FIELDS], form.setError, t));
-      // Couleur illisible : trop claire (principale) ou trop sombre (accent), pas les deux.
+      // Couleur illisible : trop claire (principale) ou illisible sur la principale (accent).
       for (const field of COLORS) {
         if (form.getFieldState(field).error?.message === fieldMessage("unreadable_color", t)) {
           form.setError(field, {
@@ -428,7 +428,7 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
     "accent_color",
   ]);
   const style = {
-    ...(COLOR.test(primary) && { "--color-lake": primary }),
+    ...(COLOR.test(primary) && { "--color-lake": primary, "--color-night": primary }),
     ...(COLOR.test(accent) && { "--color-lamp": accent }),
   } as CSSProperties;
   return (
@@ -441,9 +441,16 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
           {identity.logo ? (
             <img src={identity.logo} alt="" className="h-8 w-auto max-w-[120px] object-contain" />
           ) : (
-            <BrandMark className="size-8" />
+            <BrandMark inverse className="size-8" />
           )}
-          <b className="truncate">{name}</b>
+          <b
+            className={cn(
+              "truncate font-brand font-semibold tracking-[-.035em]",
+              !identity.logo && "lowercase",
+            )}
+          >
+            {name}
+          </b>
           <span className="ml-auto border-b-[3px] border-lamp pb-0.5 text-sm font-bold text-white">
             {t("console.identity.previewMenu")}
           </span>
@@ -454,7 +461,7 @@ function Preview({ form, identity }: { form: Form; identity: Identity }) {
           </span>
           <span className="font-bold text-lake underline">{t("console.identity.previewLink")}</span>
         </div>
-        <div className="flex items-end gap-4 rounded-box bg-linear-160 from-ink-2 to-night p-3.5">
+        <div className="flex items-end gap-4 rounded-box bg-linear-160 from-ink-2 to-ink p-3.5">
           <span className="flex w-16 flex-col items-center gap-1.5 text-center text-xs text-white">
             <span className="grid size-14 place-items-center overflow-hidden rounded-[14px]">
               {identity.icon ? (

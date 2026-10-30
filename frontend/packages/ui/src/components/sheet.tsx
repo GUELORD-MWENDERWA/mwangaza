@@ -21,7 +21,7 @@ export function SheetContent({ title, className, children, ...props }: SheetCont
       <Dialog.Content
         aria-describedby={undefined}
         className={cn(
-          "relief fixed inset-y-0 left-0 z-50 flex w-[292px] max-w-[85vw] animate-drawer-in flex-col gap-0.5 overflow-y-auto bg-night px-3 py-4 text-night-ink shadow-float focus:outline-none",
+          "fixed inset-y-0 left-0 z-50 flex w-[292px] max-w-[85vw] animate-drawer-in flex-col gap-0.5 overflow-y-auto bg-night px-3 py-4 text-night-ink shadow-float focus:outline-none",
           className,
         )}
         {...props}

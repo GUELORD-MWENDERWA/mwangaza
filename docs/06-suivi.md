@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | aucun : PR « Plan : 17 lots » à relire et fusionner |
-| Prochain lot | **Lot 1 — Marque Mwangaza** (`/tache lot 1`) |
+| Lot en cours | Aucun : **lot 1 — Marque Mwangaza** fini (3/3), PR à fusionner (`lot/1-marque`) |
+| Prochain lot | Lot 2 — Site public refait |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | une par lot, créée au début du lot (jalon « V1 complète ») |
-| Branche | `plan/lots-v1` |
-| Dernière mise à jour | 2026-10-29 (plan regroupé en lots) |
+| Issue GitHub | #409 (une par lot, jalon « V1 complète ») |
+| Branche | `lot/1-marque` (PR ouverte, à fusionner) ; prochaine : `lot/2-site` |
+| Dernière mise à jour | 2026-10-29 (lot 1 fini : marque appliquée aux trois applications) |
 
 ## Avancement
 
@@ -20,7 +20,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 
 | Lot | Parties faites | Parties |
 |---|:-:|:-:|
-| 1 — Marque Mwangaza | 0 | 3 |
+| 1 — Marque Mwangaza | 3 ✓ | 3 |
 | 2 — Site public refait | 0 | 3 |
 | 3 — Vendre : contrats, abonnements, factures | 0 | 3 |
 | 4 — Bulletins aux parents | 0 | 3 |
@@ -65,6 +65,16 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-10-29 — Lot 1 : marque Mwangaza (fini)
+- Fait : livre de marque PDF et logo (parties 1-2) ; partie 3 : thème des trois applications au bleu uniforme et au soleil, barres qui suivent la couleur principale de la plateforme, symbole et logotype (Poppins) dans le code, relief retiré, icônes et favicon renommés (`symbole-*.png`), couleurs par défaut migrées (`#1A2F80` / `#FFA81E`) sans toucher une couleur choisie, guides PDF régénérés, maquettes et skill `design` à jour.
+- Tests : couleurs par défaut acceptées, accent refusé s'il est illisible sur la couleur principale (modèle et console), migration qui garde une couleur choisie ; écrans principaux regardés à 390 et 1440 px (logo du portail réduit dans l'en-tête du téléphone).
+- Décisions : l'accent se contrôle contre la couleur principale (4,5:1) ; texte des écrans toujours en Atkinson ; seules 6 captures de maquettes refaites (`maquettes/README.md` § Logo).
+- Suite : fusion, `make deploy`, puis lot 2 (site public refait).
+
+### 2026-10-29 — Lot 1 : piste de marque choisie
+
+Trois pistes proposées (A « Lever du jour », B « Horizon », C « Registre ») ; l'utilisateur retient **A**, avec le logotype écrit comme celui d'Ujuzi (Poppins, minuscules, serré) et des couleurs qui ne fassent pas « IA » : Ardoise, Craie, Bleu uniforme `#1A2F80`, Brume du lac, Soleil levant `#FFA81E`. Il proposait de garder C comme second logo si c'était une bonne idée : **un seul logo** (raison : fiche du lot). Page : `maquettes/marque/marque.html`. Suite : partie 2, livre de marque PDF.
 
 ### 2026-10-29 — Plan regroupé en 17 lots (une PR chacun)
 - Demande : le projet avance trop lentement ; moins de PR, chacune plus complète ; finir toute la V1 avant la V2 ; marque refaite sur le modèle du livre de marque fourni (`docs/ecole-pilote/prive/`) ; site qui ne ressemble plus à une IA (grands sites, isig.ac.cd, photos d'élèves congolais) ; contrats, factures, abonnements, guide d'utilisation, console complète.

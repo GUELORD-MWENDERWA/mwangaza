@@ -1,6 +1,6 @@
 ---
 name: design
-description: Système de design Mwangaza (refonte du 2026-10-14 — bleu Kivu, nuit, lumière, Atkinson Hyperlegible Next, lignes de relief) — logo M-flamme, jetons de couleur, échelle de texte, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, adaptation à chaque taille d'écran (téléphone, tablette, ordinateur), graphiques, impression, formats des montants et des dates, accessibilité. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail, frontend/apps/console ou frontend/packages/ui.
+description: Système de design Mwangaza (marque du lot 1, 2026-10-29 — bleu uniforme, brume, soleil levant, Atkinson Hyperlegible Next, logotype Poppins) — symbole m et soleil, jetons de couleur, échelle de texte, thème Tailwind / shadcn, correspondance entre les classes des maquettes et les composants, adaptation à chaque taille d'écran (téléphone, tablette, ordinateur), graphiques, impression, formats des montants et des dates, accessibilité. À utiliser pour tout travail d'interface — thème, composant partagé, écran, impression — dans frontend/apps/gestion, frontend/apps/portail, frontend/apps/console ou frontend/packages/ui.
 ---
 
 # Système de design Mwangaza
@@ -16,27 +16,28 @@ Sources de vérité, dans cet ordre : `maquettes/assets/styles.css` (bloc `:root
 
 ## Intention
 
-- **Nuit du Kivu** (bleu nuit) : barre latérale de la Gestion, en-tête et barre du haut du Portail, barre de la console, panneau des connexions — avec le motif de **lignes de relief** (volcans et collines du Kivu, `relief.svg`, classe `relief`) en filigrane.
-- **Lumière** (jaune, *mwangaza*) : logo, repère de l'élément actif (barre de 4 px, icône active, soulignement de la barre du portail et de la console), compteurs, points d'attention. **Jamais en texte sur fond clair, jamais en grande surface, jamais comme couleur de série d'un graphique** (trop claire : 1,8:1).
-- **Bleu Kivu** (lac et drapeau du Congo) : toutes les actions principales, liens, focus, onglet actif.
+Marque : livre de marque `docs/marque/livre-de-marque.pdf` (lot 1, piste A). Proportions : craie et ardoise 60 %, bleu uniforme 22 %, brume 13 %, soleil 5 % au plus.
+
+- **Bleu uniforme** (`lake` = couleur principale de la plateforme, l'uniforme bleu et blanc des élèves) : barre latérale de la Gestion, en-tête et barre du haut du Portail, barre de la console, panneau des connexions (jeton `night`, qui suit `lake`), **et** toutes les actions principales, liens, focus, onglet actif. Plus de motif de relief (retiré au lot 1).
+- **Soleil levant** (`lamp`, l'accent) : soleil du symbole, repère de l'élément actif (barre de 4 px, icône active, soulignement de la barre du portail et de la console), compteurs. **Jamais en texte sur fond clair, jamais en grande surface, jamais comme couleur de série d'un graphique** (1,9:1 sur blanc).
 - Neutres **froids**, légèrement bleutés : jamais de beige, de crème ni de gris chauds (« look IA » refusé par l'utilisateur).
 - Utilisateurs peu habitués à l'informatique, écrans de faible qualité : gros boutons, formulaires courts, texte lisible, contrastes ≥ 4,5:1.
 
 ## Jetons
 
-`lake` et `lamp` (et leurs teintes) sont les valeurs de départ : les couleurs de la plateforme (`PlatformSettings`, défaut `#0B5FCC` / `#F2B632`, contraste vérifié par le serveur, l'accent contre la nuit `#0B1C35`) les remplacent à l'exécution (`applyPlatform`). Toujours passer par les jetons.
+`lake` et `lamp` (et leurs teintes) sont les valeurs de départ : les couleurs de la plateforme (`PlatformSettings`, défaut `#1A2F80` / `#FFA81E`, contraste vérifié par le serveur : texte blanc sur la principale, accent ≥ 4,5:1 sur la principale) les remplacent à l'exécution (`applyPlatform`) ; `night`, `night-2`, `night-3`, `night-soft`, `night-muted` sont calculés depuis `lake` (`color-mix` avec du blanc) : les barres suivent la couleur de la plateforme. Toujours passer par les jetons.
 
 | Jeton | Valeur | Usage |
 |---|---|---|
-| `night` / `night-2` / `night-3` | `#0B1C35` / `#15294B` / `#213A63` | barres sombres / élément actif, encadré de l'école / bordures sur la nuit |
-| `night-ink` / `night-soft` / `night-muted` | `#E6ECF5` / `#C3CFE0` / `#94A3BB` | texte sur la nuit (14:1) / entrées du menu, sous-titres / libellés de section |
-| `lamp` / `lamp-soft` | `#F2B632` / `#FEF5DA` | lumière (voir Intention) / bandeau de marque, étiquette V1.x |
-| `lake` / `lake-700` / `lake-100` / `lake-50` | `#0B5FCC` / `#08459A` / `#D4E3F9` / `#EAF1FC` | `primary` (5,96:1 sur blanc) / survol, texte sur `lake-50` / anneau de focus, sélection / ligne choisie, fond d'avatar |
+| `night` / `night-2` / `night-3` | `lake` / `lake` + 12 % de blanc / + 22 % | barres / élément actif, encadré de l'école / bordures sur les barres |
+| `night-ink` / `night-soft` / `night-muted` | `#FFFFFF` / `lake` + 84 % de blanc / + 68 % | texte sur les barres (11,9:1) / entrées du menu, sous-titres / libellés de section |
+| `lamp` / `lamp-soft` | `#FFA81E` / `#FFF0D9` | soleil (voir Intention) / petite pastille, étiquette V1.x (jamais un grand fond) |
+| `lake` / `lake-700` / `lake-100` / `lake-50` | `#1A2F80` / `#14245F` / `#D4E3F9` / `#E8EAF2` | `primary` (11,9:1 sur blanc) / survol, texte sur `lake-50` / anneau de focus, sélection / ligne choisie, fond d'avatar |
 | `ink` / `ink-2` / `ink-3` | `#101828` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1 sur `surface`) |
 | `surface` / `card` / `table-head` | `#F3F5F9` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-tête et pied de tableau, pied de carte |
 | `line` / `line-soft` / `gray-50` | `#E2E8F0` / `#EDF1F6` / `#EDF1F6` | bordures / séparateurs / fond neutre (piste du `Segmented`, étiquette) |
 | `field` | `#7A8699` | bordure de champ, case (3,7:1 sur blanc) |
-| `ok` / `due` / `warn` / `info` (+ `-50`, `-200`, `-900`) | `#127A48` / `#B42318` / `#985A06` / `#0B5FCC` | états, **toujours avec un texte** |
+| `ok` / `due` / `warn` / `info` (+ `-50`, `-200`, `-900`) | `#127A48` / `#B42318` / `#985A06` / `lake` | états, **toujours avec un texte** |
 | `chart-1` / `chart-2` / `chart-grid` | `lake` / `#C47F00` / `#E2E8F0` | séries de graphique (validées par la skill `dataviz`) / grille |
 | `--color-course-1` … `-10` | `lake`, `#7C3AED`, `#B45309`, `#DB2777`, `#16A34A`, `#0891B2`, `#EA580C`, `#CA8A04`, `#0F766E`, `#64748B` | couleur d'un cours dans l'emploi du temps (filet gauche de la carte, `colorOf(nom)`), dans `:root` hors `@theme` car lue par `style` |
 | `scrim` | nuit à 55 % | voile sous un tiroir ou une fenêtre |
@@ -47,11 +48,11 @@ Rayons : cartes 14 px (`rounded-card`), fenêtres 16 px (`rounded-dialog`), cham
 
 `--background` = surface · `--foreground` = ink · `--card` = card · `--border` = line · `--input` = field · `--primary` = lake · `--ring` = lake · `--accent` = lake-50 · `--accent-foreground` = lake-700 · `--muted-foreground` = ink-3 · `--destructive` = due · `--sidebar` = night · `--sidebar-foreground` = night-ink · `--sidebar-accent` = night-2 · `--sidebar-primary` = lamp. Le thème vit dans `frontend/packages/ui/src/styles.css`, partagé par les trois applications.
 
-## Logo : le symbole M-flamme
+## Logo : symbole et logotype (lot 1)
 
-Un M **bleu nuit** épais surmonté d'une flamme, dans un carré arrondi `lamp`. Forme pleine et fermée, lisible de 16 à 512 px. Fichiers : `maquettes/assets/logo/` (`symbole.svg`, `icone-application.svg`, `icone-maskable.svg`, `icone-apple.svg`) ; icônes des applications (`apps/*/public/icons/`, `backend/apps/core/static/core/site/`) rendues depuis ces SVG avec Chrome sans interface, à la taille exacte (M passé du basalte au bleu nuit le 2026-10-14).
-- `BrandMark` / `PlatformMark` / `Brand` (`@mwangaza/ui`) : ne jamais redessiner le symbole ailleurs (seule copie : la page de vérification des reçus, servie par Django).
-- Tailles : 36 px dans les barres, 48 px sur les connexions ; jamais sous 16 px ; zone de protection = un quart de sa largeur ; jamais déformé.
+Symbole : un **m** blanc aux arches rondes et un **soleil** levant dans un carré arrondi bleu uniforme ; version **inversée** (carré blanc, m bleu) sur les barres bleues. Logotype : le nom en **Poppins SemiBold**, minuscules, lettres serrées de 3,5 % ; symbole de 1,2 fois la taille du nom, écart de 0,26 fois, centré sur la ligne. Fichiers : `maquettes/assets/logo/mwangaza-*.svg` et `png/` (générés : `marque.py logo`, `captures.mjs --logo`) ; icônes des applications `apps/*/public/icons/symbole*.{svg,png}` (nouveaux noms : les téléphones ne gardent pas l'ancienne en cache) et du site `backend/apps/core/static/core/site/`.
+- `BrandMark` (`inverse`) / `PlatformMark` / `Brand` (`large`, `inverse`) de `@mwangaza/ui` : nom lu dans les paramètres, couleurs = `lake` et `lamp`. Ne jamais redessiner le symbole ailleurs (seules copies : gabarits Django `_mark.html` et page de vérification des reçus, guide `guide.css`).
+- Tailles : `Brand` en `text-2xl` dans les barres (symbole 29 px), `large` en `text-3xl` sur les connexions (36 px), `className="text-xl"` dans un en-tête étroit de téléphone ; jamais sous 16 px ; zone de protection = la hauteur du soleil ; jamais déformé.
 
 ## Typographie
 
@@ -76,13 +77,13 @@ Dans `frontend/packages/ui` (exportés par `@mwangaza/ui`), construits une fois,
 | `.pill` | `StatusPill` | point + texte, anneau intérieur `-200` |
 | `.banner` | `Banner` | icône à gauche sur la 1re ligne, action à droite (au téléphone : sous le texte, aligné avec lui) |
 | `.tabs` | `Tabs` | actif : texte lac, soulignement 2 px |
-| `.side` `.nav a.on` `.navlabel` | coquille `AppShell` de la Gestion | 256 px, nuit + relief ; libellés de section en capitales `night-muted` ; entrée active : `night-2`, texte blanc, icône `lamp`, barre `lamp` |
+| `.side` `.nav a.on` `.navlabel` | coquille `AppShell` de la Gestion | 256 px, bleu des barres (`night`) ; libellés de section en capitales `night-muted` ; entrée active : `night-2`, texte blanc, icône `lamp`, barre `lamp` |
 | `.top` | barre du haut de la Gestion | 64 px, blanche translucide, recherche `Ctrl K`, `SyncIndicator` toujours visible |
 | `.dtop` `.ptop` `.pbody` `.pgrid` `.pcards` `.pnav` | coquille du Portail (`PortalFrame`) | voir « Adaptation » ; `wide` : accueil et enfant sur deux colonnes |
-| `.phone.pauth` / `.authgrid` | connexions du Portail / de la Gestion | panneau nuit + relief à gauche, formulaire à droite (≥ 1024 / 900 px) |
-| `.ctop` `.cmain` | coquille de la console | barre nuit + relief, navigation dessous (repère lampe) |
+| `.phone.pauth` / `.authgrid` | connexions du Portail / de la Gestion | panneau bleu à gauche, formulaire à droite (≥ 1024 / 900 px) |
+| `.ctop` `.cmain` | coquille de la console | barre bleue, navigation dessous (repère soleil) |
 | `.overlay` `.dialog` | `DialogRoot` + `DialogContent` | 16 px, `shadow-float`, pied sur `table-head` |
-| `.drawer` `.scrim` | `Sheet` | menu tiroir nuit + relief |
+| `.drawer` `.scrim` | `Sheet` | menu tiroir bleu |
 | `.thermal` `.a4` `.a4.land` `.bul` | gabarits d'impression | voir « Impression » |
 | `.note` | **rien** | règle métier, jamais affichée |
 
