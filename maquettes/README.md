@@ -176,9 +176,10 @@ Dessiné par Claude d'après l'étude de 13 sites (`docs/claude/recherches/2026-
 
 | Page | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
-| Accueil : promesse, modules en bref, hors ligne, bulletin animé (école fictive), parents, témoignages et écoles de référence (cachés si vides), actualités, questions et appel | `site/accueil.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 4) |
-| Pour les écoles : rôles, modules (ancienne page Modules), sécurité, démarrer | `site/ecoles.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 4) |
-| Pour les parents : ce qu'ils voient, accès en trois étapes, questions | `site/parents.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 4) |
+| Accueil : promesse, modules en bref, hors ligne, bulletin animé (école fictive), parents, témoignages et écoles de référence (cachés si vides), actualités, questions et appel | `site/accueil.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 5) |
+| Pour les écoles : rôles, modules (ancienne page Modules), sécurité, démarrer | `site/ecoles.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 5) |
+| Pour les parents : ce qu'ils voient, accès en trois étapes, questions | `site/parents.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 5) |
+| Appareils du site : téléphone (écran d'accueil avec l'icône, l'application s'ouvre, trois écrans), tablette, ordinateur, gros plan incliné | `site/appareils.html` | Lot 2 | SITE.R | dessinée (2026-10-30, partie 4) ; cadres en CSS `appareils.css` codés, pages à coder (partie 5) |
 | Actualités (le dernier article en grand, liste paginée) | `site/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) |
 | Article (fil d'Ariane, chapeau, image, texte, partage par liens, autres actualités) | `site/article.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) |
 | Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | formulaire codé en WEB.1d sans écart (libellés : « Fonction », champs à 16 px pour que le téléphone ne zoome pas) ; « Suivez-nous » et réseaux du pied de page (WEB.1d) : cachés tant que l'identité n'a aucun lien |

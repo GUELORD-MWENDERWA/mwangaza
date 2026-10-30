@@ -344,6 +344,8 @@ def rerun_puts_everything_back(demo, settings) -> None:
         assert Role.objects.count() == 10
         cashier = Role.objects.get(name="Caissier")
         assert Student.objects.count() == 800
+        # Quelques photos de profil dessinées, avec l'accord du parent (captures du site).
+        assert Student.objects.exclude(photo="").filter(photo_consent=True).count() >= 60
     assert cashier.permissions == list(STARTER_ROLES["cashier"].permissions)
     assert authenticate(username="0000001001", password=DEMO_PASSWORD) == head
     # Mot de passe déjà le bon : hachage gardé, `make demo` ne ferme pas les sessions ouvertes.
