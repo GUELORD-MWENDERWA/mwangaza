@@ -12,6 +12,8 @@ from PIL import Image
 
 from apps.core import site
 from apps.core.models import PlatformSettings
+from apps.schools.models import School
+from tests.factories import SchoolFactory
 
 
 def structured_data(html: str) -> dict:
@@ -31,7 +33,7 @@ def test_home_page_uses_the_platform_identity_and_names_the_author(client, db):
 
     french = client.get("/").content.decode()
     # Le nom pour la recherche dans le titre ; la marque : le nom en gras, la suite à côté.
-    assert "<title>Lumière École — logiciel de gestion scolaire à Goma" in french
+    assert "<title>Lumière École | logiciel de gestion scolaire à Goma" in french
     assert "<b>Lumière</b><span>École</span>" in french
     assert '<link rel="canonical" href="http://testserver/">' in french
     assert 'hreflang="en" href="http://testserver/en/"' in french
@@ -61,7 +63,7 @@ def test_home_page_uses_the_platform_identity_and_names_the_author(client, db):
 
     english = client.get("/en/").content.decode()
     assert '<html lang="en">' in english
-    assert "<title>Lumière École — school management software in Goma, DRC</title>" in english
+    assert "<title>Lumière École | school management software in Goma, DRC</title>" in english
     assert structured_data(english)["WebPage"]["inLanguage"] == "en"
 
 
@@ -102,6 +104,26 @@ def test_every_page_answers_in_both_languages_and_points_to_the_other(client, db
         for image in site.PAGE_IMAGES[key]:
             assert (site.STATIC_SITE / image).is_file(), image
             assert f"<image:loc>http://testserver/static/core/site/{image}</image:loc>" in sitemap
+
+
+def test_platform_figures_count_live_schools_only_and_stay_hidden_below_five(client, db):
+    cache.delete(site.STATS_CACHE)
+    for _ in range(4):
+        SchoolFactory(environment=School.Environment.LIVE)
+    # Essai, démonstration et espace arrêté ne comptent pas (A7).
+    SchoolFactory(environment=School.Environment.TEST)
+    SchoolFactory(environment=School.Environment.DEMO)
+    SchoolFactory(environment=School.Environment.LIVE, status=School.Status.STOPPED)
+    assert site.platform_stats() == []
+    assert 'class="nums' not in client.get("/").content.decode()
+
+    cache.delete(site.STATS_CACHE)
+    SchoolFactory(environment=School.Environment.LIVE)
+    figures = site.platform_stats()
+    assert figures[0][1] == 5
+    assert [number for _value, number, _label in figures[1:]] == [0, 0, 0]
+    assert 'data-count="5"' in client.get("/").content.decode()
+    cache.delete(site.STATS_CACHE)
 
 
 def test_files_for_search_engines_and_assistants(client, db):

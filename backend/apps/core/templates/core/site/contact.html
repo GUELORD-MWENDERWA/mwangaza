@@ -2,7 +2,7 @@
 {% block main %}
 <section class="phero">
   <div class="wrap">
-    <span class="kicker sun">{% translate "Demo and contact" %}</span>
+    <span class="eyebrow">{% translate "Demo and contact" %}</span>
     <h1 class="display">{% blocktranslate trimmed with name=platform.name %}See {{ name }} with your school{% endblocktranslate %}</h1>
     <p class="lead">{% translate "Tell us who you are: we call you back to set up a demo, online or at your school in Goma, with your classes and your fees." %}</p>
   </div>
@@ -53,7 +53,7 @@
           <li><span><b>{% translate "Trial space" %}</b>{% translate "with your classes and fees, to try without risk." %}</span></li>
         </ol>
       </div>
-      <figure class="arch p34">{% translate "Courtyard of a secondary school in Goma" as alt %}{% photo "cour-ecole-goma" alt %}</figure>
+      <figure class="photo">{% translate "ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag" as alt %}{% photo "itig-cour" alt %}</figure>
       {% if whatsapp or platform.support_email or address or social %}<div>
         <h2 style="font-size:1.15rem;margin-bottom:14px">{% translate "Reach us directly" %}</h2>
         <div class="contacts">

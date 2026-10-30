@@ -45,15 +45,6 @@ urlpatterns = [
         )
         for lang in ("fr", "en")
     ],
-    *[
-        path(
-            site.MODULES_MOVED[lang][1:],
-            site.modules_moved,
-            {"lang": lang},
-            name=f"site-modules-{lang}",
-        )
-        for lang in ("fr", "en")
-    ],
     path("confidentialite/", site.privacy, {"lang": "fr"}, name="site-privacy-fr"),
     path("en/privacy/", site.privacy, {"lang": "en"}, name="site-privacy-en"),
     path("ecole/", site.school_space, name="site-school"),

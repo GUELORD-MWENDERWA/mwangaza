@@ -1,0 +1,7 @@
+{% load i18n site_tags %}<section class="night relief">
+  <div class="wrap cta">
+    <h2 class="st">{% blocktranslate trimmed with name=platform.name %}See {{ name }} with your school's classes{% endblocktranslate %}</h2>
+    <p class="lead">{% translate "We open a trial space with your classes and fees, and show you everything, online or on site in Goma." %}</p>
+    <div class="ctas"><a class="btn lamp lg" href="{{ links.contact }}">{% translate "Request a demo" %}</a>{% if whatsapp %}<a class="btn onnight lg" href="{{ whatsapp }}" rel="noopener">{% icon "chat" %}{% translate "Write on WhatsApp" %}</a>{% endif %}</div>
+  </div>
+</section>

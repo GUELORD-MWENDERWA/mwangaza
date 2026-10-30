@@ -37,7 +37,6 @@ ICONS = {
     "phone": '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
     "pin": '<path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11z"/>'
     '<circle cx="12" cy="10" r="2.3"/>',
-    "plus": '<path d="M12 5v14M5 12h14"/>',
     "print": '<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/>'
     '<path d="M6 14h12v7H6z"/>',
     "qr": '<rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" '
@@ -105,24 +104,21 @@ def capture(name: str, alt: str = "", first: bool = False, later: bool = False) 
 # Photos du site (`static/core/site/photos/`, WebP 1 200 px et 600 px ; crédits :
 # `maquettes/assets/photos/README.md`).
 PHOTOS = {
-    "classe-uniforme": (1200, 798),
-    "cour-ecole-goma": (1200, 735),
-    "directeur-ecole": (1065, 1600),
-    "eleves-kisangani": (1200, 800),
-    "eleves-rentree": (1200, 800),
-    "parent-telephone": (1200, 900),
+    "goma-lac-kivu": (1200, 800),
+    "itig-atelier-electricite": (960, 1200),
+    "itig-atelier-mecanique-auto": (1200, 800),
+    "itig-cour": (1080, 814),
 }
 
 
 @register.simple_tag
-def photo(name: str, alt: str, first: bool = False) -> str:
-    """Photo du site ; `first` : celle du haut de la page, chargée tout de suite."""
+def photo(name: str, alt: str) -> str:
     width, height = PHOTOS[name]
     full = static(f"core/site/photos/{name}.webp")
     half = static(f"core/site/photos/{name}-600.webp")
     return format_html(
         '<img src="{}" srcset="{} 600w, {} {}w" sizes="(min-width: 1024px) 560px, 100vw" '
-        'alt="{}" width="{}" height="{}" {} decoding="async">',
+        'alt="{}" width="{}" height="{}" loading="lazy" decoding="async">',
         full,
         half,
         full,
@@ -130,25 +126,4 @@ def photo(name: str, alt: str, first: bool = False) -> str:
         alt,
         width,
         height,
-        mark_safe('fetchpriority="high"' if first else 'loading="lazy"'),  # texte fixe
-    )
-
-
-@register.simple_tag
-def hero_photo(found: dict | None, name: str, alt: str, first: bool = True) -> str:
-    """Photo du haut d'une page : celle choisie dans la photothèque de la console (`found`, de
-    `site_content.page_photo`), sinon la photo du site `name`."""
-    if found is None:
-        return photo(name, alt, first)
-    return format_html(
-        '<img src="{}" srcset="{} 600w, {} {}w" sizes="(min-width: 1024px) 560px, 100vw" '
-        'alt="{}" width="{}" height="{}" {} decoding="async">',
-        found["url"],
-        found["small"],
-        found["url"],
-        1600,
-        found["alt"] or alt,
-        found["width"],
-        found["height"],
-        mark_safe('fetchpriority="high"' if first else 'loading="lazy"'),  # texte fixe
     )

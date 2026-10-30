@@ -67,7 +67,7 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
 
 ### 2026-10-30 — Lot 2 : site public refait (fini)
-Partie 5 : pages à la nouvelle marque d'après les maquettes (accueil de 8 sections, écoles avec les modules, parents, actualités paginées, article, contact, trouver mon école, mentions avec les crédits photo), `site.css` refait, titres de recherche et photo du haut lus de la console, témoignages, écoles de référence et actualités à l'accueil (cachés si vides), `/modules/` redirigé (301), articles dans `sitemap.xml`, photos de l'ITIG et du lac Kivu retirées, bande de chiffres supprimée (8 sections au plus).
+Partie 5 : le site en ligne est gardé tel quel (demande de l'utilisateur après essai de la refonte, jugée trop laide) avec les couleurs, le logo et la police de la nouvelle marque, angles droits, photos inchangées ; ajout des actualités (liste paginée, article, accueil, `sitemap.xml`) et des titres de recherche réglés dans la console.
 Tests : articles paru / programmé / brouillon / autre langue, redirection des modules, `sitemap.xml` ; captures 390 et 1440 px sans débordement. Suite : lot 3 (vendre).
 
 ### 2026-10-30 — Lot 2 : serveur du site (partie 2/5) et visuels décidés

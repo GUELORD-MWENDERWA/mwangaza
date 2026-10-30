@@ -164,8 +164,8 @@ Pas de menu latéral comme la Gestion : barre du haut bleu nuit (lignes de relie
 | Équipe de la plateforme | `console/equipe.html` | Lancement | EQ.2 | dessinée par Claude en EQ.2 d'après `console/comptes` et les pages « Team » des grands services (à valider) ; codée en EQ.2 (`/team`) sans écart ; avec le menu réduit d'un membre « Commercial » et la page « pas dans vos rôles » |
 | Site public : questions, « Prochainement », bandeau | `console/site.html` | V1.3 | SITE.1a | dessinée par Claude en SITE.1a d'après `console/annonces` et les éditeurs de contenu des grands services (liste à gauche, éditeur en deux langues et aperçu à droite) (à valider) ; codée en SITE.1a (`/site`) ; écart : sur téléphone, l'état et les flèches passent sous le titre ; « Modifiée le » sans le nom du membre (il est au journal) |
 | Site public : témoignages, écoles de référence, titres de recherche, réseaux sociaux (onglets de `console/site`) | `console/site-contenus.html` | Lot 2 | SITE.1b, SITE.5 | dessinée par Claude (2026-10-30) d'après l'écran Site (à valider) |
-| Actualités du site : liste, éditeur en petit Markdown, aperçu | `console/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; codée (lot 2) |
-| Photothèque : photos des pages (arche), photos envoyées, envoi avec licence et accord | `console/photos.html` | Lot 2 | SITE.3 | dessinée par Claude (2026-10-30, à valider) ; codée (lot 2) |
+| Actualités du site : liste, éditeur en petit Markdown, aperçu | `console/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; actualités codées dans le style du site en ligne |
+| Photothèque : photos des pages (arche), photos envoyées, envoi avec licence et accord | `console/photos.html` | Lot 2 | SITE.3 | dessinée par Claude (2026-10-30, à valider) ; actualités codées dans le style du site en ligne |
 
 ### Site public de la plateforme — domaine nu (WEB.1a, 2026-10-17 ; refait au lot 2, 2026-10-30)
 
@@ -176,12 +176,12 @@ Dessiné par Claude d'après l'étude de 13 sites (`docs/claude/recherches/2026-
 
 | Page | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
-| Accueil : promesse, modules en bref, hors ligne, bulletin animé (école fictive), parents, témoignages et écoles de référence (cachés si vides), actualités, questions et appel | `site/accueil.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; codée (lot 2, partie 5) |
+| Accueil : promesse, modules en bref, hors ligne, bulletin animé (école fictive), parents, témoignages et écoles de référence (cachés si vides), actualités, questions et appel | `site/accueil.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; maquette non suivie : le site en ligne est gardé (2026-10-30) |
 | Pour les écoles : rôles, modules (ancienne page Modules), sécurité, démarrer | `site/ecoles.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 5) |
 | Pour les parents : ce qu'ils voient, accès en trois étapes, questions | `site/parents.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 5) |
 | Appareils du site : téléphone (écran d'accueil avec l'icône, l'application s'ouvre, trois écrans), tablette, ordinateur, gros plan incliné | `site/appareils.html` | Lot 2 | SITE.R | dessinée (2026-10-30, partie 4) ; cadres en CSS `appareils.css` codés, pages à coder (partie 5) |
-| Actualités (le dernier article en grand, liste paginée) | `site/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; codée (lot 2) |
-| Article (fil d'Ariane, chapeau, image, texte, partage par liens, autres actualités) | `site/article.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; codée (lot 2) |
+| Actualités (le dernier article en grand, liste paginée) | `site/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; actualités codées dans le style du site en ligne |
+| Article (fil d'Ariane, chapeau, image, texte, partage par liens, autres actualités) | `site/article.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; actualités codées dans le style du site en ligne |
 | Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | formulaire codé en WEB.1d sans écart (libellés : « Fonction », champs à 16 px pour que le téléphone ne zoome pas) ; « Suivez-nous » et réseaux du pied de page (WEB.1d) : cachés tant que l'identité n'a aucun lien |
 | Trouver mon école | `site/trouver-mon-ecole.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
 | Mentions légales et confidentialité | `site/mentions.html` | Lancement | WEB.1a | codé (WEB.1b) : une seule adresse, `/confidentialite/` y mène ; texte dans les traductions, pas dans la console ; à faire relire par un juriste |

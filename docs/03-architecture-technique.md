@@ -4,7 +4,7 @@
 
 | Besoin | Choix | Pourquoi |
 |---|---|---|
-| 2026-10-30 | **Site public refait (lot 2)** : page Modules fusionnée dans Écoles (301) ; bande de chiffres de l'accueil supprimée (8 sections au plus) ; actualités paginées lues d'une liste en cache par langue (article programmé : date comparée à chaque lecture, sans tâche de fond) ; un article n'a pas de version dans l'autre langue (pas de `hreflang` alterné) ; photos du site : sept photos libres de droits, plus aucune photo ni nom de l'ITIG ; titres de recherche et photo du haut réglés dans la console, sinon valeurs du code | Une page, un sujet ; rien d'inventé (sections vides cachées) ; aucune requête de plus par page |
+| 2026-10-30 | **Site public (lot 2)** : on garde la mise en page du site en ligne (accueil, écoles, parents, modules, contact), avec la couleur, le logo et la police Poppins de la nouvelle marque, angles droits, photos inchangées (l'utilisateur les changera) ; ajouts : actualités paginées (liste en cache par langue, article programmé comparé à la date à chaque lecture, sans tâche de fond), titres de recherche réglés dans la console, séparateur « \| » dans les titres | Le refonte complète du site (maquettes de la partie 1) a été jugée trop laide par l'utilisateur ; pas de requête de plus par page |
 | Serveur | **Python + Django 5.2 LTS + Django REST Framework** | Tu maîtrises déjà Python et Django. Django apporte admin, migrations, authentification, sécurité, i18n. Version LTS = mises à jour de sécurité longues. |
 | Base de données | **PostgreSQL 16+** | Fiable pour l'argent (transactions strictes), JSON, recherche plein texte, sécurité par ligne possible plus tard. |
 | Tâches de fond | **Celery + Redis** | PDF lourds, notifications push, relances, imports Excel volumineux. |

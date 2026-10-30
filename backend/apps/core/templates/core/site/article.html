@@ -1,7 +1,6 @@
 {% extends "core/site/base.html" %}{% load i18n site_tags %}
 {% block main %}
-<article class="art">
-  <div class="wrap">
+<section class="sec"><article class="art wrap">
     <div class="col">
       <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}"><a href="{{ links.home }}">{% translate "Home" %}</a><span aria-hidden="true">/</span><a href="{{ links.news }}">{% translate "News" %}</a></nav>
       <h1 class="display">{{ article.title }}</h1>
@@ -14,13 +13,12 @@
       <div class="share"><b>{% translate "Share" %}</b><button type="button" data-copy="{{ url }}" data-done="{% translate 'Link copied' %}">{% translate "Copy the link" %}</button></div>
       {% if others %}<div style="margin-top:56px">
         <span class="kicker">{% translate "More news" %}</span>
-        <ul class="alist" style="margin-top:16px">
-          {% for item in others %}<li><a class="arow" href="{{ item.path }}"><span><span class="date">{{ item.published_at|date:"j F Y" }}</span><span class="h3s">{{ item.title }}</span></span></a></li>
+        <ul class="newslist" style="margin-top:16px">
+          {% for item in others %}<li><a href="{{ item.path }}"><span><span class="date">{{ item.published_at|date:"j F Y" }}</span><h3>{{ item.title }}</h3></span></a></li>
           {% endfor %}
         </ul>
         <p style="margin-top:24px"><a class="more" href="{{ links.news }}">{% translate "All the news" %}</a></p>
       </div>{% endif %}
     </div>
-  </div>
-</article>
+  </article></section>
 {% endblock %}

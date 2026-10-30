@@ -217,9 +217,3 @@ def test_public_news_pages_show_only_published_articles_in_their_language(client
     assert 'hreflang="en" href' not in page.replace('hreflang="en" lang="en"', "")
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/actualites/paru/" in sitemap and "bientot" not in sitemap
-
-
-def test_the_old_modules_page_redirects_to_the_schools_page(client):
-    for old, new in (("/modules/", "/ecoles/#modules"), ("/en/modules/", "/en/schools/#modules")):
-        response = client.get(old)
-        assert (response.status_code, response["Location"]) == (301, new)

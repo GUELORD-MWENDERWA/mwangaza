@@ -1,8 +1,7 @@
 """Site public de la plateforme (domaine nu, WEB.1b) : sept pages en français et en anglais
-(accueil, écoles avec les modules, parents, actualités, démonstration et contact, « Trouver mon
-école », mentions et confidentialité), lisibles sans JavaScript par les moteurs de recherche et
-les assistants (IA), et leurs fichiers pour les robots (`robots.txt`, `sitemap.xml`,
-`llms.txt`). Visibilité (WEB.1c) :
+(accueil, écoles, parents, modules, démonstration et contact, « Trouver mon école », mentions et
+confidentialité), lisibles sans JavaScript par les moteurs de recherche et les assistants (IA),
+et leurs fichiers pour les robots (`robots.txt`, `sitemap.xml`, `llms.txt`). Visibilité (WEB.1c) :
 titres et descriptions écrits pour les recherches courtes, avec le nom pour la recherche
 (« Mwangaza School ») ; données structurées sur chaque page ; image de partage (`share.py`).
 
@@ -44,14 +43,13 @@ PAGES = {
     "home": {"fr": "/", "en": "/en/"},
     "schools": {"fr": "/ecoles/", "en": "/en/schools/"},
     "parents": {"fr": "/parents/", "en": "/en/parents/"},
-    "news": {"fr": site_content.NEWS_PATHS["fr"], "en": site_content.NEWS_PATHS["en"]},
+    "modules": {"fr": "/modules/", "en": "/en/modules/"},
     "contact": {"fr": "/demonstration/", "en": "/en/demo/"},
     "find": {"fr": "/trouver-mon-ecole/", "en": "/en/find-my-school/"},
+    "news": {"fr": site_content.NEWS_PATHS["fr"], "en": site_content.NEWS_PATHS["en"]},
     "legal": {"fr": "/mentions-legales/", "en": "/en/legal/"},
 }
 # Adresse courte de la confidentialité : mène à sa section de la page des mentions.
-# Ancienne page Modules, fusionnée dans « Écoles » (lot 2) : redirigée.
-MODULES_MOVED = {"fr": "/modules/", "en": "/en/modules/"}
 PRIVACY = {"fr": "/confidentialite/", "en": "/en/privacy/"}
 PATHS = PAGES["home"]
 OG_LOCALES = {"fr": "fr_FR", "en": "en_US"}
@@ -60,6 +58,8 @@ SCHOOL_CODE = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$")
 # Espace de démonstration montré par les captures (`make captures-site`).
 EXAMPLE_SCHOOL = "itig-demo"
 # Bande de chiffres de l'accueil : seulement à partir de ce nombre d'écoles réelles.
+STATS_MIN_SCHOOLS = 5
+STATS_CACHE = "site:stats"
 LEGAL_UPDATED = date(2026, 10, 18)
 STATIC_SITE = Path(__file__).parent / "static" / "core" / "site"
 SHARE_CACHE = 7 * 86400
@@ -68,38 +68,40 @@ SHARE_CAPTURES = {
     "home": "gestion-tableau-de-bord",
     "schools": "gestion-caisse-encaissement",
     "parents": "portail-accueil-mobile",
-    "news": None,
+    "modules": "gestion-notes-saisie",
     "contact": "gestion-frais-baremes",
     "find": "gestion-tableau-de-bord",
+    "news": None,
     "legal": None,
 }
 # Images montrées par chaque page (`static/core/site/`) : `sitemap.xml`, et celles de l'accueil
 # comme captures du logiciel dans les données structurées.
 PAGE_IMAGES = {
     "home": (
-        "captures/gestion-caisse-encaissement.webp",
         "captures/gestion-tableau-de-bord.webp",
+        "captures/gestion-caisse-encaissement.webp",
         "captures/gestion-notes-saisie.webp",
         "captures/portail-enfant-paiements.webp",
-        "photos/eleves-rentree.webp",
+        "photos/goma-lac-kivu.webp",
     ),
     "schools": (
         "captures/gestion-caisse-encaissement.webp",
         "captures/gestion-frais-baremes.webp",
         "captures/gestion-notes-saisie.webp",
-        "captures/gestion-eleve.webp",
-        "photos/directeur-ecole.webp",
+        "captures/gestion-caisse-mobile.webp",
+        "photos/itig-atelier-electricite.webp",
     ),
     "parents": (
         "captures/portail-accueil-mobile.webp",
         "captures/portail-enfant-paiements-mobile.webp",
         "captures/portail-annonces-mobile.webp",
         "captures/portail-calendrier-mobile.webp",
-        "photos/parent-telephone.webp",
+        "captures/portail-notifications-mobile.webp",
     ),
-    "news": (),
-    "contact": ("photos/cour-ecole-goma.webp",),
+    "modules": ("photos/itig-atelier-mecanique-auto.webp",),
+    "contact": ("photos/itig-cour.webp",),
     "find": (),
+    "news": (),
     "legal": (),
 }
 # Vue de chaque page (`config/urls.py`).
@@ -107,9 +109,10 @@ VIEWS = {
     "home": "home",
     "schools": "schools",
     "parents": "parents",
-    "news": "news_list",
+    "modules": "modules",
     "contact": "contact",
     "find": "find_school",
+    "news": "news_list",
     "legal": "legal",
 }
 public = cache_control(public=True, max_age=3600)
@@ -140,7 +143,7 @@ def _texts(site_name: str) -> dict:
     `llms.txt` (une seule source). Titre (60 signes au plus) et description (155) écrits pour les
     recherches courtes (« gestion scolaire Goma »), avec le nom pour la recherche."""
     return {
-        "title": _("%(name)s — school management software in Goma, DRC") % {"name": site_name},
+        "title": _("%(name)s | school management software in Goma, DRC") % {"name": site_name},
         "description": _(
             "School management software for DRC schools: students, fees in USD and FC, cash "
             "desk and receipts, unpaid fees, report cards, parent space. Works offline."
@@ -257,9 +260,10 @@ def _crumb(key: str) -> str:
     return {
         "schools": _("Schools"),
         "parents": _("Parents"),
-        "news": _("News"),
+        "modules": _("Modules"),
         "contact": _("Contact"),
         "find": _("Find my school"),
+        "news": _("News"),
         "legal": _("Legal notice and privacy"),
     }[key]
 
@@ -402,26 +406,28 @@ def _meta(key: str, name: str) -> tuple[str, str]:
     values = {"name": name}
     return {
         "schools": (
-            _("School management: fees, cash desk, marks — %(name)s") % values,
+            _("School management: fees, cash desk, marks | %(name)s") % values,
             _(
                 "Management, accountant, cashier and teacher each work on their own screen, with "
                 "the same figures, up to date. Start even in the middle of the year."
             ),
         ),
         "parents": (
-            _("Parent space — %(name)s") % values,
+            _("Parent space | %(name)s") % values,
             _(
                 "Follow your children's school on your phone: payments, receipts, what is left "
                 "to pay, notices and summons. Activate your account with the family code."
             ),
         ),
-        "news": (
-            _("News — %(name)s") % values,
-            _("New features, tips for the new school year and life of the schools using %(name)s.")
-            % values,
+        "modules": (
+            _("School management modules | %(name)s") % values,
+            _(
+                "Each school chooses its modules: students, fees and cash desk, marks and report "
+                "cards, parent space, notices, notifications, work without internet."
+            ),
         ),
         "contact": (
-            _("Request a demo — %(name)s") % values,
+            _("Request a demo | %(name)s") % values,
             _(
                 "See %(name)s with your school's classes and fees, online or at your school in "
                 "Goma. Contact us on WhatsApp, by phone or by email."
@@ -429,11 +435,16 @@ def _meta(key: str, name: str) -> tuple[str, str]:
             % values,
         ),
         "find": (
-            _("Find my school — %(name)s") % values,
+            _("Find my school | %(name)s") % values,
             _("School staff: type your school's code to open its space."),
         ),
+        "news": (
+            _("News | %(name)s") % values,
+            _("New features, tips for the new school year and life of the schools using %(name)s.")
+            % values,
+        ),
         "legal": (
-            _("Legal notice and privacy — %(name)s") % values,
+            _("Legal notice and privacy | %(name)s") % values,
             _("Who publishes %(name)s, where the data is kept and what we do with it.") % values,
         ),
     }[key]
@@ -465,8 +476,7 @@ def _render(
     path: str | None = None,
 ) -> HttpResponse:
     """Page `key` dans la langue `lang` : contexte commun (identité, liens, contact), plus celui
-    de `build(platform, context)`, calculé dans la langue de la page. Un article (`template`,
-    `path`) n'existe que dans sa langue : pas d'adresse alternative, la bascule mène à la liste."""
+    de `build(platform)`, calculé dans la langue de la page."""
     platform = PlatformSettings.load()
     site = _site(request)
     other = "en" if lang == "fr" else "fr"
@@ -511,11 +521,10 @@ def _render(
             context["title"], context["description"] = texts["title"], texts["description"]
         else:
             context["title"], context["description"] = _meta(key, platform.site_name)
-        # Titre de recherche et photo du haut réglés dans la console (SITE.1c, SITE.3).
+        # Titre de recherche réglé dans la console (SITE.1c), sinon le texte du logiciel.
         custom_title, custom_description = site_content.page_meta(key, lang)
         context["title"] = custom_title or context["title"]
         context["description"] = custom_description or context["description"]
-        context["hero"] = site_content.page_photo(key, lang)
         if build:
             context.update(build(platform, context))
         context["json_ld"] = _structured_data(platform, context)
@@ -537,6 +546,56 @@ def _version(platform) -> int:
     return int(platform.updated_at.timestamp() * 1_000_000)
 
 
+def _rounded(value: int) -> int:
+    """Chiffre arrondi vers le bas (9 437 → 9 400) : un ordre de grandeur, pas un compteur."""
+    step = 100 if value >= 1000 else 10 if value >= 100 else 1
+    return value - value % step
+
+
+def _count_stats() -> tuple[int, ...]:
+    """Écoles, élèves inscrits cette année, reçus de l'année civile, familles sur l'espace
+    parents : espaces réels seulement, ni essai ni démonstration (A7). Rien sous 5 écoles."""
+    from apps.finance.models import Payment
+    from apps.schools.models import School
+    from apps.students.models import Enrollment, Family
+
+    live = School.objects.filter(environment=School.Environment.LIVE).exclude(
+        status__in=School.CLOSED_STATUSES
+    )
+    schools = live.count()
+    if schools < STATS_MIN_SCHOOLS:
+        return ()
+    year = timezone.localdate().year
+    return (
+        schools,
+        Enrollment.all_schools.filter(
+            school__in=live, status="active", academic_year__is_current=True
+        ).count(),
+        Payment.all_schools.filter(
+            school__in=live, origin=Payment.Origin.CASH, paid_at__year=year
+        ).count(),
+        Family.all_schools.filter(
+            school__in=live, activated_at__isnull=False, portal_suspended_at__isnull=True
+        ).count(),
+    )
+
+
+def platform_stats() -> list[tuple[str, int, str]]:
+    """Chiffres de la bande de l'accueil (valeur affichée, nombre, libellé), en cache une heure ;
+    vide sous 5 écoles réelles."""
+    values = cache.get_or_set(STATS_CACHE, _count_stats, 3600)
+    labels = (
+        _("schools"),
+        _("students followed"),
+        _("receipts this year"),
+        _("families on the parent space"),
+    )
+    return [
+        (number_format(_rounded(value), force_grouping=True), _rounded(value), label)
+        for value, label in zip(values, labels, strict=False)
+    ]
+
+
 def _ordinal(n: int) -> str:
     """Place sur le bulletin d'exemple : « 2e », « 2nd »."""
     if translation.get_language().startswith("fr"):
@@ -549,10 +608,9 @@ def _home(platform, context: dict) -> dict:
 
     return {
         "faq": site_content.entries(SiteEntry.Kind.HOME_QUESTION, context["lang"]),
-        "testimonials": site_content.testimonials(context["lang"]),
-        "references": site_content.reference_schools(context["lang"]),
+        "stats": platform_stats(),
+        "references": site_content.REFERENCES,
         "news": site_content.news(context["lang"])[:3],
-        "upcoming": site_content.entries(SiteEntry.Kind.UPCOMING, context["lang"]),
         "sample": {
             "usd": format_amount(2000, "USD"),
             "cdf": format_amount(30000, "CDF"),
@@ -570,7 +628,7 @@ def _home(platform, context: dict) -> dict:
     }
 
 
-def _schools(platform, context: dict) -> dict:
+def _modules(platform, context: dict) -> dict:
     return {
         "modules": [
             {
@@ -598,7 +656,7 @@ def home(request: HttpRequest, lang: str = "fr") -> HttpResponse:
 @require_GET
 @public
 def schools(request: HttpRequest, lang: str = "fr") -> HttpResponse:
-    return _render(request, "schools", lang, _schools)
+    return _render(request, "schools", lang)
 
 
 @require_GET
@@ -615,9 +673,9 @@ def parents(request: HttpRequest, lang: str = "fr") -> HttpResponse:
 
 
 @require_GET
-def modules_moved(request: HttpRequest, lang: str = "fr") -> HttpResponse:
-    """Ancienne page Modules : maintenant une section de la page des écoles."""
-    return redirect(PAGES["schools"][lang] + "#modules", permanent=True)
+@public
+def modules(request: HttpRequest, lang: str = "fr") -> HttpResponse:
+    return _render(request, "modules", lang, _modules)
 
 
 @require_GET
@@ -630,14 +688,13 @@ def news_list(request: HttpRequest, lang: str = "fr") -> HttpResponse:
         number = 1
     rows, pages = site_content.news_page(lang, number)
     number = min(max(number, 1), pages)
-    first_page = number == 1
     return _render(
         request,
         "news",
         lang,
         lambda *_args: {
             "articles": rows,
-            "rest": rows[1:] if first_page else rows,
+            "rest": rows[1:] if number == 1 else rows,
             "number": number,
             "pages": pages,
         },
@@ -659,7 +716,7 @@ def news_article(request: HttpRequest, slug: str, lang: str = "fr") -> HttpRespo
             "article": found,
             "author_name": found["author_name"] or _("the %(name)s team") % {"name": platform.name},
             "others": [r for r in site_content.news(lang) if r["slug"] != slug][:3],
-            "title": f"{found['title']} — {platform.site_name}",
+            "title": f"{found['title']} | {platform.site_name}",
             "description": found["summary"],
         },
         template="article",
@@ -755,11 +812,7 @@ def sitemap_xml(request: HttpRequest) -> HttpResponse:
                 }
                 for key, paths in PAGES.items()
             ],
-            "articles": [
-                {**row, "path": row["path"]}
-                for lang in ("fr", "en")
-                for row in site_content.news(lang)
-            ],
+            "articles": [row for lang in ("fr", "en") for row in site_content.news(lang)],
             "lastmod": max(platform.updated_at.date(), LEGAL_UPDATED).isoformat(),
         },
         content_type="application/xml; charset=utf-8",
@@ -800,9 +853,10 @@ def _headline(key: str, name: str) -> str:
         "home": lambda: _("The whole school in one app, even without internet"),
         "schools": lambda: _("Fees, cash desk, marks and parents, in one app"),
         "parents": lambda: _("Follow your children's school on your phone"),
-        "news": lambda: _("What is changing in %(name)s") % {"name": name},
+        "modules": lambda: _("Each school chooses its modules"),
         "contact": lambda: _("See %(name)s with your school") % {"name": name},
         "find": lambda: _("Find my school"),
+        "news": lambda: _("What is changing in %(name)s") % {"name": name},
         "legal": lambda: _("Legal notice and privacy"),
     }[key]()
 

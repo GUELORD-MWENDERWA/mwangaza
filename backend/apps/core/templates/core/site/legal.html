@@ -2,7 +2,7 @@
 {% block main %}
 <section class="phero">
   <div class="wrap">
-    <span class="kicker">{% translate "Information" %}</span>
+    <span class="eyebrow">{% translate "Information" %}</span>
     <h1 class="display">{% translate "Legal notice and privacy" %}</h1>
     <p class="lead">{% blocktranslate trimmed with name=platform.name date=updated|date:"d/m/Y" %}Who publishes {{ name }}, where the data is kept, and what we do with it. Updated on {{ date }}.{% endblocktranslate %}</p>
     <nav class="jump" aria-label="{% translate 'On this page' %}"><a href="#confidentialite">{% icon "file" %}{% translate "Privacy" %}</a></nav>
@@ -30,7 +30,7 @@
         <dt>{% translate "Software" %}</dt><dd>{% blocktranslate trimmed with name=platform.name %}{{ name }} School, school management software{% endblocktranslate %}</dd>
         <dt>{% translate "Hosting" %}</dt><dd>{% translate "Secure data centre in Europe; an encrypted backup copy is kept with a second provider." %}</dd>
         <dt>{% translate "Ownership" %}</dt><dd>{% blocktranslate trimmed with editor=editor %}The software, the name and the logo belong to {{ editor }}. Each school's data belongs to the school.{% endblocktranslate %}</dd>
-        <dt>{% translate "Photo credit" %}</dt><dd>{% translate "Students at the start of the school year: MONUSCO Photos, CC BY-SA 2.0. Students in Kisangani: BamLifa, CC BY-SA 4.0. A mother on the phone: Francish7, CC BY-SA 3.0. A school head: Julien Harneis, CC BY-SA 2.0. Class in uniform: Ken Wiegand (USAID), public domain. Courtyard of a school in Goma: Kaptainwiki, CC0." %}</dd>
+        <dt>{% translate "Photo credit" %}</dt><dd>{% translate "Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0." %}</dd>
       </dl>
 
       <h2 id="confidentialite">{% translate "Who is responsible for your data" %}</h2>

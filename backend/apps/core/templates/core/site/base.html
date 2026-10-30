@@ -47,10 +47,10 @@
     <div class="sact">
       <a class="slang" href="{{ other_url }}" hreflang="{{ other_lang }}" lang="{{ other_lang }}">{{ other_lang_name }}</a>
       <a class="slink" href="{{ links.find }}">{% translate "Find my school" %}</a>
-      <a class="btn primary sm" href="{{ links.contact }}"><span class="hide-s">{% translate "Request a demo" %}</span><span class="show-s">{% translate "Demo" %}</span></a>
+      <a class="btn lamp sm" href="{{ links.contact }}"><span class="hide-s">{% translate "Request a demo" %}</span><span class="show-s">{% translate "Demo" %}</span></a>
       <details class="smenu">
         <summary aria-label="{% translate 'Open the menu' %}">{% icon "menu" %}</summary>
-        <nav class="smpanel" aria-label="{% translate 'Main menu' %}">
+        <nav class="smpanel relief" aria-label="{% translate 'Main menu' %}">
           {% include "core/site/_menu.html" %}
           <a href="{{ links.find }}">{% icon "search" %} {% translate "Find my school" %}</a>
           <a href="{{ portal_url }}">{% icon "users" %} {% translate "Parent space" %}</a>
@@ -63,7 +63,7 @@
 <main id="contenu">
 {% block main %}{% endblock %}
 </main>
-<footer class="sf">
+<footer class="sf relief">
   <div class="wrap">
     <div class="sfgrid">
       <div class="sfabout">
@@ -81,8 +81,9 @@
         <ul>
           <li><a href="{{ links.schools }}">{% translate "For schools" %}</a></li>
           <li><a href="{{ links.parents }}">{% translate "For parents" %}</a></li>
-          <li><a href="{{ links.schools }}#modules">{% translate "Modules" %}</a></li>
+          <li><a href="{{ links.modules }}">{% translate "Modules" %}</a></li>
           <li><a href="{{ links.news }}">{% translate "News" %}</a></li>
+          <li><a href="{{ links.home }}#questions">{% translate "Frequently asked questions" %}</a></li>
         </ul>
       </div>
       <div>
@@ -98,7 +99,6 @@
         <ul>
           <li><a href="{{ links.legal }}">{% translate "Legal notice" %}</a></li>
           <li><a href="{{ links.legal }}#confidentialite">{% translate "Privacy" %}</a></li>
-          <li><a href="{{ links.home }}#questions">{% translate "Frequently asked questions" %}</a></li>
           <li><a href="{{ links.contact }}">{% translate "Contact" %}</a></li>
         </ul>
       </div>
