@@ -27,7 +27,8 @@ export function Kpi({
 }: {
   label: string;
   value: ReactNode;
-  sub?: ReactNode;
+  /** Une précision, ou une liste : chaque ligne reste entière (jamais coupée en deux). */
+  sub?: ReactNode | string[];
   tone?: keyof typeof tones;
   icon?: IconName;
   chip?: keyof typeof chips;
@@ -60,7 +61,17 @@ export function Kpi({
       >
         {value}
       </p>
-      {sub && <p className="mt-1 text-sm break-words text-ink-3">{sub}</p>}
+      {Array.isArray(sub)
+        ? sub.length > 0 && (
+            <ul className="mt-1 space-y-0.5 text-sm text-ink-3">
+              {sub.map((line) => (
+                <li key={line} className="text-pretty">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          )
+        : sub && <p className="mt-1 text-sm text-pretty break-words text-ink-3">{sub}</p>}
       {children}
     </Card>
   );

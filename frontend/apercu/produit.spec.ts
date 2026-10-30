@@ -28,6 +28,14 @@ async function skipGuide(page: Page) {
 
 async function settle(page: Page) {
   await page.waitForLoadState("networkidle").catch(() => undefined);
+  // Jamais une image prise pendant le chargement (barres grises) ni pendant la synchronisation.
+  await page
+    .locator(
+      '[role="status"][aria-label^="Chargement"], [role="status"]:has-text("Synchronisation")',
+    )
+    .first()
+    .waitFor({ state: "hidden", timeout: 20_000 })
+    .catch(() => undefined);
   await page.waitForTimeout(600);
 }
 

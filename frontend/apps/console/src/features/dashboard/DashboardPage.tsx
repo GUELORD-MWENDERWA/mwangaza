@@ -89,11 +89,14 @@ export function DashboardPage() {
         <Kpi
           label={t("console.dashboard.activeSchools")}
           value={data.schools.active}
-          sub={t("console.dashboard.schoolsSub", {
-            trial: data.schools.trial,
-            ending: data.schools.trial_ending,
-            suspended: data.schools.suspended,
-          })}
+          sub={[
+            data.schools.trial > 0 &&
+              t("console.dashboard.trialSub", { count: data.schools.trial }),
+            data.schools.trial_ending > 0 &&
+              t("console.dashboard.endingSub", { count: data.schools.trial_ending }),
+            data.schools.suspended > 0 &&
+              t("console.dashboard.suspendedLine", { count: data.schools.suspended }),
+          ].filter((line): line is string => Boolean(line))}
         />
         <Kpi
           label={t("console.dashboard.students")}

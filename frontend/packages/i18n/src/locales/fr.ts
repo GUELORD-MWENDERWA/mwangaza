@@ -5063,8 +5063,11 @@ export const fr = {
       subtitle:
         "Les écoles réelles de la plateforme | {{day}}. Les espaces d'essai et de démonstration ne comptent pas.",
       activeSchools: "Écoles actives",
-      schoolsSub:
-        "{{trial}} en essai gratuit ({{ending}} finit dans moins de 30 j) · {{suspended}} suspendue(s)",
+      trialSub: "{{count}} en essai gratuit",
+      endingSub_one: "dont {{count}} finit dans moins de 30 j",
+      endingSub_other: "dont {{count}} finissent dans moins de 30 j",
+      suspendedLine_one: "{{count}} suspendue",
+      suspendedLine_other: "{{count}} suspendues",
       students: "Élèves inscrits",
       studentsSub: "année en cours de chaque école",
       payments: "Paiements aujourd'hui",

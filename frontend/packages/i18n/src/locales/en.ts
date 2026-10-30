@@ -5019,8 +5019,11 @@ export const en: Messages<typeof fr> = {
       subtitle:
         "The live schools of the platform | {{day}}. Sandbox and demonstration spaces are not counted.",
       activeSchools: "Active schools",
-      schoolsSub:
-        "{{trial}} on free trial ({{ending}} ending within 30 days) · {{suspended}} suspended",
+      trialSub: "{{count}} on free trial",
+      endingSub_one: "{{count}} ends within 30 days",
+      endingSub_other: "{{count}} end within 30 days",
+      suspendedLine_one: "{{count}} suspended",
+      suspendedLine_other: "{{count}} suspended",
       students: "Enrolled students",
       studentsSub: "current year of each school",
       payments: "Payments today",
