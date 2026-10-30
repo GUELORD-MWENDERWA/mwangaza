@@ -163,17 +163,24 @@ Pas de menu latéral comme la Gestion : barre du haut bleu nuit (lignes de relie
 | Journal et sessions support | `console/journal.html` | V1.1 | 5.4.2 | dessinée par Claude en 5.4.2 (à valider) ; codée en 5.4.2 en deux onglets (`/journal`, `/journal/support`) ; sans compteur d'entrées sous la liste ; S.3.2 : carte « Alertes sur cet appareil » ajoutée au-dessus des onglets (pas dans la maquette), filtre « Type » complété (« Annonces », « Accès du super-admin ») |
 | Équipe de la plateforme | `console/equipe.html` | Lancement | EQ.2 | dessinée par Claude en EQ.2 d'après `console/comptes` et les pages « Team » des grands services (à valider) ; codée en EQ.2 (`/team`) sans écart ; avec le menu réduit d'un membre « Commercial » et la page « pas dans vos rôles » |
 | Site public : questions, « Prochainement », bandeau | `console/site.html` | V1.3 | SITE.1a | dessinée par Claude en SITE.1a d'après `console/annonces` et les éditeurs de contenu des grands services (liste à gauche, éditeur en deux langues et aperçu à droite) (à valider) ; codée en SITE.1a (`/site`) ; écart : sur téléphone, l'état et les flèches passent sous le titre ; « Modifiée le » sans le nom du membre (il est au journal) |
+| Site public : témoignages, écoles de référence, titres de recherche, réseaux sociaux (onglets de `console/site`) | `console/site-contenus.html` | Lot 2 | SITE.1b, SITE.5 | dessinée par Claude (2026-10-30) d'après l'écran Site (à valider) |
+| Actualités du site : liste, éditeur en petit Markdown, aperçu | `console/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) |
+| Photothèque : photos des pages (arche), photos envoyées, envoi avec licence et accord | `console/photos.html` | Lot 2 | SITE.3 | dessinée par Claude (2026-10-30, à valider) |
 
-### Site public de la plateforme — domaine nu (WEB.1a, 2026-10-17)
+### Site public de la plateforme — domaine nu (WEB.1a, 2026-10-17 ; refait au lot 2, 2026-10-30)
+
+**Refait au lot 2 (SITE.R)** d'après `docs/claude/recherches/2026-10-30-site-refait.md` et le livre de marque : en-tête craie (logo en couleur, entrée active soulignée de soleil), titres en Poppins, listes à filets au lieu des grilles de cartes, une seule bande bleue par page, photos à arche (`.arch`, demi-cercle du symbole en haut), pied bleu uniforme. Page Modules fusionnée dans Écoles (`#modules`) ; pages Actualités et Article ajoutées ; photos libres d'élèves congolais (`assets/photos/README.md`), plus aucune photo ni nom de l'ITIG. À valider.
+
 
 Dessiné par Claude d'après l'étude de 13 sites (`docs/claude/recherches/2026-10-17-site-public.md`) ; à valider. En-tête nuit collé en haut (menu par public, « Trouver mon école », « Demander une démo », menu `<details>` sous 1 024 px), pied nuit complet (contact, liens, langues, « © DTMS »), tous deux réécrits par `maquettes.py site`. Chaque animation est décrite dans un `.note` avec son rôle.
 
 | Page | Fichier | Lot | Réf. | État |
 |---|---|---|---|---|
-| Accueil (+ bulletin officiel animé au nom de l'ITIG et carte « École pilote », 2026-10-18) | `site/accueil.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
-| Pour les écoles (direction, comptable, caissier, enseignant ; mise en route) | `site/ecoles.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
-| Pour les parents (ce qu'ils voient, activation, installation) | `site/parents.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
-| Modules (catalogue, socle, prochainement) | `site/modules.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
+| Accueil : promesse, modules en bref, hors ligne, bulletin animé (école fictive), parents, témoignages et écoles de référence (cachés si vides), actualités, questions et appel | `site/accueil.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 4) |
+| Pour les écoles : rôles, modules (ancienne page Modules), sécurité, démarrer | `site/ecoles.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 4) |
+| Pour les parents : ce qu'ils voient, accès en trois étapes, questions | `site/parents.html` | Lot 2 | SITE.R | redessinée (2026-10-30, à valider) ; à coder (partie 4) |
+| Actualités (le dernier article en grand, liste paginée) | `site/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) |
+| Article (fil d'Ariane, chapeau, image, texte, partage par liens, autres actualités) | `site/article.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) |
 | Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | formulaire codé en WEB.1d sans écart (libellés : « Fonction », champs à 16 px pour que le téléphone ne zoome pas) ; « Suivez-nous » et réseaux du pied de page (WEB.1d) : cachés tant que l'identité n'a aucun lien |
 | Trouver mon école | `site/trouver-mon-ecole.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
 | Mentions légales et confidentialité | `site/mentions.html` | Lancement | WEB.1a | codé (WEB.1b) : une seule adresse, `/confidentialite/` y mène ; texte dans les traductions, pas dans la console ; à faire relire par un juriste |

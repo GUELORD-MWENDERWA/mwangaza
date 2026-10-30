@@ -52,6 +52,8 @@ ICONS = {
     "phone": '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
     "wifioff": '<path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5-2.7M14.5 10.4a10 10 0 0 1 4.5 2.5M2 9.3a15 15 0 0 1 4.3-2.6M11 5.1A15 15 0 0 1 22 9.3"/><path d="M12 20h.01"/>',
     "chevron": '<path d="m9 6 6 6-6 6"/>',
+    "up": '<path d="m6 15 6-6 6 6"/>',
+    "image": '<rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5.5-5 4 3.5 3-2.5 3.5 3"/>',
     "chevdown": '<path d="m6 9 6 6 6-6"/>',
     "back": '<path d="m15 6-6 6 6 6"/>',
     "menu": '<path d="M4 7h16M4 12h16M4 17h16"/>',
@@ -419,6 +421,9 @@ CONSOLE = [
     ("demandes", "Demandes de démonstration (site public)", "Lancement", "WEB.1d", True),
     ("equipe", "Équipe de la plateforme", "Lancement", "EQ.2", True),
     ("site", "Site public : questions, « Prochainement », bandeau", "V1.3", "SITE.1a", True),
+    ("site-contenus", "Site public : témoignages, écoles de référence, titres de recherche, réseaux", "Lot 2", "SITE.1b, SITE.5", True),
+    ("actualites", "Actualités du site : liste, éditeur et aperçu", "Lot 2", "SITE.2", True),
+    ("photos", "Photothèque du site : photos des pages, envoi avec accord", "Lot 2", "SITE.3", True),
 ]
 
 

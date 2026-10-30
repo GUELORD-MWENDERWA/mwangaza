@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — actualités du site — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut bleu nuit, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background-color:var(--night);color:var(--night-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.85rem;display:flex;align-items:center;gap:6px;color:#C3CFE0}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.ctop .me .avatar{background:var(--night-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#C3CFE0;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.8rem;color:#7A8699;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.85rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.92rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.15rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:minmax(0,1fr)}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}.tabs span{padding:10px 14px;font-weight:700;color:var(--ink-3);border-bottom:3px solid transparent}.tabs span.on{color:var(--ink);border-bottom-color:var(--lake)}
+.grid2{display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);align-items:start}
+@media (max-width:1100px){.grid2{grid-template-columns:minmax(0,1fr)}}
+.gbanner{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:var(--info-50);color:var(--lake-700);border-bottom:1px solid #C4D8F6;padding:10px 14px;font-size:.92rem}
+.gbanner .txt{flex:1;min-width:0}.gbanner .txt span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink-2)}
+.news article{padding:14px 16px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:6px}.news article:first-child{border-top:0}
+
+/* SITE.1a : listes du site (rang, titre, état, monter / descendre), éditeur en deux langues, aperçus. */
+.entries>div{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}.entries>div:first-child{border-top:0}
+.entries .n{width:24px;text-align:right;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.entries .t{flex:1;min-width:0}.entries .t b{display:block}
+.entries .moves{display:flex;gap:2px}.entries .sel-row{background:var(--info-50)}
+.langs{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.langs h3{font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin:0}
+@media (max-width:1300px){.langs{grid-template-columns:minmax(0,1fr)}}
+.preview{background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:14px}
+.preview details{background:#fff;border:1px solid var(--line);border-radius:12px}
+.preview summary{list-style:none;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;font-weight:700}
+.preview details p{padding:0 16px 14px;margin:0;color:var(--ink-2)}
+.sbanner{background:var(--lamp);color:var(--night);text-align:center;padding:9px 16px;font-size:.92rem;font-weight:600}
+.sbanner a{color:inherit;text-decoration:underline;text-underline-offset:3px;margin-left:6px;white-space:nowrap}
+.fakehead{background:var(--night);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px;font-weight:700}
+.fakehead span{flex:1}
+.upc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;max-width:360px}
+.upc .tag{align-self:flex-start;background:#FFF3CC;color:#6B4F00}
+.dates{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Lot 2 (SITE.1b, SITE.2, SITE.3, SITE.5) */
+.tabs{overflow-x:auto;scrollbar-width:none}.tabs span{white-space:nowrap}
+.thumbs{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));padding:16px}
+.thumbs figure{margin:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.thumbs img{width:100%;aspect-ratio:3/2;object-fit:cover;display:block}
+.thumbs figcaption{padding:8px 10px;font-size:.85rem;display:flex;flex-direction:column;gap:4px;min-width:0}
+.thumbs figcaption b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thumbs figure.sel{outline:3px solid var(--lake);outline-offset:-1px}
+.slots{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr));padding:16px}
+.slots>div{display:flex;flex-direction:column;gap:8px}
+.slots img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:60px 60px 10px 10px/48px 48px 10px 10px;display:block}
+@media (max-width:820px){.slots{grid-template-columns:minmax(0,1fr)}.slots img{aspect-ratio:16/9}}
+.drop{border:2px dashed var(--field);border-radius:12px;padding:18px;text-align:center;color:var(--ink-2);background:var(--table-head)}
+.mdhelp{font-size:.85rem;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 14px}
+.mdhelp code{background:var(--gray-50,#EDF1F6);border-radius:4px;padding:0 4px}
+.md{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem;line-height:1.55;white-space:pre-wrap;min-height:220px;align-items:flex-start}
+.prev{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;font-size:.95rem;display:flex;flex-direction:column;gap:10px}
+.prev h4{font-size:1.1rem;margin:6px 0 0}
+.prev ul{margin:0;padding-left:20px}
+.socials{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+@media (max-width:820px){.socials{grid-template-columns:minmax(0,1fr)}}
+.file{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;font-size:.92rem}
+.file .grow{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cmain svg.ic{width:18px;height:18px;flex:none}.drop svg.ic{width:28px;height:28px;color:var(--lake)}
+.tbl td .t2{display:block;color:var(--ink-3);font-size:.85rem}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">AK</span><b>Amani Kahindo</b></span></div>
+  <nav><a href="#">Site</a><a class="on" href="#">Actualités</a><a href="#">Photos</a><a href="#">Annonces</a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Actualités</h1><p>Les articles du site public, en français et en anglais. Un article programmé paraît seul à sa date.</p></div><a class="btn primary" href="#"><svg class="ic" data-ic="plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nouvel article</a></div>
+  <div class="filters"><div class="seg"><span class="on">Tous · 6</span><span>Publiés · 4</span><span>Programmés · 1</span><span>Brouillons · 1</span></div><div class="seg"><span class="on">Français</span><span>Anglais</span></div></div>
+  <div class="card"><div class="tblwrap"><table class="tbl stack"><thead><tr><th>Article</th><th>Langue</th><th>État</th><th>Date de publication</th><th>Modifié par</th></tr></thead><tbody>
+    <tr class="sel"><td data-label="Article"><b>Les bulletins de la première période arrivent chez les parents</b><span class="t2">/actualites/bulletins-premiere-periode/</span></td><td data-label="Langue">FR</td><td data-label="État"><span class="pill ok">Publié</span></td><td data-label="Publication">28/10/2026 09:00</td><td data-label="Par">Amani Kahindo</td></tr>
+    <tr><td data-label="Article"><b>Mobile Money : ce qui se prépare</b><span class="t2">/actualites/mobile-money/</span></td><td data-label="Langue">FR</td><td data-label="État"><span class="pill info">Programmé</span></td><td data-label="Publication">04/11/2026 08:00</td><td data-label="Par">Amani Kahindo</td></tr>
+    <tr><td data-label="Article"><b>L'emploi du temps publié aux enseignants et aux parents</b><span class="t2">/actualites/emploi-du-temps/</span></td><td data-label="Langue">FR</td><td data-label="État"><span class="pill ok">Publié</span></td><td data-label="Publication">20/10/2026 10:30</td><td data-label="Par">Amani Kahindo</td></tr>
+    <tr><td data-label="Article"><b>Report cards for the first term reach parents</b><span class="t2">/en/news/first-term-report-cards/</span></td><td data-label="Langue">EN</td><td data-label="État"><span class="pill gray">Brouillon</span></td><td data-label="Publication"><span class="muted">—</span></td><td data-label="Par">Amani Kahindo</td></tr>
+  </tbody></table></div><div class="ft"><span class="small muted">20 par page</span><span class="small">Page 1 sur 1</span></div></div>
+
+  <div class="grid2">
+    <div class="card"><div class="hd"><h2>Modifier l'article</h2><span class="pill ok">Publié</span></div><div class="bd col">
+      <div class="dates"><label class="f">Langue<span class="inp">Français</span></label><label class="f">Auteur affiché<span class="inp">L'équipe Mwangaza</span></label></div>
+      <label class="f"><span>Titre <span class="req">*</span></span><span class="inp">Les bulletins de la première période arrivent chez les parents</span><span class="help">63 caractères · adresse : /actualites/bulletins-premiere-periode/ (figée depuis la publication)</span></label>
+      <label class="f"><span>Résumé <span class="req">*</span></span><span class="inp" style="min-height:64px;align-items:flex-start">Dès que l'école publie les bulletins, chaque parent les voit dans son espace, avec la place et la conduite.</span><span class="help">Sous le titre, dans la liste et dans Google · 105 / 200 caractères</span></label>
+      <label class="f"><span>Texte <span class="req">*</span></span><span class="inp md">La première période se termine dans beaucoup d'écoles du Nord-Kivu…
+
+## Ce que voit le parent
+
+Dans l'espace parents, la fiche de chaque enfant montre maintenant :
+
+- le bulletin de la période, au format de l'école ;
+- le **pourcentage**, la **place** et la conduite ;
+- le code QR qui prouve que le bulletin est vrai.
+
+Le détail est dans le [guide de la Gestion](https://mwangazaschool.com/aide/).</span></label>
+      <div class="mdhelp"><span><code>## Intertitre</code></span><span><code>- liste</code></span><span><code>**gras**</code></span><span><code>[texte](https://…)</code></span><span>Une ligne vide = un nouveau paragraphe</span></div>
+      <label class="f">Image<span class="file"><img src="../assets/photos/classe-uniforme.jpg" alt="" style="width:64px;height:42px;object-fit:cover;border-radius:6px"><span class="grow">Classe en uniforme · photothèque</span><a class="btn sm ghost" href="#">Changer</a><a class="btn sm ghost" href="#">Retirer</a></span></label>
+      <div class="dates"><label class="f">État<span class="inp">Publié</span></label><label class="f">Date de publication<span class="inp">28/10/2026 09:00</span><span class="help">Dans le futur : article programmé</span></label></div>
+      <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:10px"><a class="btn danger sm" href="#">Supprimer</a><div class="row" style="gap:8px"><a class="btn" href="#">Aperçu ↗</a><a class="btn primary" href="#">Enregistrer</a></div></div>
+    </div></div>
+    <div class="card"><div class="hd"><h2>Aperçu</h2><span class="small muted">Comme sur le site</span></div><div class="bd">
+      <div class="prev">
+        <span class="small muted">28 octobre 2026 · L'équipe Mwangaza · 2 min de lecture</span>
+        <h4>Les bulletins de la première période arrivent chez les parents</h4>
+        <p class="muted">Dès que l'école publie les bulletins, chaque parent les voit dans son espace, avec la place et la conduite.</p>
+        <img src="../assets/photos/classe-uniforme.jpg" alt="" style="width:100%;aspect-ratio:2/1;object-fit:cover;border-radius:10px">
+        <p>La première période se termine dans beaucoup d'écoles du Nord-Kivu…</p>
+        <h4>Ce que voit le parent</h4>
+        <p>Dans l'espace parents, la fiche de chaque enfant montre maintenant :</p>
+        <ul><li>le bulletin de la période, au format de l'école ;</li><li>le <b>pourcentage</b>, la <b>place</b> et la conduite ;</li><li>le code QR qui prouve que le bulletin est vrai.</li></ul>
+      </div>
+    </div></div>
+  </div>
+  <div class="note"><b>Actualités (SITE.2) :</b> droit <code>platform.site.edit</code> (serveur). Titre (120 au plus), résumé (200), texte en petit Markdown (20 000 caractères), langue, image de la photothèque, auteur affiché, état <i>brouillon</i> ou <i>publié</i> avec une date : date future = « Programmé » (calculé, pas un état enregistré ; aucune tâche de fond). Adresse tirée du titre à la première publication, unique par langue, figée ensuite. Aperçu rendu par le serveur avec le même code que le site (aucun HTML accepté). Pas de lien entre un article et sa traduction en V1 (deux articles). Création, modification, publication et suppression au journal ; cache du site vidé. Liste paginée, 20 par page ; au téléphone, une carte par article (<code>Table stacked</code>) et l'aperçu sous l'éditeur.</div>
+
+</main>
+</body></html>

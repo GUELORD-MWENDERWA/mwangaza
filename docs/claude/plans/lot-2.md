@@ -5,7 +5,7 @@ Issue #411 · branche `lot/2-site` · démarré le 2026-10-30
 **But** : un site qui vend en peu de mots (promesse, preuves, modules en bref, démonstration), à la nouvelle marque, avec de vraies photos d'élèves congolais ; la communication le tient à jour seule depuis la console (actualités, photos, témoignages, écoles de référence, titres de recherche, réseaux).
 
 **Parties** (une conversation chacune)
-- [ ] ① Étude (`docs/claude/recherches/2026-10-30-site-refait.md`), photos libres (`maquettes/assets/photos/`), maquettes du site (accueil, écoles, parents, actualités, article) et de la console (onglets du site, actualités, photothèque)
+- [x] ① Étude (`docs/claude/recherches/2026-10-30-site-refait.md`), photos libres (`maquettes/assets/photos/`), maquettes du site (accueil, écoles, parents, actualités, article) et de la console (onglets du site, actualités, photothèque)
 - [ ] ② Serveur : `Testimonial`, `ReferenceSchool`, `PageMeta`, `Article`, `SitePhoto` + emplacements ; API console, droit `platform.site.edit`, journal, cache ; tests
 - [ ] ③ Console : onglets de l'écran Site, écrans Actualités et Photothèque
 - [ ] ④ Pages du site (gabarits, `site.css`, actualités, redirections, `sitemap.xml`), captures du produit (`make captures-site`), documents
