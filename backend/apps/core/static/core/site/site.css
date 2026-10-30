@@ -580,3 +580,11 @@ label.f .req{color:var(--due)}
 .bubble{background:var(--surface);padding:10px 12px;font-size:.92rem;max-width:90%}
 @media (max-width:480px){.chat-open span{display:none}.chat-open{padding:0;width:52px;justify-content:center}}
 @media print{.chat{display:none}}
+
+/* Coins arrondis en diagonale (haut droit et bas gauche) : cartes, photos, vignettes. Droits aux
+   deux autres coins : le coin haut gauche, où commence la lecture, reste franc ; plus petits sur téléphone. */
+:root{--leaf:0 28px 0 28px;--leaf-s:0 14px 0 14px}
+@media (max-width:480px){:root{--leaf:0 20px 0 20px;--leaf-s:0 10px 0 10px}}
+.sc,.ref,.photo,.vcard,.card,.win,.steps4 li,.steps3 li,.newslist a{border-radius:var(--leaf)}
+.sc .thumb{border-radius:0 28px 0 0}
+.newslist img,.art .body figure img,.arthead img{border-radius:var(--leaf-s)}

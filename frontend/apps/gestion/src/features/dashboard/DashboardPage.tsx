@@ -312,7 +312,7 @@ function DailyChart({ days, main }: { days: Dashboard["daily"]; main: string }) 
                 className="absolute inset-x-0 flex items-center gap-2"
                 style={{ bottom: `${step * 100}%` }}
               >
-                <span className="h-px flex-1 bg-chart-grid" />
+                <span className="h-0 flex-1 border-t border-dashed border-chart-grid" />
                 <span className="w-24 text-right text-xs text-ink-3 tabular-nums">
                   {formatAmount(Math.round(max * step), currency)}
                 </span>
@@ -326,7 +326,7 @@ function DailyChart({ days, main }: { days: Dashboard["daily"]; main: string }) 
                 >
                   <div
                     className={cn(
-                      "w-full rounded-t-[4px] transition-opacity group-hover:opacity-80",
+                      "w-full rounded-tl-[2px] rounded-tr-[8px] transition-opacity group-hover:opacity-80",
                       index === values.length - 1 ? "bg-chart-2" : "bg-chart-1",
                     )}
                     style={{

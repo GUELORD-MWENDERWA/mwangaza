@@ -3515,7 +3515,7 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Espace du titulaire : sa classe dans une période ou des examens — état de chaque fiche
+         * @description Espace du titulaire : sa classe dans une période ou des examens | état de chaque fiche
          *     de cotes (moyenne et élèves sous la moitié une fois envoyée), puis, toutes validées, la
          *     vérification élève par élève et les chiffres de la classe ; « Bulletins prêts ».
          */

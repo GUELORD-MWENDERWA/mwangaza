@@ -118,3 +118,7 @@ Une seule fois (`frontend/packages/money`, `frontend/packages/i18n`) : USD `1 23
 ## Accessibilité
 
 Focus visible (bordure lac + anneau `lake-100`) ; erreur : bordure `due` + anneau `due-50` ; contrastes vérifiés (texte ≥ 4,5:1, bordure de champ ≥ 3:1) ; couleur d'état toujours avec un texte ; `prefers-reduced-motion` coupe les animations ; cibles ≥ 44 px au téléphone.
+
+
+## Coins et relief (2026-10-30)
+Grands fonds bleus : relief blanc à 20 % (`relief.svg`, règle `.bg-night` de `packages/ui`). Cartes, photos, vignettes : coins arrondis en diagonale (haut droit, bas gauche) ; voir `maquettes/README.md`.
