@@ -11,7 +11,13 @@ Issue #411 · branche `lot/2-site` · démarré le 2026-10-30
 - [x] ④ Visuels du produit (demande du 2026-10-30, comme ShuleSystem) : `make captures-site` refait — vrais écrans de la démo posés dans des téléphones, une tablette et un ordinateur dessinés (SVG / CSS, sans dépendance), gros plans inclinés, WebP ; maquettes de l'accueil, des écoles et des parents revues avec ces visuels et leurs animations. **Exigence du 2026-10-30** : cadres d'appareils soignés et professionnels (pas « commodes ») d'après les grands sites ; photos de profil générées et icône de l'application dans les écrans des téléphones et tablettes
 - [x] ⑤ Pages du site (gabarits, `site.css`, `site.js`, actualités, redirections, `sitemap.xml`), photos Wikimedia retirées, documents
 
-**Hors périmètre** : page des prix (lot 3, SITE.4) ; sites des écoles (lot 15).
+- [x] ⑤bis Retour au site en ligne avec la marque (fonds clairs, angles droits), appareils noirs, reçu visible, journée en défilement avec fenêtre au clic
+- [ ] ⑥ **Site complet** (demande du 2026-10-30, tout visible comme si fini ; les « à venir » figurent comme déjà là) : console + site pour **formules et abonnements** (page des prix, 3 formules d'exemple modifiables), **partenaires** (ITIG, DTMS, Afronova, logos qui défilent), **chiffres** (4 écoles d'exemple, sans noms sauf ITIG), **témoignages** qui défilent avec fenêtre au clic (personnes africaines, étiquette « exemple » dans la console, publiables sans accord tant qu'ils sont « exemple »)
+- [ ] ⑦ **Chat du site** : bulle (nom, téléphone, message) → boîte de réception de la console avec alerte + bouton WhatsApp ; sans service externe
+- [ ] ⑧ **Articles complets** : 6 à 8 articles longs et sérieux (titre, sous-titre, intertitres, listes, photo à côté du titre, photos dans le texte), mise en page d'article de site pro ; **photos libres de droits** cherchées pour chaque emplacement (plus aucune photo de l'ITIG sur les pages, sauf comme partenaire) ; bulletin à taille normale
+- [ ] ⑨ Coordonnées réelles dans l'identité (console), `make demo` complété, puis `make deploy`
+
+**Hors périmètre** : contrats et factures (lot 3) ; sites des écoles (lot 15).
 
 **Regard senior (à valider)**
 - Page Modules fusionnée dans Écoles (301) ; « Questions » quitte le menu (reste sur l'accueil).
