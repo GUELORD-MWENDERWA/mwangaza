@@ -5,6 +5,7 @@ avec l'accord quand un élève est reconnaissable, et ne se supprime pas tant qu
 Droits : `test_console_team.py`."""
 
 import io
+import uuid
 from datetime import timedelta
 from pathlib import Path
 
@@ -123,6 +124,24 @@ def test_the_article_text_never_lets_html_or_scripts_through(console):
     # L'aperçu de la console passe par le même code.
     preview = console.post(f"{ARTICLES}preview/", {"body": "<i>x</i>"}).json()
     assert preview["html"] == "<p>&lt;i&gt;x&lt;/i&gt;</p>" and preview["minutes"] == 1
+
+
+def test_a_photo_of_the_library_shows_in_the_text_and_an_unknown_one_leaves_nothing():
+    photo = SitePhoto.objects.create(
+        large="a.webp",
+        small="b.webp",
+        width=1600,
+        height=1000,
+        alt_fr="Cour",
+        alt_en="Yard",
+        credit="X",
+        license="cc0",
+    )
+    text = f"Avant\n\n![La <b>cour</b>](photo:{photo.pk})\n![](photo:{uuid.uuid4()})\n\nAprès"
+    html = site_content.body_html(text, "en")
+    assert f'src="/api/platform/photos/{photo.pk}-1600.webp"' in html
+    assert 'alt="Yard"' in html and "<figcaption>La &lt;b&gt;cour&lt;/b&gt;</figcaption>" in html
+    assert html.count("<img") == 1 and "photo:" not in html
 
 
 def jpeg(width: int, height: int) -> SimpleUploadedFile:

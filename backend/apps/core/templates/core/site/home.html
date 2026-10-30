@@ -42,7 +42,7 @@
       <div class="sc rv">
         <div class="demo">{% include "core/site/_sync.html" with inline=True %}
           <div class="rticket" role="img" aria-label="{% translate 'Receipt C1-000482 printed without a network' %}">
-            <div class="rc">COMPLEXE SCOLAIRE LES VOLCANS</div>
+            <div class="rc">COMPLEXE SCOLAIRE LES COLLINES</div>
             <dl><dt>{% translate "Receipt" %}</dt><dd>C1-000482</dd><dt>{% translate "Student" %}</dt><dd>KAMBALE Josué</dd><dt>{% translate "Tuition · 2nd instalment" %}</dt><dd>{{ sample.paid }}</dd></dl>
             <div class="rtot"><span>{% translate "Paid" %}</span><b>{{ sample.paid }}</b></div>
           </div>
@@ -69,17 +69,13 @@
     <div class="sechd rv"><span class="eyebrow">{% blocktranslate trimmed with name=platform.name %}A day with {{ name }}{% endblocktranslate %}</span><h2 class="st">{% translate "From opening the cash desk to the evening dashboard" %}</h2></div>
     <div class="reel" data-reel-track>
       <ul class="reeltrack">
-        <li><button type="button" class="reelcard" data-reel><figure>{% translate "Opening the cash desk" as alt %}{% capture "gestion-caisse-ouverture" alt %}</figure><span class="t">07:30</span><h3>{% translate "The cash desk opens" %}</h3><p>{% translate "The cashier counts the opening float and opens the session, on the computer or the tablet." %}</p><span class="who">{% translate "Cashier" %}</span></button></li>
-        <li><button type="button" class="reelcard" data-reel><figure>{% translate "Taking an instalment" as alt %}{% capture "gestion-caisse-encaissement" alt %}</figure><span class="t">08:10</span><h3>{% translate "A parent pays the 2nd instalment" %}</h3><p>{% translate "In dollars or francs, in full or in part: the receipt comes out in seconds, with a QR code to check it." %}</p><span class="who">{% translate "Cashier" %}</span></button></li>
-        <li><button type="button" class="reelcard" data-reel><figure>{% translate "A child's payments in the parent space" as alt %}{% capture "portail-enfant-paiements" alt %}</figure><span class="t">08:11</span><h3>{% translate "The parent sees it on their phone" %}</h3><p>{% translate "The payment and the receipt appear in the parent space, with what is left to pay." %}</p><span class="who">{% translate "Parent" %}</span></button></li>
-        <li><button type="button" class="reelcard" data-reel><figure>{% translate "Entering a class's marks" as alt %}{% capture "gestion-notes-saisie" alt %}</figure><span class="t">11:00</span><h3>{% translate "The term's marks" %}</h3><p>{% translate "The teacher enters the class marks; the average, the rank and the conduct are worked out for the report card." %}</p><span class="who">{% translate "Teacher" %}</span></button></li>
-        <li><button type="button" class="reelcard" data-reel><figure>{% translate "Closing the cash desk" as alt %}{% capture "gestion-caisse-cloture" alt %}</figure><span class="t">16:30</span><h3>{% translate "Closing and dashboard" %}</h3><p>{% translate "The cashier closes with any difference; the head sees the day's takings and the unpaid fees of each class." %}</p><span class="who">{% translate "Cashier, head" %}</span></button></li>
+        <li><div class="reelcard"><figure>{% translate "Opening the cash desk" as alt %}{% capture "gestion-caisse-ouverture" alt %}</figure><span class="t">07:30</span><h3>{% translate "The cash desk opens" %}</h3><p>{% translate "The cashier counts the opening float and opens the session, on the computer or the tablet." %}</p><span class="who">{% translate "Cashier" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "Taking an instalment" as alt %}{% capture "gestion-caisse-encaissement" alt %}</figure><span class="t">08:10</span><h3>{% translate "A parent pays the 2nd instalment" %}</h3><p>{% translate "In dollars or francs, in full or in part: the receipt comes out in seconds, with a QR code to check it." %}</p><span class="who">{% translate "Cashier" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "A child's payments in the parent space" as alt %}{% capture "portail-enfant-paiements" alt %}</figure><span class="t">08:11</span><h3>{% translate "The parent sees it on their phone" %}</h3><p>{% translate "The payment and the receipt appear in the parent space, with what is left to pay." %}</p><span class="who">{% translate "Parent" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "Entering a class's marks" as alt %}{% capture "gestion-notes-saisie" alt %}</figure><span class="t">11:00</span><h3>{% translate "The term's marks" %}</h3><p>{% translate "The teacher enters the class marks; the average, the rank and the conduct are worked out for the report card." %}</p><span class="who">{% translate "Teacher" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "Closing the cash desk" as alt %}{% capture "gestion-caisse-cloture" alt %}</figure><span class="t">16:30</span><h3>{% translate "Closing and dashboard" %}</h3><p>{% translate "The cashier closes with any difference; the head sees the day's takings and the unpaid fees of each class." %}</p><span class="who">{% translate "Cashier, head" %}</span></div></li>
       </ul>
     </div>
-    <dialog class="reeldialog" id="reel-dialog" aria-label="{% translate 'A day with the software' %}">
-      <form method="dialog"><button class="reelclose" aria-label="{% translate 'Close' %}">{% icon "x" %}</button></form>
-      <div class="reelbody"></div>
-    </dialog>
   </div>
 </section>
 
@@ -100,7 +96,7 @@
       <div class="btop">{% include "core/_flag.html" %}<div class="bstate">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div><span class="bqr"><img src="{{ sample.qr }}" alt="" width="64" height="64"><i class="scan"></i></span></div>
       <div class="bline"><b>{% translate "PROVINCE" %} :</b> NORD-KIVU</div>
       <div class="btwo">
-        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>ITIG DON BOSCO GOMA</u></p></div>
+        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>&nbsp;</u></p></div>
         <div><p><b>{% translate "STUDENT" %} :</b> <u>KAMBALE JOSUÉ</u> <b>{% translate "SEX" %} :</b> M</p><p><b>{% translate "CLASS" %} :</b> <u>3e Électricité A</u></p></div>
       </div>
       <div class="btitle"><span>{% translate "REPORT CARD OF" %} 3e ÉLECTRICITÉ</span><span>{% translate "SCHOOL YEAR" %} 2025-2026</span></div>
@@ -189,8 +185,8 @@
 <section class="sec">
   <div class="wrap">
     {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Pilot school" %}</span><h2 class="st">{% translate "Designed with a real school in Goma" %}</h2></div>{% endif %}
-    <figure class="ref rv">
-      <div class="refphoto">{% photo school.photo school.photo_alt %}</div>
+    <figure class="ref rv{% if not school.photo %} solo{% endif %}">
+      {% if school.photo %}<div class="refphoto">{% photo school.photo school.photo_alt %}</div>{% endif %}
       <div class="refbody">
         <div class="refschool"><img class="reflogo" src="{% static school.logo %}" alt="{% blocktranslate with name=school.name %}{{ name }} logo{% endblocktranslate %}" width="56" height="56" loading="lazy"><span><b>{{ school.name }}</b><small>{{ school.kind }}</small></span></div>
         {% if school.quote %}<blockquote>« {{ school.quote }} »<footer>{{ school.quote_by }} · {{ school.name }}</footer></blockquote>{% endif %}

@@ -8,14 +8,12 @@ from datetime import timedelta
 
 from django.db import transaction
 from django.utils import timezone
-from django.utils.text import slugify
 
 from apps.academics.demo import create_demo_courses, create_demo_grades, create_demo_promotion
 from apps.accounts.demo import create_demo_accounts
 from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.ai.demo import create_demo_ai
-from apps.core import site_content
-from apps.core.models import Article, DemoRequest, PlatformSettings
+from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools
 from apps.finance.demo import (
     create_demo_cancellations,
@@ -163,77 +161,6 @@ def create_demo_requests() -> None:
         request = DemoRequest.objects.create(**fields)
         # `auto_now_add` remplit la date à la création : on la recule ensuite.
         DemoRequest.objects.filter(pk=request.pk).update(created_at=now - timedelta(hours=hours))
-
-
-# Actualités fictives du site (SITE.2) : des fonctions qui existent vraiment, aucune école ni
-# personne nommée. (jours depuis la publication — négatif : programmé —, champs) ; `None` :
-# brouillon.
-DEMO_ARTICLES = (
-    (
-        6,
-        {
-            "language": "fr",
-            "title": "La caisse continue de fonctionner sans internet",
-            "summary": "Coupure de réseau à l'heure des paiements : la caissière encaisse, "
-            "imprime le reçu, et tout part au serveur au retour du réseau.",
-            "body": "À Goma, le réseau tombe souvent au pire moment : le jour où les parents "
-            "viennent payer.\n\n## Ce qui ne change pas pour la caissière\n"
-            "- elle cherche l'élève et encaisse comme d'habitude ;\n"
-            "- le reçu sort avec son **numéro définitif** ;\n"
-            "- le solde de l'élève est à jour sur l'appareil.\n\n"
-            "## Au retour du réseau\nLes paiements partent seuls, une seule fois chacun. "
-            "Le comptable les voit dans la clôture de caisse.",
-        },
-    ),
-    (
-        2,
-        {
-            "language": "fr",
-            "title": "Les reçus arrivent sur le téléphone des parents",
-            "summary": "Chaque paiement enregistré à la caisse apparaît dans l'espace des "
-            "parents, avec son reçu et ce qui reste à payer.",
-            "body": "Un parent qui a activé son compte avec le **code famille** voit, pour "
-            "chacun de ses enfants :\n- les paiements et leurs reçus ;\n"
-            "- les échéances à venir ;\n- les annonces de l'école.\n\n"
-            "Le détail est dans [la page des parents](/parents/).",
-        },
-    ),
-    (
-        -3,
-        {
-            "language": "fr",
-            "title": "Rappels d'échéance : l'école choisit quand prévenir",
-            "summary": "Trois jours avant une tranche, puis en cas de retard : le parent reçoit "
-            "un rappel sur son téléphone, si l'école l'active.",
-            "body": "Les rappels aux parents sont réglés par chaque école dans ses paramètres."
-            "\n\nRien ne part sans son accord.",
-        },
-    ),
-    (
-        None,
-        {
-            "language": "en",
-            "title": "The cash desk keeps working without internet",
-            "summary": "Network down at payment time: the cashier takes the payment, prints "
-            "the receipt, and everything is sent when the network is back.",
-            "body": "Payments are sent once each when the network comes back.",
-        },
-    ),
-)
-
-
-def create_demo_articles() -> None:
-    """Actualités fictives, remises comme au départ (celles de la console restent)."""
-    Article.objects.filter(title__in=[fields["title"] for _days, fields in DEMO_ARTICLES]).delete()
-    now = timezone.now().replace(minute=0, second=0, microsecond=0)
-    for days, fields in DEMO_ARTICLES:
-        article = Article(author_name="", **fields)
-        if days is not None:
-            article.status = Article.Status.PUBLISHED
-            article.published_at = now - timedelta(days=days)
-            article.slug = slugify(article.title)
-        article.save()
-    transaction.on_commit(site_content.clear)
 
 
 def create_demo_platform() -> PlatformSettings:

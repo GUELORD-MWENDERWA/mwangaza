@@ -12,3 +12,12 @@ Choisies au lot 2 (SITE.R, 2026-10-30) sur Wikimedia Commons, licence vérifiée
 | `directeur-ecole.jpg` | Un directeur d'école à son bureau (adulte) | [Commons](https://commons.wikimedia.org/wiki/File:Le_Directeur_d%27Ecole.jpg), CC BY-SA 2.0 | Julien Harneis, CC BY-SA 2.0 |
 
 Règles (livre de marque, « Style photographique ») : élèves en uniforme **en groupe, de dos ou de loin** ; aucun visage d'enfant en gros plan sans l'accord écrit des parents et de l'école ; photos sans légende sur le site, crédit seulement dans les mentions légales. Écartées : « Classroom in Goma » (USAID, visages d'enfants en gros plan), photos avec banderoles ou logos d'organisations, photos de soldats. **Les photos de l'ITIG ont quitté le site** (lot 2) : une école n'y apparaît qu'avec son accord écrit, comme école de référence (SITE.1b).
+
+Ajoutées à la partie 8 du lot 2 (2026-10-30), toujours Wikimedia Commons, sans personne :
+
+| Fichier | Sujet | Source et licence | Crédit (mentions légales) |
+|---|---|---|---|
+| `salle-de-classe.jpg` | Salle de classe vide, bancs en bois (collège de Goma) | [Commons](https://commons.wikimedia.org/wiki/File:Classe_du_coll%C3%A8ge_mwanga.jpg), CC BY 4.0 | Sunway godianne, CC BY 4.0 |
+| `cour-interieure-ecole.jpg` | Cour intérieure d'un complexe scolaire à étages | [Commons](https://commons.wikimedia.org/wiki/File:C.SC._MANDELA.jpg), CC0 | Juska Kanduvula, CC0 |
+| `ecole-fontaine.jpg` | Façade d'un complexe scolaire (Goma) | [Commons](https://commons.wikimedia.org/wiki/File:Complexe_Scolaire_la_Fontaine.jpg), CC0 | Delord Wayire, CC0 |
+| `ecole-kami.jpg` | Bâtiment d'un complexe scolaire (Goma) | [Commons](https://commons.wikimedia.org/wiki/File:B%C3%A2timent_du_complexe_scolaire_KAMI_HSS.jpg), CC BY 4.0 | Sunway godianne, CC BY 4.0 |

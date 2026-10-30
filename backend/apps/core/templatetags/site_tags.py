@@ -106,9 +106,9 @@ def capture(name: str, alt: str = "", first: bool = False, later: bool = False) 
 # `maquettes/assets/photos/README.md`).
 PHOTOS = {
     "goma-lac-kivu": (1200, 800),
-    "itig-atelier-electricite": (960, 1200),
-    "itig-atelier-mecanique-auto": (1200, 800),
-    "itig-cour": (1080, 814),
+    "cour-interieure-ecole": (1200, 675),
+    "salle-de-classe": (1200, 900),
+    "cour-ecole-goma": (1200, 735),
 }
 
 

@@ -18,11 +18,11 @@ from apps.accounts.demo import (
 )
 from apps.accounts.models import User
 from apps.core.demo import (
-    create_demo_articles,
     create_demo_platform,
     create_demo_requests,
     fill,
 )
+from apps.core.demo_articles import create_demo_articles
 from apps.core.tenancy import use_all_schools
 from apps.notifications.demo import create_demo_platform_announcements
 from apps.portal.demo import demo_portal

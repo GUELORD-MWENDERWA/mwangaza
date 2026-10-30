@@ -1,13 +1,15 @@
 {% extends "core/site/base.html" %}{% load i18n site_tags %}
 {% block main %}
 <section class="sec"><article class="art wrap">
-    <div class="col">
+    <header class="arthead">
+      <div>
       <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}"><a href="{{ links.home }}">{% translate "Home" %}</a><span aria-hidden="true">/</span><a href="{{ links.news }}">{% translate "News" %}</a></nav>
       <h1 class="display">{{ article.title }}</h1>
       <p class="lead">{{ article.summary }}</p>
       <p class="byline"><time datetime="{{ article.published_at|date:'Y-m-d' }}">{{ article.published_at|date:"j F Y" }}</time><span>{% blocktranslate with author=author_name %}By {{ author }}{% endblocktranslate %}</span><span>{% blocktranslate with n=article.minutes %}{{ n }} min read{% endblocktranslate %}</span></p>
-    </div>
-    {% if article.photo %}<figure class="pic cover" style="aspect-ratio:2/1"><img src="{{ article.photo.url }}" alt="{{ article.photo.alt }}" width="{{ article.photo.width }}" height="{{ article.photo.height }}" fetchpriority="high"></figure>{% endif %}
+      </div>
+      {% if article.photo %}<figure class="pic cover"><img src="{{ article.photo.url }}" srcset="{{ article.photo.small }} 600w, {{ article.photo.url }} {{ article.photo.width }}w" sizes="(min-width: 900px) 500px, 100vw" alt="{{ article.photo.alt }}" width="{{ article.photo.width }}" height="{{ article.photo.height }}" fetchpriority="high"></figure>{% endif %}
+    </header>
     <div class="col body">{{ article.html }}</div>
     <div class="col">
       <div class="share"><b>{% translate "Share" %}</b><button type="button" data-copy="{{ url }}" data-done="{% translate 'Link copied' %}">{% translate "Copy the link" %}</button></div>

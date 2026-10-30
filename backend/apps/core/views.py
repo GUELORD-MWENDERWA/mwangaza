@@ -41,7 +41,7 @@ from rest_framework.views import APIView
 
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission
-from apps.core import markdown, services
+from apps.core import markdown, services, site_content
 from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
 from apps.core.images import PHOTO_WIDTHS
@@ -569,7 +569,11 @@ class ConsoleArticleViewSet(
         serializer.is_valid(raise_exception=True)
         body = serializer.validated_data["body"]
         return Response(
-            {"body": body, "html": markdown.render(body), "minutes": markdown.reading_minutes(body)}
+            {
+                "body": body,
+                "html": site_content.body_html(body, get_language() or "fr"),
+                "minutes": markdown.reading_minutes(body),
+            }
         )
 
 

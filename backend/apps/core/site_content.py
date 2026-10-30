@@ -247,6 +247,23 @@ def news_photo(photo_id, alt: dict, width: int, height: int, lang: str) -> dict 
     }
 
 
+def body_html(text: str, lang: str):
+    """Le texte d'un article en HTML, ses photos cherchées en une requête."""
+    ids = markdown.photo_ids(text)
+    rows = SitePhoto.objects.filter(pk__in=ids).values(*PHOTO_FIELDS) if ids else []
+    photos = {
+        str(row["id"]): news_photo(
+            row["id"],
+            {"fr": row["alt_fr"], "en": row["alt_en"]},
+            row["width"],
+            row["height"],
+            lang,
+        )
+        for row in rows
+    }
+    return markdown.render(text, photos)
+
+
 def news(lang: str, now: datetime | None = None) -> list[dict]:
     """Articles parus dans cette langue (date de publication passée), les plus récents d'abord,
     avec leur adresse et leur photo ; pour la liste paginée, l'accueil et le `sitemap.xml`."""
@@ -299,7 +316,7 @@ def article(lang: str, slug: str) -> dict | None:
         "published_at": found.published_at,
         "updated_at": found.updated_at,
         "author_name": found.author_name,
-        "html": markdown.render(found.body),
+        "html": body_html(found.body, lang),
         "minutes": markdown.reading_minutes(found.body),
         "photo": news_photo(
             found.photo_id,
@@ -376,10 +393,6 @@ REFERENCES = (
         "name": "ITIG Don Bosco Goma",
         "kind": _("Industrial technical institute · Goma, North Kivu"),
         "logo": "core/site/photos/itig-logo.webp",
-        "photo": "itig-cour",
-        "photo_alt": _(
-            "ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag"
-        ),
         "facts": (
             (_("1,000+"), _("students")),
             ("4", _("technical options")),

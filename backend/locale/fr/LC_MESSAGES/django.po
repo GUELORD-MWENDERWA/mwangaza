@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-30 13:05+0200\n"
+"POT-Creation-Date: 2026-10-30 13:50+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -431,8 +431,8 @@ msgid "class"
 msgstr "classe"
 
 #: apps/academics/models.py:35 apps/academics/models.py:156
-#: apps/accounts/models.py:162 apps/core/models.py:139 apps/core/models.py:486
-#: apps/core/models.py:608 apps/finance/models.py:35 apps/finance/models.py:371
+#: apps/accounts/models.py:162 apps/core/models.py:139 apps/core/models.py:488
+#: apps/core/models.py:610 apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/schools/models.py:107 apps/schools/models.py:391
 #: apps/schools/models.py:449 apps/schools/models.py:488
 #: apps/schools/models.py:525 apps/sync/models.py:27
@@ -584,7 +584,7 @@ msgstr "note"
 msgid "grades"
 msgstr "notes"
 
-#: apps/academics/models.py:214 apps/core/models.py:637
+#: apps/academics/models.py:214 apps/core/models.py:639
 #: apps/timetable/models.py:247 apps/timetable/models.py:415
 msgid "Draft"
 msgstr "Brouillon"
@@ -598,7 +598,7 @@ msgid "Validated"
 msgstr "Validée"
 
 #: apps/academics/models.py:225 apps/academics/models.py:559
-#: apps/academics/models.py:696 apps/core/models.py:659
+#: apps/academics/models.py:696 apps/core/models.py:661
 #: apps/finance/models.py:190 apps/finance/models.py:638
 #: apps/schools/models.py:207 apps/schools/models.py:396
 #: apps/students/models.py:176 apps/students/models.py:242
@@ -2092,7 +2092,7 @@ msgstr ""
 "Remplacez d'abord votre mot de passe provisoire à l'adresse de votre école."
 
 #: apps/accounts/models.py:64 apps/accounts/models.py:255
-#: apps/core/models.py:293 apps/students/models.py:70
+#: apps/core/models.py:295 apps/students/models.py:70
 msgid "phone"
 msgstr "téléphone"
 
@@ -2112,7 +2112,7 @@ msgstr "post-nom"
 msgid "first name"
 msgstr "prénom"
 
-#: apps/accounts/models.py:73 apps/core/models.py:297 apps/core/models.py:644
+#: apps/accounts/models.py:73 apps/core/models.py:299 apps/core/models.py:646
 msgid "language"
 msgstr "langue"
 
@@ -2161,12 +2161,12 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:174 apps/core/models.py:290
+#: apps/accounts/models.py:174 apps/core/models.py:292
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:200 apps/core/models.py:53 apps/core/models.py:291
-#: apps/core/models.py:488 apps/core/models.py:530
+#: apps/accounts/models.py:200 apps/core/models.py:53 apps/core/models.py:293
+#: apps/core/models.py:490 apps/core/models.py:532
 #: apps/notifications/models.py:344 apps/schools/admin.py:59
 #: apps/schools/models.py:231 apps/schools/models.py:355
 msgid "school"
@@ -2776,7 +2776,7 @@ msgid "Add to my app"
 msgstr "Ajouter à mon application"
 
 #: apps/accounts/templates/admin/accounts/user/temporary_password.html:6
-#: apps/core/models.py:444 apps/core/templates/core/site/article.html:5
+#: apps/core/models.py:446 apps/core/templates/core/site/article.html:6
 msgid "Home"
 msgstr "Accueil"
 
@@ -2874,11 +2874,11 @@ msgstr "usage"
 msgid "Waiting"
 msgstr "En attente"
 
-#: apps/ai/models.py:100 apps/core/models.py:708
+#: apps/ai/models.py:100 apps/core/models.py:710
 msgid "Running"
 msgstr "En cours"
 
-#: apps/ai/models.py:101 apps/core/models.py:709 apps/timetable/models.py:353
+#: apps/ai/models.py:101 apps/core/models.py:711 apps/timetable/models.py:353
 msgid "Done"
 msgstr "Terminé"
 
@@ -2886,7 +2886,7 @@ msgstr "Terminé"
 msgid "Refused"
 msgstr "Refusé"
 
-#: apps/ai/models.py:103 apps/core/models.py:710 apps/schools/models.py:352
+#: apps/ai/models.py:103 apps/core/models.py:712 apps/schools/models.py:352
 #: apps/students/models.py:227 apps/timetable/models.py:356
 msgid "Failed"
 msgstr "Échec"
@@ -3975,7 +3975,7 @@ msgid "created at"
 msgstr "créé le"
 
 #: apps/core/models.py:25 apps/core/models.py:213 apps/core/models.py:286
-#: apps/core/models.py:354 apps/core/models.py:468
+#: apps/core/models.py:356 apps/core/models.py:470
 msgid "updated at"
 msgstr "modifié le"
 
@@ -4004,7 +4004,7 @@ msgstr ""
 "Titres du site public, résultats de recherche, aperçus partagés sur "
 "WhatsApp. Un nom courant se perd dans les résultats : ajoutez-lui un mot."
 
-#: apps/core/models.py:158 apps/core/models.py:540 apps/core/models.py:616
+#: apps/core/models.py:158 apps/core/models.py:542 apps/core/models.py:618
 #: apps/schools/models.py:111
 msgid "logo"
 msgstr "logo"
@@ -4053,7 +4053,7 @@ msgstr "e-mail du support"
 msgid "legal notice"
 msgstr "mentions légales"
 
-#: apps/core/models.py:191 apps/core/models.py:646 apps/students/models.py:111
+#: apps/core/models.py:191 apps/core/models.py:648 apps/students/models.py:111
 msgid "address"
 msgstr "adresse"
 
@@ -4061,8 +4061,8 @@ msgstr "adresse"
 msgid "Street, number, district."
 msgstr "Rue, numéro, quartier."
 
-#: apps/core/models.py:193 apps/core/models.py:292 apps/core/models.py:489
-#: apps/core/models.py:531 apps/schools/models.py:148
+#: apps/core/models.py:193 apps/core/models.py:294 apps/core/models.py:491
+#: apps/core/models.py:533 apps/schools/models.py:148
 msgid "town"
 msgstr "ville"
 
@@ -4137,54 +4137,54 @@ msgstr "reçue le"
 msgid "full name"
 msgstr "nom complet"
 
-#: apps/core/models.py:288 apps/finance/models.py:179
+#: apps/core/models.py:289 apps/finance/models.py:179
 #: apps/timetable/models.py:217
 msgid "source"
 msgstr "origine"
 
-#: apps/core/models.py:294
+#: apps/core/models.py:296
 msgid "number of pupils"
 msgstr "nombre d'élèves"
 
-#: apps/core/models.py:295 apps/students/models.py:71
+#: apps/core/models.py:297 apps/students/models.py:71
 msgid "email"
 msgstr "e-mail"
 
-#: apps/core/models.py:296 apps/notifications/models.py:23
+#: apps/core/models.py:298 apps/notifications/models.py:23
 #: apps/notifications/models.py:168 apps/notifications/models.py:276
 msgid "message"
 msgstr "message"
 
-#: apps/core/models.py:299
+#: apps/core/models.py:301
 msgid "follow-up"
 msgstr "suivi"
 
-#: apps/core/models.py:301
+#: apps/core/models.py:303
 msgid "internal note"
 msgstr "note interne"
 
-#: apps/core/models.py:304
+#: apps/core/models.py:306
 msgid "demo request"
 msgstr "demande de démonstration"
 
-#: apps/core/models.py:305
+#: apps/core/models.py:307
 msgid "demo requests"
 msgstr "demandes de démonstration"
 
-#: apps/core/models.py:320
+#: apps/core/models.py:322
 msgid "Home page question"
 msgstr "Question de l'accueil"
 
-#: apps/core/models.py:321
+#: apps/core/models.py:323
 msgid "Parents page question"
 msgstr "Question de la page Parents"
 
-#: apps/core/models.py:322 apps/core/templates/core/site/modules.html:32
+#: apps/core/models.py:324 apps/core/templates/core/site/modules.html:32
 #: apps/core/templates/core/site/modules.html:34
 msgid "Coming soon"
 msgstr "Prochainement"
 
-#: apps/core/models.py:326 apps/finance/models.py:247
+#: apps/core/models.py:328 apps/finance/models.py:247
 #: apps/notifications/models.py:93 apps/notifications/models.py:274
 #: apps/schools/models.py:438 apps/sync/models.py:26
 #: apps/timetable/models.py:81 apps/timetable/models.py:120
@@ -4192,356 +4192,356 @@ msgstr "Prochainement"
 msgid "kind"
 msgstr "type"
 
-#: apps/core/models.py:327
+#: apps/core/models.py:329
 msgid "title in French"
 msgstr "titre en français"
 
-#: apps/core/models.py:328
+#: apps/core/models.py:330
 msgid "title in English"
 msgstr "titre en anglais"
 
-#: apps/core/models.py:329 apps/core/models.py:348
+#: apps/core/models.py:331 apps/core/models.py:350
 msgid "text in French"
 msgstr "texte en français"
 
-#: apps/core/models.py:330 apps/core/models.py:349
+#: apps/core/models.py:332 apps/core/models.py:351
 msgid "text in English"
 msgstr "texte en anglais"
 
-#: apps/core/models.py:331 apps/core/models.py:487 apps/core/models.py:502
-#: apps/core/models.py:544 apps/core/models.py:590 apps/core/models.py:618
+#: apps/core/models.py:333 apps/core/models.py:489 apps/core/models.py:504
+#: apps/core/models.py:546 apps/core/models.py:592 apps/core/models.py:620
 msgid "position"
 msgstr "rang"
 
-#: apps/core/models.py:332 apps/core/models.py:503 apps/core/models.py:545
-#: apps/core/models.py:591 apps/core/models.py:619
+#: apps/core/models.py:334 apps/core/models.py:505 apps/core/models.py:547
+#: apps/core/models.py:593 apps/core/models.py:621
 msgid "published"
 msgstr "publié"
 
-#: apps/core/models.py:336
+#: apps/core/models.py:338
 msgid "site content"
 msgstr "contenu du site"
 
-#: apps/core/models.py:337
+#: apps/core/models.py:339
 msgid "site contents"
 msgstr "contenus du site"
 
-#: apps/core/models.py:350 apps/core/models.py:533 apps/core/models.py:609
+#: apps/core/models.py:352 apps/core/models.py:535 apps/core/models.py:611
 #: apps/notifications/models.py:278
 msgid "link"
 msgstr "lien"
 
-#: apps/core/models.py:351
+#: apps/core/models.py:353
 msgid "from"
 msgstr "du"
 
-#: apps/core/models.py:352
+#: apps/core/models.py:354
 msgid "until"
 msgstr "au"
 
-#: apps/core/models.py:353
+#: apps/core/models.py:355
 msgid "shown"
 msgstr "affiché"
 
-#: apps/core/models.py:357 apps/core/models.py:358
+#: apps/core/models.py:359 apps/core/models.py:360
 msgid "site banner"
 msgstr "bandeau du site"
 
 #
-#: apps/core/models.py:401
+#: apps/core/models.py:403
 msgid "Public domain"
 msgstr "Domaine public"
 
 #
-#: apps/core/models.py:404
+#: apps/core/models.py:406
 msgid "Written consent"
 msgstr "Accord écrit"
 
-#: apps/core/models.py:408
+#: apps/core/models.py:410
 msgid "width"
 msgstr "largeur"
 
 #
-#: apps/core/models.py:409
+#: apps/core/models.py:411
 msgid "height"
 msgstr "hauteur"
 
 #
-#: apps/core/models.py:410
+#: apps/core/models.py:412
 msgid "alternative text in French"
 msgstr "texte alternatif en français"
 
 #
-#: apps/core/models.py:411
+#: apps/core/models.py:413
 msgid "alternative text in English"
 msgstr "texte alternatif en anglais"
 
-#: apps/core/models.py:412
+#: apps/core/models.py:414
 msgid "author or source"
 msgstr "auteur ou source"
 
 #
-#: apps/core/models.py:413
+#: apps/core/models.py:415
 msgid "source page"
 msgstr "page d'origine"
 
-#: apps/core/models.py:414
+#: apps/core/models.py:416
 msgid "licence"
 msgstr "licence"
 
 #
-#: apps/core/models.py:415
+#: apps/core/models.py:417
 msgid "a pupil can be recognised"
 msgstr "un élève est reconnaissable"
 
 #
-#: apps/core/models.py:416 apps/core/models.py:492
+#: apps/core/models.py:418 apps/core/models.py:494
 msgid "written consent"
 msgstr "accord écrit"
 
 #
-#: apps/core/models.py:420
+#: apps/core/models.py:422
 msgid "site photo"
 msgstr "photo du site"
 
 #
-#: apps/core/models.py:421
+#: apps/core/models.py:423
 msgid "site photos"
 msgstr "photos du site"
 
-#: apps/core/models.py:445 apps/core/site.py:266
+#: apps/core/models.py:447 apps/core/site.py:266
 #: apps/core/templates/core/site/_menu.html:1 apps/schools/apps.py:10
 msgid "Schools"
 msgstr "Écoles"
 
-#: apps/core/models.py:446 apps/core/site.py:234 apps/core/site.py:267
+#: apps/core/models.py:448 apps/core/site.py:234 apps/core/site.py:267
 #: apps/core/templates/core/site/_menu.html:1
 msgid "Parents"
 msgstr "Parents"
 
-#: apps/core/models.py:447 apps/core/site.py:272
+#: apps/core/models.py:449 apps/core/site.py:272
 #: apps/core/templates/core/site/_menu.html:1
-#: apps/core/templates/core/site/article.html:5
+#: apps/core/templates/core/site/article.html:6
 #: apps/core/templates/core/site/base.html:85
 #: apps/core/templates/core/site/home.html:236
 #: apps/core/templates/core/site/news.html:6
 msgid "News"
 msgstr "Actualités"
 
-#: apps/core/models.py:448 apps/core/templates/core/site/base.html:50
+#: apps/core/models.py:450 apps/core/templates/core/site/base.html:50
 #: apps/core/templates/core/site/contact.html:52
 #: apps/core/templates/core/site/schools.html:109
 msgid "Demo"
 msgstr "Démo"
 
-#: apps/core/models.py:453 apps/core/templates/core/print_base.html:13
+#: apps/core/models.py:455 apps/core/templates/core/print_base.html:13
 msgid "page"
 msgstr "page"
 
 #
-#: apps/core/models.py:454
+#: apps/core/models.py:456
 msgid "search title in French"
 msgstr "titre de recherche en français"
 
 #
-#: apps/core/models.py:455
+#: apps/core/models.py:457
 msgid "search title in English"
 msgstr "titre de recherche en anglais"
 
-#: apps/core/models.py:456
+#: apps/core/models.py:458
 msgid "search description in French"
 msgstr "description de recherche en français"
 
-#: apps/core/models.py:458
+#: apps/core/models.py:460
 msgid "search description in English"
 msgstr "description de recherche en anglais"
 
-#: apps/core/models.py:466 apps/students/models.py:112
+#: apps/core/models.py:468 apps/students/models.py:112
 msgid "photo"
 msgstr "photo"
 
 #
-#: apps/core/models.py:471
+#: apps/core/models.py:473
 msgid "site page"
 msgstr "page du site"
 
 #
-#: apps/core/models.py:472
+#: apps/core/models.py:474
 msgid "site pages"
 msgstr "pages du site"
 
 #
-#: apps/core/models.py:490
+#: apps/core/models.py:492
 msgid "quote in French"
 msgstr "citation en français"
 
 #
-#: apps/core/models.py:491
+#: apps/core/models.py:493
 msgid "quote in English"
 msgstr "citation en anglais"
 
 #
-#: apps/core/models.py:499
+#: apps/core/models.py:501
 msgid "school logo"
 msgstr "logo de l'école"
 
-#: apps/core/models.py:501 apps/core/models.py:543 apps/core/models.py:589
+#: apps/core/models.py:503 apps/core/models.py:545 apps/core/models.py:591
 msgid "example"
 msgstr "exemple"
 
 #
-#: apps/core/models.py:507
+#: apps/core/models.py:509
 msgid "testimonial"
 msgstr "témoignage"
 
 #
-#: apps/core/models.py:508
+#: apps/core/models.py:510
 msgid "testimonials"
 msgstr "témoignages"
 
-#: apps/core/models.py:532
+#: apps/core/models.py:534
 msgid "pupils"
 msgstr "élèves"
 
-#: apps/core/models.py:542
+#: apps/core/models.py:544
 msgid "school's consent given on"
 msgstr "accord de l'école donné le"
 
 #
-#: apps/core/models.py:549
+#: apps/core/models.py:551
 msgid "reference school"
 msgstr "école de référence"
 
 #
-#: apps/core/models.py:550
+#: apps/core/models.py:552
 msgid "reference schools"
 msgstr "écoles de référence"
 
-#: apps/core/models.py:572
+#: apps/core/models.py:574
 msgid "per month"
 msgstr "par mois"
 
-#: apps/core/models.py:573
+#: apps/core/models.py:575
 msgid "per year"
 msgstr "par an"
 
-#: apps/core/models.py:575
+#: apps/core/models.py:577
 msgid "name in French"
 msgstr "nom en français"
 
-#: apps/core/models.py:576
+#: apps/core/models.py:578
 msgid "name in English"
 msgstr "nom en anglais"
 
-#: apps/core/models.py:577
+#: apps/core/models.py:579
 msgid "tagline in French"
 msgstr "accroche en français"
 
-#: apps/core/models.py:578
+#: apps/core/models.py:580
 msgid "tagline in English"
 msgstr "accroche en anglais"
 
-#: apps/core/models.py:579
+#: apps/core/models.py:581
 msgid "price"
 msgstr "prix"
 
-#: apps/core/models.py:581 apps/finance/models.py:83 apps/finance/models.py:177
+#: apps/core/models.py:583 apps/finance/models.py:83 apps/finance/models.py:177
 #: apps/finance/models.py:250 apps/finance/models.py:522
 #: apps/finance/models.py:727 apps/finance/models.py:817
 msgid "currency"
 msgstr "devise"
 
-#: apps/core/models.py:583 apps/timetable/models.py:422
+#: apps/core/models.py:585 apps/timetable/models.py:422
 msgid "period"
 msgstr "période"
 
-#: apps/core/models.py:584
+#: apps/core/models.py:586
 msgid "included, one per line, in French"
 msgstr "ce qui est compris, un point par ligne, en français"
 
-#: apps/core/models.py:586
+#: apps/core/models.py:588
 msgid "included, one per line, in English"
 msgstr "ce qui est compris, un point par ligne, en anglais"
 
-#: apps/core/models.py:588
+#: apps/core/models.py:590
 msgid "highlighted"
 msgstr "mise en avant"
 
-#: apps/core/models.py:595 apps/schools/models.py:211
+#: apps/core/models.py:597 apps/schools/models.py:211
 msgid "plan"
 msgstr "formule"
 
-#: apps/core/models.py:596
+#: apps/core/models.py:598
 msgid "plans"
 msgstr "formules"
 
-#: apps/core/models.py:623
+#: apps/core/models.py:625
 msgid "partner"
 msgstr "partenaire"
 
-#: apps/core/models.py:624
+#: apps/core/models.py:626
 msgid "partners"
 msgstr "partenaires"
 
-#: apps/core/models.py:638 apps/timetable/models.py:248
+#: apps/core/models.py:640 apps/timetable/models.py:248
 #: apps/timetable/models.py:416
 msgid "Published"
 msgstr "Publié"
 
-#: apps/core/models.py:641 apps/core/templates/core/site/home.html:112
+#: apps/core/models.py:643 apps/core/templates/core/site/home.html:112
 msgid "French"
 msgstr "Français"
 
-#: apps/core/models.py:642 apps/core/templates/core/site/llms.txt:7
+#: apps/core/models.py:644 apps/core/templates/core/site/llms.txt:7
 msgid "English"
 msgstr "Anglais"
 
-#: apps/core/models.py:645 apps/notifications/models.py:22
+#: apps/core/models.py:647 apps/notifications/models.py:22
 #: apps/notifications/models.py:91 apps/notifications/models.py:167
 #: apps/notifications/models.py:275
 msgid "title"
 msgstr "titre"
 
-#: apps/core/models.py:647
+#: apps/core/models.py:649
 msgid "summary"
 msgstr "résumé"
 
-#: apps/core/models.py:648
+#: apps/core/models.py:650
 msgid "text"
 msgstr "texte"
 
 #
-#: apps/core/models.py:655
+#: apps/core/models.py:657
 msgid "image"
 msgstr "image"
 
-#: apps/core/models.py:657
+#: apps/core/models.py:659
 msgid "author shown"
 msgstr "auteur affiché"
 
 #
-#: apps/core/models.py:661
+#: apps/core/models.py:663
 msgid "publication date"
 msgstr "date de publication"
 
 #
-#: apps/core/models.py:669
+#: apps/core/models.py:671
 msgid "changed by"
 msgstr "modifié par"
 
-#: apps/core/models.py:674
+#: apps/core/models.py:676
 msgid "article"
 msgstr "article"
 
-#: apps/core/models.py:675
+#: apps/core/models.py:677
 msgid "articles"
 msgstr "articles"
 
-#: apps/core/models.py:707
+#: apps/core/models.py:709
 msgid "Queued"
 msgstr "En attente"
 
-#: apps/core/models.py:715 apps/students/models.py:233
+#: apps/core/models.py:717 apps/students/models.py:233
 msgid "file name"
 msgstr "nom du fichier"
 
@@ -5082,126 +5082,120 @@ msgstr "Voyez %(name)s avec votre école"
 msgid "What is changing in %(name)s"
 msgstr "Ce qui change dans %(name)s"
 
-#: apps/core/site_content.py:330
+#: apps/core/site_content.py:347
 msgid "Excel import with an error report"
 msgstr "Import Excel avec rapport d'erreurs"
 
-#: apps/core/site_content.py:331
+#: apps/core/site_content.py:348
 msgid "Families, siblings and family code"
 msgstr "Familles, fratries et code famille"
 
-#: apps/core/site_content.py:332
+#: apps/core/site_content.py:349
 msgid "Registration forms and class lists"
 msgstr "Fiches d'inscription et listes de classe"
 
-#: apps/core/site_content.py:335
+#: apps/core/site_content.py:352
 msgid "Fee scales in USD and FC, instalments, discounts"
 msgstr "Barèmes en USD et en FC, tranches, réductions"
 
-#: apps/core/site_content.py:336
+#: apps/core/site_content.py:353
 msgid "Cash desk, 58 / 80 mm or A4 receipts, cash counts"
 msgstr "Caisse, reçus 58 / 80 mm ou A4, clôtures"
 
-#: apps/core/site_content.py:337
+#: apps/core/site_content.py:354
 msgid "Unpaid fees, statements, approved cancellations"
 msgstr "Impayés, relevés, annulations validées"
 
-#: apps/core/site_content.py:340
+#: apps/core/site_content.py:357
 msgid "Courses, maximum marks and marks by term"
 msgstr "Cours, maxima et points par période"
 
-#: apps/core/site_content.py:341
+#: apps/core/site_content.py:358
 msgid "Conduct, deliberation, resits"
 msgstr "Conduite, délibération, repêchage"
 
-#: apps/core/site_content.py:342
+#: apps/core/site_content.py:359
 msgid "Report cards with an authenticity QR code, mark sheets, summaries"
 msgstr "Bulletins avec code QR d'authenticité, fiches de cotes, situations"
 
-#: apps/core/site_content.py:345
+#: apps/core/site_content.py:362
 msgid "Time grid with breaks, short days and two shifts"
 msgstr "Grille horaire avec récréations, jours courts et deux vacations"
 
-#: apps/core/site_content.py:346
+#: apps/core/site_content.py:363
 msgid "Rooms, workshops and laboratories"
 msgstr "Salles, ateliers et laboratoires"
 
-#: apps/core/site_content.py:347
+#: apps/core/site_content.py:364
 msgid "Hours of each class compared with its week"
 msgstr "Heures de chaque classe comparées à sa semaine"
 
-#: apps/core/site_content.py:350
+#: apps/core/site_content.py:367
 msgid "Payments, receipts and due dates"
 msgstr "Paiements, reçus et échéances"
 
-#: apps/core/site_content.py:351
+#: apps/core/site_content.py:368
 msgid "Notices, calendar, summons"
 msgstr "Annonces, calendrier, convocations"
 
-#: apps/core/site_content.py:352
+#: apps/core/site_content.py:369
 msgid "Several children, several schools"
 msgstr "Plusieurs enfants, plusieurs écoles"
 
-#: apps/core/site_content.py:355
+#: apps/core/site_content.py:372
 msgid "To families or to staff"
 msgstr "Aux familles ou au personnel"
 
-#: apps/core/site_content.py:356
+#: apps/core/site_content.py:373
 msgid "Printable circular"
 msgstr "Circulaire imprimable"
 
-#: apps/core/site_content.py:357
+#: apps/core/site_content.py:374
 msgid "School calendar"
 msgstr "Calendrier de l'école"
 
-#: apps/core/site_content.py:360
+#: apps/core/site_content.py:377
 msgid "Payment received alert on the phone"
 msgstr "Alerte de paiement reçu sur le téléphone"
 
-#: apps/core/site_content.py:361
+#: apps/core/site_content.py:378
 msgid "Due date reminder to parents, if the school wants it"
 msgstr "Rappel d'échéance aux parents, si l'école le veut"
 
-#: apps/core/site_content.py:362
+#: apps/core/site_content.py:379
 msgid "Cash desks left open"
 msgstr "Caisses restées ouvertes"
 
-#: apps/core/site_content.py:365
+#: apps/core/site_content.py:382
 msgid "Cash desk and student search offline"
 msgstr "Caisse et recherche des élèves hors ligne"
 
-#: apps/core/site_content.py:366
+#: apps/core/site_content.py:383
 msgid "Sent automatically, never twice"
 msgstr "Envoi automatique, jamais en double"
 
-#: apps/core/site_content.py:367
+#: apps/core/site_content.py:384
 msgid "PIN code on known devices"
 msgstr "Code PIN sur les appareils connus"
 
-#: apps/core/site_content.py:377
+#: apps/core/site_content.py:394
 msgid "Industrial technical institute · Goma, North Kivu"
 msgstr "Institut technique industriel · Goma, Nord-Kivu"
 
-#: apps/core/site_content.py:381 apps/core/templates/core/site/contact.html:56
-msgid ""
-"ITIG Don Bosco Goma students gathered in the courtyard, in front of the flag"
-msgstr ""
-"Élèves de l'ITIG Don Bosco Goma rassemblés dans la cour, devant le drapeau"
-
-#: apps/core/site_content.py:384
+#: apps/core/site_content.py:397
 msgid "1,000+"
 msgstr "1 000+"
 
-#: apps/core/site_content.py:384 apps/schools/admin.py:72
+#: apps/core/site_content.py:397 apps/schools/admin.py:72
 #: apps/students/models.py:129
 msgid "students"
 msgstr "élèves"
 
-#: apps/core/site_content.py:385
+#: apps/core/site_content.py:398
 msgid "technical options"
 msgstr "options techniques"
 
-#: apps/core/site_content.py:386
+#: apps/core/site_content.py:399
 msgid "founded"
 msgstr "fondée"
 
@@ -5247,7 +5241,9 @@ msgstr "Fermer"
 #: apps/core/templates/core/site/_chat.html:10
 msgid ""
 "Hello! Leave your number and your question: we write to you on WhatsApp."
-msgstr "Bonjour ! Laissez votre numéro et votre question : nous vous écrivons sur WhatsApp."
+msgstr ""
+"Bonjour ! Laissez votre numéro et votre question : nous vous écrivons sur "
+"WhatsApp."
 
 #: apps/core/templates/core/site/_chat.html:12
 #: apps/core/templates/core/site/contact.html:34
@@ -5265,7 +5261,8 @@ msgstr "Vérifiez le nom, le numéro de téléphone et le message."
 
 #: apps/core/templates/core/site/_chat.html:16
 msgid "Message not sent. Try again in a moment, or write to us on WhatsApp."
-msgstr "Message non envoyé. Réessayez dans un instant, ou écrivez-nous sur WhatsApp."
+msgstr ""
+"Message non envoyé. Réessayez dans un instant, ou écrivez-nous sur WhatsApp."
 
 #: apps/core/templates/core/site/_chat.html:17
 msgid "Send"
@@ -5331,38 +5328,38 @@ msgstr "Envoi en cours…"
 msgid "Online · up to date"
 msgstr "En ligne · à jour"
 
-#: apps/core/templates/core/site/article.html:5
+#: apps/core/templates/core/site/article.html:6
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
 
-#: apps/core/templates/core/site/article.html:8
+#: apps/core/templates/core/site/article.html:9
 #, python-format
 msgid "By %(author)s"
 msgstr "Par %(author)s"
 
-#: apps/core/templates/core/site/article.html:8
+#: apps/core/templates/core/site/article.html:9
 #, python-format
 msgid "%(n)s min read"
 msgstr "%(n)s min de lecture"
 
-#: apps/core/templates/core/site/article.html:13
+#: apps/core/templates/core/site/article.html:15
 msgid "Share"
 msgstr "Partager"
 
-#: apps/core/templates/core/site/article.html:13
+#: apps/core/templates/core/site/article.html:15
 msgid "Link copied"
 msgstr "Lien copié"
 
-#: apps/core/templates/core/site/article.html:13
+#: apps/core/templates/core/site/article.html:15
 msgid "Copy the link"
 msgstr "Copier le lien"
 
-#: apps/core/templates/core/site/article.html:15
+#: apps/core/templates/core/site/article.html:17
 msgid "More news"
 msgstr "Autres actualités"
 
 #
-#: apps/core/templates/core/site/article.html:20
+#: apps/core/templates/core/site/article.html:22
 #: apps/core/templates/core/site/home.html:238
 msgid "All the news"
 msgstr "Toutes les actualités"
@@ -5537,6 +5534,10 @@ msgstr "Espace d'essai"
 #: apps/core/templates/core/site/contact.html:53
 msgid "with your classes and fees, to try without risk."
 msgstr "avec vos classes et vos frais, pour essayer sans risque."
+
+#: apps/core/templates/core/site/contact.html:56
+msgid "Yard and buildings of a secondary school in Goma"
+msgstr "Cour et bâtiments d'une école secondaire à Goma"
 
 #: apps/core/templates/core/site/contact.html:58
 msgid "Reach us directly"
@@ -6216,8 +6217,18 @@ msgid "Photo credit"
 msgstr "Crédit photo"
 
 #: apps/core/templates/core/site/legal.html:33
-msgid "Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0."
-msgstr "Goma et le lac Kivu : Ericnkurunziza, CC BY-SA 4.0."
+msgid ""
+"Goma and Lake Kivu: Ericnkurunziza, CC BY-SA 4.0. Classroom: Sunway "
+"godianne, CC BY 4.0. Schools and yards: Juska Kanduvula and Kaptainwiki, "
+"CC0. Pupils in class: MONUSCO Photos, CC BY-SA 2.0; BamLifa, CC BY-SA 4.0; "
+"Ken Wiegand (USAID), public domain. Parent and school head: Francish7, CC BY-"
+"SA 3.0; Julien Harneis, CC BY-SA 2.0."
+msgstr ""
+"Goma et lac Kivu : Ericnkurunziza, CC BY-SA 4.0. Salle de classe : Sunway "
+"godianne, CC BY 4.0. Écoles et cours : Juska Kanduvula et Kaptainwiki, CC0. "
+"Élèves en classe : MONUSCO Photos, CC BY-SA 2.0 ; BamLifa, CC BY-SA 4.0 ; "
+"Ken Wiegand (USAID), domaine public. Parent et directeur d'école : "
+"Francish7, CC BY-SA 3.0 ; Julien Harneis, CC BY-SA 2.0."
 
 #: apps/core/templates/core/site/legal.html:36
 msgid "Who is responsible for your data"
@@ -6391,8 +6402,8 @@ msgstr ""
 "données reviennent quand il est remis."
 
 #: apps/core/templates/core/site/modules.html:11
-msgid "Students in the car mechanics workshop of ITIG Don Bosco Goma"
-msgstr "Élèves dans l'atelier de mécanique automobile de l'ITIG Don Bosco Goma"
+msgid "Classroom with wooden desks"
+msgstr "Salle de classe aux bancs en bois"
 
 #: apps/core/templates/core/site/modules.html:19
 msgid "Always included: the core"
@@ -6708,8 +6719,8 @@ msgid "Getting started"
 msgstr "Mise en route"
 
 #: apps/core/templates/core/site/schools.html:18
-msgid "Students in the electricity workshop of ITIG Don Bosco Goma"
-msgstr "Élèves dans l'atelier d'électricité de l'ITIG Don Bosco Goma"
+msgid "Inner yard of a multi-storey school"
+msgstr "Cour intérieure d'un complexe scolaire à étages"
 
 #: apps/core/templates/core/site/schools.html:25
 msgid "Head of studies, head, promoter"
@@ -6974,7 +6985,7 @@ msgid "%(platform)s — Parents"
 msgstr "%(platform)s — Parents"
 
 #
-#: apps/core/views.py:646
+#: apps/core/views.py:650
 msgid "This photo is shown on the site: choose another one first."
 msgstr "Cette photo est montrée sur le site : choisissez-en d'abord une autre."
 

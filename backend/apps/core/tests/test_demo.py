@@ -335,9 +335,9 @@ def rerun_puts_everything_back(demo, settings) -> None:
     # Demandes de démonstration fictives pour la console (WEB.1d).
     assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 3
     assert DemoRequest.objects.filter(source="chat").count() == 1
-    # Actualités du site (SITE.2) : deux parues, une programmée, un brouillon anglais.
-    assert len(site_content.news("fr")) == 2 and site_content.news("en") == []
-    assert Article.objects.count() == 4
+    # Actualités du site (SITE.2) : six parues, une programmée, un brouillon anglais.
+    assert len(site_content.news("fr")) == 6 and site_content.news("en") == []
+    assert Article.objects.count() == 8
     assert School.objects.count() == 2
     assert User.objects.filter(phone="+243000001001").count() == 1
     assert Membership.objects.filter(school=itig).count() == 10 + POOL_SIZE
