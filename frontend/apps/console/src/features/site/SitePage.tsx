@@ -38,6 +38,10 @@ import { z } from "zod";
 
 import { keys } from "../../lib/queries";
 import { BannerPanel } from "./BannerPanel";
+import { ReferencesPanel } from "./ReferencesPanel";
+import { SeoPanel } from "./SeoPanel";
+import { SocialPanel } from "./SocialPanel";
+import { TestimonialsPanel } from "./TestimonialsPanel";
 
 type Entry = Schemas["ConsoleSiteEntry"];
 type Kind = Schemas["ConsoleSiteEntryKindEnum"];
@@ -45,7 +49,15 @@ type Values = Pick<Entry, "title_fr" | "title_en" | "text_fr" | "text_en" | "pub
 
 const MAX_PER_KIND = 20; // comme le serveur (`SiteEntry.MAX_PER_KIND`)
 const EMPTY: Values = { title_fr: "", title_en: "", text_fr: "", text_en: "", published: false };
-const TABS = ["questions", "upcoming", "banner"] as const;
+const TABS = [
+  "questions",
+  "upcoming",
+  "banner",
+  "testimonials",
+  "references",
+  "seo",
+  "social",
+] as const;
 
 /** Le site public : la même adresse sans `admin.` ; en développement, Django le sert (:8000). */
 export function siteAddress(): string {
@@ -98,6 +110,18 @@ export function SitePage() {
         <TabsContent value="upcoming">{body(["upcoming"])}</TabsContent>
         <TabsContent value="banner">
           <BannerPanel />
+        </TabsContent>
+        <TabsContent value="testimonials">
+          <TestimonialsPanel />
+        </TabsContent>
+        <TabsContent value="references">
+          <ReferencesPanel />
+        </TabsContent>
+        <TabsContent value="seo">
+          <SeoPanel />
+        </TabsContent>
+        <TabsContent value="social">
+          <SocialPanel />
         </TabsContent>
       </Tabs>
     </>
