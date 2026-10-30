@@ -7,7 +7,7 @@ Une école sans le module `notifications` est ignorée ; les relances demandent 
 `portal`, l'alerte des caisses `finance` (M.2.1).
 
 - Relances aux parents, à `REMINDERS_TIME`, si l'école les a activées (`schools/reminders.py`) :
-  échéance proche et retard de paiement — une notification par parent, tous ses enfants réunis,
+  échéance proche et retard de paiement | une notification par parent, tous ses enfants réunis,
   montants par devise (jamais additionnés), dans sa langue.
 - Caisses encore ouvertes, à l'heure de clôture choisie par l'école (`schools/alerts.py`) : à
   ceux qui lisent les rapports.

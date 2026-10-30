@@ -273,7 +273,7 @@ def import_workbook(rows: list[list]) -> bytes:
     book = openpyxl.Workbook()
     sheet = book.active
     sheet.title = "Liste"
-    sheet.append(["LISTE DES ÉLÈVES — ANNÉE SCOLAIRE 2026-2027 (données fictives)"])
+    sheet.append(["LISTE DES ÉLÈVES | ANNÉE SCOLAIRE 2026-2027 (données fictives)"])
     sheet.append([])
     sheet.append(IMPORT_HEADERS)
     for row in rows:

@@ -24,15 +24,15 @@
   --lake:#1A2F80;        /* bleu du lac Kivu : actions, liens, focus */
   --lake-700:#14245F;
   --lake-100:#D4E3F9;
-  --lake-50:#E8EAF2;
+  --lake-50:#E2EAF7;
   /* Neutres froids, légèrement bleutés (jamais de beige ni de gris chaud).
      ink-3 ≥ 5:1 sur surface ; bordure de champ (field) ≥ 3,5:1 sur blanc. */
   --ink:#111418;
   --ink-2:#475467;
-  --ink-3:#5B677A;
-  --surface:#F3F5F9;
+  --ink-3:#5B6475;
+  --surface:#F6F8FC;
   --card:#FFFFFF;
-  --line:#E2E8F0;
+  --line:#DDE2EC;
   --line-soft:#EDF1F6;
   --field:#7A8699;
   --table-head:#F7F9FC;

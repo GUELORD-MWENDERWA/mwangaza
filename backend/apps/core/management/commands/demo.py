@@ -104,17 +104,17 @@ class Command(BaseCommand):
                 create_demo_requests()
         for space in spaces:
             school = space.school
-            self.stdout.write(f"  {school.code:<8} {school.name} — {school.url}/app/")
+            self.stdout.write(f"  {school.code:<8} {school.name} | {school.url}/app/")
         self.stdout.write(f"Comptes fictifs (mot de passe : {demo_password()}) :")
         if admin is not None:
             self.stdout.write(
                 f"  {_local(PLATFORM_ADMIN_PHONE)}  administrateur principal de la plateforme "
                 "(console http://admin.localhost:5175/ et administration Django "
-                "http://localhost:8000/admin/) — code : make totp"
+                "http://localhost:8000/admin/) | code : make totp"
             )
             for phone, (role, _name) in DEMO_TEAM.items():
                 self.stdout.write(
-                    f"  {_local(phone)}  équipe : {role} (console) — code : make totp"
+                    f"  {_local(phone)}  équipe : {role} (console) | code : make totp"
                 )
         accounts = {a.phone: a for space in spaces for a in demo_accounts(space)}
         with_code = set(
@@ -127,7 +127,7 @@ class Command(BaseCommand):
             if not account.listed:
                 continue
             schools_text = " + ".join(account.roles)
-            totp_text = " — code : make totp" if account.phone in with_code else ""
+            totp_text = " | code : make totp" if account.phone in with_code else ""
             self.stdout.write(
                 f"  {_local(account.phone)}  {schools_text:<14} {account.description}{totp_text}"
             )

@@ -413,7 +413,7 @@ function ClassDialog({ year, group, open, levels, tracks, onClose }: ClassDialog
           setDeleting(next);
           remove.reset();
         }}
-        title={`${t("organisation.classes.delete")} — ${group?.name ?? ""}`}
+        title={`${t("organisation.classes.delete")} | ${group?.name ?? ""}`}
         confirmLabel={t("common.delete")}
         cancelLabel={t("common.cancel")}
         onConfirm={() => remove.mutate()}

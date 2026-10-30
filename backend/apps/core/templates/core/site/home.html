@@ -96,7 +96,7 @@
       <div class="btop">{% include "core/_flag.html" %}<div class="bstate">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div><span class="bqr"><img src="{{ sample.qr }}" alt="" width="64" height="64"><i class="scan"></i></span></div>
       <div class="bline"><b>{% translate "PROVINCE" %} :</b> NORD-KIVU</div>
       <div class="btwo">
-        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>&nbsp;</u></p></div>
+        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>{% translate "Example technical institute" %}</u></p></div>
         <div><p><b>{% translate "STUDENT" %} :</b> <u>KAMBALE JOSUÉ</u> <b>{% translate "SEX" %} :</b> M</p><p><b>{% translate "CLASS" %} :</b> <u>3e Électricité A</u></p></div>
       </div>
       <div class="btitle"><span>{% translate "REPORT CARD OF" %} 3e ÉLECTRICITÉ</span><span>{% translate "SCHOOL YEAR" %} 2025-2026</span></div>
@@ -184,7 +184,7 @@
 {% for school in references %}
 <section class="sec">
   <div class="wrap">
-    {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Pilot school" %}</span><h2 class="st">{% translate "Designed with a real school in Goma" %}</h2></div>{% endif %}
+    {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Born in Goma" %}</span><h2 class="st">{% translate "Shaped in a real Goma school, ready for every school in the DRC" %}</h2></div>{% endif %}
     <figure class="ref rv{% if not school.photo %} solo{% endif %}">
       {% if school.photo %}<div class="refphoto">{% photo school.photo school.photo_alt %}</div>{% endif %}
       <div class="refbody">

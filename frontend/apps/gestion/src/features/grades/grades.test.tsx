@@ -98,7 +98,7 @@ describe("saisie des notes", () => {
     // 8 + 9 sur 10 + 10, ramené sur 20 ; Josué : une case vide.
     await screen.findByText("17");
     expect(screen.getByText("incomplet")).toBeTruthy();
-    const box = screen.getByLabelText("Interrogation 2 — KAMBALE MUHINDO Josué");
+    const box = screen.getByLabelText("Interrogation 2 | KAMBALE MUHINDO Josué");
     await user.type(box, "6,5");
     expect(screen.getByText("13,5")).toBeTruthy();
     expect(screen.getByText("68 %")).toBeTruthy();
@@ -124,7 +124,7 @@ describe("saisie des notes", () => {
     );
     const { user } = renderApp("/grades");
 
-    await user.type(await screen.findByLabelText("Interrogation 2 — KAMBALE MUHINDO Josué"), "6");
+    await user.type(await screen.findByLabelText("Interrogation 2 | KAMBALE MUHINDO Josué"), "6");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     // Pas d'envoi sans motif ; avec le motif, il part avec les cases.
     await user.click(await screen.findByRole("button", { name: "Enregistrer" }));
@@ -142,7 +142,7 @@ describe("saisie des notes", () => {
     const requests = mockApi(routes());
     const { user } = renderApp("/grades");
 
-    const box = await screen.findByLabelText("Interrogation 2 — KAMBALE MUHINDO Josué");
+    const box = await screen.findByLabelText("Interrogation 2 | KAMBALE MUHINDO Josué");
     await user.type(box, "12");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
@@ -165,7 +165,7 @@ describe("saisie des notes", () => {
     );
     const { user } = renderApp("/grades");
 
-    const box = await screen.findByLabelText("Total — KAMBALE MUHINDO Josué");
+    const box = await screen.findByLabelText("Total | KAMBALE MUHINDO Josué");
     expect(screen.queryByRole("button", { name: /Ajouter une évaluation/ })).toBeNull();
     await user.type(box, "15,5");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));

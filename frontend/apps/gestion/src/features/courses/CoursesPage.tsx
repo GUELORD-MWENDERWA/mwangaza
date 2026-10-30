@@ -572,7 +572,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td>
                         <Input
-                          aria-label={`${t("courses.columns.domain")} — ${label}`}
+                          aria-label={`${t("courses.columns.domain")} | ${label}`}
                           list="course-domains"
                           value={draft.domain}
                           onChange={(event) => update(draft, { domain: event.target.value })}
@@ -581,7 +581,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td className="text-right">
                         <Input
-                          aria-label={`${t("courses.columns.periodMax")} — ${label}`}
+                          aria-label={`${t("courses.columns.periodMax")} | ${label}`}
                           inputMode="numeric"
                           value={draft.period_max}
                           onChange={(event) =>
@@ -592,7 +592,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td>
                         <Switch
-                          aria-label={`${t("courses.columns.exam")} — ${label}`}
+                          aria-label={`${t("courses.columns.exam")} | ${label}`}
                           checked={draft.has_exam}
                           onCheckedChange={(checked) => update(draft, { has_exam: checked })}
                         />
@@ -613,14 +613,14 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td>
                         <Switch
-                          aria-label={`${t("courses.columns.taught")} — ${label}`}
+                          aria-label={`${t("courses.columns.taught")} | ${label}`}
                           checked={draft.is_taught}
                           onCheckedChange={(checked) => update(draft, { is_taught: checked })}
                         />
                       </td>
                       <td>
                         <Select
-                          aria-label={`${t("courses.columns.entry")} — ${label}`}
+                          aria-label={`${t("courses.columns.entry")} | ${label}`}
                           value={draft.grade_entry}
                           onChange={(event) =>
                             update(draft, { grade_entry: event.target.value as GradeEntry })
@@ -634,7 +634,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td>
                         <Select
-                          aria-label={`${t("courses.columns.category")} — ${label}`}
+                          aria-label={`${t("courses.columns.category")} | ${label}`}
                           value={draft.category}
                           onChange={(event) =>
                             update(draft, { category: event.target.value as Category })
@@ -650,7 +650,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td className="text-right">
                         <Input
-                          aria-label={`${t("courses.columns.hours")} — ${label}`}
+                          aria-label={`${t("courses.columns.hours")} | ${label}`}
                           inputMode="numeric"
                           value={draft.weekly_hours}
                           onChange={(event) =>
@@ -661,7 +661,7 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                       </td>
                       <td>
                         <Select
-                          aria-label={`${t("courses.columns.teacher")} — ${label}`}
+                          aria-label={`${t("courses.columns.teacher")} | ${label}`}
                           value={draft.teacher_id}
                           onChange={(event) => update(draft, { teacher_id: event.target.value })}
                           className="min-w-[180px]"

@@ -129,7 +129,7 @@ def support_revoke_device(device: Device, *, actor: User) -> Device:
                 PlatformAction.DEVICE_REVOKED,
                 device,
                 actor=actor,
-                label=f"{device.label} · {device.prefix} — {device.user} ({device.school.name})",
+                label=f"{device.label} · {device.prefix} | {device.user} ({device.school.name})",
             )
     return device
 

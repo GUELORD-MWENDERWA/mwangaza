@@ -152,7 +152,7 @@ class Summons(TenantModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.student} — {self.meeting_at:%d/%m/%Y}"
+        return f"{self.student} | {self.meeting_at:%d/%m/%Y}"
 
 
 class PlatformAnnouncement(BaseModel):
@@ -360,7 +360,7 @@ class PushSubscription(BaseModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.user} — {self.app}"
+        return f"{self.user} | {self.app}"
 
 
 class NotificationPreference(BaseModel):

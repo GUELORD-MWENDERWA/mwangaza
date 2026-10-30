@@ -1,5 +1,5 @@
 {% extends "core/print_base.html" %}{% load i18n %}
-{% block title %}{% translate "Summons" %} — {{ student.full_name }}{% endblock %}
+{% block title %}{% translate "Summons" %} | {{ student.full_name }}{% endblock %}
 {% block style %}
 body { font-size: 11pt; }
 h1 { margin: 1.2em 0 .6em; font-size: 1.4em; }
@@ -28,7 +28,7 @@ td.label { width: 28%; background: #EDF1F6; }
   {% if signer or stamp %}{% include "core/_signer.html" %}{% else %}<p style="margin-top:2.5em"><b>{{ signed_by }}</b></p>{% endif %}
 </div>
 <div class="slip">
-  <p><b>{% translate "SLIP TO RETURN TO THE SCHOOL" %}</b> — {{ student.full_name }} ({{ summons.class_name }})</p>
+  <p><b>{% translate "SLIP TO RETURN TO THE SCHOOL" %}</b> | {{ student.full_name }} ({{ summons.class_name }})</p>
   <p>{% blocktranslate with date=meeting_at|date:"d/m/Y" %}I have received the summons for {{ date }}.{% endblocktranslate %}</p>
   <p>{% translate "Name:" %} <span class="line">&nbsp;</span> &nbsp; {% translate "Signature:" %} <span class="line">&nbsp;</span></p>
 </div>

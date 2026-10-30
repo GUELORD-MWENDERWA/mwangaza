@@ -1,5 +1,5 @@
 {% extends "core/print_base.html" %}{% load i18n %}
-{% block title %}{% translate "Grade sheet" %} — {{ class_group.name }}{% endblock %}
+{% block title %}{% translate "Grade sheet" %} | {{ class_group.name }}{% endblock %}
 {% block style %}
 td.score, th.score { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
 th.score small { display: block; font-weight: 400; }
@@ -21,13 +21,13 @@ table.class td.name, table.class th.name { padding-left: .4em; white-space: nowr
 <div class="lh-extra">{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}</div>
 
 {% if kind == "ranking" %}
-<h1>{% blocktranslate with name=class_group.name column=column_label %}RANKING — {{ name }} ({{ column }}){% endblocktranslate %}</h1>
+<h1>{% blocktranslate with name=class_group.name column=column_label %}RANKING | {{ name }} ({{ column }}){% endblocktranslate %}</h1>
 <p class="center small">{% if titular %}{% blocktranslate %}Homeroom teacher: {{ titular }}{% endblocktranslate %} · {% endif %}{% blocktranslate %}Enrolment: <b>{{ size }}</b>{% endblocktranslate %}</p>
 {% elif kind == "class" %}
-<h1>{% blocktranslate with name=class_group.name column=column_label %}SUMMARY TABLE — {{ name }} ({{ column }}){% endblocktranslate %}</h1>
+<h1>{% blocktranslate with name=class_group.name column=column_label %}SUMMARY TABLE | {{ name }} ({{ column }}){% endblocktranslate %}</h1>
 <p class="center small">{% if titular %}{% blocktranslate %}Homeroom teacher: {{ titular }}{% endblocktranslate %} · {% endif %}{% blocktranslate %}Enrolment: <b>{{ size }}</b>{% endblocktranslate %}</p>
 {% else %}
-<h1>{% if kind == "blank" %}{% blocktranslate with course=course.name %}BLANK GRADE SHEET — {{ course }}{% endblocktranslate %}{% else %}{% blocktranslate with course=course.name %}GRADE SHEET — {{ course }}{% endblocktranslate %}{% endif %}</h1>
+<h1>{% if kind == "blank" %}{% blocktranslate with course=course.name %}BLANK GRADE SHEET | {{ course }}{% endblocktranslate %}{% else %}{% blocktranslate with course=course.name %}GRADE SHEET | {{ course }}{% endblocktranslate %}{% endif %}</h1>
 <p class="center small">{{ class_group.name }}{% if teacher %} · {% blocktranslate %}Teacher: {{ teacher }}{% endblocktranslate %}{% endif %}</p>
 {% endif %}
 {% if provisional %}<div class="provisional">{% translate "Provisional: some grades are not validated yet." %}</div>{% endif %}

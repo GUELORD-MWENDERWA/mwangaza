@@ -212,6 +212,8 @@ Pour dessiner un nouvel écran : d'abord regarder comment les grands logiciels f
 Livre de marque : `docs/marque/livre-de-marque.pdf` (piste A, logotype en Poppins comme le livre Ujuzi ; recherche : `docs/claude/recherches/2026-10-29-marque.md`). Il remplace l'identité « lac Kivu, nuit et lumière » du 2026-10-14 : moins de jaune, le bleu et le blanc de l'uniforme d'abord.
 
 - **Bleu uniforme** `#1A2F80` (couleur principale de la plateforme) : barre latérale de la Gestion, en-tête et barre du haut du portail, barre de la console, panneau des connexions **et** actions principales, liens, focus. Plus de lignes de relief sur les barres (`assets/relief.svg` ne sert plus qu'aux maquettes du site, refaites au lot 2).
+- **Motif de relief** : sur chaque grand fond bleu (pied de page, bandeaux, fenêtre de chat, panneau des connexions), lignes blanches à 20 % d'opacité (`relief.svg`), pour que le bleu ne soit jamais plat. Teintes neutres alignées sur le livre de marque (2026-10-30) : brume `#E2EAF7`, gris `#5B6475`, trait `#DDE2EC`, fond `#F6F8FC`.
+- **Coins en diagonale** (2026-10-30) : cartes, photos et vignettes arrondies en haut à droite et en bas gauche (28 px, 20 px sur téléphone ; 18 px dans l'application), coins haut gauche et bas droit francs : la lecture démarre sur un angle net. Barres des graphiques : haut droit arrondi (8 px), haut gauche à 2 px ; grille en tirets fins.
 - **Soleil levant** `#FFA81E` (accent, 5 % au plus) : soleil du symbole, repère de l'élément actif, compteurs. Jamais en texte sur fond clair ni en grande surface.
 - **Brume du lac** `#E2EAF7` : fonds d'encadrés ; **craie** (blanc) et **ardoise** `#111418` (texte) : les neutres.
 - Police **Atkinson Hyperlegible Next** (`assets/fonts/`, 400 · 600 · 700 · 800, embarquée pour le hors-ligne) : lisibilité pour des utilisateurs peu habitués à l'informatique et des écrans de faible qualité.
@@ -226,10 +228,10 @@ Le nom « Mwangaza », le symbole et les couleurs `lake` / `lamp` sont les valeu
 | `night` / `night-2` / `night-3` | `#1A2F80` / `#36488F` / `#4C5D9C` | barres (= `lake`) / élément actif, encadré de l'école (+ 12 % de blanc) / bordures sur les barres (+ 22 %) |
 | `night-ink` / `night-soft` / `night-muted` | `#FFFFFF` / `#DADEEB` / `#B6BCD6` | texte sur les barres / entrées du menu / libellés de section |
 | `lamp` / `lamp-soft` | `#FFA81E` / `#FFF0D9` | soleil / petite pastille (jamais un grand fond) |
-| `lake` / `lake-700` / `lake-100` / `lake-50` | `#1A2F80` / `#14245F` / `#D4E3F9` / `#E8EAF2` | bouton principal, liens, focus (= `primary`) / survol / anneau de focus / sélection |
-| `ink` / `ink-2` / `ink-3` | `#111418` / `#475467` / `#5B677A` | texte / secondaire / tertiaire (≥ 5:1) |
-| `surface` / `card` / `table-head` | `#F3F5F9` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-têtes de tableau, pieds de carte |
-| `line` / `line-soft` | `#E2E8F0` / `#EDF1F6` | bordures / séparateurs |
+| `lake` / `lake-700` / `lake-100` / `lake-50` | `#1A2F80` / `#14245F` / `#D4E3F9` / `#E2EAF7` | bouton principal, liens, focus (= `primary`) / survol / anneau de focus / sélection |
+| `ink` / `ink-2` / `ink-3` | `#111418` / `#475467` / `#5B6475` | texte / secondaire / tertiaire (≥ 5:1) |
+| `surface` / `card` / `table-head` | `#F6F8FC` / `#FFFFFF` / `#F7F9FC` | fond de page / cartes / en-têtes de tableau, pieds de carte |
+| `line` / `line-soft` | `#DDE2EC` / `#EDF1F6` | bordures / séparateurs |
 | `field` | `#7A8699` | bordure de champ (3,7:1 sur blanc) |
 | `ok` / `ok-50` | `#127A48` / `#E8F6EE` | payé, à jour, succès |
 | `due` / `due-50` | `#B42318` / `#FDECEA` | en retard, erreur, danger |

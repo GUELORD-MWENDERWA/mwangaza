@@ -7,8 +7,8 @@
 @font-face{font-family:"Poppins";src:url(poppins-latin-600-normal.woff2) format("woff2");font-weight:600;font-display:swap}
 :root{
   --night:#1A2F80;--night-2:#36488F;--night-3:#4C5D9C;--night-ink:#FFFFFF;--night-muted:#B6BCD6;--night-soft:#DADEEB;
-  --lamp:#FFA81E;--lamp-soft:#FFF0D9;--lake:#1A2F80;--lake-700:#14245F;--lake-100:#D4E3F9;--lake-50:#E8EAF2;
-  --ink:#111418;--ink-2:#475467;--ink-3:#5B677A;--surface:#F3F5F9;--line:#E2E8F0;--line-soft:#EDF1F6;--field:#7A8699;--table-head:#F7F9FC;
+  --lamp:#FFA81E;--lamp-soft:#FFF0D9;--lake:#1A2F80;--lake-700:#14245F;--lake-100:#D4E3F9;--lake-50:#E2EAF7;
+  --ink:#111418;--ink-2:#475467;--ink-3:#5B6475;--surface:#F6F8FC;--line:#DDE2EC;--line-soft:#EDF1F6;--field:#7A8699;--table-head:#F7F9FC;
   --ok:#127A48;--due:#B42318;--due-50:#FDECEA;--warn:#985A06;
   --r-card:0;--r-dialog:0;--r-input:8px;--r-pill:999px;
   --shadow:0 1px 2px rgba(16,24,40,.05),0 2px 6px rgba(16,24,40,.04);
@@ -571,7 +571,7 @@ label.f .req{color:var(--due)}
 .chat-open{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 20px;border-radius:var(--r-pill);border:0;background:var(--lake);color:#fff;font:inherit;font-weight:700;box-shadow:var(--shadow-float);cursor:pointer}
 .chat-open .ic{width:22px;height:22px}
 .chat-box{width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-float)}
-.chat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--night);color:#fff}
+.chat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--night) url(relief.svg) center/cover;color:#fff}
 .chat-head b{flex:1}.chat-head small{display:block;color:var(--night-muted);font-weight:400}
 .chat-head button{display:grid;place-items:center;background:none;border:0;color:#fff;cursor:pointer;min-width:40px;min-height:40px}
 .chat-head .ic{width:20px;height:20px}
@@ -580,3 +580,11 @@ label.f .req{color:var(--due)}
 .bubble{background:var(--surface);padding:10px 12px;font-size:.92rem;max-width:90%}
 @media (max-width:480px){.chat-open span{display:none}.chat-open{padding:0;width:52px;justify-content:center}}
 @media print{.chat{display:none}}
+
+/* Coins arrondis en diagonale (haut droit et bas gauche) : cartes, photos, vignettes. Droits aux
+   deux autres coins : le coin haut gauche, où commence la lecture, reste franc ; plus petits sur téléphone. */
+:root{--leaf:0 28px 0 28px;--leaf-s:0 14px 0 14px}
+@media (max-width:480px){:root{--leaf:0 20px 0 20px;--leaf-s:0 10px 0 10px}}
+.sc,.ref,.photo,.vcard,.card,.win,.steps4 li,.steps3 li,.newslist a{border-radius:var(--leaf)}
+.sc .thumb{border-radius:0 28px 0 0}
+.newslist img,.art .body figure img,.arthead img{border-radius:var(--leaf-s)}

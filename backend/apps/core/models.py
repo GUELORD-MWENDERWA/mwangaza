@@ -309,7 +309,7 @@ class DemoRequest(models.Model):
         indexes = [models.Index(fields=["status", "-created_at"], name="demorequest_status")]
 
     def __str__(self) -> str:
-        return f"{self.school_name} — {self.name}" if self.school_name else self.name
+        return f"{self.school_name} | {self.name}" if self.school_name else self.name
 
 
 class SiteEntry(BaseModel):

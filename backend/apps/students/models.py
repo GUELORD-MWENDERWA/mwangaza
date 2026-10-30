@@ -193,7 +193,7 @@ class Enrollment(TenantModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.student} — {self.academic_year}"
+        return f"{self.student} | {self.academic_year}"
 
 
 class MatriculeSequence(TenantModel):

@@ -1,4 +1,4 @@
-"""Mise en route d'une école neuve (4.20.1, C4) : `/api/school/setup/` et `…/finish/` — une
+"""Mise en route d'une école neuve (4.20.1, C4) : `/api/school/setup/` et `…/finish/` | une
 école ne coche rien avec les données d'une autre, permission `school.configure`, chaque étape
 se coche seule, fin refusée tant que l'école ne peut pas encaisser, puis gardée pour de bon ;
 un espace de démonstration naît déjà fini."""

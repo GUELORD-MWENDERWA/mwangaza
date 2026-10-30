@@ -153,7 +153,7 @@ def platform_manifest(request: HttpRequest, app: str) -> HttpResponse:
     platform = PlatformSettings.load()
     name = platform.name
     if app == "portail":
-        name = _("%(platform)s — Parents") % {"platform": platform.name}
+        name = _("%(platform)s | Parents") % {"platform": platform.name}
     manifest = {
         "name": name,
         "short_name": platform.short_name,

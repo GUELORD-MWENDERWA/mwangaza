@@ -80,7 +80,7 @@ export function SchoolSwitcher({ me }: { me: Me }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(boxClasses, "cursor-pointer hover:bg-night-3")}
-        aria-label={`${school.name} — ${t("shell.switchSchool")}`}
+        aria-label={`${school.name} | ${t("shell.switchSchool")}`}
       >
         {box}
       </DropdownMenuTrigger>

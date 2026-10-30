@@ -713,7 +713,7 @@ def reschedule_charges(
 
 def discount_shares(charges: list[StudentCharge], discounts: list[Discount]) -> dict:
     """Part de réduction de chaque frais dû actif d'une inscription, en entiers dans sa devise.
-    Par type de frais (et devise), les réductions qui s'y appliquent s'additionnent — un
+    Par type de frais (et devise), les réductions qui s'y appliquent s'additionnent | un
     pourcentage du total arrondi demi supérieur, un montant dans la même devise —, plafonnées
     au total, puis se répartissent au prorata des échéances (`prorate` : l'écart d'arrondi sur
     les dernières). Réductions retirées, frais retirés ou remplacés : ignorés. Même calcul dans
@@ -1517,7 +1517,7 @@ def record_payment(
                 **({"rate": _rate_text(rate_used)} if rate_used is not None else {}),
                 "allocations": [
                     {
-                        "fee": f"{charge.fee_type.name} — {charge.label}",
+                        "fee": f"{charge.fee_type.name} | {charge.label}",
                         "amount_minor": amount,
                         "currency": charge.currency,
                     }
@@ -1763,7 +1763,7 @@ def use_credit(credit: StudentCredit, *, actor: User) -> StudentCredit:
                 "amount_minor": sum(amount for _charge, _part, amount in lines),
                 "currency": credit.currency,
                 "allocations": [
-                    {"fee": f"{charge.fee_type.name} — {charge.label}", "amount_minor": amount}
+                    {"fee": f"{charge.fee_type.name} | {charge.label}", "amount_minor": amount}
                     for charge, _part, amount in lines
                 ],
             },

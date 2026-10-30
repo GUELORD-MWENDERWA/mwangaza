@@ -176,7 +176,7 @@ export function LevelsCard() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}
-        title={`${t("common.delete")} — ${deleting?.name ?? ""}`}
+        title={`${t("common.delete")} | ${deleting?.name ?? ""}`}
         confirmLabel={t("common.delete")}
         cancelLabel={t("common.cancel")}
         onConfirm={() => deleting && remove.mutate(deleting)}
@@ -462,7 +462,7 @@ export function TracksCard() {
       <ConfirmDialog
         open={deleting !== null}
         onOpenChange={(open) => !open && setDeleting(null)}
-        title={`${t("common.delete")} — ${deleting?.name ?? ""}`}
+        title={`${t("common.delete")} | ${deleting?.name ?? ""}`}
         confirmLabel={t("common.delete")}
         cancelLabel={t("common.cancel")}
         onConfirm={() => deleting && remove.mutate(deleting)}

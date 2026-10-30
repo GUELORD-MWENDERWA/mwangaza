@@ -85,7 +85,7 @@ export function PlacementTable<T extends PlacementRow>({
                 </td>
                 <td className="text-right">
                   <Input
-                    aria-label={`${t("courses.columns.hours")} — ${label}`}
+                    aria-label={`${t("courses.columns.hours")} | ${label}`}
                     inputMode="numeric"
                     value={row.weekly_hours}
                     onChange={(event) =>
@@ -96,7 +96,7 @@ export function PlacementTable<T extends PlacementRow>({
                 </td>
                 <td>
                   <Input
-                    aria-label={`${t("timetable.placement.lessons")} — ${label}`}
+                    aria-label={`${t("timetable.placement.lessons")} | ${label}`}
                     placeholder={proposedPattern(hours, row.category === "practical")}
                     value={row.placement.lesson_pattern}
                     aria-invalid={problem !== null}
@@ -106,7 +106,7 @@ export function PlacementTable<T extends PlacementRow>({
                 </td>
                 <td>
                   <Input
-                    aria-label={`${t("timetable.placement.perDay")} — ${label}`}
+                    aria-label={`${t("timetable.placement.perDay")} | ${label}`}
                     inputMode="numeric"
                     placeholder={String(schoolMaxPerDay)}
                     value={row.placement.max_per_day}
@@ -118,7 +118,7 @@ export function PlacementTable<T extends PlacementRow>({
                 </td>
                 <td>
                   <Select
-                    aria-label={`${t("timetable.placement.room")} — ${label}`}
+                    aria-label={`${t("timetable.placement.room")} | ${label}`}
                     value={row.placement.room}
                     onChange={(event) => place(row, { room: event.target.value })}
                     className="min-w-[210px]"
@@ -144,14 +144,14 @@ export function PlacementTable<T extends PlacementRow>({
                 </td>
                 <td>
                   <Switch
-                    aria-label={`${t("timetable.placement.spanBreak")} — ${label}`}
+                    aria-label={`${t("timetable.placement.spanBreak")} | ${label}`}
                     checked={spans}
                     onCheckedChange={(checked) => place(row, { can_span_break: checked })}
                   />
                 </td>
                 <td>
                   <Select
-                    aria-label={`${t("timetable.placement.part")} — ${label}`}
+                    aria-label={`${t("timetable.placement.part")} | ${label}`}
                     value={row.placement.preferred_part}
                     onChange={(event) => place(row, { preferred_part: event.target.value as Part })}
                     className="min-w-[130px]"

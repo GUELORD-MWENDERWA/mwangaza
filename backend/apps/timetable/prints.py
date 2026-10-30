@@ -158,7 +158,7 @@ def table(grid: TimeGrid, kind: str, lessons: list[schedule.Lesson]) -> dict:
 
 def version_note(timetable: Timetable) -> str:
     if timetable.status == Timetable.Status.DRAFT:
-        return _("DRAFT — not published")
+        return _("DRAFT | not published")
     since = date_format(timetable.valid_from, "d/m/Y") if timetable.valid_from else ""
     if timetable.status == Timetable.Status.ARCHIVED:
         return _("Archived version «%(name)s»") % {"name": timetable.name}

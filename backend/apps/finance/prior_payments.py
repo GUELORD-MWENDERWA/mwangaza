@@ -322,7 +322,7 @@ def record(file, *, actor: User, expected: list[dict]) -> Preview:
                         "file": file.name[:120],
                         "allocations": [
                             {
-                                "fee": f"{charge.fee_type.name} — {charge.label}",
+                                "fee": f"{charge.fee_type.name} | {charge.label}",
                                 "amount_minor": amount,
                                 "currency": charge.currency,
                             }

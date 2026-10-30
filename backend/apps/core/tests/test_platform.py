@@ -51,7 +51,7 @@ def test_a_new_name_is_used_everywhere_without_code(client, school):
     icon = client.get("/api/platform/icon/?app=portail", HTTP_HOST="localhost")
     assert (icon.status_code, icon["Location"]) == (302, "/icons/symbole-192.png")
     portail = client.get("/api/platform/manifest/portail/", HTTP_HOST="localhost").json()
-    assert portail["name"] == "Lumière — Parents"
+    assert portail["name"] == "Lumière | Parents"
     assert "issuer=Lumi%C3%A8re" in totp.provisioning_uri("SECRET", "+243970000000")
     assert "Administration Lumière" in client.get("/admin/login/").content.decode()
     verification = client.get(f"/v/{uuid.uuid4()}", HTTP_HOST="alpha.localhost")

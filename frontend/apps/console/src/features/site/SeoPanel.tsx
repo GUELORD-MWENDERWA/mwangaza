@@ -105,7 +105,7 @@ function SeoTable({ pages }: { pages: Page[] }) {
               <h3 className="font-bold">{t(`console.site.seo.pages.${page.key}`)}</h3>
               <div className="flex flex-col gap-1">
                 <Input
-                  aria-label={`${t("console.site.seo.titleLabel")} — ${t(`console.site.seo.pages.${page.key}`)}`}
+                  aria-label={`${t("console.site.seo.titleLabel")} | ${t(`console.site.seo.pages.${page.key}`)}`}
                   maxLength={TITLE_MAX}
                   value={title}
                   placeholder={t("console.site.seo.default")}
@@ -120,7 +120,7 @@ function SeoTable({ pages }: { pages: Page[] }) {
               </div>
               <div className="flex flex-col gap-1">
                 <Textarea
-                  aria-label={`${t("console.site.seo.descriptionLabel")} — ${t(`console.site.seo.pages.${page.key}`)}`}
+                  aria-label={`${t("console.site.seo.descriptionLabel")} | ${t(`console.site.seo.pages.${page.key}`)}`}
                   maxLength={DESCRIPTION_MAX}
                   value={description}
                   className="min-h-16"

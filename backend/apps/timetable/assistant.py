@@ -5,7 +5,7 @@ proposée est revérifiée ici par le schéma de son kind (`constraints.clean`),
 saisie à la main. Rien n'est enregistré sans le directeur (`keep`).
 
 Ce qui part à l'API : les consignes fixes, la phrase, et les noms des cours, classes,
-enseignants et salles **de cette école** — jamais un élève, un téléphone ni un montant. Chaque
+enseignants et salles **de cette école** | jamais un élève, un téléphone ni un montant. Chaque
 cours, enseignant ou salle est nommé par un code court (lettre + 8 derniers caractères de son
 identifiant ; le début d'un UUID v7 est l'heure, il se répète) : l'IA ne manipule pas
 d'identifiants entiers et n'en invente pas de valides."""

@@ -1,5 +1,5 @@
 {% extends "core/print_base.html" %}{% load i18n %}
-{% block title %}{% if kind == "class" %}{% translate "Situation of the class" %} — {{ class_group.name }}{% else %}{% translate "Situation of the school" %}{% endif %}{% endblock %}
+{% block title %}{% if kind == "class" %}{% translate "Situation of the class" %} | {{ class_group.name }}{% else %}{% translate "Situation of the school" %}{% endif %}{% endblock %}
 {% block style %}
 td.n, th.n { text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
 table.counts th { font-size: .85em; }
@@ -14,7 +14,7 @@ td.cls { white-space: nowrap; }
 {% include "core/_document_header.html" with service=_("Studies") %}
 <div class="lh-extra">{% if year %}{% blocktranslate with year=year.name date=printed_at|date:"d/m/Y" %}School year {{ year }} · printed on {{ date }}{% endblocktranslate %}{% endif %}</div>
 {% if kind == "class" %}
-<h1>{% blocktranslate with name=class_group.name %}SITUATION OF THE CLASS — {{ name }}{% endblocktranslate %}</h1>
+<h1>{% blocktranslate with name=class_group.name %}SITUATION OF THE CLASS | {{ name }}{% endblocktranslate %}</h1>
 {% else %}
 <h1>{% translate "SITUATION OF THE SCHOOL" %}</h1>
 {% endif %}
@@ -117,7 +117,7 @@ td.cls { white-space: nowrap; }
 
 {% else %}
 {% if pending %}<p class="center small muted">{% blocktranslate count count=pending %}{{ count }} class is not proclaimed yet: it stays out of the totals.{% plural %}{{ count }} classes are not proclaimed yet: they stay out of the totals.{% endblocktranslate %}</p>{% endif %}
-{% if laureates %}<div class="laureate"><b>{% translate "Laureate of the school:" %}</b> {% for item in laureates %}{{ item.line.name }} — {{ item.group.name }} — {{ item.line.percent|floatformat:1 }} %{% if not forloop.last %} ; {% endif %}{% endfor %}</div>{% endif %}
+{% if laureates %}<div class="laureate"><b>{% translate "Laureate of the school:" %}</b> {% for item in laureates %}{{ item.line.name }} | {{ item.group.name }} | {{ item.line.percent|floatformat:1 }} %{% if not forloop.last %} ; {% endif %}{% endfor %}</div>{% endif %}
 <table class="counts">
   <thead><tr>
     <th>{% translate "Class" %}</th>

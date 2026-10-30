@@ -48,7 +48,7 @@ describe("coquille et menu (M7)", () => {
     mockApi(loggedIn(me("cashier")));
     renderApp("/");
 
-    const account = await screen.findByRole("link", { name: "Aline Test — Mon compte" });
+    const account = await screen.findByRole("link", { name: "Aline Test | Mon compte" });
     expect(within(account).getByText("Caissier")).toBeTruthy();
   });
 
@@ -61,7 +61,7 @@ describe("coquille et menu (M7)", () => {
 
     mockApi(loggedIn(me("head"), { "GET /api/school/": { ...school, environment: "test" } }));
     renderApp("/");
-    expect((await screen.findByRole("note")).textContent).toBe("Essai — pas de vraies données");
+    expect((await screen.findByRole("note")).textContent).toBe("Essai | pas de vraies données");
   });
 
   it("écran interdit ouvert par son adresse : 403 sans aucune donnée", async () => {
@@ -217,7 +217,7 @@ describe("changer d'école (M2)", () => {
     const { user } = renderApp("/");
 
     const [switcher] = await screen.findAllByRole("button", {
-      name: `${school.name} — Changer d'école`,
+      name: `${school.name} | Changer d'école`,
     });
     await user.click(switcher!);
 

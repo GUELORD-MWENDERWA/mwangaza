@@ -8,7 +8,10 @@ import { cn } from "../lib/cn";
 export function Card({ className, ...props }: ComponentProps<"section">) {
   return (
     <section
-      className={cn("min-w-0 rounded-card border border-line bg-card shadow-card", className)}
+      className={cn(
+        "min-w-0 rounded-[0_18px_0_18px] border border-line bg-card shadow-card",
+        className,
+      )}
       {...props}
     />
   );
@@ -38,7 +41,7 @@ export function CardFooter({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center justify-between gap-3 rounded-b-card border-t border-line-soft bg-table-head px-5 py-3",
+        "flex flex-wrap items-center justify-between gap-3 rounded-bl-[18px] border-t border-line-soft bg-table-head px-5 py-3",
         className,
       )}
       {...props}

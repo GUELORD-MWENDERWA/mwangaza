@@ -128,7 +128,7 @@ class HomeroomView(_HomeroomView):
         parameters=[HomeroomFilterSerializer], responses={200: HomeroomSerializer, **ERRORS}
     )
     def get(self, request: Request) -> Response:
-        """Espace du titulaire : sa classe dans une période ou des examens — état de chaque fiche
+        """Espace du titulaire : sa classe dans une période ou des examens | état de chaque fiche
         de cotes (moyenne et élèves sous la moitié une fois envoyée), puis, toutes validées, la
         vérification élève par élève et les chiffres de la classe ; « Bulletins prêts »."""
         params = HomeroomFilterSerializer(data=request.query_params)

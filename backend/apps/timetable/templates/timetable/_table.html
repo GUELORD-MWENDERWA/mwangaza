@@ -11,5 +11,5 @@
 </table>
 {% if outside %}
 <p class="small"><b>{% translate "Lessons the time grid no longer holds" %}</b> :
-{% for lesson in outside %}{{ lesson.day }}, {% blocktranslate with n=lesson.first %}lesson {{ n }}{% endblocktranslate %} — {{ lesson.title }}{% if lesson.detail %} ({{ lesson.detail }}){% endif %}{% if not forloop.last %} ; {% endif %}{% endfor %}</p>
+{% for lesson in outside %}{{ lesson.day }}, {% blocktranslate with n=lesson.first %}lesson {{ n }}{% endblocktranslate %} | {{ lesson.title }}{% if lesson.detail %} ({{ lesson.detail }}){% endif %}{% if not forloop.last %} ; {% endif %}{% endfor %}</p>
 {% endif %}

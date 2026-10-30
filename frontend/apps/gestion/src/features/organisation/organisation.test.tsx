@@ -118,8 +118,8 @@ describe("Organisation scolaire (C1-C3)", () => {
 
     const terms = await card("Découpage");
     await user.click(terms.getByRole("button", { name: "Modifier les dates" }));
-    await user.type(terms.getByLabelText("Nom — 2e période"), "P2");
-    await user.type(terms.getByLabelText("Fin — Semestre 2"), "2027-08-01");
+    await user.type(terms.getByLabelText("Nom | 2e période"), "P2");
+    await user.type(terms.getByLabelText("Fin | Semestre 2"), "2027-08-01");
     await user.click(terms.getAllByRole("button", { name: "Ajouter des examens" })[1]!);
     await user.click(terms.getByRole("button", { name: "Retirer Examens du 1er semestre" }));
     await user.click(terms.getByRole("button", { name: "Enregistrer le découpage" }));

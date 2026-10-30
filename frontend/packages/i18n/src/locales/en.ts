@@ -112,7 +112,7 @@ export const en: Messages<typeof fr> = {
       finish: "Finish",
       fileName: "recovery-codes.txt",
       fileTitle: "{{platform}} recovery codes",
-      fileHeader: "{{platform}} recovery codes — account {{phone}}",
+      fileHeader: "{{platform}} recovery codes | account {{phone}}",
       fileHelp: "Each code works only once. Keep this sheet somewhere safe.",
       currentCode: "Current code from the app, or a recovery code",
       askKey: "Show the new key",
@@ -400,7 +400,7 @@ export const en: Messages<typeof fr> = {
     reasonPlaceholder: "E.g. request from the head of school, role set up wrongly",
     reasonHelp: "200 characters at most.",
     submit: "Open the support session",
-    banner: "<b>Support session</b> — you are acting as <b>{{school}}</b>, until {{time}}.",
+    banner: "<b>Support session</b> | you are acting as <b>{{school}}</b>, until {{time}}.",
     bannerReason: "Reason: {{reason}}",
     bannerLabel: "Support session",
     quit: "Leave",
@@ -865,7 +865,7 @@ export const en: Messages<typeof fr> = {
       inactive: "inactive",
     },
     type: {
-      heading: "{{name}} — {{year}}",
+      heading: "{{name}} | {{year}}",
       category: "Category: {{category}}",
       account: "SYSCOHADA account: {{code}}",
       active: "Fee type active",
@@ -893,8 +893,8 @@ export const en: Messages<typeof fr> = {
       installments_other: "{{count}} installments",
     },
     editor: {
-      newTitle: "New fee rule — {{type}}",
-      title: "Installments — {{scope}}",
+      newTitle: "New fee rule | {{type}}",
+      title: "Installments | {{scope}}",
       kind: "Schedule",
       kinds: {
         installments: "Installments",
@@ -986,7 +986,7 @@ export const en: Messages<typeof fr> = {
       submit: "Create the year",
     },
     templates: {
-      secondary: "DRC secondary — 2 semesters, 4 periods, 2 exam sessions",
+      secondary: "DRC secondary | 2 semesters, 4 periods, 2 exam sessions",
       trimesters: "3 terms, 6 periods, 3 exam sessions",
       empty: "Empty: I enter the terms myself",
     },
@@ -2618,7 +2618,7 @@ export const en: Messages<typeof fr> = {
       percent: "%",
     },
     percentValue: "{{value}}%",
-    scoreLabel: "{{evaluation}} — {{student}}",
+    scoreLabel: "{{evaluation}} | {{student}}",
     incomplete: "incomplete",
     left: "left",
     hint: "Enter = next box · an empty box leaves the period grade incomplete",
@@ -3768,7 +3768,7 @@ export const en: Messages<typeof fr> = {
       message: "Message",
       familyLetter: "Invitation letter",
       familyMessage: "Message to share",
-      messageTitle: "Message to share — {{name}}",
+      messageTitle: "Message to share | {{name}}",
       messageLabel: "Message",
       messageHelp:
         "Send it to the main guardian. It contains the family code: opening it is recorded in the log.",
@@ -4811,9 +4811,9 @@ export const en: Messages<typeof fr> = {
     },
   },
   space: {
-    demo: "Demonstration — fictitious data",
-    test: "Trial — no real data",
-    specimen: "SPECIMEN — no value",
+    demo: "Demonstration | fictitious data",
+    test: "Trial | no real data",
+    specimen: "SPECIMEN | no value",
   },
   platformNews: {
     title: "{{platform}} announcements",
@@ -5017,10 +5017,13 @@ export const en: Messages<typeof fr> = {
     dashboard: {
       title: "Dashboard",
       subtitle:
-        "The live schools of the platform — {{day}}. Sandbox and demonstration spaces are not counted.",
+        "The live schools of the platform | {{day}}. Sandbox and demonstration spaces are not counted.",
       activeSchools: "Active schools",
-      schoolsSub:
-        "{{trial}} on free trial ({{ending}} ending within 30 days) · {{suspended}} suspended",
+      trialSub: "{{count}} on free trial",
+      endingSub_one: "{{count}} ends within 30 days",
+      endingSub_other: "{{count}} end within 30 days",
+      suspendedLine_one: "{{count}} suspended",
+      suspendedLine_other: "{{count}} suspended",
       students: "Enrolled students",
       studentsSub: "current year of each school",
       payments: "Payments today",
@@ -6009,7 +6012,7 @@ export const en: Messages<typeof fr> = {
     login: {
       title: "Welcome back",
       subtitle: "Payments, receipts and announcements from your children's schools.",
-      pageTitle: "Parent space — {{name}}",
+      pageTitle: "Parent space | {{name}}",
       pageDescription:
         "Follow your children's school on your phone: payments, receipts, what is left to pay, notices and summons. Log in with the number given to the school.",
       heading: "Log in",
