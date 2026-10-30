@@ -311,6 +311,24 @@ class PlatformAction(models.TextChoices):
     SITE_ENTRY_MOVED = "site.entry_moved", _("Site content moved")
     SITE_ENTRY_DELETED = "site.entry_deleted", _("Site content deleted")
     SITE_BANNER_UPDATED = "site.banner_updated", _("Site banner changed")
+    # Témoignages, écoles de référence, titres de recherche, actualités, photothèque (SITE.1b à
+    # SITE.3) ; réseaux sociaux : `PLATFORM_UPDATED`.
+    SITE_TESTIMONIAL_CREATED = "site.testimonial_created", _("Testimonial added")
+    SITE_TESTIMONIAL_UPDATED = "site.testimonial_updated", _("Testimonial changed")
+    SITE_TESTIMONIAL_MOVED = "site.testimonial_moved", _("Testimonial moved")
+    SITE_TESTIMONIAL_DELETED = "site.testimonial_deleted", _("Testimonial deleted")
+    SITE_REFERENCE_CREATED = "site.reference_created", _("Reference school added")
+    SITE_REFERENCE_UPDATED = "site.reference_updated", _("Reference school changed")
+    SITE_REFERENCE_MOVED = "site.reference_moved", _("Reference school moved")
+    SITE_REFERENCE_DELETED = "site.reference_deleted", _("Reference school deleted")
+    SITE_PAGE_UPDATED = "site.page_updated", _("Site page settings changed")
+    SITE_ARTICLE_CREATED = "site.article_created", _("Article written")
+    SITE_ARTICLE_UPDATED = "site.article_updated", _("Article changed")
+    SITE_ARTICLE_PUBLISHED = "site.article_published", _("Article published")
+    SITE_ARTICLE_DELETED = "site.article_deleted", _("Article deleted")
+    SITE_PHOTO_ADDED = "site.photo_added", _("Photo added to the photo library")
+    SITE_PHOTO_UPDATED = "site.photo_updated", _("Photo details changed")
+    SITE_PHOTO_DELETED = "site.photo_deleted", _("Photo deleted from the photo library")
 
 
 PLATFORM_DOMAINS = sorted({domain_of(action) for action in PlatformAction.values})

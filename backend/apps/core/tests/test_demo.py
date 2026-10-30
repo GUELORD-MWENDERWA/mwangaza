@@ -28,10 +28,11 @@ from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
 from apps.ai.models import AiAllowance
 from apps.audit.models import AuditLog
+from apps.core import site_content
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
 from apps.core.management.commands.demo import _erase_demo_spaces
-from apps.core.models import DemoRequest, PlatformSettings
+from apps.core.models import Article, DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
@@ -333,6 +334,9 @@ def rerun_puts_everything_back(demo, settings) -> None:
     assert platform.support_phone and platform.legal_notice
     # Demandes de démonstration fictives pour la console (WEB.1d).
     assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 2
+    # Actualités du site (SITE.2) : deux parues, une programmée, un brouillon anglais.
+    assert len(site_content.news("fr")) == 2 and site_content.news("en") == []
+    assert Article.objects.count() == 4
     assert School.objects.count() == 2
     assert User.objects.filter(phone="+243000001001").count() == 1
     assert Membership.objects.filter(school=itig).count() == 10 + POOL_SIZE

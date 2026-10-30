@@ -370,6 +370,247 @@ class SiteBanner(models.Model):
         return "shown"
 
 
+def site_consent_path(item, filename: str) -> str:
+    """Accord écrit (témoignage, photo d'élève) : stockage privé, jamais servi par le site."""
+    return f"site/consents/{item.pk}-{filename}"
+
+
+def site_photo_path(photo: "SitePhoto", filename: str) -> str:
+    """Nom fixé par le service (`<id>-1600.webp`, `<id>-600.webp`) : l'adresse publique
+    `/photos/<nom>` le lit sans passer par la base."""
+    return f"site/photos/{filename}"
+
+
+class SitePhoto(BaseModel):
+    """Photo de la photothèque du site public (SITE.3) : ré-encodée à l'envoi en WebP de deux
+    largeurs (`large` 1 600 px, `small` 600 px), sans métadonnées, l'original jeté. Une photo où
+    l'on reconnaît un élève, ou prise avec un accord écrit, n'existe qu'avec cet accord déposé
+    (`consent`, privé) : toute photo de la photothèque peut donc être montrée. Le crédit
+    (`credit`, `license`, `source_url`) est repris dans les mentions légales."""
+
+    class License(models.TextChoices):
+        CC0 = "cc0", "CC0"
+        PUBLIC_DOMAIN = "public_domain", _("Public domain")
+        CC_BY = "cc_by", "CC BY"
+        CC_BY_SA = "cc_by_sa", "CC BY-SA"
+        CONSENT = "consent", _("Written consent")
+
+    large = models.FileField(upload_to=site_photo_path)
+    small = models.FileField(upload_to=site_photo_path)
+    width = models.PositiveSmallIntegerField(_("width"))
+    height = models.PositiveSmallIntegerField(_("height"))
+    alt_fr = models.CharField(_("alternative text in French"), max_length=200)
+    alt_en = models.CharField(_("alternative text in English"), max_length=200)
+    credit = models.CharField(_("author or source"), max_length=120)
+    source_url = models.URLField(_("source page"), blank=True)
+    license = models.CharField(_("licence"), max_length=16, choices=License.choices)
+    recognizable = models.BooleanField(_("a pupil can be recognised"), default=False)
+    consent = models.FileField(_("written consent"), upload_to=site_consent_path, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("site photo")
+        verbose_name_plural = _("site photos")
+        constraints = [
+            models.CheckConstraint(
+                condition=~(models.Q(recognizable=True) | models.Q(license="consent"))
+                | ~models.Q(consent=""),
+                name="site_photo_consent_filed",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return self.alt_fr
+
+    def needs_consent(self) -> bool:
+        return self.recognizable or self.license == self.License.CONSENT
+
+
+class SitePage(models.Model):
+    """Réglages d'une page publique (SITE.1b, SITE.3) : titre et description pour les moteurs de
+    recherche (vides : le texte du logiciel) et, pour l'accueil, les écoles et les parents, la
+    photo du haut (vide : celle du site par défaut). Une ligne par page, créée au premier
+    réglage."""
+
+    class Key(models.TextChoices):
+        HOME = "home", _("Home")
+        SCHOOLS = "schools", _("Schools")
+        PARENTS = "parents", _("Parents")
+        NEWS = "news", _("News")
+        CONTACT = "contact", _("Demo")
+
+    PHOTO_PAGES = frozenset({Key.HOME, Key.SCHOOLS, Key.PARENTS})
+    PHOTO_MIN_WIDTH = 1200  # en haut d'une page, sur un grand écran
+
+    key = models.CharField(_("page"), max_length=12, primary_key=True, choices=Key.choices)
+    title_fr = models.CharField(_("search title in French"), max_length=60, blank=True)
+    title_en = models.CharField(_("search title in English"), max_length=60, blank=True)
+    description_fr = models.CharField(_("search description in French"), max_length=160, blank=True)
+    description_en = models.CharField(
+        _("search description in English"), max_length=160, blank=True
+    )
+    photo = models.ForeignKey(
+        SitePhoto,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="pages",
+        verbose_name=_("photo"),
+    )
+    updated_at = models.DateTimeField(_("updated at"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("site page")
+        verbose_name_plural = _("site pages")
+
+    def __str__(self) -> str:
+        return self.key
+
+
+class Testimonial(BaseModel):
+    """Témoignage du site public (SITE.1b) : les mots d'une personne d'une école, mot pour mot,
+    jamais inventés. Publié seulement avec l'accord écrit de la personne et de l'école déposé
+    (`consent`, privé). Anglais vide : la citation française."""
+
+    MAX = 6
+
+    name = models.CharField(_("name"), max_length=80)
+    role = models.CharField(_("position"), max_length=80)
+    school_name = models.CharField(_("school"), max_length=120)
+    town = models.CharField(_("town"), max_length=60)
+    quote_fr = models.TextField(_("quote in French"), max_length=400)
+    quote_en = models.TextField(_("quote in English"), max_length=400, blank=True)
+    consent = models.FileField(_("written consent"), upload_to=site_consent_path, blank=True)
+    logo = models.ForeignKey(
+        SitePhoto,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="testimonials",
+        verbose_name=_("school logo"),
+    )
+    position = models.PositiveSmallIntegerField(_("position"), default=0)
+    published = models.BooleanField(_("published"), default=False)
+
+    class Meta:
+        ordering = ["position", "created_at"]
+        verbose_name = _("testimonial")
+        verbose_name_plural = _("testimonials")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(published=False) | ~models.Q(consent=""),
+                name="testimonial_published_with_consent",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class ReferenceSchool(BaseModel):
+    """École de référence du site public (SITE.1b) : nom, ville, nombre d'élèves (tapé par la
+    communication, il doit être vrai), logo, lien. Publiée seulement avec la date de l'accord de
+    l'école (`consent_on`)."""
+
+    MAX = 8
+
+    name = models.CharField(_("school"), max_length=120)
+    town = models.CharField(_("town"), max_length=60)
+    pupils = models.PositiveIntegerField(_("pupils"))
+    link = models.URLField(_("link"), blank=True)
+    logo = models.ForeignKey(
+        SitePhoto,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="reference_schools",
+        verbose_name=_("logo"),
+    )
+    consent_on = models.DateField(_("school's consent given on"), null=True, blank=True)
+    position = models.PositiveSmallIntegerField(_("position"), default=0)
+    published = models.BooleanField(_("published"), default=False)
+
+    class Meta:
+        ordering = ["position", "created_at"]
+        verbose_name = _("reference school")
+        verbose_name_plural = _("reference schools")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(published=False) | models.Q(consent_on__isnull=False),
+                name="reference_school_published_with_consent",
+            )
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Article(BaseModel):
+    """Actualité du site public (SITE.2), dans une langue (la traduction est un autre article).
+    Publiée à `published_at` : une date future la tient cachée jusque-là (« programmée » n'est pas
+    un état enregistré, aucune tâche de fond). L'adresse (`slug`) est tirée du titre à la première
+    publication, unique par langue, puis figée. Texte en petit Markdown (`markdown.py`)."""
+
+    class Status(models.TextChoices):
+        DRAFT = "draft", _("Draft")
+        PUBLISHED = "published", _("Published")
+
+    class Language(models.TextChoices):
+        FR = "fr", _("French")
+        EN = "en", _("English")
+
+    language = models.CharField(_("language"), max_length=2, choices=Language.choices)
+    title = models.CharField(_("title"), max_length=120)
+    slug = models.SlugField(_("address"), max_length=80, blank=True, editable=False)
+    summary = models.CharField(_("summary"), max_length=200)
+    body = models.TextField(_("text"), max_length=20000)
+    photo = models.ForeignKey(
+        SitePhoto,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="articles",
+        verbose_name=_("image"),
+    )
+    author_name = models.CharField(_("author shown"), max_length=80, blank=True)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.DRAFT
+    )
+    published_at = models.DateTimeField(_("publication date"), null=True, blank=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        editable=False,
+        related_name="+",
+        verbose_name=_("changed by"),
+    )
+
+    class Meta:
+        ordering = [models.F("published_at").desc(nulls_first=True), "-created_at"]
+        verbose_name = _("article")
+        verbose_name_plural = _("articles")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["language", "slug"],
+                condition=~models.Q(slug=""),
+                name="article_slug_unique",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(status="draft")
+                | (models.Q(published_at__isnull=False) & ~models.Q(slug="")),
+                name="article_published_has_date_and_address",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["language", "status", "published_at"], name="article_public")
+        ]
+
+    def __str__(self) -> str:
+        return self.title
+
+
 def print_path(job: "PrintJob", filename: str) -> str:
     return f"print/{job.school_id}/{job.pk}-{filename}"
 

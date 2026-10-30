@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 2 — Site public refait**, partie 1/4 faite (étude, photos, maquettes), prochaine : 2/4 serveur ; fiche `docs/claude/plans/lot-2.md` |
+| Lot en cours | **Lot 2 — Site public refait**, parties 1 et 2/5 faites (étude et maquettes ; serveur), prochaine : 3/5 console ; visuels de l'application au lieu des photos (partie 4, demande du 2026-10-30) ; fiche `docs/claude/plans/lot-2.md` |
 | Prochain lot | Lot 3 — Vendre : contrats, abonnements, factures |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
 | Branche | `lot/2-site` (lot 1 fusionné : PR #410) |
-| Dernière mise à jour | 2026-10-30 (lot 2 démarré) |
+| Dernière mise à jour | 2026-10-30 (lot 2, partie 2/5) |
 
 ## Avancement
 
@@ -21,7 +21,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | Lot | Parties faites | Parties |
 |---|:-:|:-:|
 | 1 — Marque Mwangaza | 3 ✓ | 3 |
-| 2 — Site public refait | 1 | 4 |
+| 2 — Site public refait | 2 | 5 |
 | 3 — Vendre : contrats, abonnements, factures | 0 | 3 |
 | 4 — Bulletins aux parents | 0 | 3 |
 | 5 — Console finie | 0 | 3 |
@@ -65,6 +65,10 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-10-30 — Lot 2 : serveur du site (partie 2/5) et visuels décidés
+- Fait : témoignages, écoles de référence, titres de recherche et photo du haut des pages, actualités (programmées sans tâche de fond, petit Markdown), photothèque (WebP sans métadonnées, accords privés), réseaux pour la communication ; API console, journal, cache, 4 articles dans `make demo` ; tests des droits, du journal, des accords, de l'article programmé, du Markdown et des photos.
+- Décision (utilisateur) : les photos Wikimedia, trop anciennes, quittent le site ; à la place, les vrais écrans de l'application dans des téléphones et ordinateurs dessinés (comme ShuleSystem), avec des animations sobres et soignées. Lot passé à 5 parties (④ visuels, ⑤ pages).
 
 ### 2026-10-29 — Lot 1 : marque Mwangaza (fini)
 - Fait : livre de marque PDF et logo (parties 1-2) ; partie 3 : thème des trois applications au bleu uniforme et au soleil, barres qui suivent la couleur principale de la plateforme, symbole et logotype (Poppins) dans le code, relief retiré, icônes et favicon renommés (`symbole-*.png`), couleurs par défaut migrées (`#1A2F80` / `#FFA81E`) sans toucher une couleur choisie, guides PDF régénérés, maquettes et skill `design` à jour.

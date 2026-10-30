@@ -1,11 +1,30 @@
 """Identité de la plateforme (5.1), publique et lisible à toute adresse : école (même suspendue
 ou inconnue : l'écran le dit avec le contact du support), portail, administration."""
 
-from django.http import Http404, HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from pathlib import Path
+
+from django.db.models import Count, OuterRef, Q, Subquery
+from django.db.models.functions import Coalesce
+from django.http import (
+    FileResponse,
+    Http404,
+    HttpRequest,
+    HttpResponse,
+    HttpResponseRedirect,
+    JsonResponse,
+)
+from django.utils import timezone
+from django.utils.text import slugify
 from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET
-from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import (
     action,
@@ -14,7 +33,7 @@ from rest_framework.decorators import (
     permission_classes,
 )
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -22,16 +41,35 @@ from rest_framework.views import APIView
 
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission
-from apps.core import services
+from apps.core import markdown, services
 from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
-from apps.core.models import DemoRequest, PlatformSettings, SiteBanner, SiteEntry
+from apps.core.images import PHOTO_WIDTHS
+from apps.core.models import (
+    Article,
+    DemoRequest,
+    PlatformSettings,
+    ReferenceSchool,
+    SiteBanner,
+    SiteEntry,
+    SitePage,
+    SitePhoto,
+    Testimonial,
+)
 from apps.core.platform import png_size
 from apps.core.serializers import (
+    ArticleCountsSerializer,
+    ArticlePreviewSerializer,
+    ConsoleArticleSerializer,
     ConsoleDemoRequestSerializer,
     ConsolePlatformSerializer,
+    ConsoleReferenceSchoolSerializer,
     ConsoleSiteBannerSerializer,
     ConsoleSiteEntrySerializer,
+    ConsoleSitePageSerializer,
+    ConsoleSitePhotoSerializer,
+    ConsoleSocialLinksSerializer,
+    ConsoleTestimonialSerializer,
     PlatformIconUploadSerializer,
     PlatformLogoUploadSerializer,
     PlatformSerializer,
@@ -243,59 +281,121 @@ class ConsoleDemoRequestViewSet(
         return requests
 
 
-@extend_schema(tags=["console"])
-@extend_schema_view(
-    list=extend_schema(responses={200: ConsoleSiteEntrySerializer(many=True), **CONSOLE_ERRORS}),
-    create=extend_schema(responses={201: ConsoleSiteEntrySerializer, **CONSOLE_ERRORS}),
-    partial_update=extend_schema(responses={200: ConsoleSiteEntrySerializer, **CONSOLE_ERRORS}),
-    destroy=extend_schema(responses={204: None, **CONSOLE_ERRORS}),
-)
-class ConsoleSiteEntryViewSet(
+class OrderedSiteViewSet(
     mixins.ListModelMixin,
     mixins.CreateModelMixin,
     mixins.UpdateModelMixin,
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    """Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-    brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-    sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite."""
+    """Liste courte et ordonnée du site public (questions, témoignages, écoles de référence) :
+    toute la liste en une page, brouillons compris, dans l'ordre du site. Chaque changement va
+    au journal de la plateforme ; le site le montre tout de suite."""
 
     permission_classes = [HasPlatformPermission]
     platform_permission = team.SITE_EDIT
-    serializer_class = ConsoleSiteEntrySerializer
     pagination_class = None
-    queryset = SiteEntry.objects.all()
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def perform_create(self, serializer) -> None:
-        serializer.instance = services.create_site_entry(
-            actor=self.request.user, **serializer.validated_data
+        serializer.instance = services.create_ordered(
+            self.queryset.model, actor=self.request.user, **serializer.validated_data
         )
 
     def perform_update(self, serializer) -> None:
-        serializer.instance = services.update_site_entry(
+        serializer.instance = services.update_ordered(
             serializer.instance, actor=self.request.user, **serializer.validated_data
         )
 
-    def perform_destroy(self, instance: SiteEntry) -> None:
-        services.delete_site_entry(instance, actor=self.request.user)
+    def perform_destroy(self, instance) -> None:
+        services.delete_ordered(instance, actor=self.request.user)
 
-    @extend_schema(
-        request=SiteEntryMoveSerializer,
-        responses={200: ConsoleSiteEntrySerializer(many=True), **CONSOLE_ERRORS},
-    )
     @action(detail=True, methods=["post"])
     def move(self, request: Request, pk=None) -> Response:
-        """Monte ou descend l'entrée d'un rang ; renvoie sa liste dans le nouvel ordre."""
-        entry = self.get_object()
+        """Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre."""
+        item = self.get_object()
         serializer = SiteEntryMoveSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        services.move_site_entry(
-            entry, actor=request.user, up=serializer.validated_data["direction"] == "up"
+        services.move_ordered(
+            item, actor=request.user, up=serializer.validated_data["direction"] == "up"
         )
-        siblings = SiteEntry.objects.filter(kind=entry.kind)
-        return Response(ConsoleSiteEntrySerializer(siblings, many=True).data)
+        return Response(self.get_serializer(services.ordered_siblings(item), many=True).data)
+
+
+def _ordered_schema(serializer):
+    return extend_schema_view(
+        list=extend_schema(responses={200: serializer(many=True), **CONSOLE_ERRORS}),
+        create=extend_schema(responses={201: serializer, **CONSOLE_ERRORS}),
+        partial_update=extend_schema(responses={200: serializer, **CONSOLE_ERRORS}),
+        destroy=extend_schema(responses={204: None, **CONSOLE_ERRORS}),
+        move=extend_schema(
+            request=SiteEntryMoveSerializer,
+            responses={200: serializer(many=True), **CONSOLE_ERRORS},
+        ),
+    )
+
+
+def _consent_response(file, name: str) -> HttpResponse:
+    """Accord écrit, toujours téléchargé (jamais ouvert dans une page de la console)."""
+    if not file:
+        raise Http404
+    try:
+        content = file.open("rb")
+    except FileNotFoundError:
+        raise Http404 from None
+    extension = Path(file.name).suffix
+    response = FileResponse(content, as_attachment=True, filename=f"{slugify(name)}{extension}")
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "private, no-store"
+    return response
+
+
+CONSENT_RESPONSE = {
+    (200, "application/octet-stream"): OpenApiResponse(
+        OpenApiTypes.BINARY, description="PDF, JPEG ou PNG."
+    ),
+    **CONSOLE_ERRORS,
+}
+
+
+@extend_schema(tags=["console"])
+@_ordered_schema(ConsoleSiteEntrySerializer)
+class ConsoleSiteEntryViewSet(OrderedSiteViewSet):
+    """Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
+    brouillons compris, dans l'ordre du site (20 au plus par sorte)."""
+
+    serializer_class = ConsoleSiteEntrySerializer
+    queryset = SiteEntry.objects.all()
+    parser_classes = [JSONParser]
+
+
+@extend_schema(tags=["console"])
+@_ordered_schema(ConsoleTestimonialSerializer)
+class ConsoleTestimonialViewSet(OrderedSiteViewSet):
+    """Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+    grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui."""
+
+    serializer_class = ConsoleTestimonialSerializer
+    queryset = Testimonial.objects.all()
+
+    @extend_schema(responses=CONSENT_RESPONSE)
+    @action(detail=True, methods=["get"])
+    def consent(self, request: Request, pk=None) -> HttpResponse:
+        """Télécharge l'accord écrit déposé."""
+        testimonial = self.get_object()
+        return _consent_response(testimonial.consent, f"accord-{testimonial.name}")
+
+
+@extend_schema(tags=["console"])
+@_ordered_schema(ConsoleReferenceSchoolSerializer)
+class ConsoleReferenceSchoolViewSet(OrderedSiteViewSet):
+    """Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+    publiées seulement avec la date de l'accord de l'école."""
+
+    serializer_class = ConsoleReferenceSchoolSerializer
+    queryset = ReferenceSchool.objects.all()
+    parser_classes = [JSONParser]
 
 
 @extend_schema(tags=["console"])
@@ -320,3 +420,253 @@ class ConsoleSiteBannerView(APIView):
         serializer.is_valid(raise_exception=True)
         banner = services.update_site_banner(actor=request.user, **serializer.validated_data)
         return Response(ConsoleSiteBannerSerializer(banner).data)
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(responses={200: ConsoleSitePageSerializer(many=True), **CONSOLE_ERRORS}),
+    partial_update=extend_schema(responses={200: ConsoleSitePageSerializer, **CONSOLE_ERRORS}),
+)
+class ConsoleSitePageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Réglages des pages publiques (SITE.1b, SITE.3) : titres et descriptions de recherche par
+    langue, photo du haut de l'accueil, des écoles et des parents. Toutes les pages, réglées ou
+    non, dans l'ordre du site."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SITE_EDIT
+    serializer_class = ConsoleSitePageSerializer
+    pagination_class = None
+    lookup_field = "key"
+    lookup_value_regex = "|".join(SitePage.Key.values)
+    http_method_names = ["get", "patch", "head", "options"]
+
+    def list(self, request: Request) -> Response:
+        saved = SitePage.objects.in_bulk()
+        pages = [saved.get(key) or SitePage(key=key) for key in SitePage.Key.values]
+        return Response(self.get_serializer(pages, many=True).data)
+
+    def partial_update(self, request: Request, key: str) -> Response:
+        page = SitePage.objects.filter(pk=key).first() or SitePage(key=key)
+        serializer = self.get_serializer(page, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        page = services.update_site_page(key, actor=request.user, **serializer.validated_data)
+        return Response(self.get_serializer(page).data)
+
+
+class ArticlePagination(PageNumberPagination):
+    page_size = 20
+
+
+ARTICLE_FILTERS = [
+    OpenApiParameter("state", str, enum=["draft", "scheduled", "published"]),
+    OpenApiParameter("language", str, enum=Article.Language.values),
+]
+
+
+def _article_states(now) -> dict[str, Q]:
+    published = Q(status=Article.Status.PUBLISHED)
+    return {
+        "draft": Q(status=Article.Status.DRAFT),
+        "scheduled": published & Q(published_at__gt=now),
+        "published": published & Q(published_at__lte=now),
+    }
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    list=extend_schema(parameters=ARTICLE_FILTERS),
+    create=extend_schema(responses={201: ConsoleArticleSerializer, **CONSOLE_ERRORS}),
+    partial_update=extend_schema(responses={200: ConsoleArticleSerializer, **CONSOLE_ERRORS}),
+    destroy=extend_schema(responses={204: None, **CONSOLE_ERRORS}),
+)
+class ConsoleArticleViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+    date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+    tout de suite, un article programmé à sa date."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SITE_EDIT
+    serializer_class = ConsoleArticleSerializer
+    pagination_class = ArticlePagination
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    def get_queryset(self):
+        articles = Article.objects.select_related("updated_by")
+        if self.action != "list":
+            return articles
+        params = self.request.query_params
+        state = _article_states(timezone.now()).get(params.get("state", ""))
+        if state is not None:
+            articles = articles.filter(state)
+        if params.get("language") in Article.Language.values:
+            articles = articles.filter(language=params["language"])
+        return articles
+
+    def perform_create(self, serializer) -> None:
+        serializer.instance = services.create_article(
+            actor=self.request.user, **serializer.validated_data
+        )
+
+    def perform_update(self, serializer) -> None:
+        serializer.instance = services.update_article(
+            serializer.instance, actor=self.request.user, **serializer.validated_data
+        )
+
+    def perform_destroy(self, instance: Article) -> None:
+        services.delete_article(instance, actor=self.request.user)
+
+    @extend_schema(responses={200: ArticleCountsSerializer, **CONSOLE_ERRORS})
+    @action(detail=False, methods=["get"])
+    def counts(self, request: Request) -> Response:
+        """Nombre d'articles de chaque état (onglets de la liste), en une requête."""
+        states = _article_states(timezone.now())
+        counts = Article.objects.aggregate(
+            all=Count("pk"), **{name: Count("pk", filter=q) for name, q in states.items()}
+        )
+        return Response(ArticleCountsSerializer(counts).data)
+
+    @extend_schema(
+        request=ArticlePreviewSerializer,
+        responses={200: ArticlePreviewSerializer, **CONSOLE_ERRORS},
+    )
+    @action(detail=False, methods=["post"])
+    def preview(self, request: Request) -> Response:
+        """Le texte mis en forme comme sur le site (même code), pour l'aperçu de l'éditeur."""
+        serializer = ArticlePreviewSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        body = serializer.validated_data["body"]
+        return Response(
+            {"body": body, "html": markdown.render(body), "minutes": markdown.reading_minutes(body)}
+        )
+
+
+class PhotoPagination(PageNumberPagination):
+    page_size = 24
+
+
+def _uses(model, field: str):
+    """Nombre de lignes de `model` qui montrent la photo (sous-requête : pas de jointures
+    multipliées)."""
+    rows = (
+        model.objects.filter(**{field: OuterRef("pk")})
+        .order_by()
+        .values(field)
+        .annotate(n=Count("pk"))
+        .values("n")
+    )
+    return Coalesce(Subquery(rows), 0)
+
+
+@extend_schema(tags=["console"])
+@extend_schema_view(
+    create=extend_schema(
+        request={"multipart/form-data": ConsoleSitePhotoSerializer},
+        responses={201: ConsoleSitePhotoSerializer, **CONSOLE_ERRORS},
+    ),
+    partial_update=extend_schema(responses={200: ConsoleSitePhotoSerializer, **CONSOLE_ERRORS}),
+    destroy=extend_schema(responses={204: None, **CONSOLE_ERRORS}),
+)
+class ConsoleSitePhotoViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+    de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+    `multipart/form-data` ; suppression refusée tant qu'une photo est montrée."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SITE_EDIT
+    serializer_class = ConsoleSitePhotoSerializer
+    pagination_class = PhotoPagination
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
+    def get_queryset(self):
+        return SitePhoto.objects.annotate(
+            uses=_uses(SitePage, "photo")
+            + _uses(Article, "photo")
+            + _uses(Testimonial, "logo")
+            + _uses(ReferenceSchool, "logo")
+        )
+
+    def perform_create(self, serializer) -> None:
+        data = dict(serializer.validated_data)
+        sizes, size = data.pop("image")
+        serializer.instance = services.add_site_photo(
+            actor=self.request.user, sizes=sizes, size=size, **data
+        )
+
+    def perform_update(self, serializer) -> None:
+        serializer.instance = services.update_site_photo(
+            serializer.instance, actor=self.request.user, **serializer.validated_data
+        )
+
+    def destroy(self, request: Request, pk=None) -> Response:
+        try:
+            services.delete_site_photo(self.get_object(), actor=request.user)
+        except services.PhotoInUse:
+            return Response(
+                {"detail": _("This photo is shown on the site: choose another one first.")},
+                status=400,
+            )
+        return Response(status=204)
+
+    @extend_schema(responses=CONSENT_RESPONSE)
+    @action(detail=True, methods=["get"])
+    def consent(self, request: Request, pk=None) -> HttpResponse:
+        """Télécharge l'accord écrit déposé avec la photo."""
+        photo = self.get_object()
+        return _consent_response(photo.consent, f"accord-photo-{photo.pk}")
+
+
+@extend_schema(tags=["console"])
+class ConsoleSocialLinksView(APIView):
+    """Réseaux sociaux de la plateforme (SITE.5), tenus par la communication : mêmes champs que
+    l'identité. Un lien vide n'apparaît pas sur le site ; chaque changement au journal."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = team.SITE_EDIT
+    serializer_class = ConsoleSocialLinksSerializer
+
+    @extend_schema(responses={200: ConsoleSocialLinksSerializer, **CONSOLE_ERRORS})
+    def get(self, request: Request) -> Response:
+        return Response(ConsoleSocialLinksSerializer(PlatformSettings.load()).data)
+
+    @extend_schema(
+        request=ConsoleSocialLinksSerializer,
+        responses={200: ConsoleSocialLinksSerializer, **CONSOLE_ERRORS},
+    )
+    def patch(self, request: Request) -> Response:
+        serializer = ConsoleSocialLinksSerializer(
+            PlatformSettings.load(), data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        platform = services.update_platform(actor=request.user, **serializer.validated_data)
+        return Response(ConsoleSocialLinksSerializer(platform).data)
+
+
+@require_GET
+def site_photo(request: HttpRequest, pk: str, width: str) -> HttpResponse:
+    """Photo de la photothèque (SITE.3), lue sur le disque sans requête en base. Gardée un jour
+    par les caches (pas plus : une photo retirée, accord repris, doit disparaître vite)."""
+    if int(width) not in PHOTO_WIDTHS:
+        raise Http404
+    storage = SitePhoto._meta.get_field("large").storage
+    try:
+        content = storage.open(f"site/photos/{pk}-{width}.webp", "rb")
+    except FileNotFoundError:
+        raise Http404 from None
+    response = FileResponse(content, content_type="image/webp")
+    response["X-Content-Type-Options"] = "nosniff"
+    response["Cache-Control"] = "public, max-age=86400"
+    return response
