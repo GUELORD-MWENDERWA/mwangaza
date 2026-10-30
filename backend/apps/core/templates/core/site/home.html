@@ -40,7 +40,13 @@
     <div class="sechd rv"><span class="eyebrow">{% translate "Designed for schools here" %}</span><h2 class="st">{% translate "Made for power cuts, two currencies and busy parents" %}</h2></div>
     <div class="g3">
       <div class="sc rv">
-        <div class="demo">{% include "core/site/_sync.html" with inline=True %}<span class="small muted">{% translate "Receipt C1-000482 printed without a network" %}</span></div>
+        <div class="demo">{% include "core/site/_sync.html" with inline=True %}
+          <div class="rticket" role="img" aria-label="{% translate 'Receipt C1-000482 printed without a network' %}">
+            <div class="rc">COMPLEXE SCOLAIRE LES COLLINES</div>
+            <dl><dt>{% translate "Receipt" %}</dt><dd>C1-000482</dd><dt>{% translate "Student" %}</dt><dd>KAMBALE Josué</dd><dt>{% translate "Tuition · 2nd instalment" %}</dt><dd>{{ sample.paid }}</dd></dl>
+            <div class="rtot"><span>{% translate "Paid" %}</span><b>{{ sample.paid }}</b></div>
+          </div>
+          <span class="small muted">{% translate "Receipt C1-000482 printed without a network" %}</span></div>
         <h3>{% translate "The cash desk never stops" %}</h3>
         <p>{% translate "Internet down? The cashier takes the payment and prints the receipt. Payments go out by themselves when the network is back, never twice." %}</p>
       </div>
@@ -61,13 +67,15 @@
 <section class="sec">
   <div class="wrap">
     <div class="sechd rv"><span class="eyebrow">{% blocktranslate trimmed with name=platform.name %}A day with {{ name }}{% endblocktranslate %}</span><h2 class="st">{% translate "From opening the cash desk to the evening dashboard" %}</h2></div>
-    <ol class="day">
-      <li class="rv"><span class="t">07:30</span><span class="dot"></span><div><h3>{% translate "The cash desk opens" %}</h3><p>{% translate "The cashier counts the opening float and opens the session, on the computer or the tablet." %}</p><span class="who">{% translate "Cashier" %}</span></div><figure>{% translate "Opening the cash desk" as alt %}{% capture "gestion-caisse-ouverture" alt %}</figure></li>
-      <li class="rv"><span class="t">08:10</span><span class="dot"></span><div><h3>{% translate "A parent pays the 2nd instalment" %}</h3><p>{% translate "In dollars or francs, in full or in part: the receipt comes out in seconds, with a QR code to check it." %}</p><span class="who">{% translate "Cashier" %}</span></div><figure>{% translate "Taking an instalment" as alt %}{% capture "gestion-caisse-encaissement" alt %}</figure></li>
-      <li class="rv"><span class="t">08:11</span><span class="dot"></span><div><h3>{% translate "The parent sees it on their phone" %}</h3><p>{% translate "The payment and the receipt appear in the parent space, with what is left to pay." %}</p><span class="who">{% translate "Parent" %}</span></div><figure>{% translate "A child's payments in the parent space" as alt %}{% capture "portail-enfant-paiements" alt %}</figure></li>
-      <li class="rv"><span class="t">11:00</span><span class="dot"></span><div><h3>{% translate "The term's marks" %}</h3><p>{% translate "The teacher enters the class marks; the average, the rank and the conduct are worked out for the report card." %}</p><span class="who">{% translate "Teacher" %}</span></div><figure>{% translate "Entering a class's marks" as alt %}{% capture "gestion-notes-saisie" alt %}</figure></li>
-      <li class="rv"><span class="t">16:30</span><span class="dot"></span><div><h3>{% translate "Closing and dashboard" %}</h3><p>{% translate "The cashier closes with any difference; the head sees the day's takings and the unpaid fees of each class." %}</p><span class="who">{% translate "Cashier, head" %}</span></div><figure>{% translate "Closing the cash desk" as alt %}{% capture "gestion-caisse-cloture" alt %}</figure></li>
-    </ol>
+    <div class="reel" data-reel-track>
+      <ul class="reeltrack">
+        <li><div class="reelcard"><figure>{% translate "Opening the cash desk" as alt %}{% capture "gestion-caisse-ouverture" alt %}</figure><span class="t">07:30</span><h3>{% translate "The cash desk opens" %}</h3><p>{% translate "The cashier counts the opening float and opens the session, on the computer or the tablet." %}</p><span class="who">{% translate "Cashier" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "Taking an instalment" as alt %}{% capture "gestion-caisse-encaissement" alt %}</figure><span class="t">08:10</span><h3>{% translate "A parent pays the 2nd instalment" %}</h3><p>{% translate "In dollars or francs, in full or in part: the receipt comes out in seconds, with a QR code to check it." %}</p><span class="who">{% translate "Cashier" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "A child's payments in the parent space" as alt %}{% capture "portail-enfant-paiements" alt %}</figure><span class="t">08:11</span><h3>{% translate "The parent sees it on their phone" %}</h3><p>{% translate "The payment and the receipt appear in the parent space, with what is left to pay." %}</p><span class="who">{% translate "Parent" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "Entering a class's marks" as alt %}{% capture "gestion-notes-saisie" alt %}</figure><span class="t">11:00</span><h3>{% translate "The term's marks" %}</h3><p>{% translate "The teacher enters the class marks; the average, the rank and the conduct are worked out for the report card." %}</p><span class="who">{% translate "Teacher" %}</span></div></li>
+        <li><div class="reelcard"><figure>{% translate "Closing the cash desk" as alt %}{% capture "gestion-caisse-cloture" alt %}</figure><span class="t">16:30</span><h3>{% translate "Closing and dashboard" %}</h3><p>{% translate "The cashier closes with any difference; the head sees the day's takings and the unpaid fees of each class." %}</p><span class="who">{% translate "Cashier, head" %}</span></div></li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -88,7 +96,7 @@
       <div class="btop">{% include "core/_flag.html" %}<div class="bstate">{% translate "DEMOCRATIC REPUBLIC OF THE CONGO" %}<br>{% translate "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION" %}</div><span class="bqr"><img src="{{ sample.qr }}" alt="" width="64" height="64"><i class="scan"></i></span></div>
       <div class="bline"><b>{% translate "PROVINCE" %} :</b> NORD-KIVU</div>
       <div class="btwo">
-        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>ITIG DON BOSCO GOMA</u></p></div>
+        <div><p><b>{% translate "TOWN" %} :</b> <u>Goma</u></p><p><b>{% translate "SCHOOL" %} :</b> <u>&nbsp;</u></p></div>
         <div><p><b>{% translate "STUDENT" %} :</b> <u>KAMBALE JOSUÉ</u> <b>{% translate "SEX" %} :</b> M</p><p><b>{% translate "CLASS" %} :</b> <u>3e Électricité A</u></p></div>
       </div>
       <div class="btitle"><span>{% translate "REPORT CARD OF" %} 3e ÉLECTRICITÉ</span><span>{% translate "SCHOOL YEAR" %} 2025-2026</span></div>
@@ -134,6 +142,16 @@
   </div>
 </section>
 
+{% if partners %}
+<section class="sec tight" aria-label="{% translate 'Partners' %}">
+  <div class="wrap">
+    <div class="sechd c rv"><span class="eyebrow">{% translate "Partners" %}</span></div>
+    <div class="marquee rv"><ul class="mtrack">{% for loop_no in "12" %}{% for partner in partners %}
+      <li{% if loop_no == "2" %} aria-hidden="true"{% endif %}>{% if partner.link and loop_no == "1" %}<a href="{{ partner.link }}" rel="noopener">{% endif %}{% if partner.logo %}<img src="{{ partner.logo.small }}" alt="{% if loop_no == '1' %}{{ partner.name }}{% endif %}" width="{{ partner.logo.width }}" height="{{ partner.logo.height }}" loading="lazy">{% else %}<span class="word">{{ partner.name }}</span>{% endif %}{% if partner.link and loop_no == "1" %}</a>{% endif %}</li>{% endfor %}{% endfor %}</ul></div>
+  </div>
+</section>
+{% endif %}
+
 {% if stats %}
 <section class="sec night relief">
   <div class="wrap">
@@ -145,12 +163,30 @@
 </section>
 {% endif %}
 
+{% if testimonials %}
+<section class="sec alt" id="temoignages">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "They use it" %}</span><h2 class="st">{% translate "What school teams say" %}</h2></div>
+    <div class="voices rv" data-voices>
+      <ul class="vtrack">{% for item in testimonials %}
+        <li><button type="button" class="vcard" data-voice="{{ forloop.counter0 }}"><blockquote>« {{ item.quote }} »</blockquote><span class="who"><span class="avatar" aria-hidden="true">{{ item.name|slice:":1" }}</span><span><b>{{ item.name }}</b><small>{{ item.role }} · {{ item.school_name }}, {{ item.town }}</small></span></span></button></li>{% endfor %}
+      </ul>
+    </div>
+    {% for item in testimonials %}<dialog class="vdialog" id="voice-{{ forloop.counter0 }}" aria-label="{{ item.name }}">
+      <form method="dialog"><button class="vclose" aria-label="{% translate 'Close' %}">{% icon "x" %}</button></form>
+      <blockquote>« {{ item.quote }} »</blockquote>
+      <p class="who"><span class="avatar" aria-hidden="true">{{ item.name|slice:":1" }}</span><span><b>{{ item.name }}</b><small>{{ item.role }} · {{ item.school_name }}, {{ item.town }}</small></span></p>
+    </dialog>{% endfor %}
+  </div>
+</section>
+{% endif %}
+
 {% for school in references %}
 <section class="sec">
   <div class="wrap">
     {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Pilot school" %}</span><h2 class="st">{% translate "Designed with a real school in Goma" %}</h2></div>{% endif %}
-    <figure class="ref rv">
-      <div class="refphoto">{% photo school.photo school.photo_alt %}</div>
+    <figure class="ref rv{% if not school.photo %} solo{% endif %}">
+      {% if school.photo %}<div class="refphoto">{% photo school.photo school.photo_alt %}</div>{% endif %}
       <div class="refbody">
         <div class="refschool"><img class="reflogo" src="{% static school.logo %}" alt="{% blocktranslate with name=school.name %}{{ name }} logo{% endblocktranslate %}" width="56" height="56" loading="lazy"><span><b>{{ school.name }}</b><small>{{ school.kind }}</small></span></div>
         {% if school.quote %}<blockquote>« {{ school.quote }} »<footer>{{ school.quote_by }} · {{ school.name }}</footer></blockquote>{% endif %}
@@ -190,6 +226,14 @@
     </div>
   </div>
 </section>
+
+{% if news %}<section class="sec alt">
+  <div class="wrap">
+    <div class="sechd"><span class="eyebrow">{% translate "News" %}</span><h2 class="st">{% blocktranslate trimmed with name=platform.name %}What is changing in {{ name }}{% endblocktranslate %}</h2></div>
+    <ul class="newslist">{% for item in news %}<li><a href="{{ item.path }}"><span><span class="date">{{ item.published_at|date:"j F Y" }}</span><h3>{{ item.title }}</h3><p>{{ item.summary }}</p></span>{% if item.photo %}<img src="{{ item.photo.small }}" alt="" loading="lazy">{% endif %}</a></li>{% endfor %}</ul>
+    <p style="margin-top:20px"><a class="more" href="{{ links.news }}">{% translate "All the news" %}</a></p>
+  </div>
+</section>{% endif %}
 
 {% if faq %}<section class="sec" id="questions">
   <div class="wrap">

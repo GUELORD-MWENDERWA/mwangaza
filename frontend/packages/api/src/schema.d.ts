@@ -1879,6 +1879,97 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/site/articles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+         *     date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+         *     tout de suite, un article programmé à sa date.
+         */
+        get: operations["console_site_articles_list"];
+        put?: never;
+        /**
+         * @description Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+         *     date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+         *     tout de suite, un article programmé à sa date.
+         */
+        post: operations["console_site_articles_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/articles/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+         *     date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+         *     tout de suite, un article programmé à sa date.
+         */
+        get: operations["console_site_articles_retrieve"];
+        put?: never;
+        post?: never;
+        /**
+         * @description Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+         *     date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+         *     tout de suite, un article programmé à sa date.
+         */
+        delete: operations["console_site_articles_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+         *     date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+         *     tout de suite, un article programmé à sa date.
+         */
+        patch: operations["console_site_articles_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/articles/counts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Nombre d'articles de chaque état (onglets de la liste), en une requête. */
+        get: operations["console_site_articles_counts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/articles/preview/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Le texte mis en forme comme sur le site (même code), pour l'aperçu de l'éditeur. */
+        post: operations["console_site_articles_preview_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/site/banner/": {
         parameters: {
             query?: never;
@@ -1912,15 +2003,13 @@ export interface paths {
         };
         /**
          * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         *     brouillons compris, dans l'ordre du site (20 au plus par sorte).
          */
         get: operations["console_site_entries_list"];
         put?: never;
         /**
          * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         *     brouillons compris, dans l'ordre du site (20 au plus par sorte).
          */
         post: operations["console_site_entries_create"];
         delete?: never;
@@ -1941,16 +2030,14 @@ export interface paths {
         post?: never;
         /**
          * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         *     brouillons compris, dans l'ordre du site (20 au plus par sorte).
          */
         delete: operations["console_site_entries_destroy"];
         options?: never;
         head?: never;
         /**
          * @description Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-         *     brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-         *     sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+         *     brouillons compris, dans l'ordre du site (20 au plus par sorte).
          */
         patch: operations["console_site_entries_partial_update"];
         trace?: never;
@@ -1964,8 +2051,420 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Monte ou descend l'entrée d'un rang ; renvoie sa liste dans le nouvel ordre. */
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
         post: operations["console_site_entries_move_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/pages/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Réglages des pages publiques (SITE.1b, SITE.3) : titres et descriptions de recherche par
+         *     langue, photo du haut de l'accueil, des écoles et des parents. Toutes les pages, réglées ou
+         *     non, dans l'ordre du site.
+         */
+        get: operations["console_site_pages_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/pages/{key}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Réglages des pages publiques (SITE.1b, SITE.3) : titres et descriptions de recherche par
+         *     langue, photo du haut de l'accueil, des écoles et des parents. Toutes les pages, réglées ou
+         *     non, dans l'ordre du site.
+         */
+        patch: operations["console_site_pages_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/partners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        get: operations["console_site_partners_list"];
+        put?: never;
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        post: operations["console_site_partners_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/partners/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        delete: operations["console_site_partners_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        patch: operations["console_site_partners_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/partners/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
+        post: operations["console_site_partners_move_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/photos/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+         *     de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+         *     `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+         */
+        get: operations["console_site_photos_list"];
+        put?: never;
+        /**
+         * @description Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+         *     de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+         *     `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+         */
+        post: operations["console_site_photos_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/photos/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+         *     de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+         *     `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+         */
+        delete: operations["console_site_photos_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+         *     de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+         *     `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+         */
+        patch: operations["console_site_photos_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/photos/{id}/consent/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Télécharge l'accord écrit déposé avec la photo. */
+        get: operations["console_site_photos_consent_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/plans/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        get: operations["console_site_plans_list"];
+        put?: never;
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        post: operations["console_site_plans_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/plans/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        delete: operations["console_site_plans_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        patch: operations["console_site_plans_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/plans/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
+        post: operations["console_site_plans_move_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/references/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+         *     publiées seulement avec la date de l'accord de l'école.
+         */
+        get: operations["console_site_references_list"];
+        put?: never;
+        /**
+         * @description Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+         *     publiées seulement avec la date de l'accord de l'école.
+         */
+        post: operations["console_site_references_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/references/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+         *     publiées seulement avec la date de l'accord de l'école.
+         */
+        delete: operations["console_site_references_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+         *     publiées seulement avec la date de l'accord de l'école.
+         */
+        patch: operations["console_site_references_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/references/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
+        post: operations["console_site_references_move_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/social/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Réseaux sociaux de la plateforme (SITE.5), tenus par la communication : mêmes champs que
+         *     l'identité. Un lien vide n'apparaît pas sur le site ; chaque changement au journal.
+         */
+        get: operations["console_site_social_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Réseaux sociaux de la plateforme (SITE.5), tenus par la communication : mêmes champs que
+         *     l'identité. Un lien vide n'apparaît pas sur le site ; chaque changement au journal.
+         */
+        patch: operations["console_site_social_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/testimonials/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+         *     grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+         */
+        get: operations["console_site_testimonials_list"];
+        put?: never;
+        /**
+         * @description Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+         *     grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+         */
+        post: operations["console_site_testimonials_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/testimonials/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+         *     grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+         */
+        delete: operations["console_site_testimonials_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+         *     grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+         */
+        patch: operations["console_site_testimonials_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/testimonials/{id}/consent/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Télécharge l'accord écrit déposé. */
+        get: operations["console_site_testimonials_consent_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/testimonials/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
+        post: operations["console_site_testimonials_move_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6220,6 +6719,28 @@ export interface components {
             grade: components["schemas"]["ConductGradeEnum"];
             reason: string;
         };
+        ArticleCounts: {
+            all: number;
+            draft: number;
+            scheduled: number;
+            published: number;
+        };
+        /**
+         * @description * `fr` - French
+         *     * `en` - English
+         * @enum {string}
+         */
+        ArticleLanguageEnum: "fr" | "en";
+        /** @description Texte à mettre en forme comme sur le site (aucun HTML accepté : tout est échappé). */
+        ArticlePreview: {
+            body: string;
+            readonly html: string;
+            readonly minutes: number;
+        };
+        /** @description Texte à mettre en forme comme sur le site (aucun HTML accepté : tout est échappé). */
+        ArticlePreviewRequest: {
+            body: string;
+        };
         AssistAskRequest: {
             /**
              * Format: uuid
@@ -6263,6 +6784,11 @@ export interface components {
             last_name: string;
             middle_name: string;
             first_name: string;
+        };
+        AuditActorRequest: {
+            last_name: string;
+            middle_name?: string;
+            first_name?: string;
         };
         AuditDevice: {
             /** Format: uuid */
@@ -7093,6 +7619,75 @@ export interface components {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
         };
+        /**
+         * @description Actualité (SITE.2). `state` : brouillon, programmé (publié, date future : il paraît seul
+         *     à sa date) ou publié. Publier sans date : maintenant. L'adresse (`slug`, `url`) naît à la
+         *     première publication, puis ne change plus, ni la langue.
+         */
+        ConsoleArticle: {
+            /** Format: uuid */
+            readonly id: string;
+            language: components["schemas"]["ArticleLanguageEnum"];
+            title: string;
+            /**
+             * Address
+             * @default
+             */
+            readonly slug: string;
+            readonly url: string | null;
+            summary: string;
+            /** Text */
+            body: string;
+            /**
+             * Image
+             * Format: uuid
+             */
+            photo: string | null;
+            /** Author shown */
+            author_name: string;
+            status: components["schemas"]["ExamScheduleStatusEnum"];
+            /**
+             * Publication date
+             * Format: date-time
+             */
+            published_at: string | null;
+            readonly state: components["schemas"]["ConsoleArticleStateEnum"];
+            readonly updated_by: components["schemas"]["AuditActor"];
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Actualité (SITE.2). `state` : brouillon, programmé (publié, date future : il paraît seul
+         *     à sa date) ou publié. Publier sans date : maintenant. L'adresse (`slug`, `url`) naît à la
+         *     première publication, puis ne change plus, ni la langue.
+         */
+        ConsoleArticleRequest: {
+            language: components["schemas"]["ArticleLanguageEnum"];
+            title: string;
+            summary: string;
+            /** Text */
+            body: string;
+            /**
+             * Image
+             * Format: uuid
+             */
+            photo?: string | null;
+            /** Author shown */
+            author_name?: string;
+            status?: components["schemas"]["ExamScheduleStatusEnum"];
+            /**
+             * Publication date
+             * Format: date-time
+             */
+            published_at?: string | null;
+        };
+        /**
+         * @description * `draft` - draft
+         *     * `scheduled` - scheduled
+         *     * `published` - published
+         * @enum {string}
+         */
+        ConsoleArticleStateEnum: "draft" | "scheduled" | "published";
         ConsoleCollected: {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
@@ -7121,6 +7716,7 @@ export interface components {
              * Format: date-time
              */
             readonly created_at: string;
+            readonly source: components["schemas"]["ConsoleDemoSourceEnum"];
             /** Full name */
             readonly name: string;
             readonly role: components["schemas"]["RoleEnum"];
@@ -7141,6 +7737,12 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /**
+         * @description * `form` - Demo form
+         *     * `chat` - Site chat
+         * @enum {string}
+         */
+        ConsoleDemoSourceEnum: "form" | "chat";
         /** @description Un appareil enregistré dans une école (console de la plateforme, 5.4.2). */
         ConsoleDevice: {
             /** Format: uuid */
@@ -7201,6 +7803,90 @@ export interface components {
             school: components["schemas"]["ConsoleSchoolRefRequest"];
             /** Active */
             is_active?: boolean;
+        };
+        /**
+         * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+         *     lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        ConsolePartner: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            link: string;
+            /** Format: uuid */
+            logo: string | null;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+         *     lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        ConsolePartnerRequest: {
+            name: string;
+            link?: string;
+            /** Format: uuid */
+            logo?: string | null;
+            published?: boolean;
+        };
+        /**
+         * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+         *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+         *     par `move`.
+         */
+        ConsolePlan: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Name in French */
+            name_fr: string;
+            /** Name in English */
+            name_en: string;
+            /** Tagline in French */
+            tagline_fr: string;
+            /** Tagline in English */
+            tagline_en: string;
+            price: number | null;
+            currency: components["schemas"]["CurrencyEnum"];
+            period: components["schemas"]["PeriodEnum"];
+            /** Included, one per line, in French */
+            features_fr: string;
+            /** Included, one per line, in English */
+            features_en: string;
+            highlighted: boolean;
+            /** Example */
+            is_example: boolean;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+         *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+         *     par `move`.
+         */
+        ConsolePlanRequest: {
+            /** Name in French */
+            name_fr: string;
+            /** Name in English */
+            name_en?: string;
+            /** Tagline in French */
+            tagline_fr: string;
+            /** Tagline in English */
+            tagline_en?: string;
+            price?: number | null;
+            currency?: components["schemas"]["CurrencyEnum"];
+            period?: components["schemas"]["PeriodEnum"];
+            /** Included, one per line, in French */
+            features_fr: string;
+            /** Included, one per line, in English */
+            features_en?: string;
+            highlighted?: boolean;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
         };
         /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
@@ -7277,6 +7963,53 @@ export interface components {
             audience: components["schemas"]["PlatformAudienceEnum"];
             /** @description Écoles visées quand `audience` vaut `schools`. */
             schools?: string[];
+        };
+        /**
+         * @description École de référence (SITE.1b). « Publiée » refusée sans la date de l'accord de l'école ;
+         *     lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        ConsoleReferenceSchool: {
+            /** Format: uuid */
+            readonly id: string;
+            /** School */
+            name: string;
+            town: string;
+            pupils: number;
+            link: string;
+            /** Format: uuid */
+            logo: string | null;
+            /**
+             * School's consent given on
+             * Format: date
+             */
+            consent_on: string | null;
+            /** Example */
+            is_example: boolean;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description École de référence (SITE.1b). « Publiée » refusée sans la date de l'accord de l'école ;
+         *     lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        ConsoleReferenceSchoolRequest: {
+            /** School */
+            name: string;
+            town: string;
+            pupils: number;
+            link?: string;
+            /** Format: uuid */
+            logo?: string | null;
+            /**
+             * School's consent given on
+             * Format: date
+             */
+            consent_on?: string | null;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
         };
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
@@ -7556,6 +8289,112 @@ export interface components {
             published?: boolean;
         };
         /**
+         * @description Réglages d'une page publique (SITE.1b, SITE.3) : titre (60) et description (160) de
+         *     recherche par langue, vides = le texte du logiciel ; photo du haut (accueil, écoles, parents
+         *     seulement ; 1 200 px de large au moins), vide = celle du site.
+         */
+        ConsoleSitePage: {
+            /** Page */
+            readonly key: components["schemas"]["ConsoleSitePageKeyEnum"];
+            /** Search title in French */
+            title_fr: string;
+            /** Search title in English */
+            title_en: string;
+            /** Search description in French */
+            description_fr: string;
+            /** Search description in English */
+            description_en: string;
+            /** Format: uuid */
+            photo: string | null;
+            readonly has_photo_slot: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description * `home` - Home
+         *     * `schools` - Schools
+         *     * `parents` - Parents
+         *     * `news` - News
+         *     * `contact` - Demo
+         * @enum {string}
+         */
+        ConsoleSitePageKeyEnum: "home" | "schools" | "parents" | "news" | "contact";
+        /**
+         * @description Photo de la photothèque (SITE.3). À l'envoi (`image`) : JPEG, PNG ou WebP de 10 Mo au plus
+         *     et 600 px de large au moins, ré-encodée en WebP 1 600 et 600 px sans métadonnées. Licence de
+         *     la liste (jamais NC ni ND) ; un élève reconnaissable ou une licence « accord écrit » exigent
+         *     l'accord déposé. `uses` : pages, articles, témoignages et écoles qui la montrent (la
+         *     suppression est refusée tant qu'il y en a).
+         */
+        ConsoleSitePhoto: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly url: string;
+            readonly small_url: string;
+            readonly width: number;
+            readonly height: number;
+            /** Alternative text in French */
+            alt_fr: string;
+            /** Alternative text in English */
+            alt_en: string;
+            /** Author or source */
+            credit: string;
+            /** Source page */
+            source_url: string;
+            /** Licence */
+            license: components["schemas"]["SitePhotoLicenseEnum"];
+            /** A pupil can be recognised */
+            recognizable: boolean;
+            readonly has_consent: boolean;
+            /** @default 0 */
+            readonly uses: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description Photo de la photothèque (SITE.3). À l'envoi (`image`) : JPEG, PNG ou WebP de 10 Mo au plus
+         *     et 600 px de large au moins, ré-encodée en WebP 1 600 et 600 px sans métadonnées. Licence de
+         *     la liste (jamais NC ni ND) ; un élève reconnaissable ou une licence « accord écrit » exigent
+         *     l'accord déposé. `uses` : pages, articles, témoignages et écoles qui la montrent (la
+         *     suppression est refusée tant qu'il y en a).
+         */
+        ConsoleSitePhotoRequest: {
+            /** Format: binary */
+            image: string;
+            /** Alternative text in French */
+            alt_fr: string;
+            /** Alternative text in English */
+            alt_en: string;
+            /** Author or source */
+            credit: string;
+            /** Source page */
+            source_url?: string;
+            /** Licence */
+            license: components["schemas"]["SitePhotoLicenseEnum"];
+            /** A pupil can be recognised */
+            recognizable?: boolean;
+            /** Format: binary */
+            consent?: string;
+        };
+        /**
+         * @description Réseaux sociaux de la plateforme (SITE.5) : les champs de l'identité (WEB.1d), tenus par
+         *     la communication. Chaque lien mène au réseau attendu, en https ; vide : absent du site.
+         */
+        ConsoleSocialLinks: {
+            /** WhatsApp */
+            whatsapp_url: string;
+            /** Facebook */
+            facebook_url: string;
+            /** Instagram */
+            instagram_url: string;
+            /** LinkedIn */
+            linkedin_url: string;
+            /** YouTube */
+            youtube_url: string;
+            /** TikTok */
+            tiktok_url: string;
+        };
+        /**
          * @description Une session support « en tant qu'école » (5.4.2), reconstituée depuis le journal de
          *     l'école (`support.sessions`).
          */
@@ -7582,6 +8421,64 @@ export interface components {
             state: components["schemas"]["SupportSessionStateEnum"];
             /** @description Actions faites dans l'école pendant la session. */
             actions: number;
+        };
+        /**
+         * @description Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
+         *     l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
+         *     le rang se change par `move`.
+         */
+        ConsoleTestimonial: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** Position */
+            role: string;
+            /** School */
+            school_name: string;
+            town: string;
+            /** Quote in French */
+            quote_fr: string;
+            /** Quote in English */
+            quote_en: string;
+            readonly has_consent: boolean;
+            /**
+             * School logo
+             * Format: uuid
+             */
+            logo: string | null;
+            /** Example */
+            is_example: boolean;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
+         *     l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
+         *     le rang se change par `move`.
+         */
+        ConsoleTestimonialRequest: {
+            name: string;
+            /** Position */
+            role: string;
+            /** School */
+            school_name: string;
+            town: string;
+            /** Quote in French */
+            quote_fr: string;
+            /** Quote in English */
+            quote_en?: string;
+            /** Format: binary */
+            consent?: string;
+            /**
+             * School logo
+             * Format: uuid
+             */
+            logo?: string | null;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
         };
         ContactAddress: {
             /** @default  */
@@ -9158,18 +10055,6 @@ export interface components {
             phone: string;
         };
         /**
-         * @description * `year` - year
-         *     * `classes` - classes
-         *     * `fees` - fees
-         *     * `staff` - staff
-         *     * `cash` - cash
-         *     * `students` - students
-         *     * `prior` - prior
-         *     * `invitations` - invitations
-         * @enum {string}
-         */
-        KeyEnum: "year" | "classes" | "fees" | "staff" | "cash" | "students" | "prior" | "invitations";
-        /**
          * @description * `fr` - Français
          *     * `en` - English
          * @enum {string}
@@ -9701,6 +10586,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ConsoleAccount"][];
         };
+        PaginatedConsoleArticleList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleArticle"][];
+        };
         PaginatedConsoleDemoRequestList: {
             /** @example 123 */
             count: number;
@@ -9760,6 +10660,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["ConsoleSchool"][];
+        };
+        PaginatedConsoleSitePhotoList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleSitePhoto"][];
         };
         PaginatedConsoleSupportSessionList: {
             /** @example 123 */
@@ -10306,6 +11221,31 @@ export interface components {
             is_active?: boolean;
         };
         /**
+         * @description Actualité (SITE.2). `state` : brouillon, programmé (publié, date future : il paraît seul
+         *     à sa date) ou publié. Publier sans date : maintenant. L'adresse (`slug`, `url`) naît à la
+         *     première publication, puis ne change plus, ni la langue.
+         */
+        PatchedConsoleArticleRequest: {
+            language?: components["schemas"]["ArticleLanguageEnum"];
+            title?: string;
+            summary?: string;
+            /** Text */
+            body?: string;
+            /**
+             * Image
+             * Format: uuid
+             */
+            photo?: string | null;
+            /** Author shown */
+            author_name?: string;
+            status?: components["schemas"]["ExamScheduleStatusEnum"];
+            /**
+             * Publication date
+             * Format: date-time
+             */
+            published_at?: string | null;
+        };
+        /**
          * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
          *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
          */
@@ -10314,6 +11254,43 @@ export interface components {
             status?: components["schemas"]["DemoRequestStatusEnum"];
             /** Internal note */
             notes?: string;
+        };
+        /**
+         * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+         *     lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        PatchedConsolePartnerRequest: {
+            name?: string;
+            link?: string;
+            /** Format: uuid */
+            logo?: string | null;
+            published?: boolean;
+        };
+        /**
+         * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+         *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+         *     par `move`.
+         */
+        PatchedConsolePlanRequest: {
+            /** Name in French */
+            name_fr?: string;
+            /** Name in English */
+            name_en?: string;
+            /** Tagline in French */
+            tagline_fr?: string;
+            /** Tagline in English */
+            tagline_en?: string;
+            price?: number | null;
+            currency?: components["schemas"]["CurrencyEnum"];
+            period?: components["schemas"]["PeriodEnum"];
+            /** Included, one per line, in French */
+            features_fr?: string;
+            /** Included, one per line, in English */
+            features_en?: string;
+            highlighted?: boolean;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
         };
         /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
@@ -10360,6 +11337,27 @@ export interface components {
             youtube_url?: string;
             /** TikTok */
             tiktok_url?: string;
+        };
+        /**
+         * @description École de référence (SITE.1b). « Publiée » refusée sans la date de l'accord de l'école ;
+         *     lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        PatchedConsoleReferenceSchoolRequest: {
+            /** School */
+            name?: string;
+            town?: string;
+            pupils?: number;
+            link?: string;
+            /** Format: uuid */
+            logo?: string | null;
+            /**
+             * School's consent given on
+             * Format: date
+             */
+            consent_on?: string | null;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
         };
         /**
          * @description Une école vue par le super-admin. Il change son adresse (`code` : l'ancienne cesse de
@@ -10431,6 +11429,93 @@ export interface components {
             text_fr?: string;
             /** Text in English */
             text_en?: string;
+            published?: boolean;
+        };
+        /**
+         * @description Réglages d'une page publique (SITE.1b, SITE.3) : titre (60) et description (160) de
+         *     recherche par langue, vides = le texte du logiciel ; photo du haut (accueil, écoles, parents
+         *     seulement ; 1 200 px de large au moins), vide = celle du site.
+         */
+        PatchedConsoleSitePageRequest: {
+            /** Search title in French */
+            title_fr?: string;
+            /** Search title in English */
+            title_en?: string;
+            /** Search description in French */
+            description_fr?: string;
+            /** Search description in English */
+            description_en?: string;
+            /** Format: uuid */
+            photo?: string | null;
+        };
+        /**
+         * @description Photo de la photothèque (SITE.3). À l'envoi (`image`) : JPEG, PNG ou WebP de 10 Mo au plus
+         *     et 600 px de large au moins, ré-encodée en WebP 1 600 et 600 px sans métadonnées. Licence de
+         *     la liste (jamais NC ni ND) ; un élève reconnaissable ou une licence « accord écrit » exigent
+         *     l'accord déposé. `uses` : pages, articles, témoignages et écoles qui la montrent (la
+         *     suppression est refusée tant qu'il y en a).
+         */
+        PatchedConsoleSitePhotoRequest: {
+            /** Format: binary */
+            image?: string;
+            /** Alternative text in French */
+            alt_fr?: string;
+            /** Alternative text in English */
+            alt_en?: string;
+            /** Author or source */
+            credit?: string;
+            /** Source page */
+            source_url?: string;
+            /** Licence */
+            license?: components["schemas"]["SitePhotoLicenseEnum"];
+            /** A pupil can be recognised */
+            recognizable?: boolean;
+            /** Format: binary */
+            consent?: string;
+        };
+        /**
+         * @description Réseaux sociaux de la plateforme (SITE.5) : les champs de l'identité (WEB.1d), tenus par
+         *     la communication. Chaque lien mène au réseau attendu, en https ; vide : absent du site.
+         */
+        PatchedConsoleSocialLinksRequest: {
+            /** WhatsApp */
+            whatsapp_url?: string;
+            /** Facebook */
+            facebook_url?: string;
+            /** Instagram */
+            instagram_url?: string;
+            /** LinkedIn */
+            linkedin_url?: string;
+            /** YouTube */
+            youtube_url?: string;
+            /** TikTok */
+            tiktok_url?: string;
+        };
+        /**
+         * @description Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
+         *     l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
+         *     le rang se change par `move`.
+         */
+        PatchedConsoleTestimonialRequest: {
+            name?: string;
+            /** Position */
+            role?: string;
+            /** School */
+            school_name?: string;
+            town?: string;
+            /** Quote in French */
+            quote_fr?: string;
+            /** Quote in English */
+            quote_en?: string;
+            /** Format: binary */
+            consent?: string;
+            /**
+             * School logo
+             * Format: uuid
+             */
+            logo?: string | null;
+            /** Example */
+            is_example?: boolean;
             published?: boolean;
         };
         PatchedEnrollmentUpdateRequest: {
@@ -10796,6 +11881,12 @@ export interface components {
             matricule: string;
         };
         /**
+         * @description * `month` - per month
+         *     * `year` - per year
+         * @enum {string}
+         */
+        PeriodEnum: "month" | "year";
+        /**
          * @description * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
          *     * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
          *     * `courses.configure` - Configure courses, maxima and teachers of each class
@@ -10960,9 +12051,33 @@ export interface components {
          *     * `site.entry_moved` - Site content moved
          *     * `site.entry_deleted` - Site content deleted
          *     * `site.banner_updated` - Site banner changed
+         *     * `site.testimonial_created` - Testimonial added
+         *     * `site.testimonial_updated` - Testimonial changed
+         *     * `site.testimonial_moved` - Testimonial moved
+         *     * `site.testimonial_deleted` - Testimonial deleted
+         *     * `site.reference_created` - Reference school added
+         *     * `site.reference_updated` - Reference school changed
+         *     * `site.reference_moved` - Reference school moved
+         *     * `site.reference_deleted` - Reference school deleted
+         *     * `site.plan_created` - Plan added
+         *     * `site.plan_updated` - Plan changed
+         *     * `site.plan_moved` - Plan moved
+         *     * `site.plan_deleted` - Plan deleted
+         *     * `site.partner_created` - Partner added
+         *     * `site.partner_updated` - Partner changed
+         *     * `site.partner_moved` - Partner moved
+         *     * `site.partner_deleted` - Partner deleted
+         *     * `site.page_updated` - Site page settings changed
+         *     * `site.article_created` - Article written
+         *     * `site.article_updated` - Article changed
+         *     * `site.article_published` - Article published
+         *     * `site.article_deleted` - Article deleted
+         *     * `site.photo_added` - Photo added to the photo library
+         *     * `site.photo_updated` - Photo details changed
+         *     * `site.photo_deleted` - Photo deleted from the photo library
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -12317,11 +13432,23 @@ export interface components {
             finished_at: string | null;
         };
         SetupStep: {
-            key: components["schemas"]["KeyEnum"];
+            key: components["schemas"]["SetupStepKeyEnum"];
             done: boolean;
             /** @description Ne retient pas la fin de la liste. */
             optional: boolean;
         };
+        /**
+         * @description * `year` - year
+         *     * `classes` - classes
+         *     * `fees` - fees
+         *     * `staff` - staff
+         *     * `cash` - cash
+         *     * `students` - students
+         *     * `prior` - prior
+         *     * `invitations` - invitations
+         * @enum {string}
+         */
+        SetupStepKeyEnum: "year" | "classes" | "fees" | "staff" | "cash" | "students" | "prior" | "invitations";
         /**
          * @description * `M` - Male
          *     * `F` - Female
@@ -12418,6 +13545,15 @@ export interface components {
         SiteEntryMoveRequest: {
             direction: components["schemas"]["DirectionEnum"];
         };
+        /**
+         * @description * `cc0` - CC0
+         *     * `public_domain` - Public domain
+         *     * `cc_by` - CC BY
+         *     * `cc_by_sa` - CC BY-SA
+         *     * `consent` - Written consent
+         * @enum {string}
+         */
+        SitePhotoLicenseEnum: "cc0" | "public_domain" | "cc_by" | "cc_by_sa" | "consent";
         /**
          * @description * `up_to_date` - up_to_date
          *     * `partial` - partial
@@ -19749,6 +20885,290 @@ export interface operations {
             };
         };
     };
+    console_site_articles_list: {
+        parameters: {
+            query?: {
+                language?: "en" | "fr";
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                state?: "draft" | "published" | "scheduled";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleArticleList"];
+                };
+            };
+        };
+    };
+    console_site_articles_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsoleArticleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ConsoleArticleRequest"];
+                "multipart/form-data": components["schemas"]["ConsoleArticleRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleArticle"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_articles_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this article. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleArticle"];
+                };
+            };
+        };
+    };
+    console_site_articles_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this article. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_articles_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this article. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleArticleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleArticleRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleArticleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleArticle"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_articles_counts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticleCounts"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_articles_preview_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ArticlePreviewRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ArticlePreviewRequest"];
+                "multipart/form-data": components["schemas"]["ArticlePreviewRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ArticlePreview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_site_banner_retrieve: {
         parameters: {
             query?: never;
@@ -19894,8 +21314,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ConsoleSiteEntryRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["ConsoleSiteEntryRequest"];
-                "multipart/form-data": components["schemas"]["ConsoleSiteEntryRequest"];
             };
         };
         responses: {
@@ -19991,8 +21409,6 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": components["schemas"]["PatchedConsoleSiteEntryRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSiteEntryRequest"];
-                "multipart/form-data": components["schemas"]["PatchedConsoleSiteEntryRequest"];
             };
         };
         responses: {
@@ -20043,8 +21459,6 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["SiteEntryMoveRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["SiteEntryMoveRequest"];
-                "multipart/form-data": components["schemas"]["SiteEntryMoveRequest"];
             };
         };
         responses: {
@@ -20054,6 +21468,1398 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsoleSiteEntry"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_pages_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSitePage"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_pages_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleSitePageRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSitePageRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleSitePageRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSitePage"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsolePartnerRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this partner. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this partner. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsolePartnerRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this partner. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_photos_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleSitePhotoList"];
+                };
+            };
+        };
+    };
+    console_site_photos_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ConsoleSitePhotoRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSitePhoto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_photos_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this site photo. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_photos_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this site photo. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleSitePhotoRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleSitePhotoRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSitePhotoRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSitePhoto"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_photos_consent_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this site photo. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PDF, JPEG ou PNG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsolePlanRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsolePlanRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_references_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleReferenceSchool"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_references_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsoleReferenceSchoolRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleReferenceSchool"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_references_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this reference school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_references_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this reference school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleReferenceSchoolRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleReferenceSchool"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_references_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this reference school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleReferenceSchool"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_social_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSocialLinks"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_social_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleSocialLinksRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleSocialLinksRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleSocialLinksRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSocialLinks"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_testimonials_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleTestimonial"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_testimonials_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsoleTestimonialRequest"];
+                "multipart/form-data": components["schemas"]["ConsoleTestimonialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ConsoleTestimonialRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleTestimonial"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_testimonials_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this testimonial. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_testimonials_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this testimonial. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsoleTestimonialRequest"];
+                "multipart/form-data": components["schemas"]["PatchedConsoleTestimonialRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedConsoleTestimonialRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleTestimonial"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_testimonials_consent_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this testimonial. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PDF, JPEG ou PNG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_testimonials_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this testimonial. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+                "multipart/form-data": components["schemas"]["SiteEntryMoveRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleTestimonial"][];
                 };
             };
             400: {

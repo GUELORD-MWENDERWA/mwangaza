@@ -124,3 +124,87 @@ class CleanedFileField(serializers.FileField):
             return self.clean(super().to_internal_value(data))
         except ValidationError as exc:
             raise serializers.ValidationError(get_error_detail(exc)) from None
+
+
+# Photothèque du site public (SITE.3) : photos d'appareil, plus lourdes que les logos.
+PHOTO_MAX_SIZE = 10 * 1024 * 1024
+PHOTO_MIN_WIDTH = 600
+# Lu dans l'en-tête avant de décoder ; un JPEG est décodé directement à une échelle réduite
+# (`draft`) : une photo de 24 Mpx tient en moins de 20 Mo de mémoire.
+PHOTO_MAX_PIXELS = 24_000_000
+PHOTO_FORMATS = ("JPEG", "PNG", "WEBP")
+PHOTO_WIDTHS = (1600, 600)
+WEBP_QUALITY = 80
+
+
+def clean_site_photo(file) -> tuple[dict[int, ContentFile], tuple[int, int]]:
+    """La photo ré-encodée en WebP à chaque largeur de `PHOTO_WIDTHS` (jamais agrandie), faite
+    des seuls pixels, et la taille de la plus grande ; `ValidationError` si le fichier n'est pas
+    une photo JPEG, PNG ou WebP, pèse trop ou mesure trop peu ou trop."""
+    if file.size > PHOTO_MAX_SIZE:
+        raise ValidationError(_("The photo must not exceed 10 MB."), code="image_too_large")
+    file.seek(0)
+    try:
+        image = Image.open(file, formats=list(PHOTO_FORMATS))
+    except Image.DecompressionBombError:
+        raise _too_big() from None
+    except Exception:  # fichier inconnu ou en-tête faux
+        raise ValidationError(
+            _("The photo must be a JPEG, PNG or WebP image."), code="image_type"
+        ) from None
+    width, height = image.size
+    if width * height > PHOTO_MAX_PIXELS:
+        raise ValidationError(_("The photo is too large."), code="image_dimensions")
+    if width < PHOTO_MIN_WIDTH:
+        raise ValidationError(
+            _("The photo must be at least %(width)s pixels wide."),
+            code="image_dimensions",
+            params={"width": PHOTO_MIN_WIDTH},
+        )
+    if image.format == "JPEG":
+        # Largeur seule : le décodeur réduit tant que la photo garde 1 600 px de large.
+        image.draft("RGB", (PHOTO_WIDTHS[0], 1))
+    try:
+        pixels = ImageOps.exif_transpose(image)
+        mode = "RGBA" if "A" in pixels.getbands() or "transparency" in pixels.info else "RGB"
+        pixels = pixels.convert(mode)
+    except Exception:  # image tronquée ou abîmée
+        raise ValidationError(
+            _("The photo must be a JPEG, PNG or WebP image."), code="image_type"
+        ) from None
+    sizes: dict[int, ContentFile] = {}
+    size = pixels.size
+    for target in PHOTO_WIDTHS:
+        copy = pixels.copy()
+        if copy.width > target:
+            copy = copy.resize((target, round(copy.height * target / copy.width)), Image.LANCZOS)
+        # Image neuve : rien de l'ancienne ne suit, sauf les pixels.
+        fresh = Image.new(copy.mode, copy.size)
+        fresh.paste(copy)
+        output = io.BytesIO()
+        fresh.save(output, "WEBP", quality=WEBP_QUALITY, method=4)
+        sizes[target] = ContentFile(output.getvalue(), name=f"{target}.webp")
+        if target == PHOTO_WIDTHS[0]:
+            size = fresh.size
+    return sizes, size
+
+
+CONSENT_MAX_SIZE = 5 * 1024 * 1024
+CONSENT_SIGNATURES = {b"%PDF-": "pdf", b"\xff\xd8\xff": "jpg", b"\x89PNG\r\n\x1a\n": "png"}
+
+
+def consent_extension(file) -> str:
+    """Accord écrit (lettre signée) : PDF, ou photo JPEG ou PNG de la lettre, 5 Mo au plus,
+    reconnu à ses premiers octets. Gardé tel quel (jamais montré : seulement téléchargé à la
+    console) ; rend l'extension à donner au fichier."""
+    if file.size > CONSENT_MAX_SIZE:
+        raise ValidationError(_("The file must not exceed 5 MB."), code="attachment_too_large")
+    file.seek(0)
+    start = file.read(8)
+    file.seek(0)
+    for signature, extension in CONSENT_SIGNATURES.items():
+        if start.startswith(signature):
+            return extension
+    raise ValidationError(
+        _("The consent must be a PDF, or a JPEG or PNG photo of the letter."), code="consent_type"
+    )

@@ -1,0 +1,98 @@
+/* Mwangaza — appareils dessinés du site public (lot 2, partie 4) : téléphone, tablette, ordinateur portable.
+   Cadres en CSS pur, sans image ni dépendance ; la capture d'un vrai écran de l'application se pose dans
+   `.dev-screen`. Largeur = celle du conteneur (`--w` pour la fixer). Animations : une fois chacune,
+   coupées avec prefers-reduced-motion. Maquette : maquettes/site/appareils.html. */
+.dev{--w:100%;--bezel:#15181D;--edge:#2A2F37;--r:11%;position:relative;width:var(--w);margin:0 auto;color:#fff}
+.dev-body{position:relative;background:var(--bezel);border-radius:var(--r) / calc(var(--r) * .46);padding:2.6%;
+  box-shadow:0 0 0 1.5px var(--edge),inset 0 0 0 1.5px #0B0D10,0 30px 60px -28px rgba(17,20,24,.5),0 12px 24px -16px rgba(17,20,24,.35)}
+.dev-screen{position:relative;overflow:hidden;background:#fff;aspect-ratio:var(--ar)}
+.dev-screen>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
+
+/* Téléphone : îlot de caméra, boutons latéraux, coins larges */
+.dev.d-phone{--ar:390/844;--w:min(100%,280px);--r:15%}
+.dev.d-phone .dev-body{padding:3.2%}
+.dev.d-phone .dev-screen{border-radius:12.5% / 5.8%}
+.dev.d-phone .dev-screen>img{top:4.6%;height:95.4%}/* bande d'état sous l'îlot */
+.dev.d-phone .dev-body::before{content:"";position:absolute;left:50%;top:2.1%;width:27%;height:2.3%;transform:translateX(-50%);
+  background:#000;border-radius:99px;z-index:3}
+.dev.d-phone .dev-body::after{content:"";position:absolute;right:-1.4%;top:21%;width:1.4%;height:9%;border-radius:0 3px 3px 0;
+  background:var(--edge);box-shadow:0 -52px 0 var(--edge),0 -92px 0 var(--edge)}
+
+/* Tablette : cadre mince, caméra au milieu du bord */
+.dev.d-tablet{--ar:820/1180;--w:min(100%,420px);--r:6%}
+.dev.d-tablet .dev-body{padding:3.4%}
+.dev.d-tablet .dev-screen{border-radius:3.2% / 2.3%}
+.dev.d-tablet .dev-body::before{content:"";position:absolute;left:50%;top:1.2%;width:1.3%;aspect-ratio:1;transform:translateX(-50%);
+  background:#0B0D10;border-radius:50%;box-shadow:inset 0 0 0 1px #2A2F37}
+
+/* Ordinateur portable : couvercle, charnière, base */
+.dev.d-laptop{--ar:1184/740;--w:min(100%,760px)}
+.dev.d-laptop .dev-body{border-radius:2.6% 2.6% .6% .6% / 4% 4% .8% .8%;padding:1.9% 1.9% 2.3%}
+.dev.d-laptop .dev-body::before{content:"";position:absolute;left:50%;top:.75%;width:.9%;aspect-ratio:1;transform:translateX(-50%);
+  background:#0B0D10;border-radius:50%}
+.dev.d-laptop .dev-screen{border-radius:.5%/.8%}
+.dev.d-laptop .dev-base{position:relative;height:clamp(8px,1.9vw,15px);margin:0 -5.5%;background:linear-gradient(#D6DBE3,#B9C0CB);
+  border-radius:0 0 18px 18px / 0 0 12px 12px;box-shadow:0 18px 30px -18px rgba(17,20,24,.55)}
+.dev.d-laptop .dev-base::before{content:"";position:absolute;left:50%;top:0;width:16%;height:55%;transform:translateX(-50%);
+  background:#9AA3B0;border-radius:0 0 10px 10px}
+
+/* Gros plan incliné : le vrai écran, de trois quarts, ombre portée au sol */
+.dev.tilt{perspective:1400px}
+.dev.tilt .dev-body{transform:rotateY(-14deg) rotateX(5deg) rotateZ(1deg);transform-origin:center;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.dev.tilt.left .dev-body{transform:rotateY(14deg) rotateX(5deg) rotateZ(-1deg)}
+.dev.tilt:hover .dev-body{transform:rotateY(-6deg) rotateX(2deg)}
+.dev.tilt.left:hover .dev-body{transform:rotateY(6deg) rotateX(2deg)}
+
+/* Écran d'accueil du téléphone ou de la tablette : l'icône de l'application, puis l'application s'ouvre */
+.dev-home{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-start;gap:4%;
+  padding:15% 8% 0;background:#C9D6EE;background-image:url(relief.svg);background-size:cover}
+.dev.d-tablet .dev-home{padding:9% 8% 0}
+.dev-home .dh-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7% 0;justify-items:stretch}
+.dev-home .dh-app{width:72%;aspect-ratio:1;border-radius:23%;display:block;overflow:hidden;box-shadow:0 2px 6px rgba(17,20,24,.18)}
+.dev-home .dh-app.c1{background:#F4F6FA}.dev-home .dh-app.c2{background:#DDE3EC}.dev-home .dh-app.c3{background:#B7C3D6}
+.dev-home .dh-app.c4{background:#FFFFFF}.dev-home .dh-app.c5{background:#CBD5E4}.dev-home .dh-app.c6{background:#EEF1F6}
+.dev-home .dh-app img{width:100%;height:100%;display:block}
+.dev-home .dh-app.me{position:relative}
+.dev-home .dh-label{display:block;margin-top:6%;font-size:clamp(.5rem,1.1vw,.7rem);font-weight:600;color:var(--slate);text-align:center}
+.dev-home .dh-cell{display:block;text-align:center}
+.dev-home .dh-cell .app{margin:0 auto}
+.dev-home .dh-dock{position:absolute;left:6%;right:6%;bottom:3.5%;display:grid;grid-template-columns:repeat(4,1fr);justify-items:center;
+  padding:3%;background:rgba(255,255,255,.55);border-radius:26px}
+.dev-home .dh-dock .app{width:70%}
+.dev-bar{position:absolute;left:50%;bottom:1.4%;width:34%;height:.7%;min-height:3px;transform:translateX(-50%);border-radius:99px;background:rgba(17,20,24,.55);z-index:4}
+
+/* Succession d'écrans : 3 captures, une toutes les 5 s ; avec .opens, l'écran d'accueil passe d'abord (cycle de 20 s) */
+.dev-screen.cycle>img{opacity:0;animation:dev-cycle 15s infinite}
+.dev-screen.cycle>img:nth-of-type(1){opacity:1;animation-delay:0s}
+.dev-screen.cycle>img:nth-of-type(2){animation-delay:5s}
+.dev-screen.cycle>img:nth-of-type(3){animation-delay:10s}
+@keyframes dev-cycle{0%{opacity:0;transform:translateY(10px)}6%,30%{opacity:1;transform:none}36%,100%{opacity:0}}
+.dev-screen.cycle.opens>img{animation-duration:20s}
+.dev-screen.cycle.opens>img:nth-of-type(1){opacity:0;animation-delay:3s}
+.dev-screen.cycle.opens>img:nth-of-type(2){animation-delay:8s}
+.dev-screen.cycle.opens>img:nth-of-type(3){animation-delay:13s}
+.dev-screen.cycle.opens .dev-home{animation:dev-home-cycle 20s infinite}
+@keyframes dev-home-cycle{0%,14%{opacity:1;transform:none}18%,90%{opacity:0;transform:scale(1.35)}100%{opacity:1;transform:none}}
+.dev-screen.opens:not(.cycle) .dev-home{animation:dev-home 15s infinite}
+@keyframes dev-home{0%,14%{opacity:1;transform:none}20%,100%{opacity:0;transform:scale(1.35);pointer-events:none}}
+.dev-screen.opens:not(.cycle)>img{animation:dev-open 15s infinite;opacity:0}
+@keyframes dev-open{0%,14%{opacity:0;transform:scale(.88)}22%,100%{opacity:1;transform:none}}
+
+/* Reçu qui sort d'une imprimante de tickets (SVG en ligne dans .ticket) */
+.ticket-out{animation:ticket 6s ease-in-out infinite}
+@keyframes ticket{0%,10%{transform:translateY(-70%)}45%,85%{transform:none}100%{transform:translateY(-70%)}}
+
+/* Apparition douce au défilement : .rise devient .rise.in via site.js (IntersectionObserver) */
+.rise{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.rise.in{opacity:1;transform:none}
+.rise.d1{transition-delay:.12s}.rise.d2{transition-delay:.24s}
+
+@media (prefers-reduced-motion:reduce){
+  .dev-screen>img,.dev-screen .dev-home,.ticket-out{animation:none!important}
+  .dev-screen.cycle>img:nth-of-type(n+2){display:none}
+  .dev-screen .dev-home{display:none}
+  .dev-screen>img:nth-of-type(1){opacity:1!important;transform:none!important}
+  .dev.tilt .dev-body{transition:none}
+  .rise{opacity:1;transform:none;transition:none}
+}
+@media (max-width:599px){.dev.tilt .dev-body,.dev.tilt.left .dev-body{transform:rotateY(-6deg) rotateX(2deg)}}

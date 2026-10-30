@@ -6450,6 +6450,292 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/site/articles/:
+    get:
+      operationId: console_site_articles_list
+      description: |-
+        Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+        date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+        tout de suite, un article programmé à sa date.
+      parameters:
+      - in: query
+        name: language
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: state
+        schema:
+          type: string
+          enum:
+          - draft
+          - published
+          - scheduled
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleArticleList'
+          description: ''
+    post:
+      operationId: console_site_articles_create
+      description: |-
+        Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+        date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+        tout de suite, un article programmé à sa date.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleArticleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConsoleArticleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConsoleArticleRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleArticle'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/articles/{id}/:
+    get:
+      operationId: console_site_articles_retrieve
+      description: |-
+        Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+        date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+        tout de suite, un article programmé à sa date.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this article.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleArticle'
+          description: ''
+    patch:
+      operationId: console_site_articles_partial_update
+      description: |-
+        Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+        date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+        tout de suite, un article programmé à sa date.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this article.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleArticleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleArticleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleArticleRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleArticle'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_articles_destroy
+      description: |-
+        Actualités du site public (SITE.2), 20 par page : brouillons et programmés d'abord (sans
+        date ou à venir), puis les plus récentes. Chaque changement va au journal ; le site le montre
+        tout de suite, un article programmé à sa date.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this article.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/articles/counts/:
+    get:
+      operationId: console_site_articles_counts_retrieve
+      description: Nombre d'articles de chaque état (onglets de la liste), en une
+        requête.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticleCounts'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/articles/preview/:
+    post:
+      operationId: console_site_articles_preview_create
+      description: Le texte mis en forme comme sur le site (même code), pour l'aperçu
+        de l'éditeur.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticlePreviewRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ArticlePreviewRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ArticlePreviewRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArticlePreview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/site/banner/:
     get:
       operationId: console_site_banner_retrieve
@@ -6535,8 +6821,7 @@ paths:
       operationId: console_site_entries_list
       description: |-
         Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+        brouillons compris, dans l'ordre du site (20 au plus par sorte).
       tags:
       - console
       security:
@@ -6572,19 +6857,12 @@ paths:
       operationId: console_site_entries_create
       description: |-
         Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+        brouillons compris, dans l'ordre du site (20 au plus par sorte).
       tags:
       - console
       requestBody:
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/ConsoleSiteEntryRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ConsoleSiteEntryRequest'
-          multipart/form-data:
             schema:
               $ref: '#/components/schemas/ConsoleSiteEntryRequest'
         required: true
@@ -6620,8 +6898,7 @@ paths:
       operationId: console_site_entries_partial_update
       description: |-
         Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+        brouillons compris, dans l'ordre du site (20 au plus par sorte).
       parameters:
       - in: path
         name: id
@@ -6635,12 +6912,6 @@ paths:
       requestBody:
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedConsoleSiteEntryRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedConsoleSiteEntryRequest'
-          multipart/form-data:
             schema:
               $ref: '#/components/schemas/PatchedConsoleSiteEntryRequest'
       security:
@@ -6674,8 +6945,7 @@ paths:
       operationId: console_site_entries_destroy
       description: |-
         Contenus du site public (SITE.1a) : questions de l'accueil et des parents, « Prochainement »,
-        brouillons compris, dans l'ordre du site. Toutes les entrées en une page (20 au plus par
-        sorte). Chaque changement va au journal de la plateforme ; le site le montre tout de suite.
+        brouillons compris, dans l'ordre du site (20 au plus par sorte).
       parameters:
       - in: path
         name: id
@@ -6712,8 +6982,7 @@ paths:
   /api/console/site/entries/{id}/move/:
     post:
       operationId: console_site_entries_move_create
-      description: Monte ou descend l'entrée d'un rang ; renvoie sa liste dans le
-        nouvel ordre.
+      description: Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre.
       parameters:
       - in: path
         name: id
@@ -6729,10 +6998,308 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/SiteEntryMoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleSiteEntry'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/pages/:
+    get:
+      operationId: console_site_pages_list
+      description: |-
+        Réglages des pages publiques (SITE.1b, SITE.3) : titres et descriptions de recherche par
+        langue, photo du haut de l'accueil, des écoles et des parents. Toutes les pages, réglées ou
+        non, dans l'ordre du site.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleSitePage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/pages/{key}/:
+    patch:
+      operationId: console_site_pages_partial_update
+      description: |-
+        Réglages des pages publiques (SITE.1b, SITE.3) : titres et descriptions de recherche par
+        langue, photo du haut de l'accueil, des écoles et des parents. Toutes les pages, réglées ou
+        non, dans l'ordre du site.
+      parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+          pattern: ^home|schools|parents|news|contact$
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSitePageRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/SiteEntryMoveRequest'
+              $ref: '#/components/schemas/PatchedConsoleSitePageRequest'
           multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSitePageRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSitePage'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/partners/:
+    get:
+      operationId: console_site_partners_list
+      description: |-
+        Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+        site ; logo choisi dans la photothèque.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsolePartner'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_site_partners_create
+      description: |-
+        Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+        site ; logo choisi dans la photothèque.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsolePartnerRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePartner'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/partners/{id}/:
+    patch:
+      operationId: console_site_partners_partial_update
+      description: |-
+        Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+        site ; logo choisi dans la photothèque.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this partner.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsolePartnerRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePartner'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_partners_destroy
+      description: |-
+        Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+        site ; logo choisi dans la photothèque.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this partner.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/partners/{id}/move/:
+    post:
+      operationId: console_site_partners_move_create
+      description: Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this partner.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
             schema:
               $ref: '#/components/schemas/SiteEntryMoveRequest'
         required: true
@@ -6745,7 +7312,985 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ConsoleSiteEntry'
+                  $ref: '#/components/schemas/ConsolePartner'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/photos/:
+    get:
+      operationId: console_site_photos_list
+      description: |-
+        Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+        de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+        `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleSitePhotoList'
+          description: ''
+    post:
+      operationId: console_site_photos_create
+      description: |-
+        Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+        de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+        `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+      tags:
+      - console
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConsoleSitePhotoRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSitePhoto'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/photos/{id}/:
+    patch:
+      operationId: console_site_photos_partial_update
+      description: |-
+        Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+        de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+        `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this site photo.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSitePhotoRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSitePhotoRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSitePhotoRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSitePhoto'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_photos_destroy
+      description: |-
+        Photothèque du site public (SITE.3), 24 par page, les plus récentes d'abord, avec le nombre
+        de pages, articles, témoignages et écoles qui montrent chacune. Envoi en
+        `multipart/form-data` ; suppression refusée tant qu'une photo est montrée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this site photo.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/photos/{id}/consent/:
+    get:
+      operationId: console_site_photos_consent_retrieve
+      description: Télécharge l'accord écrit déposé avec la photo.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this site photo.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          description: PDF, JPEG ou PNG.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/plans/:
+    get:
+      operationId: console_site_plans_list
+      description: |-
+        Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+        page ; prix en entiers (centimes), vide : « sur devis ».
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsolePlan'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_site_plans_create
+      description: |-
+        Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+        page ; prix en entiers (centimes), vide : « sur devis ».
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsolePlanRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlan'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/plans/{id}/:
+    patch:
+      operationId: console_site_plans_partial_update
+      description: |-
+        Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+        page ; prix en entiers (centimes), vide : « sur devis ».
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this plan.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsolePlanRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsolePlan'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_plans_destroy
+      description: |-
+        Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+        page ; prix en entiers (centimes), vide : « sur devis ».
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this plan.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/plans/{id}/move/:
+    post:
+      operationId: console_site_plans_move_create
+      description: Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this plan.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsolePlan'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/references/:
+    get:
+      operationId: console_site_references_list
+      description: |-
+        Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+        publiées seulement avec la date de l'accord de l'école.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleReferenceSchool'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_site_references_create
+      description: |-
+        Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+        publiées seulement avec la date de l'accord de l'école.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleReferenceSchoolRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleReferenceSchool'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/references/{id}/:
+    patch:
+      operationId: console_site_references_partial_update
+      description: |-
+        Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+        publiées seulement avec la date de l'accord de l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this reference school.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleReferenceSchoolRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleReferenceSchool'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_references_destroy
+      description: |-
+        Écoles de référence du site public (SITE.1b), huit au plus, dans l'ordre du site ;
+        publiées seulement avec la date de l'accord de l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this reference school.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/references/{id}/move/:
+    post:
+      operationId: console_site_references_move_create
+      description: Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this reference school.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleReferenceSchool'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/social/:
+    get:
+      operationId: console_site_social_retrieve
+      description: |-
+        Réseaux sociaux de la plateforme (SITE.5), tenus par la communication : mêmes champs que
+        l'identité. Un lien vide n'apparaît pas sur le site ; chaque changement au journal.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSocialLinks'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: console_site_social_partial_update
+      description: |-
+        Réseaux sociaux de la plateforme (SITE.5), tenus par la communication : mêmes champs que
+        l'identité. Un lien vide n'apparaît pas sur le site ; chaque changement au journal.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSocialLinksRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSocialLinksRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleSocialLinksRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSocialLinks'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/testimonials/:
+    get:
+      operationId: console_site_testimonials_list
+      description: |-
+        Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+        grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleTestimonial'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: console_site_testimonials_create
+      description: |-
+        Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+        grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsoleTestimonialRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConsoleTestimonialRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConsoleTestimonialRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleTestimonial'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/testimonials/{id}/:
+    patch:
+      operationId: console_site_testimonials_partial_update
+      description: |-
+        Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+        grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this testimonial.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleTestimonialRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleTestimonialRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedConsoleTestimonialRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleTestimonial'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: console_site_testimonials_destroy
+      description: |-
+        Témoignages du site public (SITE.1b), six au plus, dans l'ordre de l'accueil (le premier en
+        grand). Envoyer l'accord écrit en `multipart/form-data` ; publié seulement avec lui.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this testimonial.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/testimonials/{id}/consent/:
+    get:
+      operationId: console_site_testimonials_consent_retrieve
+      description: Télécharge l'accord écrit déposé.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this testimonial.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          description: PDF, JPEG ou PNG.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/site/testimonials/{id}/move/:
+    post:
+      operationId: console_site_testimonials_move_create
+      description: Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this testimonial.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SiteEntryMoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsoleTestimonial'
           description: ''
         '400':
           content:
@@ -19245,6 +20790,58 @@ components:
       - grade
       - reason
       - term
+    ArticleCounts:
+      type: object
+      properties:
+        all:
+          type: integer
+        draft:
+          type: integer
+        scheduled:
+          type: integer
+        published:
+          type: integer
+      required:
+      - all
+      - draft
+      - scheduled
+      - published
+    ArticleLanguageEnum:
+      enum:
+      - fr
+      - en
+      type: string
+      description: |-
+        * `fr` - French
+        * `en` - English
+    ArticlePreview:
+      type: object
+      description: 'Texte à mettre en forme comme sur le site (aucun HTML accepté
+        : tout est échappé).'
+      properties:
+        body:
+          type: string
+          maxLength: 20000
+        html:
+          type: string
+          readOnly: true
+        minutes:
+          type: integer
+          readOnly: true
+      required:
+      - body
+      - html
+      - minutes
+    ArticlePreviewRequest:
+      type: object
+      description: 'Texte à mettre en forme comme sur le site (aucun HTML accepté
+        : tout est échappé).'
+      properties:
+        body:
+          type: string
+          maxLength: 20000
+      required:
+      - body
     AssistAskRequest:
       type: object
       properties:
@@ -19349,6 +20946,21 @@ components:
       - last_name
       - middle_name
       - first_name
+    AuditActorRequest:
+      type: object
+      properties:
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        first_name:
+          type: string
+          maxLength: 100
+      required:
+      - last_name
     AuditDevice:
       type: object
       properties:
@@ -21233,6 +22845,135 @@ components:
       required:
       - currency
       - amount_minor
+    ConsoleArticle:
+      type: object
+      description: |-
+        Actualité (SITE.2). `state` : brouillon, programmé (publié, date future : il paraît seul
+        à sa date) ou publié. Publier sans date : maintenant. L'adresse (`slug`, `url`) naît à la
+        première publication, puis ne change plus, ni la langue.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        language:
+          $ref: '#/components/schemas/ArticleLanguageEnum'
+        title:
+          type: string
+          maxLength: 120
+        slug:
+          type: string
+          readOnly: true
+          default: ''
+          title: Address
+          pattern: ^[-a-zA-Z0-9_]+$
+        url:
+          type: string
+          nullable: true
+          readOnly: true
+        summary:
+          type: string
+          maxLength: 200
+        body:
+          type: string
+          title: Text
+          maxLength: 20000
+        photo:
+          type: string
+          format: uuid
+          nullable: true
+          title: Image
+        author_name:
+          type: string
+          title: Author shown
+          maxLength: 80
+        status:
+          $ref: '#/components/schemas/ExamScheduleStatusEnum'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Publication date
+        state:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleArticleStateEnum'
+          readOnly: true
+        updated_by:
+          allOf:
+          - $ref: '#/components/schemas/AuditActor'
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - language
+      - title
+      - slug
+      - url
+      - summary
+      - body
+      - photo
+      - author_name
+      - status
+      - published_at
+      - state
+      - updated_by
+      - updated_at
+    ConsoleArticleRequest:
+      type: object
+      description: |-
+        Actualité (SITE.2). `state` : brouillon, programmé (publié, date future : il paraît seul
+        à sa date) ou publié. Publier sans date : maintenant. L'adresse (`slug`, `url`) naît à la
+        première publication, puis ne change plus, ni la langue.
+      properties:
+        language:
+          $ref: '#/components/schemas/ArticleLanguageEnum'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+          title: Text
+          maxLength: 20000
+        photo:
+          type: string
+          format: uuid
+          nullable: true
+          title: Image
+        author_name:
+          type: string
+          title: Author shown
+          maxLength: 80
+        status:
+          $ref: '#/components/schemas/ExamScheduleStatusEnum'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Publication date
+      required:
+      - body
+      - language
+      - summary
+      - title
+    ConsoleArticleStateEnum:
+      enum:
+      - draft
+      - scheduled
+      - published
+      type: string
+      description: |-
+        * `draft` - draft
+        * `scheduled` - scheduled
+        * `published` - published
     ConsoleCollected:
       type: object
       properties:
@@ -21294,6 +23035,10 @@ components:
           format: date-time
           readOnly: true
           title: Received at
+        source:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleDemoSourceEnum'
+          readOnly: true
         name:
           type: string
           readOnly: true
@@ -21350,8 +23095,17 @@ components:
       - role
       - school_name
       - size
+      - source
       - town
       - updated_at
+    ConsoleDemoSourceEnum:
+      enum:
+      - form
+      - chat
+      type: string
+      description: |-
+        * `form` - Demo form
+        * `chat` - Site chat
     ConsoleDevice:
       type: object
       description: Un appareil enregistré dans une école (console de la plateforme,
@@ -21489,6 +23243,198 @@ components:
           title: Active
       required:
       - school
+    ConsolePartner:
+      type: object
+      description: |-
+        Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+        lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        link:
+          oneOf:
+          - type: string
+            format: uri
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+        position:
+          type: integer
+          readOnly: true
+        published:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - name
+      - link
+      - logo
+      - position
+      - published
+      - updated_at
+    ConsolePartnerRequest:
+      type: object
+      description: |-
+        Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+        lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        link:
+          oneOf:
+          - type: string
+            format: uri
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+        published:
+          type: boolean
+      required:
+      - name
+    ConsolePlan:
+      type: object
+      description: |-
+        Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+        « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+        par `move`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name_fr:
+          type: string
+          title: Name in French
+          maxLength: 40
+        name_en:
+          type: string
+          title: Name in English
+          maxLength: 40
+        tagline_fr:
+          type: string
+          title: Tagline in French
+          maxLength: 120
+        tagline_en:
+          type: string
+          title: Tagline in English
+          maxLength: 120
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        period:
+          $ref: '#/components/schemas/PeriodEnum'
+        features_fr:
+          type: string
+          title: Included, one per line, in French
+          maxLength: 800
+        features_en:
+          type: string
+          title: Included, one per line, in English
+          maxLength: 800
+        highlighted:
+          type: boolean
+        is_example:
+          type: boolean
+          title: Example
+        position:
+          type: integer
+          readOnly: true
+        published:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - name_fr
+      - name_en
+      - tagline_fr
+      - tagline_en
+      - price
+      - currency
+      - period
+      - features_fr
+      - features_en
+      - highlighted
+      - is_example
+      - position
+      - published
+      - updated_at
+    ConsolePlanRequest:
+      type: object
+      description: |-
+        Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+        « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+        par `move`.
+      properties:
+        name_fr:
+          type: string
+          minLength: 1
+          title: Name in French
+          maxLength: 40
+        name_en:
+          type: string
+          title: Name in English
+          maxLength: 40
+        tagline_fr:
+          type: string
+          minLength: 1
+          title: Tagline in French
+          maxLength: 120
+        tagline_en:
+          type: string
+          title: Tagline in English
+          maxLength: 120
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        period:
+          $ref: '#/components/schemas/PeriodEnum'
+        features_fr:
+          type: string
+          minLength: 1
+          title: Included, one per line, in French
+          maxLength: 800
+        features_en:
+          type: string
+          title: Included, one per line, in English
+          maxLength: 800
+        highlighted:
+          type: boolean
+        is_example:
+          type: boolean
+          title: Example
+        published:
+          type: boolean
+      required:
+      - features_fr
+      - name_fr
+      - tagline_fr
     ConsolePlatform:
       type: object
       description: |-
@@ -21706,6 +23652,109 @@ components:
       - audience
       - body
       - title
+    ConsoleReferenceSchool:
+      type: object
+      description: |-
+        École de référence (SITE.1b). « Publiée » refusée sans la date de l'accord de l'école ;
+        lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          title: School
+          maxLength: 120
+        town:
+          type: string
+          maxLength: 60
+        pupils:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        link:
+          oneOf:
+          - type: string
+            format: uri
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+        consent_on:
+          type: string
+          format: date
+          nullable: true
+          title: School's consent given on
+        is_example:
+          type: boolean
+          title: Example
+        position:
+          type: integer
+          readOnly: true
+        published:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - name
+      - town
+      - pupils
+      - link
+      - logo
+      - consent_on
+      - is_example
+      - position
+      - published
+      - updated_at
+    ConsoleReferenceSchoolRequest:
+      type: object
+      description: |-
+        École de référence (SITE.1b). « Publiée » refusée sans la date de l'accord de l'école ;
+        lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: School
+          maxLength: 120
+        town:
+          type: string
+          minLength: 1
+          maxLength: 60
+        pupils:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        link:
+          oneOf:
+          - type: string
+            format: uri
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+        consent_on:
+          type: string
+          format: date
+          nullable: true
+          title: School's consent given on
+        is_example:
+          type: boolean
+          title: Example
+        published:
+          type: boolean
+      required:
+      - name
+      - pupils
+      - town
     ConsoleSchool:
       type: object
       description: |-
@@ -22261,6 +24310,260 @@ components:
       - kind
       - text_fr
       - title_fr
+    ConsoleSitePage:
+      type: object
+      description: |-
+        Réglages d'une page publique (SITE.1b, SITE.3) : titre (60) et description (160) de
+        recherche par langue, vides = le texte du logiciel ; photo du haut (accueil, écoles, parents
+        seulement ; 1 200 px de large au moins), vide = celle du site.
+      properties:
+        key:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleSitePageKeyEnum'
+          readOnly: true
+          title: Page
+        title_fr:
+          type: string
+          title: Search title in French
+          maxLength: 60
+        title_en:
+          type: string
+          title: Search title in English
+          maxLength: 60
+        description_fr:
+          type: string
+          title: Search description in French
+          maxLength: 160
+        description_en:
+          type: string
+          title: Search description in English
+          maxLength: 160
+        photo:
+          type: string
+          format: uuid
+          nullable: true
+        has_photo_slot:
+          type: boolean
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - key
+      - title_fr
+      - title_en
+      - description_fr
+      - description_en
+      - photo
+      - has_photo_slot
+      - updated_at
+    ConsoleSitePageKeyEnum:
+      enum:
+      - home
+      - schools
+      - parents
+      - news
+      - contact
+      type: string
+      description: |-
+        * `home` - Home
+        * `schools` - Schools
+        * `parents` - Parents
+        * `news` - News
+        * `contact` - Demo
+    ConsoleSitePhoto:
+      type: object
+      description: |-
+        Photo de la photothèque (SITE.3). À l'envoi (`image`) : JPEG, PNG ou WebP de 10 Mo au plus
+        et 600 px de large au moins, ré-encodée en WebP 1 600 et 600 px sans métadonnées. Licence de
+        la liste (jamais NC ni ND) ; un élève reconnaissable ou une licence « accord écrit » exigent
+        l'accord déposé. `uses` : pages, articles, témoignages et écoles qui la montrent (la
+        suppression est refusée tant qu'il y en a).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        url:
+          type: string
+          readOnly: true
+        small_url:
+          type: string
+          readOnly: true
+        width:
+          type: integer
+          readOnly: true
+        height:
+          type: integer
+          readOnly: true
+        alt_fr:
+          type: string
+          title: Alternative text in French
+          maxLength: 200
+        alt_en:
+          type: string
+          title: Alternative text in English
+          maxLength: 200
+        credit:
+          type: string
+          title: Author or source
+          maxLength: 120
+        source_url:
+          title: Source page
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        license:
+          allOf:
+          - $ref: '#/components/schemas/SitePhotoLicenseEnum'
+          title: Licence
+        recognizable:
+          type: boolean
+          title: A pupil can be recognised
+        has_consent:
+          type: boolean
+          readOnly: true
+        uses:
+          type: integer
+          readOnly: true
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - url
+      - small_url
+      - width
+      - height
+      - alt_fr
+      - alt_en
+      - credit
+      - source_url
+      - license
+      - recognizable
+      - has_consent
+      - uses
+      - created_at
+    ConsoleSitePhotoRequest:
+      type: object
+      description: |-
+        Photo de la photothèque (SITE.3). À l'envoi (`image`) : JPEG, PNG ou WebP de 10 Mo au plus
+        et 600 px de large au moins, ré-encodée en WebP 1 600 et 600 px sans métadonnées. Licence de
+        la liste (jamais NC ni ND) ; un élève reconnaissable ou une licence « accord écrit » exigent
+        l'accord déposé. `uses` : pages, articles, témoignages et écoles qui la montrent (la
+        suppression est refusée tant qu'il y en a).
+      properties:
+        image:
+          type: string
+          format: binary
+          writeOnly: true
+        alt_fr:
+          type: string
+          minLength: 1
+          title: Alternative text in French
+          maxLength: 200
+        alt_en:
+          type: string
+          minLength: 1
+          title: Alternative text in English
+          maxLength: 200
+        credit:
+          type: string
+          minLength: 1
+          title: Author or source
+          maxLength: 120
+        source_url:
+          title: Source page
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        license:
+          allOf:
+          - $ref: '#/components/schemas/SitePhotoLicenseEnum'
+          title: Licence
+        recognizable:
+          type: boolean
+          title: A pupil can be recognised
+        consent:
+          type: string
+          format: binary
+          writeOnly: true
+      required:
+      - alt_en
+      - alt_fr
+      - credit
+      - image
+      - license
+    ConsoleSocialLinks:
+      type: object
+      description: |-
+        Réseaux sociaux de la plateforme (SITE.5) : les champs de l'identité (WEB.1d), tenus par
+        la communication. Chaque lien mène au réseau attendu, en https ; vide : absent du site.
+      properties:
+        whatsapp_url:
+          title: WhatsApp
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        facebook_url:
+          title: Facebook
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        instagram_url:
+          title: Instagram
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        linkedin_url:
+          title: LinkedIn
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        youtube_url:
+          title: YouTube
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        tiktok_url:
+          title: TikTok
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+      required:
+      - whatsapp_url
+      - facebook_url
+      - instagram_url
+      - linkedin_url
+      - youtube_url
+      - tiktok_url
     ConsoleSupportSession:
       type: object
       description: |-
@@ -22311,6 +24614,127 @@ components:
       - ended_at
       - state
       - actions
+    ConsoleTestimonial:
+      type: object
+      description: |-
+        Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
+        l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
+        le rang se change par `move`.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        role:
+          type: string
+          title: Position
+          maxLength: 80
+        school_name:
+          type: string
+          title: School
+          maxLength: 120
+        town:
+          type: string
+          maxLength: 60
+        quote_fr:
+          type: string
+          title: Quote in French
+          maxLength: 400
+        quote_en:
+          type: string
+          title: Quote in English
+          maxLength: 400
+        has_consent:
+          type: boolean
+          readOnly: true
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+          title: School logo
+        is_example:
+          type: boolean
+          title: Example
+        position:
+          type: integer
+          readOnly: true
+        published:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - name
+      - role
+      - school_name
+      - town
+      - quote_fr
+      - quote_en
+      - has_consent
+      - logo
+      - is_example
+      - position
+      - published
+      - updated_at
+    ConsoleTestimonialRequest:
+      type: object
+      description: |-
+        Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
+        l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
+        le rang se change par `move`.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        role:
+          type: string
+          minLength: 1
+          title: Position
+          maxLength: 80
+        school_name:
+          type: string
+          minLength: 1
+          title: School
+          maxLength: 120
+        town:
+          type: string
+          minLength: 1
+          maxLength: 60
+        quote_fr:
+          type: string
+          minLength: 1
+          title: Quote in French
+          maxLength: 400
+        quote_en:
+          type: string
+          title: Quote in English
+          maxLength: 400
+        consent:
+          type: string
+          format: binary
+          writeOnly: true
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+          title: School logo
+        is_example:
+          type: boolean
+          title: Example
+        published:
+          type: boolean
+      required:
+      - name
+      - quote_fr
+      - role
+      - school_name
+      - town
     ContactAddress:
       type: object
       properties:
@@ -25731,26 +28155,6 @@ components:
       required:
       - text
       - phone
-    KeyEnum:
-      enum:
-      - year
-      - classes
-      - fees
-      - staff
-      - cash
-      - students
-      - prior
-      - invitations
-      type: string
-      description: |-
-        * `year` - year
-        * `classes` - classes
-        * `fees` - fees
-        * `staff` - staff
-        * `cash` - cash
-        * `students` - students
-        * `prior` - prior
-        * `invitations` - invitations
     LanguageEnum:
       enum:
       - fr
@@ -26857,6 +29261,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleAccount'
+    PaginatedConsoleArticleList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleArticle'
     PaginatedConsoleDemoRequestList:
       type: object
       required:
@@ -26957,6 +29386,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleSchool'
+    PaginatedConsoleSitePhotoList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleSitePhoto'
     PaginatedConsoleSupportSessionList:
       type: object
       required:
@@ -27961,6 +30415,44 @@ components:
         is_active:
           type: boolean
           title: Active
+    PatchedConsoleArticleRequest:
+      type: object
+      description: |-
+        Actualité (SITE.2). `state` : brouillon, programmé (publié, date future : il paraît seul
+        à sa date) ou publié. Publier sans date : maintenant. L'adresse (`slug`, `url`) naît à la
+        première publication, puis ne change plus, ni la langue.
+      properties:
+        language:
+          $ref: '#/components/schemas/ArticleLanguageEnum'
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        summary:
+          type: string
+          minLength: 1
+          maxLength: 200
+        body:
+          type: string
+          minLength: 1
+          title: Text
+          maxLength: 20000
+        photo:
+          type: string
+          format: uuid
+          nullable: true
+          title: Image
+        author_name:
+          type: string
+          title: Author shown
+          maxLength: 80
+        status:
+          $ref: '#/components/schemas/ExamScheduleStatusEnum'
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+          title: Publication date
     PatchedConsoleDemoRequestRequest:
       type: object
       description: |-
@@ -27975,6 +30467,78 @@ components:
           type: string
           title: Internal note
           maxLength: 2000
+    PatchedConsolePartnerRequest:
+      type: object
+      description: |-
+        Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+        lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        link:
+          oneOf:
+          - type: string
+            format: uri
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+        published:
+          type: boolean
+    PatchedConsolePlanRequest:
+      type: object
+      description: |-
+        Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+        « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+        par `move`.
+      properties:
+        name_fr:
+          type: string
+          minLength: 1
+          title: Name in French
+          maxLength: 40
+        name_en:
+          type: string
+          title: Name in English
+          maxLength: 40
+        tagline_fr:
+          type: string
+          minLength: 1
+          title: Tagline in French
+          maxLength: 120
+        tagline_en:
+          type: string
+          title: Tagline in English
+          maxLength: 120
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        period:
+          $ref: '#/components/schemas/PeriodEnum'
+        features_fr:
+          type: string
+          minLength: 1
+          title: Included, one per line, in French
+          maxLength: 800
+        features_en:
+          type: string
+          title: Included, one per line, in English
+          maxLength: 800
+        highlighted:
+          type: boolean
+        is_example:
+          type: boolean
+          title: Example
+        published:
+          type: boolean
     PatchedConsolePlatformRequest:
       type: object
       description: |-
@@ -28082,6 +30646,45 @@ components:
             maxLength: 200
           - type: string
             maxLength: 0
+    PatchedConsoleReferenceSchoolRequest:
+      type: object
+      description: |-
+        École de référence (SITE.1b). « Publiée » refusée sans la date de l'accord de l'école ;
+        lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: School
+          maxLength: 120
+        town:
+          type: string
+          minLength: 1
+          maxLength: 60
+        pupils:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        link:
+          oneOf:
+          - type: string
+            format: uri
+          - type: string
+            maxLength: 0
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+        consent_on:
+          type: string
+          format: date
+          nullable: true
+          title: School's consent given on
+        is_example:
+          type: boolean
+          title: Example
+        published:
+          type: boolean
     PatchedConsoleSchoolRequest:
       type: object
       description: |-
@@ -28195,6 +30798,182 @@ components:
           type: string
           title: Text in English
           maxLength: 1500
+        published:
+          type: boolean
+    PatchedConsoleSitePageRequest:
+      type: object
+      description: |-
+        Réglages d'une page publique (SITE.1b, SITE.3) : titre (60) et description (160) de
+        recherche par langue, vides = le texte du logiciel ; photo du haut (accueil, écoles, parents
+        seulement ; 1 200 px de large au moins), vide = celle du site.
+      properties:
+        title_fr:
+          type: string
+          title: Search title in French
+          maxLength: 60
+        title_en:
+          type: string
+          title: Search title in English
+          maxLength: 60
+        description_fr:
+          type: string
+          title: Search description in French
+          maxLength: 160
+        description_en:
+          type: string
+          title: Search description in English
+          maxLength: 160
+        photo:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedConsoleSitePhotoRequest:
+      type: object
+      description: |-
+        Photo de la photothèque (SITE.3). À l'envoi (`image`) : JPEG, PNG ou WebP de 10 Mo au plus
+        et 600 px de large au moins, ré-encodée en WebP 1 600 et 600 px sans métadonnées. Licence de
+        la liste (jamais NC ni ND) ; un élève reconnaissable ou une licence « accord écrit » exigent
+        l'accord déposé. `uses` : pages, articles, témoignages et écoles qui la montrent (la
+        suppression est refusée tant qu'il y en a).
+      properties:
+        image:
+          type: string
+          format: binary
+          writeOnly: true
+        alt_fr:
+          type: string
+          minLength: 1
+          title: Alternative text in French
+          maxLength: 200
+        alt_en:
+          type: string
+          minLength: 1
+          title: Alternative text in English
+          maxLength: 200
+        credit:
+          type: string
+          minLength: 1
+          title: Author or source
+          maxLength: 120
+        source_url:
+          title: Source page
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        license:
+          allOf:
+          - $ref: '#/components/schemas/SitePhotoLicenseEnum'
+          title: Licence
+        recognizable:
+          type: boolean
+          title: A pupil can be recognised
+        consent:
+          type: string
+          format: binary
+          writeOnly: true
+    PatchedConsoleSocialLinksRequest:
+      type: object
+      description: |-
+        Réseaux sociaux de la plateforme (SITE.5) : les champs de l'identité (WEB.1d), tenus par
+        la communication. Chaque lien mène au réseau attendu, en https ; vide : absent du site.
+      properties:
+        whatsapp_url:
+          title: WhatsApp
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        facebook_url:
+          title: Facebook
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        instagram_url:
+          title: Instagram
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        linkedin_url:
+          title: LinkedIn
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        youtube_url:
+          title: YouTube
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+        tiktok_url:
+          title: TikTok
+          oneOf:
+          - type: string
+            format: uri
+            maxLength: 200
+          - type: string
+            maxLength: 0
+    PatchedConsoleTestimonialRequest:
+      type: object
+      description: |-
+        Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
+        l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
+        le rang se change par `move`.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        role:
+          type: string
+          minLength: 1
+          title: Position
+          maxLength: 80
+        school_name:
+          type: string
+          minLength: 1
+          title: School
+          maxLength: 120
+        town:
+          type: string
+          minLength: 1
+          maxLength: 60
+        quote_fr:
+          type: string
+          minLength: 1
+          title: Quote in French
+          maxLength: 400
+        quote_en:
+          type: string
+          title: Quote in English
+          maxLength: 400
+        consent:
+          type: string
+          format: binary
+          writeOnly: true
+        logo:
+          type: string
+          format: uuid
+          nullable: true
+          title: School logo
+        is_example:
+          type: boolean
+          title: Example
         published:
           type: boolean
     PatchedEnrollmentUpdateRequest:
@@ -28935,6 +31714,14 @@ components:
       - id
       - full_name
       - matricule
+    PeriodEnum:
+      enum:
+      - month
+      - year
+      type: string
+      description: |-
+        * `month` - per month
+        * `year` - per year
     PermissionsEnum:
       enum:
       - school.configure
@@ -29277,6 +32064,30 @@ components:
       - site.entry_moved
       - site.entry_deleted
       - site.banner_updated
+      - site.testimonial_created
+      - site.testimonial_updated
+      - site.testimonial_moved
+      - site.testimonial_deleted
+      - site.reference_created
+      - site.reference_updated
+      - site.reference_moved
+      - site.reference_deleted
+      - site.plan_created
+      - site.plan_updated
+      - site.plan_moved
+      - site.plan_deleted
+      - site.partner_created
+      - site.partner_updated
+      - site.partner_moved
+      - site.partner_deleted
+      - site.page_updated
+      - site.article_created
+      - site.article_updated
+      - site.article_published
+      - site.article_deleted
+      - site.photo_added
+      - site.photo_updated
+      - site.photo_deleted
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -29312,6 +32123,30 @@ components:
         * `site.entry_moved` - Site content moved
         * `site.entry_deleted` - Site content deleted
         * `site.banner_updated` - Site banner changed
+        * `site.testimonial_created` - Testimonial added
+        * `site.testimonial_updated` - Testimonial changed
+        * `site.testimonial_moved` - Testimonial moved
+        * `site.testimonial_deleted` - Testimonial deleted
+        * `site.reference_created` - Reference school added
+        * `site.reference_updated` - Reference school changed
+        * `site.reference_moved` - Reference school moved
+        * `site.reference_deleted` - Reference school deleted
+        * `site.plan_created` - Plan added
+        * `site.plan_updated` - Plan changed
+        * `site.plan_moved` - Plan moved
+        * `site.plan_deleted` - Plan deleted
+        * `site.partner_created` - Partner added
+        * `site.partner_updated` - Partner changed
+        * `site.partner_moved` - Partner moved
+        * `site.partner_deleted` - Partner deleted
+        * `site.page_updated` - Site page settings changed
+        * `site.article_created` - Article written
+        * `site.article_updated` - Article changed
+        * `site.article_published` - Article published
+        * `site.article_deleted` - Article deleted
+        * `site.photo_added` - Photo added to the photo library
+        * `site.photo_updated` - Photo details changed
+        * `site.photo_deleted` - Photo deleted from the photo library
     PlatformAudienceEnum:
       enum:
       - all_schools
@@ -32143,7 +34978,7 @@ components:
       type: object
       properties:
         key:
-          $ref: '#/components/schemas/KeyEnum'
+          $ref: '#/components/schemas/SetupStepKeyEnum'
         done:
           type: boolean
         optional:
@@ -32153,6 +34988,26 @@ components:
       - key
       - done
       - optional
+    SetupStepKeyEnum:
+      enum:
+      - year
+      - classes
+      - fees
+      - staff
+      - cash
+      - students
+      - prior
+      - invitations
+      type: string
+      description: |-
+        * `year` - year
+        * `classes` - classes
+        * `fees` - fees
+        * `staff` - staff
+        * `cash` - cash
+        * `students` - students
+        * `prior` - prior
+        * `invitations` - invitations
     SexEnum:
       enum:
       - M
@@ -32334,6 +35189,20 @@ components:
           $ref: '#/components/schemas/DirectionEnum'
       required:
       - direction
+    SitePhotoLicenseEnum:
+      enum:
+      - cc0
+      - public_domain
+      - cc_by
+      - cc_by_sa
+      - consent
+      type: string
+      description: |-
+        * `cc0` - CC0
+        * `public_domain` - Public domain
+        * `cc_by` - CC BY
+        * `cc_by_sa` - CC BY-SA
+        * `consent` - Written consent
     SituationEnum:
       enum:
       - up_to_date

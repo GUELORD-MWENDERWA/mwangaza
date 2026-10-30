@@ -52,6 +52,8 @@ ICONS = {
     "phone": '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/>',
     "wifioff": '<path d="M3 3l18 18"/><path d="M8.5 16.5a5 5 0 0 1 7 0M5 12.9a10 10 0 0 1 5-2.7M14.5 10.4a10 10 0 0 1 4.5 2.5M2 9.3a15 15 0 0 1 4.3-2.6M11 5.1A15 15 0 0 1 22 9.3"/><path d="M12 20h.01"/>',
     "chevron": '<path d="m9 6 6 6-6 6"/>',
+    "up": '<path d="m6 15 6-6 6 6"/>',
+    "image": '<rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5.5-5 4 3.5 3-2.5 3.5 3"/>',
     "chevdown": '<path d="m6 9 6 6 6-6"/>',
     "back": '<path d="m15 6-6 6 6 6"/>',
     "menu": '<path d="M4 7h16M4 12h16M4 17h16"/>',
@@ -419,15 +421,19 @@ CONSOLE = [
     ("demandes", "Demandes de démonstration (site public)", "Lancement", "WEB.1d", True),
     ("equipe", "Équipe de la plateforme", "Lancement", "EQ.2", True),
     ("site", "Site public : questions, « Prochainement », bandeau", "V1.3", "SITE.1a", True),
+    ("site-contenus", "Site public : témoignages, écoles de référence, titres de recherche, réseaux", "Lot 2", "SITE.1b, SITE.5", True),
+    ("actualites", "Actualités du site : liste, éditeur et aperçu", "Lot 2", "SITE.2", True),
+    ("photos", "Photothèque du site : photos des pages, envoi avec accord", "Lot 2", "SITE.3", True),
 ]
 
 
 # Site public de la plateforme (domaine nu, WEB.1a) : pages marketing, captures à 390, 820 et 1440 px.
 SITE = [
-    ("accueil", "Accueil", "Lancement", "WEB.1a", True),
-    ("ecoles", "Pour les écoles (direction, comptable, caissier, enseignant)", "Lancement", "WEB.1a", True),
-    ("parents", "Pour les parents", "Lancement", "WEB.1a", True),
-    ("modules", "Modules", "Lancement", "WEB.1a", True),
+    ("accueil", "Accueil (refait au lot 2)", "Lot 2", "SITE.R", True),
+    ("ecoles", "Pour les écoles : rôles et modules (refait au lot 2)", "Lot 2", "SITE.R", True),
+    ("parents", "Pour les parents (refait au lot 2)", "Lot 2", "SITE.R", True),
+    ("actualites", "Actualités (liste paginée)", "Lot 2", "SITE.2", True),
+    ("article", "Article d'actualité", "Lot 2", "SITE.2", True),
     ("demonstration", "Demande de démonstration et contact", "Lancement", "WEB.1a", True),
     ("trouver-mon-ecole", "Trouver mon école", "Lancement", "WEB.1a", True),
     ("mentions", "Mentions légales et confidentialité", "Lancement", "WEB.1a", True),
@@ -442,12 +448,11 @@ MARQUE = [
 SITE_NAV = [
     ("ecoles.html", "Écoles"),
     ("parents.html", "Parents"),
-    ("modules.html", "Modules"),
-    ("accueil.html#questions", "Questions"),
+    ("actualites.html", "Actualités"),
     ("demonstration.html", "Contact"),
 ]
-SITE_ACTIVE = {"ecoles.html": "ecoles.html", "parents.html": "parents.html", "modules.html": "modules.html",
-               "demonstration.html": "demonstration.html"}
+SITE_ACTIVE = {"ecoles.html": "ecoles.html", "parents.html": "parents.html", "actualites.html": "actualites.html",
+               "article.html": "actualites.html", "demonstration.html": "demonstration.html"}
 
 
 def site_header(active: str | None) -> str:
@@ -458,15 +463,16 @@ def site_header(active: str | None) -> str:
     links = "".join(link(h, t) for h, t in SITE_NAV)
     return (
         '<header class="sh"><div class="wrap shin">'
-        '<a class="sbrand" href="accueil.html"><span class="mark"></span><b>Mwangaza</b><span>School</span></a>'
+        '<a class="sbrand brand" href="accueil.html" aria-label="Mwangaza School, accueil">'
+        '<span class="mark"></span><b>Mwangaza</b></a>'
         f'<nav class="snav" aria-label="Menu principal">{links}</nav>'
         '<div class="sact">'
         '<a class="slang" href="#" hreflang="en" lang="en">English</a>'
         '<a class="slink" href="trouver-mon-ecole.html">Trouver mon école</a>'
-        '<a class="btn lamp sm" href="demonstration.html"><span class="hide-s">Demander une démo</span>'
+        '<a class="btn primary sm" href="demonstration.html"><span class="hide-s">Demander une démo</span>'
         '<span class="show-s">Démo</span></a>'
         f'<details class="smenu"><summary aria-label="Ouvrir le menu">{ic("menu", 22)}</summary>'
-        f'<nav class="smpanel relief" aria-label="Menu principal">{links}'
+        f'<nav class="smpanel" aria-label="Menu principal">{links}<hr>'
         f'<a href="trouver-mon-ecole.html">{ic("search", 18)} Trouver mon école</a>'
         f'<a href="https://parents.mwangazaschool.com/">{ic("users", 18)} Espace parents</a>'
         f'<a href="#" hreflang="en" lang="en">{ic("globe", 18)} English</a></nav></details>'
@@ -480,10 +486,10 @@ def site_footer() -> str:
         return f'<div><h2>{title}</h2><ul>{items}</ul></div>'
 
     return (
-        '<footer class="sf relief"><div class="wrap">'
+        '<footer class="sf"><div class="wrap">'
         '<div class="sfgrid">'
-        '<div class="sfabout"><a class="sbrand" href="accueil.html"><span class="mark"></span><b>Mwangaza</b>'
-        "<span>School</span></a>"
+        '<div class="sfabout"><a class="sbrand brand" href="accueil.html" aria-label="Mwangaza School, accueil">'
+        '<span class="mark"></span><b>Mwangaza</b></a>'
         "<p>Logiciel de gestion scolaire pour les écoles de la RDC, conçu à Goma.</p>"
         '<ul class="sfcontact">'
         f'<li><a href="https://wa.me/243970000000">{ic("chat", 18)} WhatsApp +243 97 000 00 00</a></li>'
@@ -494,13 +500,13 @@ def site_footer() -> str:
         '<li><a href="https://www.facebook.com/" rel="me noopener">Facebook</a></li>'
         '<li><a href="https://www.linkedin.com/" rel="me noopener">LinkedIn</a></li>'
         '<li><a href="https://www.youtube.com/" rel="me noopener">YouTube</a></li></ul></div>'
-        + col("Le logiciel", [("ecoles.html", "Pour les écoles"), ("parents.html", "Pour les parents"),
-                              ("modules.html", "Modules"), ("accueil.html#questions", "Questions fréquentes")])
+        + col("Le logiciel", [("ecoles.html", "Pour les écoles"), ("ecoles.html#modules", "Modules"),
+                              ("parents.html", "Pour les parents"), ("actualites.html", "Actualités")])
         + col("Accès", [("trouver-mon-ecole.html", "Trouver mon école"),
                         ("https://parents.mwangazaschool.com/", "Espace parents"),
                         ("demonstration.html", "Demander une démonstration")])
-        + col("Informations", [("mentions.html", "Mentions légales"), ("mentions.html#confidentialite", "Confidentialité"),
-                               ("demonstration.html", "Contact")])
+        + col("Informations", [("accueil.html#questions", "Questions fréquentes"), ("mentions.html", "Mentions légales"),
+                               ("mentions.html#confidentialite", "Confidentialité"), ("demonstration.html", "Contact")])
         + "</div>"
         '<div class="sfbottom"><p class="sflang"><a href="accueil.html" lang="fr" aria-current="true">Français</a>'
         ' · <a href="#" hreflang="en" lang="en">English</a></p>'

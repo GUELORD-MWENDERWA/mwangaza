@@ -51,6 +51,7 @@ ICONS = {
     "shield": '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
     "students": '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 '
     '6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.4.2 4.2 1.9 5 4.9"/>',
+    "x": '<path d="M6 6l12 12M18 6 6 18"/>',
     "undo": '<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
     "userplus": '<circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.8-3.6 3.4-5.5 6.5-5.5 1.6 0 '
     '3 .4 4.2 1.2"/><path d="M18 14v6M15 17h6"/>',
@@ -105,9 +106,9 @@ def capture(name: str, alt: str = "", first: bool = False, later: bool = False) 
 # `maquettes/assets/photos/README.md`).
 PHOTOS = {
     "goma-lac-kivu": (1200, 800),
-    "itig-atelier-electricite": (960, 1200),
-    "itig-atelier-mecanique-auto": (1200, 800),
-    "itig-cour": (1080, 814),
+    "cour-interieure-ecole": (1200, 675),
+    "salle-de-classe": (1200, 900),
+    "cour-ecole-goma": (1200, 735),
 }
 
 

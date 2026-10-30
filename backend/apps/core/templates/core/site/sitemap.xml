@@ -8,4 +8,9 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="{{ site }}{{ page.paths.fr }}"/>{% for image in page.images %}
     <image:image><image:loc>{{ image }}</image:loc></image:image>{% endfor %}
   </url>{% endfor %}{% endfor %}
+{% for item in articles %}
+  <url>
+    <loc>{{ site }}{{ item.path }}</loc>
+    <lastmod>{{ item.updated_at|date:"Y-m-d" }}</lastmod>
+  </url>{% endfor %}
 </urlset>

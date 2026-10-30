@@ -14,6 +14,7 @@ from apps.core.tenancy import use_school
 from apps.schools import matricule
 from apps.schools.demo import DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup
+from apps.students.demo_photos import add_demo_photos
 from apps.students.models import (
     FAMILY_CODE_ALPHABET,
     FAMILY_CODE_LENGTH,
@@ -199,6 +200,7 @@ def create_demo_students(spaces: list[DemoSpace]) -> None:
             first = Family.objects.order_by("created_at", "id").first()
             if not shared and first is not None:
                 shared = list(first.guardians.all())
+            add_demo_photos(list(Student.objects.filter(family=first)) if first else None)
 
 
 # Fichier Excel fictif pour essayer l'import (D1) : `make demo-excel`.

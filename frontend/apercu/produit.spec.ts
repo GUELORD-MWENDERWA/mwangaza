@@ -14,6 +14,7 @@ const OUT = new URL("./captures/produit/", import.meta.url).pathname;
 const PORTAL = "http://localhost:5174/";
 const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
+const TABLET = { width: 820, height: 1180 };
 // Menu latéral de la Gestion : hors de la capture.
 const SIDEBAR = 256;
 
@@ -32,6 +33,10 @@ async function settle(page: Page) {
 
 /** Bandeaux du moment (annonce de la plateforme, code PIN proposé) : fermés avant la photo. */
 async function clearBanners(page: Page) {
+  // Bandeau « Démonstration — données fictives » : jamais sur une image du site.
+  await page
+    .addStyleTag({ content: '[role="note"]{display:none !important}' })
+    .catch(() => undefined);
   for (let round = 0; round < 6; round++) {
     let closed = false;
     for (const name of ["Fermer", "Plus tard"]) {
@@ -61,6 +66,29 @@ async function phone(page: Page, name: string) {
   await clearBanners(page);
   await page.screenshot({ path: `${OUT}${name}-mobile.png` });
   await page.setViewportSize(DESKTOP);
+}
+
+/** Gestion à la taille d'une tablette ou d'un téléphone : la page entière, menu compris. */
+async function device(page: Page, size: typeof MOBILE, name: string) {
+  await page.setViewportSize(size);
+  await settle(page);
+  await clearBanners(page);
+  await page.screenshot({ path: `${OUT}${name}.png` });
+  await page.setViewportSize(DESKTOP);
+}
+
+/** Le premier élève de la démonstration qui a une photo de profil (`students/demo_photos.py`). */
+function studentWithPhoto(): string {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.schools.models import School
+from apps.students.models import Student
+with use_school(School.objects.get(code="itig-demo")):
+    print("RESULT", Student.objects.exclude(photo="").order_by("matricule").first().pk)`,
+  );
+  return output.trim().split("\n").at(-1)!.split(" ")[1]!;
 }
 
 async function staff(browser: Browser, number: string, withCode: boolean, path = "") {
@@ -114,7 +142,18 @@ test("captures du produit pour le site public", async ({ browser }) => {
     await desk(head, name);
   }
 
+  await head.goto(`${ITIG}students/${studentWithPhoto()}`);
+  await desk(head, "gestion-eleve");
+  await head.goto(`${ITIG}dashboard`);
+  await device(head, TABLET, "gestion-tableau-de-bord-tablette");
+  await head.goto(`${ITIG}dashboard`);
+  await device(head, MOBILE, "gestion-tableau-de-bord-mobile");
+
   const director = await staff(browser, "0000001002", true, gradedSheet());
+  // La feuille de notes se charge après la page : attendre que les barres grises disparaissent.
+  await director
+    .waitForFunction(() => !document.querySelector(".animate-pulse"), undefined, { timeout: 15000 })
+    .catch(() => undefined);
   await desk(director, "gestion-notes-saisie");
 
   // Caisse : ouverture, puis un encaissement préparé mais jamais envoyé, puis la clôture
@@ -146,6 +185,10 @@ test("captures du produit pour le site public", async ({ browser }) => {
   await parent.goto(`${PORTAL}children/${child.id}`);
   await settle(parent);
   await parent.screenshot({ path: `${OUT}portail-enfant-paiements.png` });
+  await parent.setViewportSize(TABLET);
+  await parent.goto(`${PORTAL}children/${child.id}`);
+  await settle(parent);
+  await parent.screenshot({ path: `${OUT}portail-enfant-tablette.png` });
   await parent.setViewportSize(MOBILE);
   for (const [path, name] of [
     ["", "portail-accueil"],

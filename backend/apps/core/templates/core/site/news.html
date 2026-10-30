@@ -1,0 +1,25 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block robots %}{% if number > 1 %}noindex, follow{% else %}{{ block.super }}{% endif %}{% endblock %}
+{% block main %}
+<section class="phero">
+  <div class="wrap">
+    <span class="eyebrow">{% translate "News" %}</span>
+    <h1 class="display">{% blocktranslate trimmed with name=platform.name %}What is changing in {{ name }}{% endblocktranslate %}</h1>
+    <p class="lead">{% translate "New features, tips for the new school year, life of the schools." %}</p>
+  </div>
+</section>
+<section class="sec">
+  <div class="wrap">
+    {% if not articles %}<p class="lead">{% translate "No news yet. Come back soon." %}</p>{% endif %}
+    <ul class="newslist">
+      {% for item in articles %}<li><a href="{{ item.path }}"><span><span class="date">{{ item.published_at|date:"j F Y" }}</span><h2>{{ item.title }}</h2><p>{{ item.summary }}</p></span>{% if item.photo %}<img src="{{ item.photo.small }}" alt="" loading="lazy">{% endif %}</a></li>
+      {% endfor %}
+    </ul>
+    {% if pages > 1 %}<nav class="pager" aria-label="{% translate 'News pages' %}">
+      {% if number > 1 %}<a href="{% if number == 2 %}{{ links.news }}{% else %}?page={{ number|add:'-1' }}{% endif %}" rel="prev">← {% translate "More recent" %}</a>{% else %}<span class="off">← {% translate "More recent" %}</span>{% endif %}
+      <span>{% blocktranslate with n=number total=pages %}Page {{ n }} of {{ total }}{% endblocktranslate %}</span>
+      {% if number < pages %}<a href="?page={{ number|add:'1' }}" rel="next">{% translate "Older" %} →</a>{% else %}<span class="off">{% translate "Older" %} →</span>{% endif %}
+    </nav>{% endif %}
+  </div>
+</section>
+{% endblock %}

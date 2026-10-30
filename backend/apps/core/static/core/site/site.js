@@ -90,4 +90,90 @@
     });
     show();
   }
+
+  // Une journée : la liste est doublée pour défiler sans fin ; les cartes ne s'ouvrent pas.
+  const track = document.querySelector(".reeltrack");
+  if (track && !still) {
+    for (const card of [...track.children]) {
+      const copy = card.cloneNode(true);
+      copy.setAttribute("aria-hidden", "true");
+      track.append(copy);
+    }
+  }
+  // Témoignages — la rangée avance seule toutes les 6 s (arrêtée au survol, au focus ou si la
+  // personne l'a déplacée), un clic ouvre le texte entier dans une fenêtre.
+  const voices = document.querySelector("[data-voices]");
+  if (voices) {
+    for (const card of voices.querySelectorAll("[data-voice]")) {
+      card.addEventListener("click", () =>
+        document.getElementById(`voice-${card.dataset.voice}`)?.showModal(),
+      );
+    }
+    for (const dialog of document.querySelectorAll(".vdialog")) {
+      dialog.addEventListener("click", (event) => event.target === dialog && dialog.close());
+    }
+    if (!still) {
+      let paused = false;
+      for (const event of ["mouseenter", "focusin", "touchstart"]) {
+        voices.addEventListener(event, () => (paused = true), { passive: true });
+      }
+      for (const event of ["mouseleave", "focusout"]) {
+        voices.addEventListener(event, () => (paused = false));
+      }
+      setInterval(() => {
+        if (paused || document.hidden) return;
+        const step = voices.querySelector("li").offsetWidth + 24;
+        const end = voices.scrollLeft + voices.clientWidth >= voices.scrollWidth - 4;
+        voices.scrollTo({ left: end ? 0 : voices.scrollLeft + step, behavior: "smooth" });
+      }, 6000);
+    }
+  }
+
+  // Bulle de contact : le message part sans recharger la page ; sans ce script, la bulle reste
+  // cachée et le lien WhatsApp du pied de page suffit.
+  const chat = document.getElementById("chat");
+  if (chat) {
+    chat.hidden = false;
+    const box = chat.querySelector(".chat-box");
+    const opener = chat.querySelector(".chat-open");
+    const form = box.querySelector("form");
+    const toggle = (open) => {
+      box.hidden = !open;
+      opener.setAttribute("aria-expanded", String(open));
+      if (open) form.elements.name.focus();
+    };
+    opener.addEventListener("click", () => toggle(box.hidden));
+    box.querySelector("[data-chat-close]").addEventListener("click", () => {
+      toggle(false);
+      opener.focus();
+    });
+    chat.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !box.hidden) toggle(false);
+    });
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const [invalid, failed] = [".formerr[data-invalid]", ".formerr[data-failed]"].map((q) =>
+        form.querySelector(q),
+      );
+      invalid.hidden = failed.hidden = true;
+      if (!form.checkValidity()) {
+        invalid.hidden = false;
+        return;
+      }
+      try {
+        const response = await fetch(chat.dataset.action, {
+          method: "POST",
+          body: new FormData(form),
+        });
+        if (response.status === 400) invalid.hidden = false;
+        else if (!response.ok) failed.hidden = false;
+        else {
+          form.hidden = true;
+          box.querySelector(".chat-done").hidden = false;
+        }
+      } catch {
+        failed.hidden = false;
+      }
+    });
+  }
 })();

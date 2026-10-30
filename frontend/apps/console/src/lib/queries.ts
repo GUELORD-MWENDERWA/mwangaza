@@ -19,6 +19,14 @@ export const keys = {
   team: ["console", "team"],
   siteEntries: ["console", "site", "entries"],
   siteBanner: ["console", "site", "banner"],
+  siteTestimonials: ["console", "site", "testimonials"],
+  siteReferences: ["console", "site", "references"],
+  sitePlans: ["console", "site", "plans"],
+  sitePartners: ["console", "site", "partners"],
+  sitePages: ["console", "site", "pages"],
+  siteSocial: ["console", "site", "social"],
+  siteArticles: ["console", "site", "articles"],
+  sitePhotos: ["console", "site", "photos"],
   platform: ["platform"],
 };
 

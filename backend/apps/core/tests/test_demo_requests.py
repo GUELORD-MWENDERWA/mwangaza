@@ -54,7 +54,7 @@ def test_a_request_is_kept_for_the_console_and_alerts_the_admin_once(
     with django_capture_on_commit_callbacks(execute=True):
         response = post(client)
     assert response.status_code == 200
-    assert 'name="site_web"' not in response.content.decode()  # la carte « merci »
+    assert 'name="consent"' not in response.content.decode()  # la carte « merci »
     request = DemoRequest.objects.get()
     assert (request.phone, request.language, request.status) == ("+243971234567", "fr", "new")
     assert alerts == [
@@ -80,7 +80,7 @@ def test_invalid_requests_and_robots_leave_nothing(client, alerts):
         assert 'aria-invalid="true"' in response.content.decode()
     # Champ caché rempli (robot) : « merci », rien de gardé.
     response = post(client, site_web="https://spam.example")
-    assert 'name="site_web"' not in response.content.decode()
+    assert 'name="consent"' not in response.content.decode()
     assert not DemoRequest.objects.exists() and not alerts
 
 
@@ -93,6 +93,26 @@ def test_six_requests_in_an_hour_from_one_address_are_refused(client):
     # Une autre connexion n'est pas gênée.
     assert post(client, ip="10.0.0.2", phone="0971234599").status_code == 200
     assert DemoRequest.objects.count() == 6
+
+
+def test_a_chat_message_is_kept_and_alerts_the_admin(client, alerts):
+    chat = {"name": "Papa Gloire", "phone": "0971234500", "message": "Prix pour 400 élèves ?"}
+    assert client.post("/chat/", {**chat, "site_web": "x"}).json() == {"sent": True}  # robot
+    assert not DemoRequest.objects.exists() and not alerts
+
+    assert client.post("/en/chat/", chat, REMOTE_ADDR="10.0.0.1").json() == {"sent": True}
+    request = DemoRequest.objects.get()
+    assert (request.source, request.language, request.phone) == ("chat", "en", "+243971234500")
+    assert request.school_name == "" and alerts[0][:2] == (console.DEMO_REQUEST, request.pk)
+
+    # Téléphone incomplet, message vide : refusé, rien de gardé ; au-delà de 5 par heure : 429.
+    assert client.post("/chat/", {**chat, "phone": "097"}).status_code == 400
+    assert client.post("/chat/", {**chat, "message": ""}).status_code == 400
+    assert client.get("/chat/").status_code == 405
+    for _n in range(4):
+        assert client.post("/chat/", chat, REMOTE_ADDR="10.0.0.1").status_code == 200
+    assert client.post("/chat/", chat, REMOTE_ADDR="10.0.0.1").status_code == 429
+    assert DemoRequest.objects.count() == 5
 
 
 def test_only_the_platform_admin_follows_requests_at_the_console(api, platform_admin, head):

@@ -17,7 +17,12 @@ from apps.accounts.demo import (
     demo_password,
 )
 from apps.accounts.models import User
-from apps.core.demo import create_demo_platform, create_demo_requests, fill
+from apps.core.demo import (
+    create_demo_platform,
+    create_demo_requests,
+    fill,
+)
+from apps.core.demo_articles import create_demo_articles
 from apps.core.tenancy import use_all_schools
 from apps.notifications.demo import create_demo_platform_announcements
 from apps.portal.demo import demo_portal
@@ -90,6 +95,7 @@ class Command(BaseCommand):
         # Tâche de la plateforme : la base laisse voir toutes les écoles (S.6).
         with use_all_schools(), transaction.atomic():
             create_demo_platform()
+            create_demo_articles()
             admin = create_demo_admin()
             spaces = create_demo_schools(password=demo_password(), shared_totp_key=shared_key)
             fill(spaces)

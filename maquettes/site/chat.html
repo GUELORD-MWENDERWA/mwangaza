@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat du site — site public — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css"><link rel="stylesheet" href="../assets/site.css">
+<style>
+/* Bulle de contact : fixée en bas à droite de toutes les pages, sans service externe. */
+.chat{position:fixed;right:16px;bottom:16px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.chat-open{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 20px;border-radius:var(--r-pill);border:0;background:var(--lake);color:#fff;font:inherit;font-weight:700;box-shadow:var(--shadow-float);cursor:pointer}
+.chat-open .ic{width:22px;height:22px}
+.chat-box{width:min(360px,calc(100vw - 32px));background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-float);display:flex;flex-direction:column}
+.chat-box[hidden]{display:none}
+.chat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--night);color:#fff}
+.chat-head b{flex:1}.chat-head small{display:block;color:var(--night-muted);font-weight:400}
+.chat-head button{background:none;border:0;color:#fff;cursor:pointer;min-width:40px;min-height:40px}
+.chat-body{display:grid;gap:12px;padding:16px}
+.bubble{background:var(--surface);padding:10px 12px;font-size:.92rem;max-width:90%}
+@media (max-width:480px){.chat-open span{display:none}.chat-open{padding:0;width:52px;justify-content:center}}
+</style></head>
+<body class="site">
+<main id="contenu" style="min-height:100vh;padding:40px 24px">
+  <p class="note"><b>Chat du site (SITE, lot 2 partie 7) :</b> bulle sur toutes les pages (texte masqué à 390 px, icône seule). Trois états : fermée, ouverte (mot d'accueil + nom, téléphone, message), envoyée. Envoi sans rechargement (<code>fetch</code>) ; sans JavaScript, le lien WhatsApp du pied de page reste. Le message arrive dans la console, « Demandes », étiqueté « Chat », avec alerte et bouton WhatsApp. Un robot qui remplit le champ caché est ignoré ; 5 messages par heure et par adresse.</p>
+</main>
+<div class="chat">
+  <section class="chat-box" aria-label="Nous écrire">
+    <div class="chat-head"><span class="chipic"><svg class="ic" data-ic="chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg></span><b>Une question ?<small>Nous répondons sur WhatsApp</small></b><button type="button" aria-label="Fermer">✕</button></div>
+    <form class="chat-body" novalidate>
+      <p class="bubble">Bonjour ! Laissez votre numéro et votre question : nous vous écrivons sur WhatsApp.</p>
+      <label class="f"><span>Nom</span><input class="inp" autocomplete="name"></label>
+      <label class="f"><span>Téléphone (WhatsApp)</span><input class="inp" inputmode="tel" autocomplete="tel"></label>
+      <label class="f"><span>Message</span><textarea class="inp" rows="3"></textarea></label>
+      <button class="btn primary" type="submit">Envoyer</button>
+    </form>
+  </section>
+  <button class="chat-open" type="button"><svg class="ic" data-ic="chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg><span>Nous écrire</span></button>
+</div>
+</body></html>
