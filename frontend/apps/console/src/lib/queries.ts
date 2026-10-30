@@ -21,6 +21,8 @@ export const keys = {
   siteBanner: ["console", "site", "banner"],
   siteTestimonials: ["console", "site", "testimonials"],
   siteReferences: ["console", "site", "references"],
+  sitePlans: ["console", "site", "plans"],
+  sitePartners: ["console", "site", "partners"],
   sitePages: ["console", "site", "pages"],
   siteSocial: ["console", "site", "social"],
   siteArticles: ["console", "site", "articles"],

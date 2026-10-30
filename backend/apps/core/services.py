@@ -14,12 +14,14 @@ from apps.audit.actions import PlatformAction
 from apps.core import site_content
 from apps.core.models import (
     Article,
+    Partner,
     PlatformSettings,
     ReferenceSchool,
     SiteBanner,
     SiteEntry,
     SitePage,
     SitePhoto,
+    SitePlan,
     Testimonial,
 )
 
@@ -91,9 +93,34 @@ TESTIMONIAL_FIELDS = (
     "quote_en",
     "consent",
     "logo",
+    "is_example",
     "published",
 )
-REFERENCE_FIELDS = ("name", "town", "pupils", "link", "logo", "consent_on", "published")
+REFERENCE_FIELDS = (
+    "name",
+    "town",
+    "pupils",
+    "link",
+    "logo",
+    "consent_on",
+    "is_example",
+    "published",
+)
+PLAN_FIELDS = (
+    "name_fr",
+    "name_en",
+    "tagline_fr",
+    "tagline_en",
+    "price",
+    "currency",
+    "period",
+    "features_fr",
+    "features_en",
+    "highlighted",
+    "is_example",
+    "published",
+)
+PARTNER_FIELDS = ("name", "link", "logo", "published")
 PAGE_FIELDS = ("title_fr", "title_en", "description_fr", "description_en", "photo")
 ARTICLE_FIELDS = (
     "language",
@@ -129,6 +156,20 @@ ORDERED = {
         PlatformAction.SITE_REFERENCE_MOVED,
         PlatformAction.SITE_REFERENCE_DELETED,
     ),
+    SitePlan: (
+        PLAN_FIELDS,
+        PlatformAction.SITE_PLAN_CREATED,
+        PlatformAction.SITE_PLAN_UPDATED,
+        PlatformAction.SITE_PLAN_MOVED,
+        PlatformAction.SITE_PLAN_DELETED,
+    ),
+    Partner: (
+        PARTNER_FIELDS,
+        PlatformAction.SITE_PARTNER_CREATED,
+        PlatformAction.SITE_PARTNER_UPDATED,
+        PlatformAction.SITE_PARTNER_MOVED,
+        PlatformAction.SITE_PARTNER_DELETED,
+    ),
 }
 
 
@@ -158,8 +199,8 @@ def _drop_old_files(item, fields: tuple[str, ...], before: dict[str, str]) -> No
 
 
 def ordered_siblings(item):
-    """La liste ordonnée de l'élément : les questions d'une même sorte, tous les témoignages,
-    toutes les écoles de référence."""
+    """La liste ordonnée de l'élément : les questions d'une même sorte, ou tous les témoignages,
+    écoles de référence, formules, partenaires."""
     items = type(item).objects.all()
     return items.filter(kind=item.kind) if isinstance(item, SiteEntry) else items
 
@@ -401,6 +442,7 @@ def photo_uses(photo: SitePhoto) -> int:
         + photo.articles.count()
         + photo.testimonials.count()
         + photo.reference_schools.count()
+        + photo.partners.count()
     )
 
 

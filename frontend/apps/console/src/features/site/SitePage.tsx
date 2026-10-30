@@ -38,6 +38,8 @@ import { z } from "zod";
 
 import { keys } from "../../lib/queries";
 import { BannerPanel } from "./BannerPanel";
+import { PartnersPanel } from "./PartnersPanel";
+import { PlansPanel } from "./PlansPanel";
 import { ReferencesPanel } from "./ReferencesPanel";
 import { SeoPanel } from "./SeoPanel";
 import { SocialPanel } from "./SocialPanel";
@@ -55,6 +57,8 @@ const TABS = [
   "banner",
   "testimonials",
   "references",
+  "plans",
+  "partners",
   "seo",
   "social",
 ] as const;
@@ -116,6 +120,12 @@ export function SitePage() {
         </TabsContent>
         <TabsContent value="references">
           <ReferencesPanel />
+        </TabsContent>
+        <TabsContent value="plans">
+          <PlansPanel />
+        </TabsContent>
+        <TabsContent value="partners">
+          <PartnersPanel />
         </TabsContent>
         <TabsContent value="seo">
           <SeoPanel />

@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts.phone import PhoneNumberField
 from apps.core import platform
 from apps.core.ids import uuid7
+from apps.core.money import Currency
 from apps.core.tenancy import (
     AllSchoolsManager,
     CrossSchoolError,
@@ -468,9 +469,10 @@ class SitePage(models.Model):
 
 
 class Testimonial(BaseModel):
-    """Témoignage du site public (SITE.1b) : les mots d'une personne d'une école, mot pour mot,
-    jamais inventés. Publié seulement avec l'accord écrit de la personne et de l'école déposé
-    (`consent`, privé). Anglais vide : la citation française."""
+    """Témoignage du site public (SITE.1b) : les mots d'une personne d'une école. Publié seulement
+    avec l'accord écrit de la personne et de l'école déposé (`consent`, privé), sauf un texte
+    d'exemple (`is_example`, étiqueté dans la console) tenu en place avant les premiers vrais.
+    Anglais vide : la citation française."""
 
     MAX = 6
 
@@ -489,6 +491,7 @@ class Testimonial(BaseModel):
         related_name="testimonials",
         verbose_name=_("school logo"),
     )
+    is_example = models.BooleanField(_("example"), default=False)
     position = models.PositiveSmallIntegerField(_("position"), default=0)
     published = models.BooleanField(_("published"), default=False)
 
@@ -498,7 +501,9 @@ class Testimonial(BaseModel):
         verbose_name_plural = _("testimonials")
         constraints = [
             models.CheckConstraint(
-                condition=models.Q(published=False) | ~models.Q(consent=""),
+                condition=models.Q(published=False)
+                | models.Q(is_example=True)
+                | ~models.Q(consent=""),
                 name="testimonial_published_with_consent",
             )
         ]
@@ -510,7 +515,8 @@ class Testimonial(BaseModel):
 class ReferenceSchool(BaseModel):
     """École de référence du site public (SITE.1b) : nom, ville, nombre d'élèves (tapé par la
     communication, il doit être vrai), logo, lien. Publiée seulement avec la date de l'accord de
-    l'école (`consent_on`)."""
+    l'école (`consent_on`), sauf une école d'exemple (`is_example`, étiquetée dans la console) qui
+    ne sert qu'aux chiffres du site tant que les vraies écoles sont peu nombreuses."""
 
     MAX = 8
 
@@ -527,6 +533,7 @@ class ReferenceSchool(BaseModel):
         verbose_name=_("logo"),
     )
     consent_on = models.DateField(_("school's consent given on"), null=True, blank=True)
+    is_example = models.BooleanField(_("example"), default=False)
     position = models.PositiveSmallIntegerField(_("position"), default=0)
     published = models.BooleanField(_("published"), default=False)
 
@@ -536,10 +543,78 @@ class ReferenceSchool(BaseModel):
         verbose_name_plural = _("reference schools")
         constraints = [
             models.CheckConstraint(
-                condition=models.Q(published=False) | models.Q(consent_on__isnull=False),
+                condition=models.Q(published=False)
+                | models.Q(is_example=True)
+                | models.Q(consent_on__isnull=False),
                 name="reference_school_published_with_consent",
             )
         ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class SitePlan(BaseModel):
+    """Formule d'abonnement montrée sur la page des prix (demande du 2026-10-30) : nom, prix par
+    mois ou par an en entiers (centimes) avec sa devise, ce qu'elle comprend (une ligne par
+    point). Sans prix : « sur devis ». Le contrat et la facture sont ceux du lot 3."""
+
+    MAX = 4
+
+    class Period(models.TextChoices):
+        MONTH = "month", _("per month")
+        YEAR = "year", _("per year")
+
+    name_fr = models.CharField(_("name in French"), max_length=40)
+    name_en = models.CharField(_("name in English"), max_length=40, blank=True)
+    tagline_fr = models.CharField(_("tagline in French"), max_length=120)
+    tagline_en = models.CharField(_("tagline in English"), max_length=120, blank=True)
+    price = models.PositiveIntegerField(_("price"), null=True, blank=True)
+    currency = models.CharField(
+        _("currency"), max_length=3, choices=Currency.choices, default="USD"
+    )
+    period = models.CharField(_("period"), max_length=5, choices=Period.choices, default="month")
+    features_fr = models.TextField(_("included, one per line, in French"), max_length=800)
+    features_en = models.TextField(
+        _("included, one per line, in English"), max_length=800, blank=True
+    )
+    highlighted = models.BooleanField(_("highlighted"), default=False)
+    is_example = models.BooleanField(_("example"), default=False)
+    position = models.PositiveSmallIntegerField(_("position"), default=0)
+    published = models.BooleanField(_("published"), default=False)
+
+    class Meta:
+        ordering = ["position", "created_at"]
+        verbose_name = _("plan")
+        verbose_name_plural = _("plans")
+
+    def __str__(self) -> str:
+        return self.name_fr
+
+
+class Partner(BaseModel):
+    """Partenaire montré dans la bande qui défile (demande du 2026-10-30) : nom, logo de la
+    photothèque (sans logo : le nom en lettres), lien `https://` facultatif."""
+
+    MAX = 8
+
+    name = models.CharField(_("name"), max_length=80)
+    link = models.URLField(_("link"), blank=True)
+    logo = models.ForeignKey(
+        SitePhoto,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="partners",
+        verbose_name=_("logo"),
+    )
+    position = models.PositiveSmallIntegerField(_("position"), default=0)
+    published = models.BooleanField(_("published"), default=False)
+
+    class Meta:
+        ordering = ["position", "created_at"]
+        verbose_name = _("partner")
+        verbose_name_plural = _("partners")
 
     def __str__(self) -> str:
         return self.name

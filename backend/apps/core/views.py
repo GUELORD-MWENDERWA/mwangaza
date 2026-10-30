@@ -48,12 +48,14 @@ from apps.core.images import PHOTO_WIDTHS
 from apps.core.models import (
     Article,
     DemoRequest,
+    Partner,
     PlatformSettings,
     ReferenceSchool,
     SiteBanner,
     SiteEntry,
     SitePage,
     SitePhoto,
+    SitePlan,
     Testimonial,
 )
 from apps.core.platform import png_size
@@ -62,6 +64,8 @@ from apps.core.serializers import (
     ArticlePreviewSerializer,
     ConsoleArticleSerializer,
     ConsoleDemoRequestSerializer,
+    ConsolePartnerSerializer,
+    ConsolePlanSerializer,
     ConsolePlatformSerializer,
     ConsoleReferenceSchoolSerializer,
     ConsoleSiteBannerSerializer,
@@ -399,6 +403,28 @@ class ConsoleReferenceSchoolViewSet(OrderedSiteViewSet):
 
 
 @extend_schema(tags=["console"])
+@_ordered_schema(ConsolePlanSerializer)
+class ConsolePlanViewSet(OrderedSiteViewSet):
+    """Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+    page ; prix en entiers (centimes), vide : « sur devis »."""
+
+    serializer_class = ConsolePlanSerializer
+    queryset = SitePlan.objects.all()
+    parser_classes = [JSONParser]
+
+
+@extend_schema(tags=["console"])
+@_ordered_schema(ConsolePartnerSerializer)
+class ConsolePartnerViewSet(OrderedSiteViewSet):
+    """Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+    site ; logo choisi dans la photothèque."""
+
+    serializer_class = ConsolePartnerSerializer
+    queryset = Partner.objects.all()
+    parser_classes = [JSONParser]
+
+
+@extend_schema(tags=["console"])
 class ConsoleSiteBannerView(APIView):
     """Bandeau d'annonce du site public (SITE.1a) : texte en français et en anglais, lien, dates
     facultatives, affiché ou caché. Chaque changement va au journal de la plateforme."""
@@ -597,6 +623,7 @@ class ConsoleSitePhotoViewSet(
             + _uses(Article, "photo")
             + _uses(Testimonial, "logo")
             + _uses(ReferenceSchool, "logo")
+            + _uses(Partner, "logo")
         )
 
     def perform_create(self, serializer) -> None:

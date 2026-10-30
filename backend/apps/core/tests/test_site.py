@@ -58,8 +58,8 @@ def test_home_page_uses_the_platform_identity_and_names_the_author(client, db):
     assert f"{copyright}. Tous droits réservés." in french
     assert "Conçu et développé" not in french
     assert len(data["FAQPage"]["mainEntity"]) == 7
-    # Jamais de citation inventée : sans les vrais mots d'une école, pas de bloc de citation.
-    assert "<blockquote>" not in french
+    # Témoignages d'exemple (demande du 2026-10-30) : montrés tant que les vrais manquent.
+    assert "data-voices" in french
 
     english = client.get("/en/").content.decode()
     assert '<html lang="en">' in english
@@ -115,7 +115,8 @@ def test_platform_figures_count_live_schools_only_and_stay_hidden_below_five(cli
     SchoolFactory(environment=School.Environment.DEMO)
     SchoolFactory(environment=School.Environment.LIVE, status=School.Status.STOPPED)
     assert site.platform_stats() == []
-    assert 'class="nums' not in client.get("/").content.decode()
+    # Sous 5 écoles réelles, la bande montre les chiffres des écoles de référence d'exemple.
+    assert 'data-count="3200"' in client.get("/").content.decode()
 
     cache.delete(site.STATS_CACHE)
     SchoolFactory(environment=School.Environment.LIVE)

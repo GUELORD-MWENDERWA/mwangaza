@@ -2101,6 +2101,71 @@ export interface paths {
         patch: operations["console_site_pages_partial_update"];
         trace?: never;
     };
+    "/api/console/site/partners/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        get: operations["console_site_partners_list"];
+        put?: never;
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        post: operations["console_site_partners_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/partners/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        delete: operations["console_site_partners_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Partenaires de la bande qui défile sur le site public, huit au plus, dans l'ordre du
+         *     site ; logo choisi dans la photothèque.
+         */
+        patch: operations["console_site_partners_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/partners/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
+        post: operations["console_site_partners_move_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/site/photos/": {
         parameters: {
             query?: never;
@@ -2164,6 +2229,71 @@ export interface paths {
         get: operations["console_site_photos_consent_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/plans/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        get: operations["console_site_plans_list"];
+        put?: never;
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        post: operations["console_site_plans_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/site/plans/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        delete: operations["console_site_plans_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Formules d'abonnement du site public (page des prix), quatre au plus, dans l'ordre de la
+         *     page ; prix en entiers (centimes), vide : « sur devis ».
+         */
+        patch: operations["console_site_plans_partial_update"];
+        trace?: never;
+    };
+    "/api/console/site/plans/{id}/move/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Monte ou descend d'un rang ; renvoie la liste dans le nouvel ordre. */
+        post: operations["console_site_plans_move_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7668,6 +7798,90 @@ export interface components {
             is_active?: boolean;
         };
         /**
+         * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+         *     lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        ConsolePartner: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            link: string;
+            /** Format: uuid */
+            logo: string | null;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+         *     lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        ConsolePartnerRequest: {
+            name: string;
+            link?: string;
+            /** Format: uuid */
+            logo?: string | null;
+            published?: boolean;
+        };
+        /**
+         * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+         *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+         *     par `move`.
+         */
+        ConsolePlan: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Name in French */
+            name_fr: string;
+            /** Name in English */
+            name_en: string;
+            /** Tagline in French */
+            tagline_fr: string;
+            /** Tagline in English */
+            tagline_en: string;
+            price: number | null;
+            currency: components["schemas"]["CurrencyEnum"];
+            period: components["schemas"]["PeriodEnum"];
+            /** Included, one per line, in French */
+            features_fr: string;
+            /** Included, one per line, in English */
+            features_en: string;
+            highlighted: boolean;
+            /** Example */
+            is_example: boolean;
+            readonly position: number;
+            published: boolean;
+            /** Format: date-time */
+            readonly updated_at: string;
+        };
+        /**
+         * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+         *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+         *     par `move`.
+         */
+        ConsolePlanRequest: {
+            /** Name in French */
+            name_fr: string;
+            /** Name in English */
+            name_en?: string;
+            /** Tagline in French */
+            tagline_fr: string;
+            /** Tagline in English */
+            tagline_en?: string;
+            price?: number | null;
+            currency?: components["schemas"]["CurrencyEnum"];
+            period?: components["schemas"]["PeriodEnum"];
+            /** Included, one per line, in French */
+            features_fr: string;
+            /** Included, one per line, in English */
+            features_en?: string;
+            highlighted?: boolean;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
+        };
+        /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
          *     couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
          */
@@ -7762,6 +7976,8 @@ export interface components {
              * Format: date
              */
             consent_on: string | null;
+            /** Example */
+            is_example: boolean;
             readonly position: number;
             published: boolean;
             /** Format: date-time */
@@ -7784,6 +8000,8 @@ export interface components {
              * Format: date
              */
             consent_on?: string | null;
+            /** Example */
+            is_example?: boolean;
             published?: boolean;
         };
         /**
@@ -8221,6 +8439,8 @@ export interface components {
              * Format: uuid
              */
             logo: string | null;
+            /** Example */
+            is_example: boolean;
             readonly position: number;
             published: boolean;
             /** Format: date-time */
@@ -8249,6 +8469,8 @@ export interface components {
              * Format: uuid
              */
             logo?: string | null;
+            /** Example */
+            is_example?: boolean;
             published?: boolean;
         };
         ContactAddress: {
@@ -11027,6 +11249,43 @@ export interface components {
             notes?: string;
         };
         /**
+         * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+         *     lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`.
+         */
+        PatchedConsolePartnerRequest: {
+            name?: string;
+            link?: string;
+            /** Format: uuid */
+            logo?: string | null;
+            published?: boolean;
+        };
+        /**
+         * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+         *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+         *     par `move`.
+         */
+        PatchedConsolePlanRequest: {
+            /** Name in French */
+            name_fr?: string;
+            /** Name in English */
+            name_en?: string;
+            /** Tagline in French */
+            tagline_fr?: string;
+            /** Tagline in English */
+            tagline_en?: string;
+            price?: number | null;
+            currency?: components["schemas"]["CurrencyEnum"];
+            period?: components["schemas"]["PeriodEnum"];
+            /** Included, one per line, in French */
+            features_fr?: string;
+            /** Included, one per line, in English */
+            features_en?: string;
+            highlighted?: boolean;
+            /** Example */
+            is_example?: boolean;
+            published?: boolean;
+        };
+        /**
          * @description Identité de la plateforme dans la console (5.2.2) : modifiable par le super-admin ;
          *     couleurs illisibles refusées (contraste 4,5 : 1). Logo et icône s'envoient à part.
          */
@@ -11089,6 +11348,8 @@ export interface components {
              * Format: date
              */
             consent_on?: string | null;
+            /** Example */
+            is_example?: boolean;
             published?: boolean;
         };
         /**
@@ -11246,6 +11507,8 @@ export interface components {
              * Format: uuid
              */
             logo?: string | null;
+            /** Example */
+            is_example?: boolean;
             published?: boolean;
         };
         PatchedEnrollmentUpdateRequest: {
@@ -11611,6 +11874,12 @@ export interface components {
             matricule: string;
         };
         /**
+         * @description * `month` - per month
+         *     * `year` - per year
+         * @enum {string}
+         */
+        PeriodEnum: "month" | "year";
+        /**
          * @description * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
          *     * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
          *     * `courses.configure` - Configure courses, maxima and teachers of each class
@@ -11783,6 +12052,14 @@ export interface components {
          *     * `site.reference_updated` - Reference school changed
          *     * `site.reference_moved` - Reference school moved
          *     * `site.reference_deleted` - Reference school deleted
+         *     * `site.plan_created` - Plan added
+         *     * `site.plan_updated` - Plan changed
+         *     * `site.plan_moved` - Plan moved
+         *     * `site.plan_deleted` - Plan deleted
+         *     * `site.partner_created` - Partner added
+         *     * `site.partner_updated` - Partner changed
+         *     * `site.partner_moved` - Partner moved
+         *     * `site.partner_deleted` - Partner deleted
          *     * `site.page_updated` - Site page settings changed
          *     * `site.article_created` - Article written
          *     * `site.article_updated` - Article changed
@@ -11793,7 +12070,7 @@ export interface components {
          *     * `site.photo_deleted` - Photo deleted from the photo library
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -21306,6 +21583,241 @@ export interface operations {
             };
         };
     };
+    console_site_partners_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsolePartnerRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this partner. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this partner. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsolePartnerRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_partners_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this partner. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePartner"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_site_photos_list: {
         parameters: {
             query?: {
@@ -21491,6 +22003,241 @@ export interface operations {
                 };
                 content: {
                     "application/octet-stream": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsolePlanRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedConsolePlanRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_site_plans_move_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SiteEntryMoveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsolePlan"][];
                 };
             };
             400: {

@@ -15,11 +15,13 @@ from apps.audit.actions import PlatformAction
 from apps.audit.models import PlatformAuditLog
 from apps.core import site_content
 from apps.core.models import (
+    Partner,
     PlatformSettings,
     ReferenceSchool,
     SiteEntry,
     SitePage,
     SitePhoto,
+    SitePlan,
 )
 from apps.core.models import Testimonial as SiteTestimonial  # « Test… » : pytest le collecterait
 from apps.core.tests.test_site import structured_data
@@ -38,6 +40,13 @@ def fresh_cache():
     cache.clear()
     yield
     cache.clear()
+
+
+@pytest.fixture(autouse=True)
+def no_examples(db):
+    """Les exemples livrés avec le site (migration 0012) : ces tests partent d'un site vide."""
+    for model in (SitePlan, Partner, ReferenceSchool, SiteTestimonial):
+        model.objects.all().delete()
 
 
 @pytest.fixture
@@ -144,6 +153,8 @@ def test_banner_shows_between_its_dates_with_a_safe_link(
 
 TESTIMONIALS = "/api/console/site/testimonials/"
 REFERENCES = "/api/console/site/references/"
+PLANS = "/api/console/site/plans/"
+PARTNERS = "/api/console/site/partners/"
 PAGES = "/api/console/site/pages/"
 SOCIAL = "/api/console/site/social/"
 LETTER = b"%PDF-1.4 accord signe"
@@ -243,3 +254,49 @@ def test_communication_keeps_the_social_links_of_the_platform(console):
     assert PlatformSettings.load().facebook_url == link
     journal = PlatformAuditLog.objects.get(action=PlatformAction.PLATFORM_UPDATED)
     assert journal.after == {"facebook_url": link}
+
+
+def test_plans_and_partners_are_kept_in_the_console_and_shown_by_the_site(
+    console, client, django_capture_on_commit_callbacks
+):
+    plan = {
+        "name_fr": "École",
+        "tagline_fr": "Toute l'école",
+        "price": 9000,
+        "features_fr": "Caisse\nBulletins",
+        "published": True,
+    }
+    with django_capture_on_commit_callbacks(execute=True):
+        created = console.post(PLANS, plan)
+        console.post(PLANS, {**plan, "name_fr": "Brouillon", "published": False})
+        console.post(PARTNERS, {"name": "DTMS", "link": "https://dtms.example", "published": True})
+    assert created.status_code == 201, created.json()
+    assert console.post(PLANS, {**plan, "price": -1}).status_code == 400  # entiers, jamais négatifs
+    assert (
+        console.post(PLANS, {**plan, "is_example": True}).status_code == 400
+    )  # pas depuis la console
+    assert console.post(PARTNERS, {"name": "X", "link": "http://x.cd"}).status_code == 400
+
+    french = client.get("/tarifs/").content.decode()
+    assert "École" in french and "90,00" in french and "Brouillon" not in french
+    assert [row["name"] for row in site_content.plans("en")] == ["École"]  # anglais vide : français
+    assert "DTMS" in client.get("/").content.decode()
+    actions = PlatformAuditLog.objects.values_list("action", flat=True)
+    assert PlatformAction.SITE_PLAN_CREATED in actions
+    assert PlatformAction.SITE_PARTNER_CREATED in actions
+
+
+def test_the_examples_shipped_with_the_site_fill_the_figures_but_never_skip_the_consent(console):
+    ReferenceSchool.objects.create(
+        name="A", town="Goma", pupils=1200, is_example=True, published=True
+    )
+    ReferenceSchool.objects.create(
+        name="B", town="Goma", pupils=640, is_example=True, published=True
+    )
+    assert site_content.figures() == [(2, "schools"), (1840, "pupils"), (1, "towns")]
+    reference = ReferenceSchool.objects.get(name="A")
+    # Un exemple se remplace : sa case se décoche ; publié sans date d'accord, il est refusé.
+    unmarked = console.patch(f"{REFERENCES}{reference.pk}/", {"is_example": False})
+    assert unmarked.status_code == 400  # publié, sans date d'accord de l'école
+    with pytest.raises(IntegrityError), transaction.atomic():
+        ReferenceSchool.objects.filter(pk=reference.pk).update(is_example=False)

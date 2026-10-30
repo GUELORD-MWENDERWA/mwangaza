@@ -25,7 +25,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
-import { FilePicker, PhotoPicker, RankedList } from "./shared";
+import { ExampleToggle, FilePicker, PhotoPicker, RankedList } from "./shared";
 
 type Testimonial = Schemas["ConsoleTestimonial"];
 type Values = {
@@ -93,7 +93,11 @@ export function TestimonialsPanel() {
               title: `${item.role} · ${item.school_name}`,
               sub: `« ${item.quote_fr} »`,
               published: item.published,
-              note: item.has_consent ? undefined : t("console.site.testimonials.noConsent"),
+              note: item.is_example
+                ? t("console.site.example")
+                : item.has_consent
+                  ? undefined
+                  : t("console.site.testimonials.noConsent"),
             }))}
             selected={selected?.id}
             onEdit={(id) => setEditing(items.find((item) => item.id === id) ?? null)}
@@ -145,6 +149,7 @@ function TestimonialEditor({
   const [logo, setLogo] = useState<string | null>(item?.logo ?? null);
   const [consent, setConsent] = useState<File | null>(null);
   const [general, setGeneral] = useState<string | null>(null);
+  const [example, setExample] = useState(item?.is_example ?? false);
   const [saved, setSaved] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const errors = form.formState.errors;
@@ -153,6 +158,7 @@ function TestimonialEditor({
       const body = new FormData();
       for (const field of FIELDS) body.append(field, String(values[field]));
       body.append("logo", logo ?? "");
+      if (item?.is_example) body.append("is_example", String(example));
       if (consent) body.append("consent", consent);
       return item
         ? call(
@@ -280,6 +286,9 @@ function TestimonialEditor({
           <Field id="testimonial-logo" label={t("console.site.testimonials.fields.logo")}>
             {(control) => <PhotoPicker id={control.id} value={logo} onChange={setLogo} />}
           </Field>
+          {item?.is_example && (
+            <ExampleToggle id="testimonial-example" checked={example} onChange={setExample} />
+          )}
           <CheckboxField
             id="testimonial-published"
             checked={published}

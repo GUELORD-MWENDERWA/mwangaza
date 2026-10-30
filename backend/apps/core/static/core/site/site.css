@@ -530,3 +530,38 @@ label.f .req{color:var(--due)}
 .reelbody .rt{padding:20px 28px 28px}.reelbody h3{font-size:1.4rem}.reelbody p{margin-top:8px;color:var(--ink-2);font-size:1.02rem}.reelbody .t{font-weight:800;color:var(--lake-700)}
 @media (max-width:599px){.reelcard{width:78vw}}
 @media (prefers-reduced-motion:reduce){.reel{overflow-x:auto;-webkit-mask-image:none;mask-image:none}.reeltrack{animation:none}}
+
+/* Prix, partenaires qui défilent, témoignages en défilement avec fenêtre au clic (lot 2, partie 6) */
+.tight{padding-block:40px}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch}
+@media (max-width:899px){.plans{grid-template-columns:minmax(0,1fr)}}
+.plan{background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:28px;display:flex;flex-direction:column;gap:12px}
+.plan.star{border:2px solid var(--lake);box-shadow:var(--shadow-raised)}
+.plan .tag{align-self:flex-start}
+.plan .checks{margin:4px 0 12px;flex:1}
+.plan .price b{font-size:2rem;letter-spacing:-.02em}
+.plan .price span{color:var(--ink-3)}
+.marquee{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.mtrack{display:flex;gap:56px;align-items:center;width:max-content;list-style:none;margin:0;padding:12px 0}
+.mtrack li{flex:none;display:flex;align-items:center}
+.mtrack a{display:flex;text-decoration:none}
+.mtrack img{height:40px;width:auto;filter:grayscale(1);opacity:.75}
+.mtrack .word{font-family:Poppins,sans-serif;font-weight:600;font-size:1.25rem;color:var(--ink-3);white-space:nowrap}
+@media (prefers-reduced-motion:no-preference){.mtrack{animation:slide 40s linear infinite}.marquee:hover .mtrack{animation-play-state:paused}}
+@keyframes slide{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.marquee{overflow-x:auto}}
+.voices{overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin-inline:calc(var(--gut) * -1);padding-inline:var(--gut)}
+.voices::-webkit-scrollbar{display:none}
+.vtrack{display:flex;gap:24px;list-style:none;margin:0;padding:4px 0 12px;width:max-content}
+.vtrack li{scroll-snap-align:start;width:min(380px,82vw);display:flex}
+.vcard{font:inherit;text-align:left;cursor:pointer;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;width:100%;color:inherit}
+.vcard:hover{box-shadow:var(--shadow-raised);border-color:var(--lake-100)}
+.vcard blockquote,.vdialog blockquote{margin:0;font-size:1.05rem;line-height:1.55;color:var(--ink)}
+.vcard blockquote{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.who{display:flex;gap:12px;align-items:center}
+.who b{display:block}.who small{display:block;color:var(--ink-3)}
+.avatar{width:44px;height:44px;flex:none;display:grid;place-items:center;border-radius:50%;background:var(--lake);color:#fff;font-weight:700}
+.vdialog{border:0;padding:32px;max-width:min(560px,92vw);box-shadow:var(--shadow-float)}
+.vdialog::backdrop{background:rgba(11,28,53,.55)}
+.vdialog blockquote{font-size:1.25rem;margin-bottom:24px}
+.vclose{position:absolute;top:8px;right:8px;border:0;background:none;cursor:pointer;padding:8px;color:var(--ink-2)}

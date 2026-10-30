@@ -125,4 +125,32 @@
       if (event.target === dialog) dialog.close();
     });
   }
+  // Témoignages — la rangée avance seule toutes les 6 s (arrêtée au survol, au focus ou si la
+  // personne l'a déplacée), un clic ouvre le texte entier dans une fenêtre.
+  const voices = document.querySelector("[data-voices]");
+  if (voices) {
+    for (const card of voices.querySelectorAll("[data-voice]")) {
+      card.addEventListener("click", () =>
+        document.getElementById(`voice-${card.dataset.voice}`)?.showModal(),
+      );
+    }
+    for (const dialog of document.querySelectorAll(".vdialog")) {
+      dialog.addEventListener("click", (event) => event.target === dialog && dialog.close());
+    }
+    if (!still) {
+      let paused = false;
+      for (const event of ["mouseenter", "focusin", "touchstart"]) {
+        voices.addEventListener(event, () => (paused = true), { passive: true });
+      }
+      for (const event of ["mouseleave", "focusout"]) {
+        voices.addEventListener(event, () => (paused = false));
+      }
+      setInterval(() => {
+        if (paused || document.hidden) return;
+        const step = voices.querySelector("li").offsetWidth + 24;
+        const end = voices.scrollLeft + voices.clientWidth >= voices.scrollWidth - 4;
+        voices.scrollTo({ left: end ? 0 : voices.scrollLeft + step, behavior: "smooth" });
+      }, 6000);
+    }
+  }
 })();

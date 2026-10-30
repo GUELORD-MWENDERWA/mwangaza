@@ -35,7 +35,7 @@ from apps.accounts.modules import DEPENDENCIES, MODULES
 from apps.accounts.phone import format_phone
 from apps.core import demo_requests, share, site_content
 from apps.core.http import client_ip
-from apps.core.models import PlatformSettings, SiteEntry
+from apps.core.models import PlatformSettings, SiteEntry, SitePlan
 from apps.core.money import format_amount
 
 # Adresse de chaque page dans chaque langue ; `config/urls.py` en fait les routes.
@@ -43,6 +43,7 @@ PAGES = {
     "home": {"fr": "/", "en": "/en/"},
     "schools": {"fr": "/ecoles/", "en": "/en/schools/"},
     "parents": {"fr": "/parents/", "en": "/en/parents/"},
+    "pricing": {"fr": "/tarifs/", "en": "/en/pricing/"},
     "modules": {"fr": "/modules/", "en": "/en/modules/"},
     "contact": {"fr": "/demonstration/", "en": "/en/demo/"},
     "find": {"fr": "/trouver-mon-ecole/", "en": "/en/find-my-school/"},
@@ -68,6 +69,7 @@ SHARE_CAPTURES = {
     "home": "gestion-tableau-de-bord",
     "schools": "gestion-caisse-encaissement",
     "parents": "portail-accueil-mobile",
+    "pricing": "gestion-frais-baremes",
     "modules": "gestion-notes-saisie",
     "contact": "gestion-frais-baremes",
     "find": "gestion-tableau-de-bord",
@@ -98,6 +100,7 @@ PAGE_IMAGES = {
         "captures/portail-calendrier-mobile.webp",
         "captures/portail-notifications-mobile.webp",
     ),
+    "pricing": (),
     "modules": ("photos/itig-atelier-mecanique-auto.webp",),
     "contact": ("photos/itig-cour.webp",),
     "find": (),
@@ -109,6 +112,7 @@ VIEWS = {
     "home": "home",
     "schools": "schools",
     "parents": "parents",
+    "pricing": "pricing",
     "modules": "modules",
     "contact": "contact",
     "find": "find_school",
@@ -260,6 +264,7 @@ def _crumb(key: str) -> str:
     return {
         "schools": _("Schools"),
         "parents": _("Parents"),
+        "pricing": _("Prices"),
         "modules": _("Modules"),
         "contact": _("Contact"),
         "find": _("Find my school"),
@@ -417,6 +422,13 @@ def _meta(key: str, name: str) -> tuple[str, str]:
             _(
                 "Follow your children's school on your phone: payments, receipts, what is left "
                 "to pay, notices and summons. Activate your account with the family code."
+            ),
+        ),
+        "pricing": (
+            _("Prices and plans | %(name)s") % values,
+            _(
+                "Three plans for DRC schools, from a small school to a network: students, fees "
+                "and cash desk, report cards and parent space. Prices in dollars, per month."
             ),
         ),
         "modules": (
@@ -596,6 +608,24 @@ def platform_stats() -> list[tuple[str, int, str]]:
     ]
 
 
+def _reference_figures() -> list[tuple[str, int, str]]:
+    """Bande de chiffres tant que les vraies écoles sont peu nombreuses : celle des écoles de
+    référence publiées (leurs noms ne sont pas montrés), arrondie comme les vrais chiffres."""
+    labels = {
+        "schools": _("schools"),
+        "pupils": _("students followed"),
+        "towns": _("towns"),
+    }
+    return [
+        (
+            number_format(value if key != "pupils" else _rounded(value), force_grouping=True),
+            value if key != "pupils" else _rounded(value),
+            labels[key],
+        )
+        for value, key in site_content.figures()
+    ]
+
+
 def _ordinal(n: int) -> str:
     """Place sur le bulletin d'exemple : « 2e », « 2nd »."""
     if translation.get_language().startswith("fr"):
@@ -608,7 +638,9 @@ def _home(platform, context: dict) -> dict:
 
     return {
         "faq": site_content.entries(SiteEntry.Kind.HOME_QUESTION, context["lang"]),
-        "stats": platform_stats(),
+        "stats": platform_stats() or _reference_figures(),
+        "partners": site_content.partners(context["lang"]),
+        "testimonials": site_content.testimonials(context["lang"]),
         "references": site_content.REFERENCES,
         "news": site_content.news(context["lang"])[:3],
         "sample": {
@@ -670,6 +702,20 @@ def parents(request: HttpRequest, lang: str = "fr") -> HttpResponse:
             "faq": site_content.entries(SiteEntry.Kind.PARENT_QUESTION, lang)
         },
     )
+
+
+def _pricing(platform, context: dict) -> dict:
+    plans = site_content.plans(context["lang"])
+    for plan in plans:
+        plan["amount"] = format_amount(plan["price"], plan["currency"]) if plan["price"] else ""
+        plan["period_label"] = SitePlan.Period(plan["period"]).label
+    return {"plans": plans}
+
+
+@require_GET
+@public
+def pricing(request: HttpRequest, lang: str = "fr") -> HttpResponse:
+    return _render(request, "pricing", lang, _pricing)
 
 
 @require_GET

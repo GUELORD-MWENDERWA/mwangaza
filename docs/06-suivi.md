@@ -7,7 +7,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 2 — Site public**, parties 6 à 9/9 à faire (site complet : prix, partenaires, chiffres, témoignages, chat, articles longs, photos, déploiement) ; fiche `docs/claude/plans/lot-2.md` ; PR #412 ouverte (verte, pas fusionnée) |
+| Lot en cours | **Lot 2 — Site public**, partie 6/9 faite (formules, partenaires, chiffres, témoignages) ; reste : chat (7), articles longs et photos (8), coordonnées et déploiement (9) ; fiche `docs/claude/plans/lot-2.md` ; PR #412 ouverte (verte, pas fusionnée) |
 | Prochain lot | Lot 3 — Vendre : contrats, abonnements, factures |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
@@ -21,7 +21,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | Lot | Parties faites | Parties |
 |---|:-:|:-:|
 | 1 — Marque Mwangaza | 3 ✓ | 3 |
-| 2 — Site public refait | 5 | 9 |
+| 2 — Site public refait | 6 | 9 |
 | 3 — Vendre : contrats, abonnements, factures | 0 | 3 |
 | 4 — Bulletins aux parents | 0 | 3 |
 | 5 — Console finie | 0 | 3 |

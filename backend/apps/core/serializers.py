@@ -15,12 +15,14 @@ from apps.core.images import CleanedFileField, clean_site_photo, consent_extensi
 from apps.core.models import (
     Article,
     DemoRequest,
+    Partner,
     PlatformSettings,
     ReferenceSchool,
     SiteBanner,
     SiteEntry,
     SitePage,
     SitePhoto,
+    SitePlan,
     Testimonial,
 )
 from apps.core.platform import SOCIAL_HOSTS, check_colors, clean_icon, clean_logo
@@ -273,6 +275,16 @@ def _check_full(model, serializer) -> None:
         )
 
 
+def _only_leave_example(serializer, value: bool) -> bool:
+    """« Exemple » ne se pose pas depuis la console : un texte d'exemple se remplace (la case
+    se décoche), il ne sert pas à publier sans accord."""
+    if value and not getattr(serializer.instance, "is_example", False):
+        raise serializers.ValidationError(
+            _("Only the examples that came with the site are marked.")
+        )
+    return value
+
+
 class ConsoleTestimonialSerializer(serializers.ModelSerializer):
     """Témoignage (SITE.1b) : les mots d'une personne, mot pour mot. « Publié » refusé sans
     l'accord écrit déposé (`consent`, privé : seulement `has_consent` est rendu). Six au plus ;
@@ -294,18 +306,26 @@ class ConsoleTestimonialSerializer(serializers.ModelSerializer):
             "consent",
             "has_consent",
             "logo",
+            "is_example",
             "position",
             "published",
             "updated_at",
         ]
         read_only_fields = ["id", "position", "updated_at"]
 
+    def validate_is_example(self, value: bool) -> bool:
+        return _only_leave_example(self, value)
+
     def get_has_consent(self, testimonial: Testimonial) -> bool:
         return bool(testimonial.consent)
 
     def validate(self, attrs: dict) -> dict:
         _check_full(Testimonial, self)
-        if _merged(self, attrs, "published") and not _merged(self, attrs, "consent"):
+        if (
+            _merged(self, attrs, "published")
+            and not _merged(self, attrs, "consent")
+            and not _merged(self, attrs, "is_example")
+        ):
             raise serializers.ValidationError(
                 {"published": _("File the written consent before publishing.")}
             )
@@ -331,11 +351,15 @@ class ConsoleReferenceSchoolSerializer(serializers.ModelSerializer):
             "link",
             "logo",
             "consent_on",
+            "is_example",
             "position",
             "published",
             "updated_at",
         ]
         read_only_fields = ["id", "position", "updated_at"]
+
+    def validate_is_example(self, value: bool) -> bool:
+        return _only_leave_example(self, value)
 
     def validate_consent_on(self, consent_on):
         if consent_on and consent_on > timezone.localdate():
@@ -344,10 +368,68 @@ class ConsoleReferenceSchoolSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs: dict) -> dict:
         _check_full(ReferenceSchool, self)
-        if _merged(self, attrs, "published") and not _merged(self, attrs, "consent_on"):
+        if (
+            _merged(self, attrs, "published")
+            and not _merged(self, attrs, "consent_on")
+            and not _merged(self, attrs, "is_example")
+        ):
             raise serializers.ValidationError(
                 {"consent_on": _("Give the date the school agreed before publishing.")}
             )
+        return attrs
+
+
+class ConsolePlanSerializer(serializers.ModelSerializer):
+    """Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
+    « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
+    par `move`."""
+
+    class Meta:
+        model = SitePlan
+        fields = [
+            "id",
+            "name_fr",
+            "name_en",
+            "tagline_fr",
+            "tagline_en",
+            "price",
+            "currency",
+            "period",
+            "features_fr",
+            "features_en",
+            "highlighted",
+            "is_example",
+            "position",
+            "published",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "position", "updated_at"]
+
+    def validate_is_example(self, value: bool) -> bool:
+        return _only_leave_example(self, value)
+
+    def validate(self, attrs: dict) -> dict:
+        _check_full(SitePlan, self)
+        for field in ("features_fr", "features_en"):
+            lines = [line for line in attrs.get(field, "").splitlines() if line.strip()]
+            if len(lines) > 8:
+                raise serializers.ValidationError({field: _("Eight points at most.")})
+        return attrs
+
+
+class ConsolePartnerSerializer(serializers.ModelSerializer):
+    """Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
+    lettres), lien `https://` seulement. Huit au plus ; le rang se change par `move`."""
+
+    link = serializers.URLField(required=False, allow_blank=True, validators=[HTTPS_ONLY])
+
+    class Meta:
+        model = Partner
+        fields = ["id", "name", "link", "logo", "position", "published", "updated_at"]
+        read_only_fields = ["id", "position", "updated_at"]
+
+    def validate(self, attrs: dict) -> dict:
+        _check_full(Partner, self)
         return attrs
 
 

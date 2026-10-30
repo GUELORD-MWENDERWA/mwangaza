@@ -35,6 +35,8 @@ router.register(
 router.register(
     "console/site/references", views.ConsoleReferenceSchoolViewSet, basename="console-reference"
 )
+router.register("console/site/plans", views.ConsolePlanViewSet, basename="console-plan")
+router.register("console/site/partners", views.ConsolePartnerViewSet, basename="console-partner")
 router.register("console/site/pages", views.ConsoleSitePageViewSet, basename="console-site-page")
 router.register("console/site/articles", views.ConsoleArticleViewSet, basename="console-article")
 router.register("console/site/photos", views.ConsoleSitePhotoViewSet, basename="console-photo")

@@ -5,6 +5,7 @@ import { errorMessage, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Button,
+  CheckboxField,
   DialogClose,
   DialogContent,
   DialogRoot,
@@ -276,4 +277,31 @@ export function FilePicker({
 export function Failure({ error }: { error: unknown }) {
   const { t } = useTranslation();
   return error ? <Banner tone="due">{errorMessage(error, t)}</Banner> : null;
+}
+
+/** Texte d'exemple livré avec le site : la case se décoche quand il est remplacé par du vrai
+ * (étiquette « Exemple » retirée ; publier exige alors l'accord comme pour tout contenu). */
+export function ExampleToggle({
+  id,
+  checked,
+  onChange,
+}: {
+  id: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <CheckboxField
+      id={id}
+      checked={checked}
+      onCheckedChange={(value) => onChange(value === true)}
+      label={
+        <>
+          <b>{t("console.site.exampleLabel")}</b>
+          <span className="block text-sm text-ink-3">{t("console.site.exampleHint")}</span>
+        </>
+      }
+    />
+  );
 }

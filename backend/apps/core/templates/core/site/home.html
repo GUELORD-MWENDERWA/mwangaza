@@ -146,6 +146,16 @@
   </div>
 </section>
 
+{% if partners %}
+<section class="sec tight" aria-label="{% translate 'Partners' %}">
+  <div class="wrap">
+    <div class="sechd c rv"><span class="eyebrow">{% translate "Partners" %}</span></div>
+    <div class="marquee rv"><ul class="mtrack">{% for loop_no in "12" %}{% for partner in partners %}
+      <li{% if loop_no == "2" %} aria-hidden="true"{% endif %}>{% if partner.link and loop_no == "1" %}<a href="{{ partner.link }}" rel="noopener">{% endif %}{% if partner.logo %}<img src="{{ partner.logo.small }}" alt="{% if loop_no == '1' %}{{ partner.name }}{% endif %}" width="{{ partner.logo.width }}" height="{{ partner.logo.height }}" loading="lazy">{% else %}<span class="word">{{ partner.name }}</span>{% endif %}{% if partner.link and loop_no == "1" %}</a>{% endif %}</li>{% endfor %}{% endfor %}</ul></div>
+  </div>
+</section>
+{% endif %}
+
 {% if stats %}
 <section class="sec night relief">
   <div class="wrap">
@@ -153,6 +163,24 @@
     <div class="nums rv">
       {% for value, number, label in stats %}<div><b data-count="{{ number }}">{{ value }}</b><span>{{ label }}</span></div>{% endfor %}
     </div>
+  </div>
+</section>
+{% endif %}
+
+{% if testimonials %}
+<section class="sec alt" id="temoignages">
+  <div class="wrap">
+    <div class="sechd rv"><span class="eyebrow">{% translate "They use it" %}</span><h2 class="st">{% translate "What school teams say" %}</h2></div>
+    <div class="voices rv" data-voices>
+      <ul class="vtrack">{% for item in testimonials %}
+        <li><button type="button" class="vcard" data-voice="{{ forloop.counter0 }}"><blockquote>« {{ item.quote }} »</blockquote><span class="who"><span class="avatar" aria-hidden="true">{{ item.name|slice:":1" }}</span><span><b>{{ item.name }}</b><small>{{ item.role }} · {{ item.school_name }}, {{ item.town }}</small></span></span></button></li>{% endfor %}
+      </ul>
+    </div>
+    {% for item in testimonials %}<dialog class="vdialog" id="voice-{{ forloop.counter0 }}" aria-label="{{ item.name }}">
+      <form method="dialog"><button class="vclose" aria-label="{% translate 'Close' %}">{% icon "x" %}</button></form>
+      <blockquote>« {{ item.quote }} »</blockquote>
+      <p class="who"><span class="avatar" aria-hidden="true">{{ item.name|slice:":1" }}</span><span><b>{{ item.name }}</b><small>{{ item.role }} · {{ item.school_name }}, {{ item.town }}</small></span></p>
+    </dialog>{% endfor %}
   </div>
 </section>
 {% endif %}

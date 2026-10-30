@@ -18,11 +18,13 @@ from django.utils.translation import gettext_lazy as _
 from apps.core import markdown
 from apps.core.models import (
     Article,
+    Partner,
     ReferenceSchool,
     SiteBanner,
     SiteEntry,
     SitePage,
     SitePhoto,
+    SitePlan,
     Testimonial,
 )
 
@@ -31,8 +33,30 @@ NEWS_KEY = "site:news:{lang}"
 CACHE_TIMEOUT = 24 * 3600  # vidé à chaque changement ; la durée ne sert qu'à libérer la mémoire
 ENTRY_FIELDS = ("kind", "title_fr", "title_en", "text_fr", "text_en")
 BANNER_FIELDS = ("text_fr", "text_en", "link", "starts_on", "ends_on")
-TESTIMONIAL_FIELDS = ("name", "role", "school_name", "town", "quote_fr", "quote_en", "logo_id")
-REFERENCE_FIELDS = ("name", "town", "pupils", "link", "logo_id")
+TESTIMONIAL_FIELDS = (
+    "name",
+    "role",
+    "school_name",
+    "town",
+    "quote_fr",
+    "quote_en",
+    "logo_id",
+    "is_example",
+)
+REFERENCE_FIELDS = ("name", "town", "pupils", "link", "logo_id", "is_example")
+PLAN_FIELDS = (
+    "name_fr",
+    "name_en",
+    "tagline_fr",
+    "tagline_en",
+    "price",
+    "currency",
+    "period",
+    "features_fr",
+    "features_en",
+    "highlighted",
+)
+PARTNER_FIELDS = ("name", "link", "logo_id")
 PAGE_FIELDS = ("key", "title_fr", "title_en", "description_fr", "description_en", "photo_id")
 PHOTO_FIELDS = ("id", "width", "height", "alt_fr", "alt_en")
 ARTICLE_FIELDS = (
@@ -72,13 +96,17 @@ def _load() -> dict:
     banner = SiteBanner.objects.filter(pk=1, active=True).exclude(text_fr="")
     testimonials = list(Testimonial.objects.filter(published=True).values(*TESTIMONIAL_FIELDS))
     references = list(ReferenceSchool.objects.filter(published=True).values(*REFERENCE_FIELDS))
+    plans = list(SitePlan.objects.filter(published=True).values(*PLAN_FIELDS))
+    partners = list(Partner.objects.filter(published=True).values(*PARTNER_FIELDS))
     pages = {row["key"]: row for row in SitePage.objects.values(*PAGE_FIELDS)}
-    used = [row["logo_id"] for row in testimonials + references]
+    used = [row["logo_id"] for row in testimonials + references + partners]
     return {
         "entries": entries,
         "banner": banner.values(*BANNER_FIELDS).first(),
         "testimonials": testimonials,
         "references": references,
+        "plans": plans,
+        "partners": partners,
         "pages": pages,
         "photos": _photos(used + [row["photo_id"] for row in pages.values()]),
     }
@@ -143,6 +171,39 @@ def testimonials(lang: str) -> list[dict]:
 def reference_schools(lang: str) -> list[dict]:
     """Écoles de référence publiées (accord de l'école daté) ; vide : la section est cachée."""
     return [{**row, "logo": _photo(row["logo_id"], lang)} for row in published()["references"]]
+
+
+def plans(lang: str) -> list[dict]:
+    """Formules publiées, dans l'ordre ; le prix reste en centimes (le site le formate)."""
+    return [
+        {
+            **row,
+            "name": _in(row, "name", lang),
+            "tagline": _in(row, "tagline", lang),
+            "features": [
+                line.strip() for line in _in(row, "features", lang).splitlines() if line.strip()
+            ],
+        }
+        for row in published()["plans"]
+    ]
+
+
+def partners(lang: str) -> list[dict]:
+    """Partenaires publiés (bande qui défile) ; vide : la section est cachée."""
+    return [{**row, "logo": _photo(row["logo_id"], lang)} for row in published()["partners"]]
+
+
+def figures() -> list[tuple[int, str]]:
+    """Chiffres des écoles de référence publiées : (valeur, clé) pour `schools`, `pupils` et
+    `towns`, ou rien sans école. Les noms ne sont jamais montrés par cette bande."""
+    rows = published()["references"]
+    if not rows:
+        return []
+    return [
+        (len(rows), "schools"),
+        (sum(row["pupils"] for row in rows), "pupils"),
+        (len({row["town"].casefold() for row in rows}), "towns"),
+    ]
 
 
 def page_meta(key: str, lang: str) -> tuple[str, str]:

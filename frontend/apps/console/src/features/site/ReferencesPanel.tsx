@@ -24,7 +24,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
-import { PhotoPicker, RankedList } from "./shared";
+import { ExampleToggle, PhotoPicker, RankedList } from "./shared";
 
 type Reference = Schemas["ConsoleReferenceSchool"];
 type Values = {
@@ -89,6 +89,7 @@ export function ReferencesPanel() {
               title: item.name,
               sub: t("console.site.references.sub", { town: item.town, count: item.pupils }),
               published: item.published,
+              note: item.is_example ? t("console.site.example") : undefined,
             }))}
             selected={selected?.id}
             onEdit={setEditing}
@@ -149,6 +150,7 @@ function ReferenceEditor({
       : EMPTY,
   });
   const [logo, setLogo] = useState<string | null>(item?.logo ?? null);
+  const [example, setExample] = useState(item?.is_example ?? false);
   const [general, setGeneral] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -160,6 +162,7 @@ function ReferenceEditor({
         pupils: Number(values.pupils),
         consent_on: values.consent_on || null,
         logo,
+        ...(item?.is_example ? { is_example: example } : {}),
       };
       return item
         ? call(
@@ -234,6 +237,9 @@ function ReferenceEditor({
           {saved && <Banner tone="ok">{t("console.site.saved")}</Banner>}
           {general && <Banner tone="due">{general}</Banner>}
           {remove.isError && <Banner tone="due">{errorMessage(remove.error, t)}</Banner>}
+          {item?.is_example && (
+            <ExampleToggle id="reference-example" checked={example} onChange={setExample} />
+          )}
           <div className="grid gap-4 min-[560px]:grid-cols-2">
             {text("name", 120)}
             {text("town", 80)}

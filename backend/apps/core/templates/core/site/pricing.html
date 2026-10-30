@@ -1,0 +1,28 @@
+{% extends "core/site/base.html" %}{% load i18n site_tags %}
+{% block main %}
+<section class="phero">
+  <div class="wrap">
+    <span class="eyebrow">{% translate "Prices" %}</span>
+    <h1 class="display">{% translate "A plan for each school" %}</h1>
+    <p class="lead">{% translate "Pay per month, in dollars, with no installation fee. Start with a trial space filled with your classes and fees." %}</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    {% if plans %}<div class="plans">
+      {% for plan in plans %}<article class="plan rv{% if plan.highlighted %} star{% endif %}">
+        {% if plan.highlighted %}<span class="tag v">{% translate "Most chosen" %}</span>{% endif %}
+        <h2>{{ plan.name }}</h2>
+        <p class="muted">{{ plan.tagline }}</p>
+        <p class="price">{% if plan.amount %}<b>{{ plan.amount }}</b> <span>{{ plan.period_label }}</span>{% else %}<b>{% translate "On quote" %}</b>{% endif %}</p>
+        <ul class="checks">{% for feature in plan.features %}<li>{% icon "check" %}{{ feature }}</li>{% endfor %}</ul>
+        <a class="btn {% if plan.highlighted %}primary{% endif %} lg" href="{{ links.contact }}">{% translate "Request a demo" %}</a>
+      </article>{% endfor %}
+    </div>{% endif %}
+    <p class="muted small" style="margin-top:24px">{% translate "Prices are per school. A trial space is free and is erased at the end of the trial if you do not continue." %}</p>
+  </div>
+</section>
+
+{% include "core/site/_cta.html" %}
+{% endblock %}
