@@ -90,4 +90,39 @@
     });
     show();
   }
+
+  // Une journée : la liste est doublée pour défiler sans fin ; un clic ouvre la fenêtre de détail.
+  const track = document.querySelector(".reeltrack");
+  const dialog = document.getElementById("reel-dialog");
+  if (track && dialog) {
+    if (!still) {
+      for (const card of [...track.children]) {
+        const copy = card.cloneNode(true);
+        copy.setAttribute("aria-hidden", "true");
+        copy.querySelector("button").tabIndex = -1;
+        track.append(copy);
+      }
+    }
+    track.addEventListener("click", (event) => {
+      const card = event.target.closest("[data-reel]");
+      if (!card) return;
+      const body = dialog.querySelector(".reelbody");
+      const img = card.querySelector("img").cloneNode(true);
+      img.removeAttribute("loading");
+      img.removeAttribute("srcset");
+      img.removeAttribute("sizes");
+      img.removeAttribute("width");
+      img.removeAttribute("height");
+      const text = document.createElement("div");
+      text.className = "rt";
+      text.innerHTML = card.querySelector(".t").outerHTML + card.querySelector("h3").outerHTML +
+        card.querySelector("p").outerHTML;
+      text.querySelector("p").style.cssText = "display:block;-webkit-line-clamp:unset";
+      body.replaceChildren(img, text);
+      dialog.showModal();
+    });
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
 })();
