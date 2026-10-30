@@ -24,7 +24,7 @@ Démonstration du vrai serveur à refaire à neuf : console → Écoles → Dém
 
 ## Mise à jour
 
-`git switch main && git pull`, puis `make deploy` : code envoyé, images publiées par GitHub Actions seulement si le code des images a changé (`gh` connecté ; secours `CONSTRUIRE_SUR_SERVEUR=oui make deploy`) et téléchargées pendant que l'ancienne version reste en ligne, migrations puis droits du compte PostgreSQL de l'application par le conteneur `migrate` (S.5 : Django et Celery n'ont que le compte `mwangaza_app`, lignes seulement), tâche de chaque nuit remise dans le crontab du compte (`infra/backup/sauvegarde.sh`). Puis `make deploy-check`.
+`git switch main && git pull`, puis `make deploy` : code envoyé, images publiées par GitHub Actions seulement si le code des images a changé (`gh` connecté ; secours `CONSTRUIRE_SUR_SERVEUR=oui make deploy`) et téléchargées pendant que l'ancienne version reste en ligne, migrations puis droits du compte PostgreSQL de l'application par le conteneur `migrate` (S.5 : Django et Celery n'ont que le compte `mwangaza_app`, lignes seulement), tâche de chaque nuit remise dans le crontab du compte (`infra/backup/sauvegarde.sh`). Puis `make deploy-check` : les trois sous-domaines (un 5xx est un échec) et les six pages publiques du site (`/`, `/en/`, `/ecoles/`, `/parents/`, `/actualites/`, `/sitemap.xml`, 200 attendu).
 
 ## Panne
 
