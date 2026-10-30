@@ -7,7 +7,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 2 — Site public**, partie 8/9 faite (articles longs, photos libres, plus de photo de l'ITIG) ; reste : coordonnées et déploiement (9) ; fiche `docs/claude/plans/lot-2.md` ; PR #412 ouverte (verte, pas fusionnée) |
+| Lot en cours | Aucun : **lot 2 fini** (9/9), PR #412 à fusionner ; site déjà en ligne depuis la branche (2026-10-30) |
 | Prochain lot | Lot 3 — Vendre : contrats, abonnements, factures |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
@@ -21,7 +21,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | Lot | Parties faites | Parties |
 |---|:-:|:-:|
 | 1 — Marque Mwangaza | 3 ✓ | 3 |
-| 2 — Site public refait | 8 | 9 |
+| 2 — Site public refait | 9 ✓ | 9 |
 | 3 — Vendre : contrats, abonnements, factures | 0 | 3 |
 | 4 — Bulletins aux parents | 0 | 3 |
 | 5 — Console finie | 0 | 3 |
@@ -65,6 +65,9 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-10-30 — Lot 2 : fini et en ligne (partie 9)
+Retouches demandées : chat du site non fixe (suit l'écran et s'arrête au pied de page), bandeau « données fictives » masqué sur les captures, section « école pilote » ITIG retirée de l'accueil, partenaires vides au départ (ajoutés dans la console), deux écoles de référence au lieu de quatre. `make deploy ref=origin/lot/2-site` fait, `deploy-check` vert. Reste à toi : saisir les coordonnées de la plateforme dans la console (Identité) ; captures du site à refaire (`make captures-site`) pour effacer le bandeau des images déjà publiées.
 
 ### 2026-10-30 — Lot 2 : demande d'agrandissement du site
 Après essai, l'utilisateur veut un site **complet** (prix, partenaires, chiffres, témoignages, chat, articles longs avec photos, photos libres de droits à changer avant le vrai lancement) puis le déploiement : parties 6 à 9 ajoutées à la fiche. Décisions : 3 formules d'exemple modifiables dans la console ; chat maison (boîte de réception dans la console) + WhatsApp ; contenus d'exemple marqués « exemple » dans la console ; photos libres de droits seulement (pas de photos payantes téléchargées) ; coordonnées reçues : WhatsApp +243 856 725 368, `contact@mwangazaschool.com`, `support@mwangazaschool.com` (à confirmer), adresse Goma, Nord-Kivu, quartier Katoyi, Afia Bora, rue Scout. Fait : appareils noirs, reçu dans la carte hors ligne, journée en défilement avec fenêtre au clic.

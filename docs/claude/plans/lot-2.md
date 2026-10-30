@@ -15,7 +15,7 @@ Issue #411 · branche `lot/2-site` · démarré le 2026-10-30
 - [x] ⑥ **Site complet** (demande du 2026-10-30, tout visible comme si fini ; les « à venir » figurent comme déjà là) : console + site pour **formules et abonnements** (page des prix, 3 formules d'exemple modifiables), **partenaires** (ITIG, DTMS, Afronova, logos qui défilent), **chiffres** (4 écoles d'exemple, sans noms sauf ITIG), **témoignages** qui défilent avec fenêtre au clic (personnes africaines, étiquette « exemple » dans la console, publiables sans accord tant qu'ils sont « exemple »)
 - [x] ⑦ **Chat du site** : bulle (nom, téléphone, message) → boîte de réception de la console avec alerte + bouton WhatsApp ; sans service externe
 - [x] ⑧ **Articles complets** : 6 à 8 articles longs et sérieux (titre, sous-titre, intertitres, listes, photo à côté du titre, photos dans le texte), mise en page d'article de site pro ; **photos libres de droits** cherchées pour chaque emplacement (plus aucune photo de l'ITIG sur les pages, sauf comme partenaire) ; bulletin à taille normale
-- [ ] ⑨ Coordonnées réelles dans l'identité (console), `make demo` complété, puis `make deploy`
+- [x] ⑨ Retouches du 2026-10-30 (chat non fixe, pas de bandeau « fictif » sur les images, ITIG retirée de l'accueil, partenaires vides, deux écoles de référence) ; déploiement ; coordonnées à saisir dans la console (identité)
 
 **Hors périmètre** : contrats et factures (lot 3) ; sites des écoles (lot 15).
 
