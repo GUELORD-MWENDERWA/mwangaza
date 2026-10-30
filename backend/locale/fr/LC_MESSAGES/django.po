@@ -5993,12 +5993,12 @@ msgid "What school teams say"
 msgstr "Ce que disent les équipes des écoles"
 
 #: apps/core/templates/core/site/home.html:187
-msgid "Pilot school"
-msgstr "École pilote"
+msgid "Made in Goma"
+msgstr "Né à Goma"
 
 #: apps/core/templates/core/site/home.html:187
-msgid "Designed with a real school in Goma"
-msgstr "Conçu avec une vraie école de Goma"
+msgid "Shaped in a real Goma school, ready for every school in the DRC"
+msgstr "Éprouvé dans une vraie école de Goma, prêt pour chaque école de la RDC"
 
 #: apps/core/templates/core/site/home.html:191
 #, python-format
@@ -11149,3 +11149,12 @@ msgstr "Cet horaire n'existe pas."
 #: apps/timetable/views.py:697
 msgid "This draft does not exist."
 msgstr "Ce brouillon n'existe pas."
+
+msgid "Also included"
+msgstr "Aussi inclus"
+
+msgid "And everything around it"
+msgstr "Et tout ce qui l'entoure"
+
+msgid "All in the same application: schools that use %(name)s have it, without changing tools."
+msgstr "Tout dans la même application : les écoles qui utilisent %(name)s l'ont, sans changer d'outil."

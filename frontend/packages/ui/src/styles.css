@@ -349,3 +349,12 @@
   text-align: right;
   white-space: nowrap;
 }
+
+/* Grands fonds bleus (barre latérale, barres du haut, panneaux de connexion) : lignes de relief
+   blanches du livre de marque, comme sur le site, pour que le bleu ne soit jamais plat. */
+.bg-night,
+.bg-sidebar {
+  background-image: url("./relief.svg");
+  background-size: cover;
+  background-position: center;
+}

@@ -184,7 +184,7 @@
 {% for school in references %}
 <section class="sec">
   <div class="wrap">
-    {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Pilot school" %}</span><h2 class="st">{% translate "Designed with a real school in Goma" %}</h2></div>{% endif %}
+    {% if forloop.first %}<div class="sechd rv"><span class="eyebrow">{% translate "Made in Goma" %}</span><h2 class="st">{% translate "Shaped in a real Goma school, ready for every school in the DRC" %}</h2></div>{% endif %}
     <figure class="ref rv{% if not school.photo %} solo{% endif %}">
       {% if school.photo %}<div class="refphoto">{% photo school.photo school.photo_alt %}</div>{% endif %}
       <div class="refbody">

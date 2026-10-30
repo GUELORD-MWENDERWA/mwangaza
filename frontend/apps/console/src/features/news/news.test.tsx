@@ -82,7 +82,7 @@ describe("Actualités et photothèque dans la console", () => {
     const { user } = renderApp("/site");
 
     await user.click(await screen.findByRole("tab", { name: "Titres de recherche" }));
-    await user.type(await screen.findByLabelText(/Titre dans Google | Écoles/), "Logiciel à Goma");
+    await user.type(await screen.findByLabelText(/Titre dans Google \| Écoles/), "Logiciel à Goma");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
 
     const patches = requests.filter((r) => r.method === "PATCH");

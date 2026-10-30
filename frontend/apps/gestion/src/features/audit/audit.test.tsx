@@ -116,7 +116,7 @@ describe("Journal d'audit (M6)", () => {
     await user.click(within(rows[4]!).getByRole("button"));
     card = await detail("Découpage modifié");
     expect(card.getByText("P1 : 07/09/2026 → 07/11/2026")).toBeTruthy();
-    expect(card.getByText("1re période : | → —")).toBeTruthy();
+    expect(card.getByText("1re période : — → —")).toBeTruthy();
 
     await user.click(within(rows[5]!).getByRole("button"));
     card = await detail("Connexion");
