@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Aucun : **lot 1 — Marque Mwangaza** fini (3/3), PR à fusionner (`lot/1-marque`) |
-| Prochain lot | Lot 2 — Site public refait |
+| Lot en cours | **Lot 2 — Site public refait**, partie 1/4 (étude, photos, maquettes) ; fiche `docs/claude/plans/lot-2.md` |
+| Prochain lot | Lot 3 — Vendre : contrats, abonnements, factures |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #409 (une par lot, jalon « V1 complète ») |
-| Branche | `lot/1-marque` (PR ouverte, à fusionner) ; prochaine : `lot/2-site` |
-| Dernière mise à jour | 2026-10-29 (lot 1 fini : marque appliquée aux trois applications) |
+| Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
+| Branche | `lot/2-site` (lot 1 fusionné : PR #410) |
+| Dernière mise à jour | 2026-10-30 (lot 2 démarré) |
 
 ## Avancement
 

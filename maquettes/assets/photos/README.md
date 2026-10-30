@@ -1,13 +1,15 @@
-# Photos du site public (maquettes WEB.1a)
+# Photos du site public
 
-Réduites à 1 200 px au plus, métadonnées (dont la position GPS) retirées. WEB.1b les convertit en WebP.
+Choisies au lot 2 (SITE.R, 2026-10-30) sur Wikimedia Commons, licence vérifiée une à une (usage commercial permis : CC0, domaine public, CC BY, CC BY-SA ; **jamais NC ni ND**). Réduites à 1 600 px, ré-encodées par Pillow : métadonnées (dont la position GPS) retirées. Le site les sert en WebP (1 200 et 600 px) depuis `backend/apps/core/static/core/site/photos/` ; la photothèque de la console (SITE.3) peut les remplacer emplacement par emplacement.
 
-| Fichier | Sujet | Source et licence | Crédit à afficher |
+| Fichier | Sujet | Source et licence | Crédit (mentions légales) |
 |---|---|---|---|
-| `goma-lac-kivu.jpg` | Goma et le lac Kivu vus des hauteurs | [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Kivu,Goma_and_Rubavu_On_Rwanda_Side.jpg), CC BY-SA 4.0 | Ericnkurunziza, CC BY-SA 4.0 |
-| `itig-atelier-electricite.jpg` | Atelier d'électricité de l'ITIG Don Bosco Goma | [itigdonbosco.org](https://itigdonbosco.org/options.html) (école d'exemple) | ITIG Don Bosco Goma |
-| `itig-atelier-mecanique-auto.jpg` | Atelier de mécanique automobile de l'ITIG | [itigdonbosco.org](https://itigdonbosco.org/options.html) (école d'exemple) | ITIG Don Bosco Goma |
-| `itig-logo.png` | Logo de l'ITIG (carte « École pilote » de l'accueil) | `docs/ecole-pilote/documents/2026-09-25-logo-itig-carre.png` | — |
-| `itig-cour.jpg` | Cour de l'ITIG, élèves de dos devant le drapeau | [itigdonbosco.org](https://itigdonbosco.org/) (blog) | ITIG Don Bosco Goma |
+| `eleves-rentree.jpg` | Élèves en chemise blanche en classe, de côté et de loin | [Commons](https://commons.wikimedia.org/wiki/File:Vive_la_rentr%C3%A9e_scolaire_!_(15155517546).jpg), CC BY-SA 2.0 | MONUSCO Photos, CC BY-SA 2.0 |
+| `classe-uniforme.jpg` | Classe en uniforme bleu et blanc, en groupe | [Commons](https://commons.wikimedia.org/wiki/File:DRC_classroom.jpg), domaine public | Ken Wiegand (USAID), domaine public |
+| `eleves-kisangani.jpg` | Élèves du secondaire en classe, à Kisangani | [Commons](https://commons.wikimedia.org/wiki/File:El%C3%A8vesDeCFMKisangani.jpg), CC BY-SA 4.0 | BamLifa, CC BY-SA 4.0 |
+| `cour-ecole-goma.jpg` | Cour et bâtiments d'une école secondaire à Goma, sans personne | [Commons](https://commons.wikimedia.org/wiki/File:Complexe_Scolaire_Mama_Mulezi_Secondaire_vue_de_la_cours.jpg), CC0 | Kaptainwiki, CC0 |
+| `parent-telephone.jpg` | Une mère au téléphone (adulte) | [Commons](https://commons.wikimedia.org/wiki/File:Basankusu_woman_mobile_phone.jpg), CC BY-SA 3.0 | Francish7, CC BY-SA 3.0 |
+| `directeur-ecole.jpg` | Un directeur d'école à son bureau (adulte) | [Commons](https://commons.wikimedia.org/wiki/File:Le_Directeur_d%27Ecole.jpg), CC BY-SA 2.0 | Julien Harneis, CC BY-SA 2.0 |
+| `goma-lac-kivu.jpg` | Goma et le lac Kivu vus des hauteurs | [Commons](https://commons.wikimedia.org/wiki/File:Kivu,Goma_and_Rubavu_On_Rwanda_Side.jpg), CC BY-SA 4.0 | Ericnkurunziza, CC BY-SA 4.0 |
 
-Photos et logo de l'ITIG : utilisés avec l'accord de l'école (dit par l'utilisateur le 2026-10-17 et le 2026-10-18, nom de l'ITIG sur le bulletin d'exemple compris) ; l'avoir **par écrit** avant la mise en ligne (WEB.1b). Le site les sert en WebP (1 200 et 600 px) depuis `backend/apps/core/static/core/site/photos/`. Photos de la galerie de l'ITIG avec des visages d'élèves reconnaissables (salle de classe) : pas reprises par Claude (2026-10-18), à déposer par l'utilisateur avec l'accord. Aucun visage d'élève reconnaissable sans cet accord. Écartée : « Classroom in Goma » (USAID, domaine public) — visages d'enfants en gros plan.
+Règles (livre de marque, « Style photographique ») : élèves en uniforme **en groupe, de dos ou de loin** ; aucun visage d'enfant en gros plan sans l'accord écrit des parents et de l'école ; photos sans légende sur le site, crédit seulement dans les mentions légales. Écartées : « Classroom in Goma » (USAID, visages d'enfants en gros plan), photos avec banderoles ou logos d'organisations, photos de soldats. **Les photos de l'ITIG ont quitté le site** (lot 2) : une école n'y apparaît qu'avec son accord écrit, comme école de référence (SITE.1b).
