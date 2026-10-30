@@ -135,15 +135,26 @@ case "${1:-}" in
     resolve=()
     if [ -n "${2:-}" ]; then
       echo "Instance $2 (DNS ignoré) :"
-      for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig-demo.$DOMAIN"; do resolve+=(--resolve "$host:443:$2"); done
+      for host in "$DOMAIN" "admin.$DOMAIN" "parents.$DOMAIN" "itig-demo.$DOMAIN"; do resolve+=(--resolve "$host:443:$2"); done
     fi
     for host in "admin.$DOMAIN" "parents.$DOMAIN" "itig-demo.$DOMAIN"; do
       printf '%s : ' "$host"
-      # Pas de -k : le certificat doit être valide. Code 000 = connexion ou certificat refusé.
-      if code=$(curl -sS --max-time 15 "${resolve[@]}" -o /dev/null -w '%{http_code}' "https://$host/") && [ "$code" != 000 ]; then
+      # Pas de -k : le certificat doit être valide. Code 000 = connexion ou certificat refusé ;
+      # 5xx = l'application est en panne (un 500 ne passe plus pour « en ligne »).
+      if code=$(curl -sS --max-time 15 "${resolve[@]}" -o /dev/null -w '%{http_code}' "https://$host/") && [ "$code" != 000 ] && [ "$code" -lt 500 ]; then
         echo "HTTP $code, certificat valide"
       else
-        echo "ÉCHEC (connexion ou certificat)"; ok=
+        echo "ÉCHEC (HTTP ${code:-000} : connexion, certificat ou erreur du serveur)"; ok=
+      fi
+    done
+    # Site public de la plateforme : chaque page doit répondre 200 (le cache d'un ancien format
+    # avait fait un 500 sur toutes ces pages sans que l'administration le montre).
+    for path in / /en/ /ecoles/ /parents/ /actualites/ /sitemap.xml; do
+      printf '%s%s : ' "$DOMAIN" "$path"
+      if code=$(curl -sS --max-time 15 "${resolve[@]}" -o /dev/null -w '%{http_code}' "https://$DOMAIN$path") && [ "$code" = 200 ]; then
+        echo "HTTP 200"
+      else
+        echo "ÉCHEC (HTTP ${code:-000})"; ok=
       fi
     done
     printf 'santé : '
