@@ -140,6 +140,7 @@ class ConsoleDemoRequestSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "created_at",
+            "source",
             "name",
             "role",
             "school_name",

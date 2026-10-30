@@ -7716,6 +7716,7 @@ export interface components {
              * Format: date-time
              */
             readonly created_at: string;
+            readonly source: components["schemas"]["ConsoleDemoSourceEnum"];
             /** Full name */
             readonly name: string;
             readonly role: components["schemas"]["RoleEnum"];
@@ -7736,6 +7737,12 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /**
+         * @description * `form` - Demo form
+         *     * `chat` - Site chat
+         * @enum {string}
+         */
+        ConsoleDemoSourceEnum: "form" | "chat";
         /** @description Un appareil enregistré dans une école (console de la plateforme, 5.4.2). */
         ConsoleDevice: {
             /** Format: uuid */

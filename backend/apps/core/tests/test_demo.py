@@ -333,7 +333,8 @@ def rerun_puts_everything_back(demo, settings) -> None:
     assert (platform.name, platform.primary_color) == ("Mwangaza", "#1A2F80")
     assert platform.support_phone and platform.legal_notice
     # Demandes de démonstration fictives pour la console (WEB.1d).
-    assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 2
+    assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 3
+    assert DemoRequest.objects.filter(source="chat").count() == 1
     # Actualités du site (SITE.2) : deux parues, une programmée, un brouillon anglais.
     assert len(site_content.news("fr")) == 2 and site_content.news("en") == []
     assert Article.objects.count() == 4

@@ -23035,6 +23035,10 @@ components:
           format: date-time
           readOnly: true
           title: Received at
+        source:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleDemoSourceEnum'
+          readOnly: true
         name:
           type: string
           readOnly: true
@@ -23091,8 +23095,17 @@ components:
       - role
       - school_name
       - size
+      - source
       - town
       - updated_at
+    ConsoleDemoSourceEnum:
+      enum:
+      - form
+      - chat
+      type: string
+      description: |-
+        * `form` - Demo form
+        * `chat` - Site chat
     ConsoleDevice:
       type: object
       description: Un appareil enregistré dans une école (console de la plateforme,

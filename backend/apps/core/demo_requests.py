@@ -63,9 +63,20 @@ class DemoRequestForm(forms.Form):
             raise ValidationError(INVALID_PHONE_MESSAGE, code="invalid_phone") from None
 
 
-def allow(ip: str | None) -> bool:
-    """Compte une demande de cette adresse ; faux au-delà de 5 dans l'heure."""
-    key = f"demo-request:{ip or 'unknown'}"
+class ChatForm(forms.Form):
+    """Bulle de chat du site : nom, téléphone et message, rien d'autre."""
+
+    name = forms.CharField(max_length=120)
+    phone = forms.CharField(max_length=24)
+    message = forms.CharField(max_length=1000)
+    site_web = forms.CharField(required=False)  # caché aux personnes : un robot le remplit
+
+    clean_phone = DemoRequestForm.clean_phone
+
+
+def allow(ip: str | None, kind: str = "demo-request") -> bool:
+    """Compte une demande de cette adresse ; faux au-delà de 5 dans l'heure (par sorte)."""
+    key = f"{kind}:{ip or 'unknown'}"
     cache.add(key, 0, 60 * 60)
     try:
         return cache.incr(key) <= PER_HOUR
@@ -87,6 +98,19 @@ def submit(data: dict, language: str) -> DemoRequest | None:
     request = DemoRequest.objects.create(**data, language=language)
     detail = f"{request.school_name}, {request.town} — {request.name}"
     console.alert(console.DEMO_REQUEST, request.pk, detail)
+    if email_configured():
+        transaction.on_commit(lambda: _enqueue_email(str(request.pk)))
+    return request
+
+
+def submit_chat(data: dict, language: str) -> DemoRequest | None:
+    """Range le message du chat (formulaire valide) et prévient le super-admin. None : robot.
+    Pas de règle de doublon : une personne peut écrire deux fois dans la journée."""
+    data = dict(data)
+    if data.pop("site_web"):
+        return None
+    request = DemoRequest.objects.create(**data, source=DemoRequest.Source.CHAT, language=language)
+    console.alert(console.DEMO_REQUEST, request.pk, f"{request.name} — {request.message[:80]}")
     if email_configured():
         transaction.on_commit(lambda: _enqueue_email(str(request.pk)))
     return request
@@ -115,18 +139,26 @@ def send_email(request_id: str) -> None:
         return
     platform = PlatformSettings.load()
     with translation.override(settings.LANGUAGE_CODE):
-        lines = [
-            (_("School"), f"{request.school_name}, {request.town}"),
-            (_("Contact"), f"{request.name} ({request.get_role_display()})"),
-            (_("Phone"), format_phone(request.phone)),
-            (_("Email"), request.email or "—"),
-            (_("Number of pupils"), request.get_size_display() or "—"),
-            (_("Message"), request.message or "—"),
-        ]
+        if request.source == DemoRequest.Source.CHAT:
+            lines = [
+                (_("Contact"), request.name),
+                (_("Phone"), format_phone(request.phone)),
+                (_("Message"), request.message),
+            ]
+            subject = _("Site chat: %(name)s") % {"name": request.name}
+        else:
+            lines = [
+                (_("School"), f"{request.school_name}, {request.town}"),
+                (_("Contact"), f"{request.name} ({request.get_role_display()})"),
+                (_("Phone"), format_phone(request.phone)),
+                (_("Email"), request.email or "—"),
+                (_("Number of pupils"), request.get_size_display() or "—"),
+                (_("Message"), request.message or "—"),
+            ]
+            subject = _("Demo request: %(school)s") % {"school": request.school_name}
         body = "\n".join(f"{label} : {value}" for label, value in lines)
         address = settings.SCHOOL_URL.format(code="admin") + CONSOLE_PAGE
         body += "\n\n" + _("Follow it up in the console: %(address)s") % {"address": address}
-        subject = _("Demo request: %(school)s") % {"school": request.school_name}
     send_mail(
         subject,
         body,

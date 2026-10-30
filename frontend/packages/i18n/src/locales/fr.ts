@@ -5521,7 +5521,7 @@ export const fr = {
     demoRequests: {
       title: "Demandes de démonstration",
       subtitle:
-        "Envoyées par la page Démonstration du site. Rappelez chaque école, puis notez où elle en est.",
+        "Envoyées par la page Démonstration et la bulle de chat du site. Rappelez chaque personne, puis notez où elle en est.",
       filter: "Suivi",
       filters: {
         new: "Nouvelles",
@@ -5558,6 +5558,7 @@ export const fr = {
         accountant: "comptable",
         other: "autre fonction",
       },
+      chat: "Chat du site",
       contact: "Contact",
       phone: "Téléphone",
       email: "E-mail",

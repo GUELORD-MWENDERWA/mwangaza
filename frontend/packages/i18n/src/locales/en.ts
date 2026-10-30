@@ -5461,7 +5461,7 @@ export const en: Messages<typeof fr> = {
     demoRequests: {
       title: "Demo requests",
       subtitle:
-        "Sent from the Demo page of the site. Call each school back, then note where it stands.",
+        "Sent from the Demo page and the chat bubble of the site. Call each person back, then note where they stand.",
       filter: "Follow-up",
       filters: {
         new: "New",
@@ -5498,6 +5498,7 @@ export const en: Messages<typeof fr> = {
         accountant: "accountant",
         other: "other role",
       },
+      chat: "Site chat",
       contact: "Contact",
       phone: "Phone",
       email: "Email",

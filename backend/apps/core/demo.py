@@ -106,6 +106,15 @@ SOCIAL_FIELDS = (
 # Demandes de démonstration fictives (WEB.1d) : (heures écoulées, champs). Numéros du bloc fictif.
 DEMO_REQUESTS = [
     (
+        1,
+        {
+            "source": "chat",
+            "name": "Papa Gloire",
+            "phone": "+243000300004",
+            "message": "Bonjour, mon école de 400 élèves peut-elle payer en francs congolais ?",
+        },
+    ),
+    (
         2,
         {
             "name": "MUHINDO KAKULE Jean-Paul",

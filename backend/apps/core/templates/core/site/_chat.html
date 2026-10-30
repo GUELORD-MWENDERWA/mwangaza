@@ -1,0 +1,25 @@
+{% load i18n site_tags %}
+<div class="chat" id="chat" data-action="{% if lang == "fr" %}/chat/{% else %}/en/chat/{% endif %}" hidden>
+  <section class="chat-box" id="chat-box" aria-label="{% translate "Write to us" %}" hidden>
+    <div class="chat-head">
+      <span class="chipic">{% icon "chat" %}</span>
+      <b>{% translate "A question?" %}<small>{% translate "We answer on WhatsApp" %}</small></b>
+      <button type="button" data-chat-close aria-label="{% translate "Close" %}">{% icon "x" %}</button>
+    </div>
+    <form class="chat-body" novalidate>
+      <p class="bubble">{% translate "Hello! Leave your number and your question: we write to you on WhatsApp." %}</p>
+      <label class="f"><span>{% translate "Name" %}</span><input class="inp" name="name" maxlength="120" autocomplete="name" required></label>
+      <label class="f"><span>{% translate "Phone (WhatsApp)" %}</span><input class="inp" name="phone" type="tel" inputmode="tel" maxlength="24" autocomplete="tel" required></label>
+      <label class="f"><span>{% translate "Message" %}</span><textarea class="inp" name="message" rows="3" maxlength="1000" required></textarea></label>
+      <label class="hp" aria-hidden="true">{% translate "Do not fill in" %}<input tabindex="-1" autocomplete="off" name="site_web"></label>
+      <p class="formerr" role="alert" hidden data-invalid>{% translate "Check the name, the phone number and the message." %}</p>
+      <p class="formerr" role="alert" hidden data-failed>{% translate "Message not sent. Try again in a moment, or write to us on WhatsApp." %}</p>
+      <button class="btn primary" type="submit">{% translate "Send" %}</button>
+    </form>
+    <div class="chat-body chat-done" role="status" hidden>
+      <span class="chipic">{% icon "check" %}</span>
+      <p><b>{% translate "Message sent, thank you" %}</b><br>{% translate "We write to you on WhatsApp soon." %}</p>
+    </div>
+  </section>
+  <button class="chat-open" type="button" aria-expanded="false" aria-controls="chat-box">{% icon "chat" %}<span>{% translate "Write to us" %}</span></button>
+</div>

@@ -20,7 +20,7 @@ from urllib.parse import urlsplit
 
 from django.conf import settings
 from django.core.cache import cache
-from django.http import Http404, HttpRequest, HttpResponse
+from django.http import Http404, HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.templatetags.static import static
 from django.utils import timezone, translation
@@ -28,7 +28,8 @@ from django.utils.formats import number_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_control, never_cache
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 from PIL import Image
 
 from apps.accounts.modules import DEPENDENCIES, MODULES
@@ -785,6 +786,19 @@ def contact(request: HttpRequest, lang: str = "fr") -> HttpResponse:
             refused = True
     extra = {"form": form, "sent": sent, "refused": refused}
     return _render(request, "contact", lang, lambda *_args: extra, status=429 if refused else 200)
+
+
+@require_POST
+@csrf_exempt  # pages en cache, donc sans jeton ; champ caché et plafond par adresse
+def chat(request: HttpRequest, lang: str = "fr") -> JsonResponse:
+    """Bulle de chat du site : range le message dans la console (« Demandes »), répond en JSON."""
+    form = demo_requests.ChatForm(request.POST)
+    if not form.is_valid():
+        return JsonResponse({"errors": sorted(form.errors)}, status=400)
+    if not demo_requests.allow(client_ip(request), "site-chat"):
+        return JsonResponse({"errors": ["rate"]}, status=429)
+    demo_requests.submit_chat(form.cleaned_data, lang)
+    return JsonResponse({"sent": True})
 
 
 @require_GET

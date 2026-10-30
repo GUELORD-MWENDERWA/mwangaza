@@ -253,7 +253,8 @@ class PlatformSettings(models.Model):
 
 
 class DemoRequest(models.Model):
-    """Demande de démonstration envoyée par le site public (WEB.1d). Donnée de la plateforme, pas
+    """Demande de démonstration envoyée par le site public (WEB.1d), ou message laissé dans la bulle
+    de chat du site (`source`). Donnée de la plateforme, pas
     d'une école (aucune n'existe encore) : lue par le super-admin dans la console seulement.
     Aucune adresse IP gardée ; effacée un an après son envoi (`demo_requests.purge`)."""
 
@@ -270,6 +271,10 @@ class DemoRequest(models.Model):
         LARGE = "800-1500", _("800 to 1,500")
         XLARGE = "gt1500", _("More than 1,500")
 
+    class Source(models.TextChoices):
+        FORM = "form", _("Demo form")
+        CHAT = "chat", _("Site chat")
+
     class Status(models.TextChoices):
         NEW = "new", _("New")
         CALLED = "called", _("Called back")
@@ -280,9 +285,13 @@ class DemoRequest(models.Model):
     created_at = models.DateTimeField(_("received at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated at"), auto_now=True)
     name = models.CharField(_("full name"), max_length=120)
-    role = models.CharField(_("role"), max_length=12, choices=Role.choices)
-    school_name = models.CharField(_("school"), max_length=120)
-    town = models.CharField(_("town"), max_length=60)
+    source = models.CharField(
+        _("source"), max_length=4, choices=Source.choices, default=Source.FORM
+    )
+    # Vides pour un message du chat (nom, téléphone et message seulement).
+    role = models.CharField(_("role"), max_length=12, choices=Role.choices, blank=True)
+    school_name = models.CharField(_("school"), max_length=120, blank=True)
+    town = models.CharField(_("town"), max_length=60, blank=True)
     phone = PhoneNumberField(_("phone"))
     size = models.CharField(_("number of pupils"), max_length=8, choices=Size.choices, blank=True)
     email = models.EmailField(_("email"), blank=True)
@@ -300,7 +309,7 @@ class DemoRequest(models.Model):
         indexes = [models.Index(fields=["status", "-created_at"], name="demorequest_status")]
 
     def __str__(self) -> str:
-        return f"{self.school_name} — {self.name}"
+        return f"{self.school_name} — {self.name}" if self.school_name else self.name
 
 
 class SiteEntry(BaseModel):

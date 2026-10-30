@@ -153,4 +153,52 @@
       }, 6000);
     }
   }
+
+  // Bulle de contact : le message part sans recharger la page ; sans ce script, la bulle reste
+  // cachée et le lien WhatsApp du pied de page suffit.
+  const chat = document.getElementById("chat");
+  if (chat) {
+    chat.hidden = false;
+    const box = chat.querySelector(".chat-box");
+    const opener = chat.querySelector(".chat-open");
+    const form = box.querySelector("form");
+    const toggle = (open) => {
+      box.hidden = !open;
+      opener.setAttribute("aria-expanded", String(open));
+      if (open) form.elements.name.focus();
+    };
+    opener.addEventListener("click", () => toggle(box.hidden));
+    box.querySelector("[data-chat-close]").addEventListener("click", () => {
+      toggle(false);
+      opener.focus();
+    });
+    chat.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !box.hidden) toggle(false);
+    });
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const [invalid, failed] = [".formerr[data-invalid]", ".formerr[data-failed]"].map((q) =>
+        form.querySelector(q),
+      );
+      invalid.hidden = failed.hidden = true;
+      if (!form.checkValidity()) {
+        invalid.hidden = false;
+        return;
+      }
+      try {
+        const response = await fetch(chat.dataset.action, {
+          method: "POST",
+          body: new FormData(form),
+        });
+        if (response.status === 400) invalid.hidden = false;
+        else if (!response.ok) failed.hidden = false;
+        else {
+          form.hidden = true;
+          box.querySelector(".chat-done").hidden = false;
+        }
+      } catch {
+        failed.hidden = false;
+      }
+    });
+  }
 })();
