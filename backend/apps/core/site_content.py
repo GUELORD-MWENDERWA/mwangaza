@@ -388,17 +388,4 @@ MODULE_FEATURES = {
 # Écoles présentées sur l'accueil (faits publics, logo et photo avec l'accord de l'école).
 # `quote` : les vrais mots d'une personne de l'école, avec son nom, sa fonction et l'accord écrit
 # de l'école ; jamais inventés. Vide : la carte s'affiche sans citation.
-REFERENCES = (
-    {
-        "name": "ITIG Don Bosco Goma",
-        "kind": _("Industrial technical institute · Goma, North Kivu"),
-        "logo": "core/site/photos/itig-logo.webp",
-        "facts": (
-            (_("1,000+"), _("students")),
-            ("4", _("technical options")),
-            ("1981", _("founded")),
-        ),
-        "quote": "",
-        "quote_by": "",
-    },
-)
+REFERENCES: tuple[dict, ...] = ()

@@ -41,12 +41,11 @@ PLANS = (
         "Custom number of students\nEverything in School for each site\nOverview for the promoter\nA dedicated contact",
     ),
 )
-PARTNERS = ("ITIG Don Bosco Goma", "DTMS", "Afronova")
+# Aucun partenaire au départ : la communication les ajoute dans la console.
+PARTNERS: tuple[str, ...] = ()
 REFERENCES = (
-    ("ITIG Don Bosco Goma", "Goma", 1200),
     ("Collège Saint-Joseph", "Bukavu", 640),
     ("Institut technique de Butembo", "Butembo", 910),
-    ("Complexe scolaire La Source", "Goma", 480),
 )
 TESTIMONIALS = (
     (

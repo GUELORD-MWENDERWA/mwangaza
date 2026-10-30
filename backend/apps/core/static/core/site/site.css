@@ -566,7 +566,7 @@ label.f .req{color:var(--due)}
 .vclose{position:absolute;top:8px;right:8px;border:0;background:none;cursor:pointer;padding:8px;color:var(--ink-2)}
 
 /* Bulle de contact (chat du site) : maquettes/site/chat.html. Cachée sans JavaScript. */
-.chat{position:fixed;right:16px;bottom:16px;z-index:40;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+.chat{position:sticky;bottom:16px;z-index:40;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-end;gap:12px;height:0;margin:0 16px 0 auto;width:fit-content;max-width:calc(100% - 32px)}
 .chat[hidden],.chat-box[hidden],.chat-body[hidden],.chat .formerr[hidden]{display:none}
 .chat-open{display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 20px;border-radius:var(--r-pill);border:0;background:var(--lake);color:#fff;font:inherit;font-weight:700;box-shadow:var(--shadow-float);cursor:pointer}
 .chat-open .ic{width:22px;height:22px}

@@ -33,6 +33,10 @@ async function settle(page: Page) {
 
 /** Bandeaux du moment (annonce de la plateforme, code PIN proposé) : fermés avant la photo. */
 async function clearBanners(page: Page) {
+  // Bandeau « Démonstration — données fictives » : jamais sur une image du site.
+  await page
+    .addStyleTag({ content: '[role="note"]{display:none !important}' })
+    .catch(() => undefined);
   for (let round = 0; round < 6; round++) {
     let closed = false;
     for (const name of ["Fermer", "Plus tard"]) {
