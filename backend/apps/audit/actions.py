@@ -48,6 +48,9 @@ class Action(models.TextChoices):
     # (paramètres, M5).
     SCHOOL_CREATED = "school.created", _("School created")
     SCHOOL_UPDATED = "school.updated", _("School settings changed")
+    # Conditions d'utilisation et contrat de l'école avec la plateforme (CTR.1).
+    LEGAL_ACCEPTED = "legal.accepted", _("Terms accepted")
+    CONTRACT_ACTIVATED = "contract.activated", _("Contract with the platform started")
     SCHOOL_LOGO_CHANGED = "school.logo_changed", _("School logo changed")
     SCHOOL_SIGNATURE_CHANGED = (
         "school.signature_changed",
@@ -274,6 +277,12 @@ class PlatformAction(models.TextChoices):
     AI_CAP_80 = "ai.cap_80", _("AI spending reached 80 % of the monthly cap")
     AI_CAP_100 = "ai.cap_100", _("AI monthly cap reached")
     # Écoles (5.3) : identité et abonnement ; l'école en voit une partie dans son propre journal.
+    # Offres, contrats et conditions générales (CTR.1, ABO.1).
+    PLAN_SAVED = "billing.plan_saved", _("Plan saved")
+    CONTRACT_CREATED = "billing.contract_created", _("Contract drafted")
+    CONTRACT_ACTIVATED = "billing.contract_activated", _("Contract started")
+    CONTRACT_ENDED = "billing.contract_ended", _("Contract ended")
+    LEGAL_PUBLISHED = "billing.legal_published", _("Terms or policy version published")
     SCHOOL_CREATED = "school.created", _("School created")
     SCHOOL_UPDATED = "school.updated", _("School or subscription changed")
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")

@@ -1502,6 +1502,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/billing/contracts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Contrats des écoles (CTR.1) : brouillon, signature (scan ou en ligne), avenant. */
+        get: operations["console_billing_contracts_list"];
+        put?: never;
+        /** @description Contrats des écoles (CTR.1) : brouillon, signature (scan ou en ligne), avenant. */
+        post: operations["console_billing_contracts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/contracts/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Contrats des écoles (CTR.1) : brouillon, signature (scan ou en ligne), avenant. */
+        get: operations["console_billing_contracts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/contracts/{id}/amend/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Avenant : nouveau brouillon lié au contrat actif. */
+        post: operations["console_billing_contracts_amend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/contracts/{id}/sign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Contrats des écoles (CTR.1) : brouillon, signature (scan ou en ligne), avenant. */
+        post: operations["console_billing_contracts_sign_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/legal/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Versions des conditions, de la politique de confidentialité et du registre (CTR.1) :
+         *     publier une version ; une version publiée ne change plus.
+         */
+        get: operations["console_billing_legal_list"];
+        put?: never;
+        /**
+         * @description Versions des conditions, de la politique de confidentialité et du registre (CTR.1) :
+         *     publier une version ; une version publiée ne change plus.
+         */
+        post: operations["console_billing_legal_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/plans/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Offres de la plateforme (ABO.1) : prix par élève inscrit et par période, modules compris. */
+        get: operations["console_billing_plans_list"];
+        put?: never;
+        /** @description Offres de la plateforme (ABO.1) : prix par élève inscrit et par période, modules compris. */
+        post: operations["console_billing_plans_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/plans/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Offres de la plateforme (ABO.1) : prix par élève inscrit et par période, modules compris. */
+        get: operations["console_billing_plans_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Offres de la plateforme (ABO.1) : prix par élève inscrit et par période, modules compris. */
+        patch: operations["console_billing_plans_partial_update"];
+        trace?: never;
+    };
     "/api/console/dashboard/": {
         parameters: {
             query?: never;
@@ -3545,6 +3674,56 @@ export interface paths {
         post: operations["homeroom_ready_create"];
         /** @description Retire la déclaration (`?class_group=&term=`) ; au journal. */
         delete: operations["homeroom_ready_destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/legal/accept/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["legal_accept_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/legal/current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Textes en vigueur, publics (site et applications) : dernière version de chacun. */
+        get: operations["legal_current_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/legal/pending/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Versions que l'école n'a pas encore acceptées, pour son administrateur principal. */
+        get: operations["legal_pending_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -6502,6 +6681,8 @@ export interface components {
          *     * `staff.totp_reset` - Two-factor authentication reset
          *     * `school.created` - School created
          *     * `school.updated` - School settings changed
+         *     * `legal.accepted` - Terms accepted
+         *     * `contract.activated` - Contract with the platform started
          *     * `school.logo_changed` - School logo changed
          *     * `school.signature_changed` - School stamp or signature of the head changed
          *     * `school.suspended` - School suspended
@@ -6624,7 +6805,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -6850,6 +7031,12 @@ export interface components {
             next_due_on: string | null;
             currencies: components["schemas"]["CurrencyBalance"][];
         };
+        /**
+         * @description * `term` - Per term
+         *     * `year` - Per school year
+         * @enum {string}
+         */
+        BillingPeriodEnum: "term" | "year";
         /** @enum {unknown} */
         BlankEnum: "";
         BoardClass: {
@@ -7849,7 +8036,7 @@ export interface components {
             tagline_en: string;
             price: number | null;
             currency: components["schemas"]["CurrencyEnum"];
-            period: components["schemas"]["PeriodEnum"];
+            period: components["schemas"]["ConsolePlanPeriodEnum"];
             /** Included, one per line, in French */
             features_fr: string;
             /** Included, one per line, in English */
@@ -7862,6 +8049,12 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        /**
+         * @description * `month` - per month
+         *     * `year` - per year
+         * @enum {string}
+         */
+        ConsolePlanPeriodEnum: "month" | "year";
         /**
          * @description Formule d'abonnement (page des prix). Prix en entiers (centimes) avec sa devise, vide :
          *     « sur devis » ; au plus huit points par langue. Quatre formules au plus ; le rang se change
@@ -7878,7 +8071,7 @@ export interface components {
             tagline_en?: string;
             price?: number | null;
             currency?: components["schemas"]["CurrencyEnum"];
-            period?: components["schemas"]["PeriodEnum"];
+            period?: components["schemas"]["ConsolePlanPeriodEnum"];
             /** Included, one per line, in French */
             features_fr: string;
             /** Included, one per line, in English */
@@ -8538,6 +8731,60 @@ export interface components {
             email: string;
             emergency_contact: components["schemas"]["EmergencyContactRequest"];
         };
+        Contract: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: string;
+            /** @default draft */
+            readonly status: components["schemas"]["ContractStatusEnum"];
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            readonly school: string;
+            readonly plan: string;
+            readonly replaces: string;
+            /** Format: date */
+            readonly start_date: string;
+            /** Format: date */
+            readonly end_date: string;
+            readonly modules: string[];
+            /** Price per enrolled student */
+            readonly price_per_student: number;
+            readonly currency: components["schemas"]["CurrencyEnum"];
+            /** Billing period */
+            readonly period: components["schemas"]["BillingPeriodEnum"];
+            readonly trial_days: number;
+            /** Renews automatically */
+            readonly auto_renew: boolean;
+            readonly signature: components["schemas"]["SignatureEnum"];
+            /** Format: date-time */
+            readonly signed_at: string | null;
+            /** Signer */
+            readonly signer_name: string;
+            readonly signed_file: boolean;
+        };
+        ContractCreateRequest: {
+            school: string;
+            plan: string;
+            /** Format: date */
+            start_date: string;
+            /** Format: date */
+            end_date: string;
+            price_per_student?: number;
+            trial_days?: number;
+            auto_renew?: boolean;
+        };
+        ContractSignRequest: {
+            signature: components["schemas"]["SignatureEnum"];
+            signer_name?: string;
+            /** Format: binary */
+            signed_file?: string;
+        };
+        /**
+         * @description * `draft` - Draft
+         *     * `active` - Active
+         *     * `ended` - Ended
+         * @enum {string}
+         */
+        ContractStatusEnum: "draft" | "active" | "ended";
         Council: {
             members: components["schemas"]["Member"][];
             /**
@@ -9144,7 +9391,7 @@ export interface components {
             signature: string | null;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "contract" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
         Draft: {
             /** Format: uuid */
             readonly id: string;
@@ -10088,6 +10335,36 @@ export interface components {
             /** @description Séances restant à placer (heures). */
             lengths: number[];
         };
+        LegalAcceptRequest: {
+            /** Format: uuid */
+            document: string;
+        };
+        LegalDocument: {
+            /** Format: uuid */
+            readonly id: string;
+            kind: components["schemas"]["LegalDocumentKindEnum"];
+            readonly version: number;
+            /** Format: date-time */
+            readonly published_at: string | null;
+            title_fr: string;
+            title_en: string;
+            body_fr: string;
+            body_en: string;
+        };
+        /**
+         * @description * `terms` - Terms of use and sale
+         *     * `privacy` - Privacy policy
+         *     * `register` - Register of processing
+         * @enum {string}
+         */
+        LegalDocumentKindEnum: "terms" | "privacy" | "register";
+        LegalDocumentRequest: {
+            kind: components["schemas"]["LegalDocumentKindEnum"];
+            title_fr: string;
+            title_en: string;
+            body_fr: string;
+            body_en: string;
+        };
         Level: {
             /** Format: uuid */
             readonly id: string;
@@ -10706,6 +10983,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ContactChange"][];
         };
+        PaginatedContractList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Contract"][];
+        };
         PaginatedDeviceList: {
             /** @example 123 */
             count: number;
@@ -10751,6 +11043,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["ImportLine"][];
         };
+        PaginatedLegalDocumentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["LegalDocument"][];
+        };
         PaginatedNotificationList: {
             /** @example 123 */
             count: number;
@@ -10780,6 +11087,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Payment"][];
+        };
+        PaginatedPlanList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Plan"][];
         };
         PaginatedPlatformLogList: {
             /** @example 123 */
@@ -11282,7 +11604,7 @@ export interface components {
             tagline_en?: string;
             price?: number | null;
             currency?: components["schemas"]["CurrencyEnum"];
-            period?: components["schemas"]["PeriodEnum"];
+            period?: components["schemas"]["ConsolePlanPeriodEnum"];
             /** Included, one per line, in French */
             features_fr?: string;
             /** Included, one per line, in English */
@@ -11578,6 +11900,25 @@ export interface components {
         };
         PatchedMeUpdateRequest: {
             language?: components["schemas"]["LanguageEnum"];
+        };
+        PatchedPlanRequest: {
+            code?: string;
+            name?: string;
+            description?: string;
+            modules?: components["schemas"]["ModulesEnum"][];
+            /**
+             * Price per enrolled student
+             * @description Smallest unit of the currency.
+             */
+            price_per_student?: number;
+            currency?: components["schemas"]["CurrencyEnum"];
+            /** Billing period */
+            period?: components["schemas"]["BillingPeriodEnum"];
+            ai_uses?: string[];
+            /** AI credits per month */
+            ai_monthly_credits?: number;
+            /** On sale */
+            active?: boolean;
         };
         /** @description Rôle de l'école : un nom et des permissions. */
         PatchedRoleRequest: {
@@ -11881,12 +12222,6 @@ export interface components {
             matricule: string;
         };
         /**
-         * @description * `month` - per month
-         *     * `year` - per year
-         * @enum {string}
-         */
-        PeriodEnum: "month" | "year";
-        /**
          * @description * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
          *     * `classes.manage` - Manage years, terms, levels, tracks, classes and student numbers
          *     * `courses.configure` - Configure courses, maxima and teachers of each class
@@ -11971,6 +12306,46 @@ export interface components {
          * @enum {string}
          */
         PlaceStatusEnum: "offered" | "enrolled" | "withdrawn";
+        Plan: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            name: string;
+            description: string;
+            modules: components["schemas"]["ModulesEnum"][];
+            /**
+             * Price per enrolled student
+             * @description Smallest unit of the currency.
+             */
+            price_per_student: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Billing period */
+            period: components["schemas"]["BillingPeriodEnum"];
+            ai_uses: string[];
+            /** AI credits per month */
+            ai_monthly_credits: number;
+            /** On sale */
+            active: boolean;
+        };
+        PlanRequest: {
+            code: string;
+            name: string;
+            description?: string;
+            modules?: components["schemas"]["ModulesEnum"][];
+            /**
+             * Price per enrolled student
+             * @description Smallest unit of the currency.
+             */
+            price_per_student: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Billing period */
+            period: components["schemas"]["BillingPeriodEnum"];
+            ai_uses?: string[];
+            /** AI credits per month */
+            ai_monthly_credits?: number;
+            /** On sale */
+            active?: boolean;
+        };
         /** @description Identité de la plateforme, publique : écrans de connexion, menus, documents. */
         Platform: {
             name: string;
@@ -12026,6 +12401,11 @@ export interface components {
          *     * `ai.top_up` - AI credits added to a school
          *     * `ai.cap_80` - AI spending reached 80 % of the monthly cap
          *     * `ai.cap_100` - AI monthly cap reached
+         *     * `billing.plan_saved` - Plan saved
+         *     * `billing.contract_created` - Contract drafted
+         *     * `billing.contract_activated` - Contract started
+         *     * `billing.contract_ended` - Contract ended
+         *     * `billing.legal_published` - Terms or policy version published
          *     * `school.created` - School created
          *     * `school.updated` - School or subscription changed
          *     * `school.suspended` - School suspended
@@ -12077,7 +12457,7 @@ export interface components {
          *     * `site.photo_deleted` - Photo deleted from the photo library
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -13535,6 +13915,12 @@ export interface components {
              */
             reason: string;
         };
+        /**
+         * @description * `upload` - Signed copy uploaded
+         *     * `online` - Accepted online
+         * @enum {string}
+         */
+        SignatureEnum: "upload" | "online";
         SignatureUploadRequest: {
             /**
              * Format: binary
@@ -15653,6 +16039,8 @@ export interface operations {
                  *     * `staff.totp_reset` - Two-factor authentication reset
                  *     * `school.created` - School created
                  *     * `school.updated` - School settings changed
+                 *     * `legal.accepted` - Terms accepted
+                 *     * `contract.activated` - Contract with the platform started
                  *     * `school.logo_changed` - School logo changed
                  *     * `school.signature_changed` - School stamp or signature of the head changed
                  *     * `school.suspended` - School suspended
@@ -15774,7 +16162,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -15783,12 +16171,14 @@ export interface operations {
                  *     * `application` - application
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `contract` - contract
                  *     * `courses` - courses
                  *     * `deliberation` - deliberation
                  *     * `devices` - devices
                  *     * `discipline` - discipline
                  *     * `finance` - finance
                  *     * `grades` - grades
+                 *     * `legal` - legal
                  *     * `organisation` - organisation
                  *     * `portal` - portal
                  *     * `resit` - resit
@@ -15799,7 +16189,7 @@ export interface operations {
                  *     * `support` - support
                  *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "contract" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -15944,6 +16334,8 @@ export interface operations {
                  *     * `staff.totp_reset` - Two-factor authentication reset
                  *     * `school.created` - School created
                  *     * `school.updated` - School settings changed
+                 *     * `legal.accepted` - Terms accepted
+                 *     * `contract.activated` - Contract with the platform started
                  *     * `school.logo_changed` - School logo changed
                  *     * `school.signature_changed` - School stamp or signature of the head changed
                  *     * `school.suspended` - School suspended
@@ -16065,7 +16457,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -16074,12 +16466,14 @@ export interface operations {
                  *     * `application` - application
                  *     * `audit` - audit
                  *     * `auth` - auth
+                 *     * `contract` - contract
                  *     * `courses` - courses
                  *     * `deliberation` - deliberation
                  *     * `devices` - devices
                  *     * `discipline` - discipline
                  *     * `finance` - finance
                  *     * `grades` - grades
+                 *     * `legal` - legal
                  *     * `organisation` - organisation
                  *     * `portal` - portal
                  *     * `resit` - resit
@@ -16090,7 +16484,7 @@ export interface operations {
                  *     * `support` - support
                  *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "contract" | "courses" | "deliberation" | "devices" | "discipline" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -19702,13 +20096,14 @@ export interface operations {
                  *     * `account` - account
                  *     * `ai` - ai
                  *     * `announcement` - announcement
+                 *     * `billing` - billing
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
                  *     * `site` - site
                  *     * `team` - team
                  */
-                domain?: "access" | "account" | "ai" | "announcement" | "device" | "platform" | "school" | "site" | "team";
+                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "site" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
@@ -19754,6 +20149,275 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_billing_contracts_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedContractList"];
+                };
+            };
+        };
+    };
+    console_billing_contracts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContractCreateRequest"];
+                "multipart/form-data": components["schemas"]["ContractCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Contract"];
+                };
+            };
+        };
+    };
+    console_billing_contracts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this contract. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Contract"];
+                };
+            };
+        };
+    };
+    console_billing_contracts_amend_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this contract. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContractCreateRequest"];
+                "multipart/form-data": components["schemas"]["ContractCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Contract"];
+                };
+            };
+        };
+    };
+    console_billing_contracts_sign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this contract. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ContractSignRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ContractSignRequest"];
+                "multipart/form-data": components["schemas"]["ContractSignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Contract"];
+                };
+            };
+        };
+    };
+    console_billing_legal_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLegalDocumentList"];
+                };
+            };
+        };
+    };
+    console_billing_legal_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalDocumentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LegalDocumentRequest"];
+                "multipart/form-data": components["schemas"]["LegalDocumentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalDocument"];
+                };
+            };
+        };
+    };
+    console_billing_plans_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPlanList"];
+                };
+            };
+        };
+    };
+    console_billing_plans_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PlanRequest"];
+                "multipart/form-data": components["schemas"]["PlanRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plan"];
+                };
+            };
+        };
+    };
+    console_billing_plans_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plan"];
+                };
+            };
+        };
+    };
+    console_billing_plans_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this plan. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedPlanRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedPlanRequest"];
+                "multipart/form-data": components["schemas"]["PatchedPlanRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Plan"];
                 };
             };
         };
@@ -26303,6 +26967,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    legal_accept_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalAcceptRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LegalAcceptRequest"];
+                "multipart/form-data": components["schemas"]["LegalAcceptRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    legal_current_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalDocument"][];
+                };
+            };
+        };
+    };
+    legal_pending_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalDocument"][];
                 };
             };
         };
