@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — demandes de modules — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut bleu nuit, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background-color:var(--night);color:var(--night-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.85rem;display:flex;align-items:center;gap:6px;color:#C3CFE0}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.ctop .me .avatar{background:var(--night-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#C3CFE0;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.8rem;color:#7A8699;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.85rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.92rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.15rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:minmax(0,1fr)}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+.dlg{position:static;max-width:none;width:auto}
+.dlgs{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.cap{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 -8px}
+.rl{display:flex;flex-direction:column;gap:10px}
+.rl .check{padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-md)}
+.rl .check.on{border-color:var(--lake);background:var(--lake-soft,#EEF4FB)}
+.rl .check small{display:block;color:var(--ink-3)}
+.box{width:18px;height:18px;border:1.5px solid var(--ink-3);border-radius:4px;flex:none;margin-top:2px}
+.on .box{background:var(--lake);border-color:var(--lake)}
+.mini .ctop .in{padding:10px 16px 0}
+@media (max-width:820px){.dlgs{grid-template-columns:minmax(0,1fr)}}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--ink-2);border-bottom:3px solid transparent;white-space:nowrap;font-weight:600}
+.tabs a.on{color:var(--lake);border-bottom-color:var(--lake)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.doc{max-height:140px;overflow:hidden;padding:12px 16px;font-size:.88rem;color:var(--ink-2);border-top:1px solid var(--line)}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a href="#">Demandes</a><a href="#">Comptes</a><a href="#">Annonces</a><a class="on" href="#">Facturation</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a href="#">Journal</a><a href="#">Équipe</a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Facturation</h1><p>Ce que les écoles doivent à la plateforme : factures, contrats, offres et conditions.</p></div></div>
+  <div class="tabs"><a href="#">Factures</a><a href="#">Contrats</a><a href="#">Offres</a><a class="on" href="#">Demandes de modules</a><a href="#">Conditions</a></div>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>Demandée le</th><th>École</th><th>Module</th><th>Message</th><th>État</th><th></th></tr></thead><tbody>
+    <tr><td>02/11/2026</td><td><b>itig-demo</b></td><td>Paie</td><td>Pour la paie des enseignants dès janvier.</td><td><span class="pill warn">À traiter</span></td><td><a class="btn sm" href="#">Marquer traitée</a></td></tr>
+    <tr><td>20/10/2026</td><td><b>volcans</b></td><td>Bibliothèque</td><td></td><td><span class="pill ok">Traitée</span></td><td></td></tr>
+  </tbody></table></div></div>
+  <div class="note"><b>ABO.4 :</b> liste en lecture seule (droit « abonnements et factures »). La demande est traitée par un avenant (onglet Contrats), puis marquée « Traitée » à la main (journal de la plateforme). Rien n'est activé ni facturé par la demande.</div>
+</main></body></html>

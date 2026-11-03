@@ -738,6 +738,8 @@ paths:
           - staff.totp_reset
           - school.created
           - school.updated
+          - legal.accepted
+          - contract.activated
           - school.logo_changed
           - school.signature_changed
           - school.suspended
@@ -885,6 +887,8 @@ paths:
           * `staff.totp_reset` - Two-factor authentication reset
           * `school.created` - School created
           * `school.updated` - School settings changed
+          * `legal.accepted` - Terms accepted
+          * `contract.activated` - Contract with the platform started
           * `school.logo_changed` - School logo changed
           * `school.signature_changed` - School stamp or signature of the head changed
           * `school.suspended` - School suspended
@@ -1020,12 +1024,14 @@ paths:
           - application
           - audit
           - auth
+          - contract
           - courses
           - deliberation
           - devices
           - discipline
           - finance
           - grades
+          - legal
           - organisation
           - portal
           - resit
@@ -1043,12 +1049,14 @@ paths:
           * `application` - application
           * `audit` - audit
           * `auth` - auth
+          * `contract` - contract
           * `courses` - courses
           * `deliberation` - deliberation
           * `devices` - devices
           * `discipline` - discipline
           * `finance` - finance
           * `grades` - grades
+          * `legal` - legal
           * `organisation` - organisation
           * `portal` - portal
           * `resit` - resit
@@ -1213,6 +1221,8 @@ paths:
           - staff.totp_reset
           - school.created
           - school.updated
+          - legal.accepted
+          - contract.activated
           - school.logo_changed
           - school.signature_changed
           - school.suspended
@@ -1360,6 +1370,8 @@ paths:
           * `staff.totp_reset` - Two-factor authentication reset
           * `school.created` - School created
           * `school.updated` - School settings changed
+          * `legal.accepted` - Terms accepted
+          * `contract.activated` - Contract with the platform started
           * `school.logo_changed` - School logo changed
           * `school.signature_changed` - School stamp or signature of the head changed
           * `school.suspended` - School suspended
@@ -1495,12 +1507,14 @@ paths:
           - application
           - audit
           - auth
+          - contract
           - courses
           - deliberation
           - devices
           - discipline
           - finance
           - grades
+          - legal
           - organisation
           - portal
           - resit
@@ -1518,12 +1532,14 @@ paths:
           * `application` - application
           * `audit` - audit
           * `auth` - auth
+          * `contract` - contract
           * `courses` - courses
           * `deliberation` - deliberation
           * `devices` - devices
           * `discipline` - discipline
           * `finance` - finance
           * `grades` - grades
+          * `legal` - legal
           * `organisation` - organisation
           * `portal` - portal
           * `resit` - resit
@@ -5279,6 +5295,7 @@ paths:
           - account
           - ai
           - announcement
+          - billing
           - device
           - platform
           - school
@@ -5291,6 +5308,7 @@ paths:
           * `account` - account
           * `ai` - ai
           * `announcement` - announcement
+          * `billing` - billing
           * `device` - device
           * `platform` - platform
           * `school` - school
@@ -5349,6 +5367,622 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/billing/contracts/:
+    get:
+      operationId: console_billing_contracts_list
+      description: 'Contrats des écoles (CTR.1) : brouillon, signature (scan ou en
+        ligne), avenant.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedContractList'
+          description: ''
+    post:
+      operationId: console_billing_contracts_create
+      description: 'Contrats des écoles (CTR.1) : brouillon, signature (scan ou en
+        ligne), avenant.'
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+          description: ''
+  /api/console/billing/contracts/{id}/:
+    get:
+      operationId: console_billing_contracts_retrieve
+      description: 'Contrats des écoles (CTR.1) : brouillon, signature (scan ou en
+        ligne), avenant.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contract.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+          description: ''
+  /api/console/billing/contracts/{id}/amend/:
+    post:
+      operationId: console_billing_contracts_amend_create
+      description: 'Avenant : nouveau brouillon lié au contrat actif.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contract.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContractCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+          description: ''
+  /api/console/billing/contracts/{id}/pdf/:
+    get:
+      operationId: console_billing_contracts_pdf_retrieve
+      description: Le contrat en PDF (numéroté ; un avenant porte le numéro du contrat
+        qu'il remplace).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contract.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/console/billing/contracts/{id}/sign/:
+    post:
+      operationId: console_billing_contracts_sign_create
+      description: 'Contrats des écoles (CTR.1) : brouillon, signature (scan ou en
+        ligne), avenant.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contract.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContractSignRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ContractSignRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ContractSignRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contract'
+          description: ''
+  /api/console/billing/invoices/:
+    get:
+      operationId: console_billing_invoices_list
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvoiceList'
+          description: ''
+    post:
+      operationId: console_billing_invoices_create
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoiceCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoiceCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: ''
+  /api/console/billing/invoices/{id}/:
+    get:
+      operationId: console_billing_invoices_retrieve
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: ''
+  /api/console/billing/invoices/{id}/cancel/:
+    post:
+      operationId: console_billing_invoices_cancel_create
+      description: 'Avoir complet : la facture reste, son reste dû tombe à 0.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: ''
+  /api/console/billing/invoices/{id}/pay/:
+    post:
+      operationId: console_billing_invoices_pay_create
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePayment'
+          description: ''
+  /api/console/billing/invoices/{id}/payments/{payment}/reverse/:
+    post:
+      operationId: console_billing_invoices_payments_reverse_create
+      description: Annule un paiement par une écriture liée, avec motif.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      - in: path
+        name: payment
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePayment'
+          description: ''
+  /api/console/billing/invoices/{id}/pdf/:
+    get:
+      operationId: console_billing_invoices_pdf_retrieve
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/console/billing/legal/:
+    get:
+      operationId: console_billing_legal_list
+      description: |-
+        Versions des conditions, de la politique de confidentialité et du registre (CTR.1) :
+        publier une version ; une version publiée ne change plus.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLegalDocumentList'
+          description: ''
+    post:
+      operationId: console_billing_legal_create
+      description: |-
+        Versions des conditions, de la politique de confidentialité et du registre (CTR.1) :
+        publier une version ; une version publiée ne change plus.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalDocumentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LegalDocumentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LegalDocumentRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalDocument'
+          description: ''
+  /api/console/billing/module-requests/:
+    get:
+      operationId: console_billing_module_requests_list
+      description: Demandes de modules de toutes les écoles, ouvertes d'abord ; `handled`
+        la clôt.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedModuleRequestList'
+          description: ''
+  /api/console/billing/module-requests/{id}/handled/:
+    post:
+      operationId: console_billing_module_requests_handled_create
+      description: Demandes de modules de toutes les écoles, ouvertes d'abord ; `handled`
+        la clôt.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this module request.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleRequest'
+          description: ''
+  /api/console/billing/plans/:
+    get:
+      operationId: console_billing_plans_list
+      description: 'Offres de la plateforme (ABO.1) : prix par élève inscrit et par
+        période, modules compris.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlanList'
+          description: ''
+    post:
+      operationId: console_billing_plans_create
+      description: 'Offres de la plateforme (ABO.1) : prix par élève inscrit et par
+        période, modules compris.'
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+          description: ''
+  /api/console/billing/plans/{id}/:
+    get:
+      operationId: console_billing_plans_retrieve
+      description: 'Offres de la plateforme (ABO.1) : prix par élève inscrit et par
+        période, modules compris.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this plan.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+          description: ''
+    patch:
+      operationId: console_billing_plans_partial_update
+      description: 'Offres de la plateforme (ABO.1) : prix par élève inscrit et par
+        période, modules compris.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this plan.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPlanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPlanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPlanRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Plan'
+          description: ''
+  /api/console/billing/statement/{code}/:
+    get:
+      operationId: console_billing_statement_retrieve
+      description: 'Relevé d''une école (ABO.2) : factures, avoirs et paiements par
+        devise, solde courant.'
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
           description: ''
   /api/console/dashboard/:
     get:
@@ -5891,6 +6525,7 @@ paths:
           enum:
           - active
           - deleting
+          - readonly
           - stopped
           - suspended
           - trial
@@ -11667,6 +12302,62 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/legal/accept/:
+    post:
+      operationId: legal_accept_create
+      tags:
+      - legal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalAcceptRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LegalAcceptRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LegalAcceptRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/legal/current/:
+    get:
+      operationId: legal_current_list
+      description: 'Textes en vigueur, publics (site et applications) : dernière version
+        de chacun.'
+      tags:
+      - legal
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LegalDocument'
+          description: ''
+  /api/legal/pending/:
+    get:
+      operationId: legal_pending_list
+      description: Versions que l'école n'a pas encore acceptées, pour son administrateur
+        principal.
+      tags:
+      - legal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LegalDocument'
+          description: ''
   /api/levels/:
     get:
       operationId: levels_list
@@ -16696,6 +17387,112 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/subscription/:
+    get:
+      operationId: subscription_retrieve
+      description: |-
+        « Mon abonnement » (ABO.4) : contrat en vigueur, solde, prochaine échéance, comment payer.
+        Reste ouvert en lecture seule : c'est là qu'on voit pourquoi et comment rouvrir.
+      tags:
+      - subscription
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+  /api/subscription/contract/pdf/:
+    get:
+      operationId: subscription_contract_pdf_retrieve
+      tags:
+      - subscription
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/subscription/invoices/:
+    get:
+      operationId: subscription_invoices_list
+      description: Factures et avoirs de l'école, avec leurs paiements, récents d'abord.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - subscription
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvoiceList'
+          description: ''
+  /api/subscription/invoices/{id}/pdf/:
+    get:
+      operationId: subscription_invoices_pdf_retrieve
+      description: Factures et avoirs de l'école, avec leurs paiements, récents d'abord.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - subscription
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/subscription/module-requests/:
+    post:
+      operationId: subscription_module_requests_create
+      description: L'école demande un module de plus ; la plateforme la traite dans
+        la console.
+      tags:
+      - subscription
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleRequestCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ModuleRequestCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ModuleRequestCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleRequest'
+          description: ''
   /api/summons/:
     get:
       operationId: summons_list
@@ -20302,6 +21099,8 @@ components:
       - staff.totp_reset
       - school.created
       - school.updated
+      - legal.accepted
+      - contract.activated
       - school.logo_changed
       - school.signature_changed
       - school.suspended
@@ -20448,6 +21247,8 @@ components:
         * `staff.totp_reset` - Two-factor authentication reset
         * `school.created` - School created
         * `school.updated` - School settings changed
+        * `legal.accepted` - Terms accepted
+        * `contract.activated` - Contract with the platform started
         * `school.logo_changed` - School logo changed
         * `school.signature_changed` - School stamp or signature of the head changed
         * `school.suspended` - School suspended
@@ -21098,6 +21899,14 @@ components:
       - situation
       - next_due_on
       - currencies
+    BillingPeriodEnum:
+      enum:
+      - term
+      - year
+      type: string
+      description: |-
+        * `term` - Per term
+        * `year` - Per school year
     BlankEnum:
       enum:
       - ''
@@ -21432,7 +22241,7 @@ components:
           type: string
           format: date-time
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         note:
           type: string
           maxLength: 200
@@ -23342,7 +24151,12 @@ components:
         currency:
           $ref: '#/components/schemas/CurrencyEnum'
         period:
-          $ref: '#/components/schemas/PeriodEnum'
+          $ref: '#/components/schemas/ConsolePlanPeriodEnum'
+        catalogue_plan:
+          type: string
+          nullable: true
+          description: 'Offre du catalogue (lot 3) : son prix par élève remplace le
+            prix saisi.'
         features_fr:
           type: string
           title: Included, one per line, in French
@@ -23374,6 +24188,7 @@ components:
       - price
       - currency
       - period
+      - catalogue_plan
       - features_fr
       - features_en
       - highlighted
@@ -23381,6 +24196,14 @@ components:
       - position
       - published
       - updated_at
+    ConsolePlanPeriodEnum:
+      enum:
+      - month
+      - year
+      type: string
+      description: |-
+        * `month` - per month
+        * `year` - per year
     ConsolePlanRequest:
       type: object
       description: |-
@@ -23414,7 +24237,13 @@ components:
         currency:
           $ref: '#/components/schemas/CurrencyEnum'
         period:
-          $ref: '#/components/schemas/PeriodEnum'
+          $ref: '#/components/schemas/ConsolePlanPeriodEnum'
+        catalogue_plan:
+          type: string
+          minLength: 1
+          nullable: true
+          description: 'Offre du catalogue (lot 3) : son prix par élève remplace le
+            prix saisi.'
         features_fr:
           type: string
           minLength: 1
@@ -23485,6 +24314,26 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        company_name:
+          type: string
+          maxLength: 120
+        company_ids:
+          type: string
+          title: Registration numbers
+          description: 'RCCM, national ID, tax number: printed under the company name.'
+          maxLength: 200
+        signer_name:
+          type: string
+          title: Signer
+          maxLength: 120
+        signer_title:
+          type: string
+          title: Signer's position
+          maxLength: 80
+        payment_details:
+          type: string
+          title: How to pay
+          description: 'Bank account, Mobile Money number: printed on invoices.'
         address:
           type: string
           description: Street, number, district.
@@ -23566,6 +24415,11 @@ components:
       - support_phone
       - support_email
       - legal_notice
+      - company_name
+      - company_ids
+      - signer_name
+      - signer_title
+      - payment_details
       - address
       - city
       - region
@@ -23795,6 +24649,7 @@ components:
 
             * `trial` - Free trial
             * `active` - Active
+            * `readonly` - Read-only
             * `suspended` - Suspended
             * `stopped` - Stopped
             * `deleting` - Being deleted
@@ -23934,6 +24789,7 @@ components:
 
             * `trial` - Free trial
             * `active` - Active
+            * `readonly` - Read-only
             * `suspended` - Suspended
             * `stopped` - Stopped
             * `deleting` - Being deleted
@@ -24034,6 +24890,7 @@ components:
 
             * `trial` - Free trial
             * `active` - Active
+            * `readonly` - Read-only
             * `suspended` - Suspended
             * `stopped` - Stopped
             * `deleting` - Being deleted
@@ -24871,6 +25728,155 @@ components:
       - address
       - email
       - emergency_contact
+    Contract:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ContractStatusEnum'
+          readOnly: true
+          default: draft
+        school:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          readOnly: true
+        plan:
+          type: string
+          readOnly: true
+        replaces:
+          type: string
+          readOnly: true
+        start_date:
+          type: string
+          format: date
+          readOnly: true
+        end_date:
+          type: string
+          format: date
+          readOnly: true
+        modules:
+          type: array
+          items:
+            type: string
+            maxLength: 20
+          readOnly: true
+        price_per_student:
+          type: integer
+          readOnly: true
+          title: Price per enrolled student
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        period:
+          allOf:
+          - $ref: '#/components/schemas/BillingPeriodEnum'
+          readOnly: true
+          title: Billing period
+        trial_days:
+          type: integer
+          readOnly: true
+        auto_renew:
+          type: boolean
+          readOnly: true
+          title: Renews automatically
+        signature:
+          allOf:
+          - $ref: '#/components/schemas/SignatureEnum'
+          readOnly: true
+        signed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        signer_name:
+          type: string
+          readOnly: true
+          title: Signer
+        signed_file:
+          type: boolean
+          readOnly: true
+      required:
+      - id
+      - number
+      - status
+      - school
+      - plan
+      - replaces
+      - start_date
+      - end_date
+      - modules
+      - price_per_student
+      - currency
+      - period
+      - trial_days
+      - auto_renew
+      - signature
+      - signed_at
+      - signer_name
+      - signed_file
+    ContractCreateRequest:
+      type: object
+      properties:
+        school:
+          type: string
+          minLength: 1
+          pattern: ^[-a-zA-Z0-9_]+$
+        plan:
+          type: string
+          minLength: 1
+          pattern: ^[-a-zA-Z0-9_]+$
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        price_per_student:
+          type: integer
+          minimum: 0
+        trial_days:
+          type: integer
+          maximum: 365
+          minimum: 0
+        auto_renew:
+          type: boolean
+      required:
+      - end_date
+      - plan
+      - school
+      - start_date
+    ContractSignRequest:
+      type: object
+      properties:
+        signature:
+          $ref: '#/components/schemas/SignatureEnum'
+        signer_name:
+          type: string
+          maxLength: 120
+        signed_file:
+          type: string
+          format: binary
+      required:
+      - signature
+    ContractStatusEnum:
+      enum:
+      - draft
+      - active
+      - ended
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `active` - Active
+        * `ended` - Ended
     Council:
       type: object
       properties:
@@ -25450,6 +26456,11 @@ components:
           allOf:
           - $ref: '#/components/schemas/ReceiptSettings'
           readOnly: true
+        read_only:
+          type: boolean
+          readOnly: true
+          description: 'Lecture seule (facture impayée, ABO.3) : bandeau sur chaque
+            écran.'
         setup_done:
           type: boolean
           readOnly: true
@@ -25468,6 +26479,7 @@ components:
       - default_currency
       - auto_matricule
       - receipt
+      - read_only
       - setup_done
     CurrentSchoolAccess:
       type: object
@@ -26138,12 +27150,14 @@ components:
       - application
       - audit
       - auth
+      - contract
       - courses
       - deliberation
       - devices
       - discipline
       - finance
       - grades
+      - legal
       - organisation
       - portal
       - resit
@@ -28155,6 +29169,241 @@ components:
       required:
       - text
       - phone
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/InvoiceKindEnum'
+          readOnly: true
+        school:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          readOnly: true
+        contract:
+          type: string
+          readOnly: true
+        credit_for:
+          type: string
+          readOnly: true
+        issued_on:
+          type: string
+          format: date
+          readOnly: true
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+        period_start:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        period_end:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        paid:
+          type: integer
+          readOnly: true
+        balance:
+          type: integer
+          readOnly: true
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLine'
+          readOnly: true
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoicePayment'
+          readOnly: true
+      required:
+      - id
+      - number
+      - kind
+      - school
+      - contract
+      - credit_for
+      - issued_on
+      - due_on
+      - period_start
+      - period_end
+      - currency
+      - total
+      - cancelled
+      - paid
+      - balance
+      - lines
+      - payments
+    InvoiceCreateRequest:
+      type: object
+      properties:
+        contract:
+          type: string
+          minLength: 1
+          maxLength: 20
+        students:
+          type: integer
+          minimum: 0
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineInputRequest'
+        issued_on:
+          type: string
+          format: date
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+      required:
+      - contract
+    InvoiceKindEnum:
+      enum:
+      - invoice
+      - credit_note
+      type: string
+      description: |-
+        * `invoice` - Invoice
+        * `credit_note` - Credit note
+    InvoiceLine:
+      type: object
+      properties:
+        description:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          readOnly: true
+        unit_amount:
+          type: integer
+          readOnly: true
+          title: Unit price
+        amount:
+          type: integer
+          readOnly: true
+      required:
+      - description
+      - quantity
+      - unit_amount
+      - amount
+    InvoiceLineInputRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 200
+        quantity:
+          type: integer
+          minimum: 1
+        unit_amount:
+          type: integer
+          minimum: 1
+      required:
+      - description
+      - quantity
+      - unit_amount
+    InvoicePayment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        invoice:
+          type: string
+          readOnly: true
+        amount:
+          type: integer
+          readOnly: true
+        method:
+          allOf:
+          - $ref: '#/components/schemas/InvoicePaymentMethodEnum'
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        paid_on:
+          type: string
+          format: date
+          readOnly: true
+        reverses:
+          type: string
+          format: uuid
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - invoice
+      - amount
+      - method
+      - reference
+      - paid_on
+      - reverses
+      - reason
+    InvoicePaymentCreateRequest:
+      type: object
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+        method:
+          $ref: '#/components/schemas/InvoicePaymentMethodEnum'
+        paid_on:
+          type: string
+          format: date
+        reference:
+          type: string
+          maxLength: 80
+      required:
+      - amount
+      - method
+      - paid_on
+    InvoicePaymentMethodEnum:
+      enum:
+      - cash
+      - bank
+      - mobile_money
+      type: string
+      description: |-
+        * `cash` - Cash
+        * `bank` - Bank transfer
+        * `mobile_money` - Mobile Money
+    InvoiceReasonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
     LanguageEnum:
       enum:
       - fr
@@ -28232,6 +29481,85 @@ components:
       required:
       - course
       - lengths
+    LegalAcceptRequest:
+      type: object
+      properties:
+        document:
+          type: string
+          format: uuid
+      required:
+      - document
+    LegalDocument:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/LegalDocumentKindEnum'
+        version:
+          type: integer
+          readOnly: true
+        published_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        title_fr:
+          type: string
+          maxLength: 160
+        title_en:
+          type: string
+          maxLength: 160
+        body_fr:
+          type: string
+        body_en:
+          type: string
+      required:
+      - id
+      - kind
+      - version
+      - published_at
+      - title_fr
+      - title_en
+      - body_fr
+      - body_en
+    LegalDocumentKindEnum:
+      enum:
+      - terms
+      - privacy
+      - register
+      type: string
+      description: |-
+        * `terms` - Terms of use and sale
+        * `privacy` - Privacy policy
+        * `register` - Register of processing
+    LegalDocumentRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/LegalDocumentKindEnum'
+        title_fr:
+          type: string
+          minLength: 1
+          maxLength: 160
+        title_en:
+          type: string
+          minLength: 1
+          maxLength: 160
+        body_fr:
+          type: string
+          minLength: 1
+        body_en:
+          type: string
+          minLength: 1
+      required:
+      - body_en
+      - body_fr
+      - kind
+      - title_en
+      - title_fr
     Level:
       type: object
       properties:
@@ -28728,11 +30056,6 @@ components:
       - homeroom
       - courses
       - present
-    MethodEnum:
-      enum:
-      - cash
-      type: string
-      description: '* `cash` - Cash'
     MissingFieldsEnum:
       enum:
       - last_name
@@ -28771,6 +30094,61 @@ components:
       required:
       - course
       - term
+    ModuleRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        school:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          readOnly: true
+        module:
+          allOf:
+          - $ref: '#/components/schemas/ModulesEnum'
+          readOnly: true
+        note:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ModuleStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - module
+      - note
+      - school
+      - status
+    ModuleRequestCreateRequest:
+      type: object
+      properties:
+        module:
+          type: string
+          minLength: 1
+          maxLength: 20
+        note:
+          type: string
+          default: ''
+          maxLength: 300
+      required:
+      - module
+    ModuleStatusEnum:
+      enum:
+      - open
+      - done
+      type: string
+      description: |-
+        * `open` - Open
+        * `done` - Handled
     ModulesEnum:
       enum:
       - students
@@ -28880,6 +30258,7 @@ components:
       - announcement
       - cancellation_request
       - cash_difference
+      - subscription
       - payment_due
       - payment_overdue
       - register_open
@@ -28902,6 +30281,7 @@ components:
         * `announcement` - School announcement
         * `cancellation_request` - Cancellation to approve
         * `cash_difference` - Cash difference
+        * `subscription` - Subscription invoice
         * `payment_due` - Payment due soon
         * `payment_overdue` - Late payment
         * `register_open` - Register still open
@@ -29461,6 +30841,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ContactChange'
+    PaginatedContractList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contract'
     PaginatedDeviceList:
       type: object
       required:
@@ -29536,6 +30941,81 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ImportLine'
+    PaginatedInvoiceList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+    PaginatedLegalDocumentList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalDocument'
+    PaginatedModuleRequestList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleRequest'
     PaginatedNotificationList:
       type: object
       required:
@@ -29586,6 +31066,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
+    PaginatedPlanList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Plan'
     PaginatedPlatformLogList:
       type: object
       required:
@@ -30522,7 +32027,13 @@ components:
         currency:
           $ref: '#/components/schemas/CurrencyEnum'
         period:
-          $ref: '#/components/schemas/PeriodEnum'
+          $ref: '#/components/schemas/ConsolePlanPeriodEnum'
+        catalogue_plan:
+          type: string
+          minLength: 1
+          nullable: true
+          description: 'Offre du catalogue (lot 3) : son prix par élève remplace le
+            prix saisi.'
         features_fr:
           type: string
           minLength: 1
@@ -30586,6 +32097,26 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        company_name:
+          type: string
+          maxLength: 120
+        company_ids:
+          type: string
+          title: Registration numbers
+          description: 'RCCM, national ID, tax number: printed under the company name.'
+          maxLength: 200
+        signer_name:
+          type: string
+          title: Signer
+          maxLength: 120
+        signer_title:
+          type: string
+          title: Signer's position
+          maxLength: 80
+        payment_details:
+          type: string
+          title: How to pay
+          description: 'Bank account, Mobile Money number: printed on invoices.'
         address:
           type: string
           description: Street, number, district.
@@ -30715,6 +32246,7 @@ components:
 
             * `trial` - Free trial
             * `active` - Active
+            * `readonly` - Read-only
             * `suspended` - Suspended
             * `stopped` - Stopped
             * `deleting` - Being deleted
@@ -31092,6 +32624,51 @@ components:
       properties:
         language:
           $ref: '#/components/schemas/LanguageEnum'
+    PatchedPlanRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 40
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 240
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+        price_per_student:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Price per enrolled student
+          description: Smallest unit of the currency.
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        period:
+          allOf:
+          - $ref: '#/components/schemas/BillingPeriodEnum'
+          title: Billing period
+        ai_uses:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+        ai_monthly_credits:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: AI credits per month
+        active:
+          type: boolean
+          title: On sale
     PatchedRoleRequest:
       type: object
       description: 'Rôle de l''école : un nom et des permissions.'
@@ -31444,7 +33021,7 @@ components:
           type: string
           format: date-time
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         note:
           type: string
           maxLength: 200
@@ -31581,6 +33158,11 @@ components:
       - enrollment
       - received_amount_minor
       - received_currency
+    PaymentMethodEnum:
+      enum:
+      - cash
+      type: string
+      description: '* `cash` - Cash'
     PaymentOriginEnum:
       enum:
       - cash
@@ -31646,7 +33228,7 @@ components:
           type: string
           format: date-time
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         note:
           type: string
           maxLength: 200
@@ -31714,14 +33296,6 @@ components:
       - id
       - full_name
       - matricule
-    PeriodEnum:
-      enum:
-      - month
-      - year
-      type: string
-      description: |-
-        * `month` - per month
-        * `year` - per year
     PermissionsEnum:
       enum:
       - school.configure
@@ -31751,6 +33325,7 @@ components:
       - ai.use
       - announcements.publish
       - audit.view
+      - billing.view
       type: string
       description: |-
         * `school.configure` - Configure the school (name, logo, colour, currencies, receipts)
@@ -31780,6 +33355,7 @@ components:
         * `ai.use` - Use the AI assistance
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
+        * `billing.view` - View the subscription, invoices and payments to the platform
     Person:
       type: object
       properties:
@@ -31900,6 +33476,115 @@ components:
         * `offered` - Offered
         * `enrolled` - Enrolled next year
         * `withdrawn` - Withdrawn
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          maxLength: 40
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 240
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+        price_per_student:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Price per enrolled student
+          description: Smallest unit of the currency.
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        period:
+          allOf:
+          - $ref: '#/components/schemas/BillingPeriodEnum'
+          title: Billing period
+        ai_uses:
+          type: array
+          items:
+            type: string
+            maxLength: 40
+        ai_monthly_credits:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: AI credits per month
+        active:
+          type: boolean
+          title: On sale
+      required:
+      - id
+      - code
+      - name
+      - description
+      - modules
+      - price_per_student
+      - currency
+      - period
+      - ai_uses
+      - ai_monthly_credits
+      - active
+    PlanRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 40
+          pattern: ^[-a-zA-Z0-9_]+$
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description:
+          type: string
+          maxLength: 240
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+        price_per_student:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: Price per enrolled student
+          description: Smallest unit of the currency.
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        period:
+          allOf:
+          - $ref: '#/components/schemas/BillingPeriodEnum'
+          title: Billing period
+        ai_uses:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+        ai_monthly_credits:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: AI credits per month
+        active:
+          type: boolean
+          title: On sale
+      required:
+      - code
+      - currency
+      - name
+      - period
+      - price_per_student
     Platform:
       type: object
       description: 'Identité de la plateforme, publique : écrans de connexion, menus,
@@ -31949,6 +33634,26 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        company_name:
+          type: string
+          maxLength: 120
+        company_ids:
+          type: string
+          title: Registration numbers
+          description: 'RCCM, national ID, tax number: printed under the company name.'
+          maxLength: 200
+        signer_name:
+          type: string
+          title: Signer
+          maxLength: 120
+        signer_title:
+          type: string
+          title: Signer's position
+          maxLength: 80
+        payment_details:
+          type: string
+          title: How to pay
+          description: 'Bank account, Mobile Money number: printed on invoices.'
         address:
           type: string
           description: Street, number, district.
@@ -32020,6 +33725,11 @@ components:
       - support_phone
       - support_email
       - legal_notice
+      - company_name
+      - company_ids
+      - signer_name
+      - signer_title
+      - payment_details
       - address
       - city
       - region
@@ -32039,6 +33749,16 @@ components:
       - ai.top_up
       - ai.cap_80
       - ai.cap_100
+      - billing.plan_saved
+      - billing.contract_created
+      - billing.contract_activated
+      - billing.contract_ended
+      - billing.legal_published
+      - billing.invoice_issued
+      - billing.credit_note_issued
+      - billing.invoice_payment
+      - billing.invoice_payment_reversed
+      - billing.module_request_handled
       - school.created
       - school.updated
       - school.suspended
@@ -32098,6 +33818,16 @@ components:
         * `ai.top_up` - AI credits added to a school
         * `ai.cap_80` - AI spending reached 80 % of the monthly cap
         * `ai.cap_100` - AI monthly cap reached
+        * `billing.plan_saved` - Plan saved
+        * `billing.contract_created` - Contract drafted
+        * `billing.contract_activated` - Contract started
+        * `billing.contract_ended` - Contract ended
+        * `billing.legal_published` - Terms or policy version published
+        * `billing.invoice_issued` - Invoice issued
+        * `billing.credit_note_issued` - Credit note issued
+        * `billing.invoice_payment` - Invoice payment recorded
+        * `billing.invoice_payment_reversed` - Invoice payment cancelled
+        * `billing.module_request_handled` - Module request handled
         * `school.created` - School created
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended
@@ -34780,6 +36510,7 @@ components:
       enum:
       - trial
       - active
+      - readonly
       - suspended
       - stopped
       - deleting
@@ -34787,6 +36518,7 @@ components:
       description: |-
         * `trial` - Free trial
         * `active` - Active
+        * `readonly` - Read-only
         * `suspended` - Suspended
         * `stopped` - Stopped
         * `deleting` - Being deleted
@@ -35172,6 +36904,14 @@ components:
           default: ''
           description: Obligatoire si la feuille est déjà envoyée pour validation.
           maxLength: 300
+    SignatureEnum:
+      enum:
+      - upload
+      - online
+      type: string
+      description: |-
+        * `upload` - Signed copy uploaded
+        * `online` - Accepted online
     SignatureUploadRequest:
       type: object
       properties:
@@ -36535,6 +38275,71 @@ components:
       required:
       - last_name
       - sex
+    Subscription:
+      type: object
+      description: '« Mon abonnement » : le contrat en vigueur (ou rien) et l''état
+        des paiements.'
+      properties:
+        contract:
+          allOf:
+          - $ref: '#/components/schemas/Contract'
+          nullable: true
+        plan_name:
+          type: string
+        balance:
+          type: array
+          items:
+            $ref: '#/components/schemas/SubscriptionAmount'
+        next_due:
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionDue'
+          nullable: true
+        late:
+          type: boolean
+        read_only:
+          type: boolean
+        payment_details:
+          type: string
+        open_requests:
+          type: array
+          items:
+            type: string
+      required:
+      - contract
+      - plan_name
+      - balance
+      - next_due
+      - late
+      - read_only
+      - payment_details
+      - open_requests
+    SubscriptionAmount:
+      type: object
+      properties:
+        currency:
+          type: string
+        amount:
+          type: integer
+      required:
+      - currency
+      - amount
+    SubscriptionDue:
+      type: object
+      properties:
+        number:
+          type: string
+        due_on:
+          type: string
+          format: date
+        currency:
+          type: string
+        amount:
+          type: integer
+      required:
+      - number
+      - due_on
+      - currency
+      - amount
     Summons:
       type: object
       properties:

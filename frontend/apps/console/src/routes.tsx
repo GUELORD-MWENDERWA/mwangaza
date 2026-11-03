@@ -4,6 +4,7 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/accounts/AccountPage";
 import { AccountsPage } from "./features/accounts/AccountsPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { BillingPage } from "./features/billing/BillingPage";
 import { CodePage } from "./features/auth/CodePage";
 import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
 import { LoginLayout } from "./features/auth/LoginLayout";
@@ -59,6 +60,7 @@ export const routes: RouteObject[] = [
           { path: "accounts", element: only([accountsSupport], <AccountsPage />) },
           { path: "accounts/:id", element: only([accountsSupport], <AccountPage />) },
           { path: "announcements", element: only([RIGHTS.newsPublish], <AnnouncementsPage />) },
+          { path: "billing", element: only([RIGHTS.billingManage, schoolsView], <BillingPage />) },
           { path: "site", element: only([RIGHTS.siteEdit], <SitePage />) },
           { path: "news", element: only([RIGHTS.siteEdit], <NewsPage />) },
           { path: "photos", element: only([RIGHTS.siteEdit], <PhotosPage />) },

@@ -2,7 +2,7 @@
 
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import NotFound, PermissionDenied
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 from apps.accounts import support
 from apps.accounts.login import MFA_SESSION_KEY
@@ -28,6 +28,22 @@ def ensure_module(school, view) -> None:
     module = getattr(view, "required_module", None)
     if module and not school.has_module(module):
         raise PermissionDenied(_("This school does not have this feature."), code="module_missing")
+
+
+def ensure_writable(request, view) -> None:
+    """École en lecture seule (facture impayée, ABO.3) : toute écriture est refusée, caisse et
+    synchronisation comprises ; la lecture, les impressions et « Mon abonnement » restent
+    ouverts. Une vue qui doit rester ouverte (paiement, abonnement, conditions) porte
+    `allowed_when_read_only = True`."""
+    if (
+        request.school.status == request.school.Status.READ_ONLY
+        and request.method not in SAFE_METHODS
+        and not getattr(view, "allowed_when_read_only", False)
+    ):
+        raise PermissionDenied(
+            _("Your school is read-only until its subscription invoice is paid."),
+            code="school_read_only",
+        )
 
 
 class HasSchoolPermission(BasePermission):
@@ -58,6 +74,7 @@ class HasSchoolPermission(BasePermission):
                 code="totp_required",
             )
         ensure_module(request.school, view)
+        ensure_writable(request, view)
         required = view.required_permission
         if isinstance(required, str):
             return required in access.permissions

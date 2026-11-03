@@ -303,6 +303,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "1.7",
       },
       {
+        key: "subscription",
+        path: "subscription",
+        icon: "wallet",
+        permissions: ["billing.view"],
+        task: "ABO.4",
+      },
+      {
         key: "devices",
         path: "devices",
         icon: "sync",

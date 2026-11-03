@@ -48,20 +48,20 @@ Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche u
 |:-:|---|---|---|---|
 | 1 | ~~**Marque Mwangaza**~~ ✓ | BRAND.1, BRAND.2 | ① trois pistes (logo, couleurs, police) sur une page : tu choisis ② livre de marque PDF et fichiers du logo ③ marque appliquée aux trois applications, aux icônes et aux guides | choisir une piste |
 | 2 | ~~**Site public refait**~~ ✓ | SITE.R, SITE.1b, SITE.2, SITE.3, SITE.5 | ① étude (grands sites, isig.ac.cd), maquettes, photos libres d'élèves congolais ② serveur et console : actualités, photothèque, témoignages, écoles de référence, réseaux sociaux ③ pages du site, captures du produit | accord écrit de chaque témoin |
-| 3 | **Vendre : contrats, abonnements, factures** | CTR.1, ABO.1, ABO.2, ABO.3, ABO.4, WEB.1 (prix), SITE.4 | ① offres, conditions générales, contrat PDF ② factures, avoirs, paiements, relevé ③ échéances, lecture seule, « Mon abonnement », page des prix | tarif (T6), informations légales (I20), juriste |
+| 3 | ~~**Vendre : contrats, abonnements, factures**~~ ✓ | CTR.1, ABO.1, ABO.2, ABO.3, ABO.4, WEB.1 (prix), SITE.4 | ① offres, conditions générales, contrat PDF ② factures, avoirs, paiements, relevé ③ échéances, lecture seule, « Mon abonnement », page des prix | tarif (T6), informations légales (I20), juriste |
 | 4 | **Bulletins aux parents** | 8.4.6, 8.8, 8.2.6, HL.3, PERF.6, S.10 | ① proclamation liée aux frais, notifications des notes ② Portail : notes, bulletins, écrire à l'école, sans réseau ③ rapidité et revue de sécurité | — |
-| 5 | **Console finie** | CON.1, CON.2, CON.3, IA.1.2, S.8 | ① tableau de bord des affaires, fiche et cycle de vie d'une école, export complet ② prospects ③ IA et alertes de sécurité | — |
+| 5 | **Console finie** | CON.1, CON.2, CON.3, IA.1.2, S.8, MOD.1 | ① tableau de bord des affaires, fiche et cycle de vie d'une école, export complet ② prospects ③ IA et alertes de sécurité ④ forfaits et réglages selon les modules (MOD.1) | — |
 | 6 | **Aide, guide et support** | AIDE.1, AIDE.2, SUP.1 | ① centre d'aide en ligne et guides PDF tirés des mêmes textes, « Quoi de neuf » ② bouton « Aide » sur chaque écran, demandes d'aide suivies dans la console | — |
 | 7 | **Finances et caisse complètes** | FIN.1, FIN.2, FIN.3, HL.1, PERF.7, OPS.5 | ① dépenses ② sorties de caisse, inscription hors ligne ③ budget, rapports, écrans plus légers | passage à 4 Go le moment venu |
 | 8 | **Cours communs et notes** | 8.1.2a, 8.1.2b, 8.2.5, 8.2.4, HL.2 | ① cours communs ② remplaçant, import Excel des notes, conduite hors ligne | — |
 | 9 | **Emploi du temps fini et IA** | EDT.5b, EDT.6, IA.5, IA.3, IA.4 | ① horaire des épreuves, heures prestées ② grille de cours depuis un PDF, assistant de questions, aide à la rédaction | — |
 | 10 | **Carte et présences** | 6.1, 6.3, 6.5, 6.6, A.5 | ① carte et impression ② pointage (caméra, borne, hors ligne) ③ suivi, rapports, parents prévenus | — |
-| 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 | ① moteur commun ② bibliothèque ③ ateliers | — |
+| 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 (prêts, retours, sorties d'outils et inventaire **hors ligne**) | ① moteur commun ② bibliothèque ③ ateliers | — |
 | 12 | **Personnel et paie** | 7.2, 7.3, 7.4 | ① dossier et contrats ② paie ③ espace enseignant | — |
 | 13 | **Messagerie et portail des élèves** | 8.5.2, 8.6 | ① messagerie, rendez-vous, mérites, sanctions ② portail des élèves | — |
 | 14 | **Inscriptions, transferts, langues** | 7.5, 8.7, 8.9, 7.6, I18N.1 | ① pénalités, inscription validée par le paiement, documents ② transfert, attestations, sondages ③ swahili, connexion Google | — |
 | 15 | **Sites des écoles** | WEB.2 | ① serveur et Gestion ② pages publiques | — |
-| 16 | **Cartes NFC et lecteurs** | 6.2, 6.4 | ① liaison des cartes ② lecteurs ESP32 | cartes et matériel |
+| 16 | **Équipements : sonnerie, lecteurs et réseau** | EQP.1, EQP.2, EQP.3, EQP.4, EQP.5 (reprend 6.2, 6.4) | ① modules `bell` et `attendance`, assistant de création d'école, appareils, jumelage, API d'appareil ② sonnerie automatique ③ firmware, réseau maillé, console Uno + SD ④ lecteurs de présence, cartes, essais au banc ⑤ site, aide, guides et démonstration à jour | matériel pour les essais |
 | 17 | **Revue finale de la V1** | S.9 | ① revue ASVS des trois applications, mesures, guides et présentation, V1 déclarée finie | test d'intrusion par une personne extérieure |
 
 Après le lot 17 : la **V2** (§ 7), dans un ordre à valider à ce moment-là.
@@ -83,8 +83,8 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 **Lot 3 — Vendre**
 
-- [ ] **CTR.1** Contrats et conditions générales *(P1, M, 🤖 + 👤)* — conditions générales d'utilisation et de vente, politique de confidentialité et registre des traitements (partie publique de S.7), **versionnés**, publiés sur le site et dans les trois applications ; l'administrateur principal d'une école les accepte à la première connexion et à chaque nouvelle version (version, date, compte, adresse : journal). **Contrat de l'école** en PDF, numéroté, immuable (un avenant = un nouveau document lié) : parties tirées de l'identité de la plateforme (société, RCCM, adresse, signataire : I20) et des paramètres de l'école, offre, modules, prix, durée, renouvellement, données personnelles ; signé par dépôt du scan ou par acceptation en ligne. Brouillons rédigés par Claude (T5) ; 👤 relus par un juriste avant la première école payante.
-- [ ] **ABO.4** « Mon abonnement » dans la Gestion *(P1, S à M, 🤖)* — avec une permission dédiée : offre, modules, contrat, factures et reçus (PDF), solde, prochaine échéance et comment payer ; demande d'ajout d'un module, rangée dans la console.
+- [x] **CTR.1** Contrats et conditions générales *(P1, M, 🤖 + 👤)* — conditions générales d'utilisation et de vente, politique de confidentialité et registre des traitements (partie publique de S.7), **versionnés**, publiés sur le site et dans les trois applications ; l'administrateur principal d'une école les accepte à la première connexion et à chaque nouvelle version (version, date, compte, adresse : journal). **Contrat de l'école** en PDF, numéroté, immuable (un avenant = un nouveau document lié) : parties tirées de l'identité de la plateforme (société, RCCM, adresse, signataire : I20) et des paramètres de l'école, offre, modules, prix, durée, renouvellement, données personnelles ; signé par dépôt du scan ou par acceptation en ligne. Brouillons rédigés par Claude (T5) ; 👤 relus par un juriste avant la première école payante.
+- [x] **ABO.4** « Mon abonnement » dans la Gestion *(P1, S à M, 🤖)* — avec une permission dédiée : offre, modules, contrat, factures et reçus (PDF), solde, prochaine échéance et comment payer ; demande d'ajout d'un module, rangée dans la console.
 
 **Lot 5 — Console**
 
@@ -96,6 +96,19 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 - [ ] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
 - [ ] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
+
+## 2 ter. Équipements : tâches ajoutées le 2026-11-03
+
+Mwangaza englobe la **sirène automatique** et les **présences par lecteur RFID** (projets PlatformIO existants, Firebase remplacé par l'API). Conception complète, matériel, réseau, sécurité, hors-ligne : **`docs/specs/equipements.md`**. Quatre tâches, une seule PR (lot 16) ; le lot 10 (carte et présences, logiciel) reste avant et fournit la table des présences que les lecteurs alimentent.
+
+- [ ] **EQP.1** Socle : modules et appareils *(P1, L, 🤖)* — modules `bell` (Sonnerie, sans élèves) et `attendance` (Présences) au catalogue, module interne `equipment` ; **forfaits de départ** à la création d'une école (Sonnerie seule, Présences, Gestion complète, Sur mesure) et registre `MODULE_SETUP` (réglages par défaut de chaque module) ; premier écran et menus selon les modules ; app `equipment` (`Equipment`, jumelage par code/QR, `EquipmentCommand`, `EquipmentEvent`, `FirmwareRelease`) ; `/api/equipment/sync/` idempotente, signée, delta par `rev` ; écran **Équipements** (liste, état, ajout, réglages, commandes) ; appareils fictifs dans `make demo`. Isolation, permissions, audit testés.
+- [ ] **EQP.2** Sonnerie automatique *(P1, L, 🤖)* — profils, créneaux (depuis la grille de l'emploi du temps ou saisis seuls), exceptions par date, calendrier de l'école et jours fériés RDC, **zones** (sirènes déportées : un créneau cible tout ou certaines zones), sonner maintenant / alerte / arrêt (permission dédiée, journal), journal des sonneries avec l'accusé de chaque sirène, planning poussé à l'appareil (JSON versionné) ; écran **Sonnerie** ; une école « Sonnerie seule » n'a ni élèves ni classes.
+- [ ] **EQP.3** Firmware et réseau *(P1, L, 🤖 + 👤 essais)* — signalisation LED + buzzer : catalogue de motifs commun, `docs/specs/equipements.md` § 2.3 bis ; dossier `firmware/` (logique pure testée sur PC, reprise de la sirène et du lecteur ULPGL), console ESP32 + **Uno/TFT/SD** (liaison UART à trames CRC, copie de secours et journal sur la carte SD), lecteur, relais et **sirène déportée (`sounder`)** ESP32 / ESP8266, **réseau ESP-NOW maillé** avec passerelle, trames chiffrées et anti-rejeu, mise à jour signée par morceaux ; `make firmware`, `make firmware-test` en CI.
+- [ ] **EQP.4** Lecteurs de présence et cartes *(P1, L, 🤖 + 👤 matériel)* — jumelage d'une carte depuis la fiche (le lecteur attend la carte), séance ouverte → liste envoyée au lecteur, taps → `AttendanceRecord` idempotents, retard et déjà passé, fonctionnement coupé d'internet, cartes NFC NTAG215/216 en plus du QR (6.1), carte perdue refusée par tous les lecteurs, état en direct de la séance ; guide de montage (schéma, liste des pièces).
+- [ ] **MOD.1** Tout suit les modules *(P1, L, 🤖, lot 5)* — registre unique des champs, sections de paramètres, règles, rôles, widgets, documents et étapes de première configuration par module (`docs/specs/equipements.md` § 1 bis) ; forfaits de départ à la création d'une école (Sonnerie seule, Présences, Gestion complète, Sur mesure) ; formulaires, imports, exports et aide sans ce qui ne s'applique pas (ex. aucun numéro permanent en Présences seules) ; menus et premier écran selon les modules ; matrice de tests par forfait. **Placée au lot 5** (création d'une école, CON.2) pour que le lot 16 n'ait plus qu'à y brancher `bell` et `attendance`.
+- [ ] **EQP.5** Site, aide et démonstration à jour *(P1, M, 🤖)* — page Modules, **page Équipements**, accueil, Écoles, prix (abonnement + matériel), démonstration avec console fictive, `llms.txt`, `sitemap.xml`, français et anglais ; articles d'aide par module ; guide de montage PDF ; guide de présentation (`docs/specs/equipements.md` § 9).
+
+> **Revue des fonctions hors ligne (2026-11-03)** : tout ce qui s'enregistre à un guichet ou à une porte marche sans internet. Ajouté aux lots existants : **prêt, retour et inventaire de la bibliothèque** et **sorties et retours d'outils des ateliers** passent par la file d'opérations de la caisse (lot 11) ; **pointage du personnel** par le même moteur que les élèves (lots 10 et 16). Tableau complet, niveaux A / B / C et règles : `docs/specs/equipements.md` § 5 (notes et conduite restent hors ligne au lot 8 ; annulation de paiement, fiches, rôles, paie et messagerie restent en ligne).
 
 ---
 
@@ -320,13 +333,13 @@ Ce qui manque aujourd'hui : l'argent qui **sort**. La caisse ne connaît que les
 
 L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le contrat et la facture. Remplace la 9.2.
 
-- [ ] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat ; **allocation IA** de l'offre : usages IA compris et crédits par mois (§ 6.5), une recharge de crédits = une ligne de facture (ABO.2). Console seulement.
-- [ ] **ABO.2** Factures et paiements de l'école à la plateforme *(M)* : facture PDF numérotée, immuable (annulation = avoir), paiement enregistré par le super-admin (espèces, banque, Mobile Money à la main ; en ligne avec 9.3) ; l'école voit ses factures dans ses paramètres ; audit de la plateforme.
-- [ ] **ABO.3** Échéances *(S)* : rappels avant échéance (planificateur existant) ; après le délai de grâce, **lecture seule** plutôt que coupure (l'école garde ses reçus et ses données, la caisse se ferme) — **décidé le 2026-10-13** ; chiffre d'affaires dans le tableau de bord de la console.
+- [x] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat ; **allocation IA** de l'offre : usages IA compris et crédits par mois (§ 6.5), une recharge de crédits = une ligne de facture (ABO.2). Console seulement.
+- [x] **ABO.2** Factures et paiements de l'école à la plateforme *(M)* : facture PDF numérotée, immuable (annulation = avoir), paiement enregistré par le super-admin (espèces, banque, Mobile Money à la main ; en ligne avec 9.3) ; l'école voit ses factures dans ses paramètres ; audit de la plateforme.
+- [x] **ABO.3** Échéances *(S)* : rappels avant échéance (planificateur existant) ; après le délai de grâce, **lecture seule** plutôt que coupure (l'école garde ses reçus et ses données, la caisse se ferme) — **décidé le 2026-10-13** ; chiffre d'affaires dans le tableau de bord de la console.
 
 ### 6.3 Sites web (WEB) — P1 pour la plateforme, P2 pour les écoles
 
-- [ ] **WEB.1** Site de la plateforme — **découpée et avancée le 2026-10-17** (demande de l'utilisateur, une fois Google Search Console réglée) en WEB.1a → WEB.1c, ci-dessous. Reste ici, en V1.3 : la page des prix, quand ABO et le tarif (T6) existent.
+- [x] **WEB.1** Site de la plateforme — **découpée et avancée le 2026-10-17** (demande de l'utilisateur, une fois Google Search Console réglée) en WEB.1a → WEB.1c, ci-dessous. Reste ici, en V1.3 : la page des prix, quand ABO et le tarif (T6) existent.
 
 **Site public et visibilité (WEB.1a → WEB.1c, demandés le 2026-10-17)** — But : qu'on trouve la plateforme, l'espace parents et son école **avec très peu de mots** (« Mwangaza School », « Mwangaza parents », « gestion scolaire Goma »), et qu'elle paraisse aussi sérieuse que les grands logiciels. Socle déjà en ligne depuis le 2026-10-14 (`apps/core/site.py` : page fr/en, données structurées, `robots.txt`, `sitemap.xml`, `llms.txt`) ; Search Console et Bing réglés par toi.
 
@@ -365,7 +378,7 @@ But : la personne chargée de la communication tient le site à jour sans dével
 - [x] **SITE.1b** Contenus du site : témoignages, écoles de référence, titres de recherche *(P1, M, 🤖, après SITE.1a)* — témoignages (école, personne, fonction, citation fr/en, accord écrit déposé, fichier privé), écoles de référence (nom, logo, chiffres, lien), titres et descriptions de recherche de chaque page (WEB.1c) ; onglets du même écran.
 - [x] **SITE.2** Actualités *(P1, M, 🤖, après SITE.1a)* — articles (titre, résumé, texte mis en forme, image, langue, brouillon / publié / programmé, auteur) ; pages `/actualites/` et `/en/news/`, liste paginée, dans le `sitemap.xml` ; maquettes d'abord.
 - [x] **SITE.3** Photothèque *(P1, S, 🤖, après SITE.1a)* — photos envoyées depuis la console (ré-encodées, WebP en deux tailles, métadonnées retirées), texte alternatif, crédit, case « élève reconnaissable » qui exige l'accord déposé ; choisies dans les pages et les articles.
-- [ ] **SITE.4** Offres *(P1, S, 🤖, avec ABO et WEB.1 prix)* — offres et prix affichés sur le site, saisis dans la console à partir du catalogue des abonnements.
+- [x] **SITE.4** Offres *(P1, S, 🤖, avec ABO et WEB.1 prix)* — offres et prix affichés sur le site, saisis dans la console à partir du catalogue des abonnements.
 - [x] **SITE.5** Réseaux sociaux *(P1, S, 🤖 + 👤, après EQ.1 et WEB.1d)* — les comptes de Mwangaza (WhatsApp Business, page Facebook, Instagram, page LinkedIn, YouTube, TikTok) sont tenus par le membre « communication » : il en modifie les liens dans la console (droit `platform.site.edit`), un lien vide disparaît du site ; chaque actualité (SITE.2) a son bouton de partage (WhatsApp, Facebook, LinkedIn : simples liens, aucun script ni traceur des réseaux). **Toi** : créer les comptes avec l'adresse `@mwangazaschool.com` (OPS.4), double authentification (OPS.3), et donner l'accès par les rôles de chaque réseau (Meta Business Suite, administrateurs de la page LinkedIn), **jamais un mot de passe partagé** ; quand le membre part, on retire son rôle.
 
 ### 6.4 Emploi du temps (EDT) — P0 pour la prospection, avancé le 2026-10-20
@@ -489,8 +502,8 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 
 ### V1.3 — Plateforme commerciale
 
-- [ ] **ABO.1 → ABO.3** Abonnements par module (§ 6.2) *(P1)*
-- [ ] **WEB.1** Page des prix du site (§ 6.3) *(P1 ; le site public est avancé au lancement : WEB.1a → WEB.1c)*
+- [x] **ABO.1 → ABO.3** Abonnements par module (§ 6.2) *(P1)*
+- [x] **WEB.1** Page des prix du site (§ 6.3) *(P1 ; le site public est avancé au lancement : WEB.1a → WEB.1c)*
 - [ ] **S.7 → S.9** Protection des données (dont **export complet des données d'une école** à sa demande ou à son départ), détection, revue ASVS (§ 4 bis) *(P1)*
 
 ### V1.4 — Emploi du temps et IA
@@ -504,8 +517,8 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 - [ ] **6.3** Pointage par téléphone ou tablette enregistrés, caméra QR, mode borne, hors ligne *(P1, M)*
 - [ ] **6.5** Suivi des présences, corrections au journal, rapports, taux au tableau de bord *(P1, M)*
 - [ ] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*
-- [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — 👤 commander quelques cartes d'essai
-- [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — 👤 matériel
+- [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — reprise par **EQP.4** (lot 16, 2026-11-03)
+- [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — reprise par **EQP.3** et **EQP.4** (lot 16, 2026-11-03)
 - [ ] **A.5** Sélection de plusieurs élèves pour une impression (§ 5) *(P3, S)* — avec 6.1
 
 ### V1.6 — Bibliothèque et ateliers

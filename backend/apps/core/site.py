@@ -27,6 +27,7 @@ from django.utils import timezone, translation
 from django.utils.formats import number_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy
 from django.views.decorators.cache import cache_control, never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -705,11 +706,21 @@ def parents(request: HttpRequest, lang: str = "fr") -> HttpResponse:
     )
 
 
+_PER_STUDENT = {
+    "term": gettext_lazy("per enrolled student, per term"),
+    "year": gettext_lazy("per enrolled student, per school year"),
+}
+
+
 def _pricing(platform, context: dict) -> dict:
     plans = site_content.plans(context["lang"])
     for plan in plans:
         plan["amount"] = format_amount(plan["price"], plan["currency"]) if plan["price"] else ""
-        plan["period_label"] = SitePlan.Period(plan["period"]).label
+        plan["period_label"] = (
+            _PER_STUDENT[plan["period"]]
+            if plan["per_student"]
+            else SitePlan.Period(plan["period"]).label
+        )
     return {"plans": plans}
 
 

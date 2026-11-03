@@ -10,6 +10,7 @@ from apps.accounts.serializers import PhoneField
 from apps.audit.actions import PlatformAction
 from apps.audit.models import PlatformAuditLog
 from apps.audit.serializers import AuditActorSerializer
+from apps.billing.models import Plan
 from apps.core import site_content
 from apps.core.images import CleanedFileField, clean_site_photo, consent_extension
 from apps.core.models import (
@@ -40,6 +41,11 @@ PUBLIC_FIELDS = [
     "support_phone",
     "support_email",
     "legal_notice",
+    "company_name",
+    "company_ids",
+    "signer_name",
+    "signer_title",
+    "payment_details",
     "address",
     "city",
     "region",
@@ -396,6 +402,7 @@ class ConsolePlanSerializer(serializers.ModelSerializer):
             "price",
             "currency",
             "period",
+            "catalogue_plan",
             "features_fr",
             "features_en",
             "highlighted",
@@ -405,6 +412,14 @@ class ConsolePlanSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = ["id", "position", "updated_at"]
+
+    catalogue_plan = serializers.SlugRelatedField(
+        slug_field="code",
+        queryset=Plan.objects.filter(active=True),
+        allow_null=True,
+        required=False,
+        help_text="Offre du catalogue (lot 3) : son prix par élève remplace le prix saisi.",
+    )
 
     def validate_is_example(self, value: bool) -> bool:
         return _only_leave_example(self, value)

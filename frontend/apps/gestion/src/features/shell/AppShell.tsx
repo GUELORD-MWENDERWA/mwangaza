@@ -30,6 +30,8 @@ import { useKeepMyTimetable } from "../timetable/mine";
 import { SearchPalette } from "./SearchPalette";
 import { PinBanner } from "./PinBanner";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
+import { LegalAcceptance } from "./LegalAcceptance";
+import { ReadOnlyBanner } from "./ReadOnlyBanner";
 import { SpaceBanner } from "./SpaceBanner";
 import { SupportBanner } from "./SupportBanner";
 import { StorageBanner, SyncMenu, useSyncSession } from "./SyncMenu";
@@ -51,6 +53,7 @@ export function AppShell() {
           {/* Bandeau support et barre du haut restent visibles en faisant défiler. */}
           <div className="sticky top-0 z-30">
             <SpaceBanner />
+            <ReadOnlyBanner me={me} />
             {me.support && <SupportBanner support={me.support} />}
             <TopBar me={me} />
           </div>
@@ -59,6 +62,7 @@ export function AppShell() {
             <StorageBanner />
             <PinBanner me={me} />
             <Outlet />
+            <LegalAcceptance me={me} />
           </main>
         </div>
       </div>

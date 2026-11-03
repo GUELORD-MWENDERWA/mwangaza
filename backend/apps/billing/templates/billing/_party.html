@@ -1,0 +1,13 @@
+{% load i18n %}<div class="row between" style="margin-bottom:6mm">
+  <div class="grow">
+    <b>{{ platform.company_name|default:platform.name }}</b><br>
+    {% if platform.company_ids %}<span class="small">{{ platform.company_ids }}</span><br>{% endif %}
+    <span class="small">{{ platform.address }}{% if platform.city %}, {{ platform.city }}{% endif %}{% if platform.region %} — {{ platform.region }}{% endif %}</span><br>
+    <span class="small">{{ platform.support_email }} {{ platform.support_phone }}</span>
+    {% if not platform.company_name %}<br><span class="small muted">({% translate "company details to complete in the platform settings" %})</span>{% endif %}
+  </div>
+  <div class="grow" style="text-align:right">
+    <b>{{ school.official_name|default:school.name }}</b><br>
+    <span class="small">{{ school.commune }}{% if school.commune and school.city %}, {% endif %}{{ school.city }}{% if school.province %} — {{ school.province }}{% endif %}</span>
+  </div>
+</div>

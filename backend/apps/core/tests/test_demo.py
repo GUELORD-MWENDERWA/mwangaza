@@ -28,6 +28,7 @@ from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
 from apps.ai.models import AiAllowance
 from apps.audit.models import AuditLog
+from apps.billing.models import Invoice, InvoicePayment, LegalDocument, Plan
 from apps.core import site_content
 from apps.core.crypto import decrypt
 from apps.core.demo import STEPS, fill
@@ -366,6 +367,12 @@ def rerun_puts_everything_back(demo, settings) -> None:
         assert AcademicYear.objects.get(name="2026-2027").terms.count() == 8
         assert AcademicYear.objects.filter(pk=extra.pk).exists()
     assert not AuditLog.all_schools.filter(action__startswith="organisation.").exists()
+    # Facturation : offres, textes légaux, un contrat signé et une facture à moitié payée, une fois.
+    with use_all_schools():
+        assert Plan.objects.count() == 2 and LegalDocument.objects.count() == 3
+        invoice = Invoice.all_schools.get(school=itig)
+        assert invoice.contract.status == "active" and invoice.total == 800 * 600
+        assert InvoicePayment.all_schools.filter(invoice=invoice).count() == 1
 
 
 def server_run(settings) -> None:

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gestion — accepter les conditions — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+body{background:var(--surface);display:flex;justify-content:center;padding:24px}
+.dlg{position:static;width:min(640px,100%);max-width:none}
+.text{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px;font-size:.9rem;background:#fff}
+.dlg .tabsm{display:flex;gap:6px;flex-wrap:wrap}
+</style></head>
+<body>
+<div class="dialog dlg"><div class="hd"><h2>Conditions mises à jour</h2></div>
+  <div class="bd col">
+    <p>Pour continuer, l'administrateur de l'école accepte la nouvelle version. Cela n'est demandé qu'une fois par version.</p>
+    <div class="tabsm"><span class="tag">Conditions générales · v2</span><span class="tag" style="opacity:.6">Confidentialité · v1</span></div>
+    <div class="text"><b>Conditions générales d'utilisation — version 2</b><br>Article 1 — Objet. Les présentes conditions encadrent l'usage de la plateforme par l'école…</div>
+    <label class="check"><span class="box"></span><span>J'ai lu et j'accepte au nom de l'école</span></label>
+  </div>
+  <div class="ft"><a class="btn" href="#">Plus tard</a><a class="btn primary" href="#">Accepter</a></div></div>
+<div class="note" style="position:absolute;bottom:0;left:0;right:0"><b>CTR.1 :</b> montrée à l'ouverture de la Gestion seulement à ceux qui ont le droit « rôles » (administrateur principal) et seulement s'il reste une version non acceptée. « Plus tard » ferme jusqu'à la prochaine ouverture ; l'acceptation garde la date, le nom et l'adresse IP. Les autres membres ne voient rien.</div>
+</body></html>

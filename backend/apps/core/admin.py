@@ -21,6 +21,18 @@ class PlatformSettingsAdmin(admin.ModelAdmin):
         ),
         (None, {"fields": ["primary_color", "accent_color"]}),
         (None, {"fields": ["support_phone", "support_email", "legal_notice"]}),
+        (
+            None,
+            {
+                "fields": [
+                    "company_name",
+                    "company_ids",
+                    "signer_name",
+                    "signer_title",
+                    "payment_details",
+                ]
+            },
+        ),
     ]
 
     def has_add_permission(self, request) -> bool:

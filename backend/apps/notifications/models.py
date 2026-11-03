@@ -238,6 +238,7 @@ class Notification(TenantModel):
         CANCELLATION_REQUEST = "cancellation_request", _("Cancellation to approve")
         CASH_DIFFERENCE = "cash_difference", _("Cash difference")
         # À heure fixe (5.6.2, `scheduled.py`) : relances au parent, alerte au personnel.
+        SUBSCRIPTION = "subscription", _("Subscription invoice")
         PAYMENT_DUE = "payment_due", _("Payment due soon")
         PAYMENT_OVERDUE = "payment_overdue", _("Late payment")
         REGISTER_OPEN = "register_open", _("Register still open")
@@ -299,6 +300,7 @@ class ScheduledRun(TenantModel):
     class Job(models.TextChoices):
         REMINDERS = "reminders", _("Reminders to parents")
         OPEN_REGISTERS = "open_registers", _("Registers still open")
+        SUBSCRIPTION = "subscription", _("Subscription invoices")
 
     job = models.CharField(_("job"), max_length=20, choices=Job.choices)
     day = models.DateField(_("day"))

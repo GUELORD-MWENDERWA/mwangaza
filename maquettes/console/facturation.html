@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — facturation — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (5.2) : son propre design. Pas de menu latéral comme la Gestion :
+   une barre du haut bleu nuit, la navigation dessous, le contenu sur un fond clair et large. */
+body{background:var(--surface)}
+.ctop{background-color:var(--night);color:var(--night-ink)}
+.ctop .in{max-width:1240px;margin:0 auto;padding:12px 24px 0;display:flex;flex-direction:column;gap:10px}
+.ctop .row1{display:flex;align-items:center;gap:12px}
+.ctop .brand{padding:0}
+.ctop .chip{font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 9px}
+.ctop .grow{flex:1}
+.ctop .state{font-size:.85rem;display:flex;align-items:center;gap:6px;color:#C3CFE0}
+.ctop .state i{width:8px;height:8px;border-radius:50%;background:#4CC38A;display:inline-block}
+.ctop .me{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.ctop .me .avatar{background:var(--night-2);color:var(--lamp)}
+.ctop nav{display:flex;gap:4px;overflow-x:auto}
+.ctop nav a{color:#C3CFE0;text-decoration:none;padding:10px 12px;border-bottom:3px solid transparent;white-space:nowrap;font-size:.92rem}
+.ctop nav a.on{color:#fff;border-bottom-color:var(--lamp);font-weight:700}
+.ctop nav a .soon{font-size:.8rem;color:#7A8699;margin-left:4px}
+.cmain{max-width:1240px;margin:0 auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.health li{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child{border-top:0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.two{grid-template-columns:minmax(0,1fr)}.ctop .state,.ctop .me b{display:none}.cmain,.ctop .in{padding-left:16px;padding-right:16px}}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff}
+.seg span{padding:8px 14px;font-size:.85rem;font-weight:700;color:var(--ink-2)}.seg span.on{background:var(--lake);color:#fff}
+.form{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));padding:16px}
+dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.92rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0}
+.pwd{font-family:var(--mono);font-size:1.15rem;background:#fff;border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+@media (max-width:820px){.form{grid-template-columns:minmax(0,1fr)}}
+.roles{display:flex;flex-wrap:wrap;gap:4px}
+.acts{display:flex;flex-direction:column;gap:10px;padding:16px}
+.acts .row{justify-content:space-between;gap:12px;flex-wrap:wrap}
+ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}ul.plain li:first-child{border-top:0}
+.dlg{position:static;max-width:none;width:auto}
+.dlgs{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.cap{font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:4px 0 -8px}
+.rl{display:flex;flex-direction:column;gap:10px}
+.rl .check{padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-md)}
+.rl .check.on{border-color:var(--lake);background:var(--lake-soft,#EEF4FB)}
+.rl .check small{display:block;color:var(--ink-3)}
+.box{width:18px;height:18px;border:1.5px solid var(--ink-3);border-radius:4px;flex:none;margin-top:2px}
+.on .box{background:var(--lake);border-color:var(--lake)}
+.mini .ctop .in{padding:10px 16px 0}
+@media (max-width:820px){.dlgs{grid-template-columns:minmax(0,1fr)}}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs a{padding:10px 14px;text-decoration:none;color:var(--ink-2);border-bottom:3px solid transparent;white-space:nowrap;font-weight:600}
+.tabs a.on{color:var(--lake);border-bottom-color:var(--lake)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.doc{max-height:140px;overflow:hidden;padding:12px 16px;font-size:.88rem;color:var(--ink-2);border-top:1px solid var(--line)}
+</style></head>
+<body>
+<header class="ctop"><div class="in">
+  <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
+    <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a href="#">Demandes</a><a href="#">Comptes</a><a href="#">Annonces</a><a class="on" href="#">Facturation</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a href="#">Journal</a><a href="#">Équipe</a></nav>
+</div></header>
+<main class="cmain">
+  <div class="pagehead"><div><h1>Facturation</h1><p>Ce que les écoles doivent à la plateforme : factures, contrats, offres et conditions.</p></div><a class="btn primary" href="#">Nouvelle facture</a></div>
+  <div class="tabs"><a class="on" href="#">Factures</a><a href="#">Contrats</a><a href="#">Offres</a><a href="#">Conditions</a></div>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>N°</th><th>École</th><th>Émise le</th><th>Échéance</th><th class="num">Total</th><th class="num">Reste dû</th><th>État</th><th></th></tr></thead><tbody>
+    <tr><td><b>FAC-2026-0003</b></td><td>itig-demo</td><td>01/11/2026</td><td>15/11/2026</td><td class="num">1 600,00 USD</td><td class="num">1 100,00 USD</td><td><span class="pill warn">Partielle</span></td><td><div class="row"><a class="btn sm ghost" href="#">Ouvrir</a><a class="btn sm ghost" href="#">PDF</a></div></td></tr>
+    <tr><td><b>FAC-2026-0002</b></td><td>volcans</td><td>01/10/2026</td><td>15/10/2026</td><td class="num">300,00 USD</td><td class="num">300,00 USD</td><td><span class="pill due">En retard</span></td><td><div class="row"><a class="btn sm ghost" href="#">Ouvrir</a><a class="btn sm ghost" href="#">PDF</a></div></td></tr>
+    <tr><td><b>FAC-2026-0001</b></td><td>itig-demo</td><td>01/09/2026</td><td>15/09/2026</td><td class="num">1 600,00 USD</td><td class="num">0,00 USD</td><td><span class="pill ok">Payée</span></td><td><div class="row"><a class="btn sm ghost" href="#">Ouvrir</a><a class="btn sm ghost" href="#">PDF</a></div></td></tr>
+  </tbody></table></div></div>
+
+  <p class="cap">Facture ouverte (fenêtre large) — paiements, annuler, relevé</p>
+  <div class="two">
+    <div class="card"><div class="hd"><h2>FAC-2026-0003 · itig-demo</h2><span class="pill warn">Partielle</span></div>
+      <div class="tblwrap"><table class="tbl"><thead><tr><th>Désignation</th><th class="num">Quantité</th><th class="num">Prix</th><th class="num">Montant</th></tr></thead><tbody>
+        <tr><td>Plan Complet — période 1</td><td class="num">800</td><td class="num">2,00</td><td class="num">1 600,00</td></tr></tbody></table></div>
+      <div class="hd"><h2>Paiements</h2><a class="btn sm" href="#">Enregistrer un paiement</a></div>
+      <ul class="plain"><li><span>01/11/2026 · Virement · réf. BK-8841</span><span><b>500,00 USD</b> <a class="btn sm danger" href="#">Annuler</a></span></li></ul>
+      <div class="ft"><a class="btn danger" href="#">Annuler la facture (avoir)</a><a class="btn" href="#">Relevé de l'école</a><a class="btn" href="#">PDF</a></div></div>
+    <div class="card"><div class="hd"><h2>Relevé · itig-demo</h2></div><div class="tblwrap"><table class="tbl"><thead><tr><th>Date</th><th>Écriture</th><th class="num">Débit</th><th class="num">Crédit</th><th class="num">Solde</th></tr></thead><tbody>
+      <tr><td>01/09</td><td>FAC-2026-0001</td><td class="num">1 600,00</td><td class="num"></td><td class="num">1 600,00</td></tr>
+      <tr><td>05/09</td><td>Paiement</td><td class="num"></td><td class="num">1 600,00</td><td class="num">0,00</td></tr>
+      <tr><td>01/11</td><td>FAC-2026-0003</td><td class="num">1 600,00</td><td class="num"></td><td class="num">1 600,00</td></tr></tbody></table></div></div>
+  </div>
+
+  <p class="cap">Fenêtres</p>
+  <div class="dlgs">
+    <div class="dialog dlg"><div class="hd"><h2>Nouvelle facture</h2></div><div class="bd col">
+      <label class="f"><span>Contrat <span class="req">*</span></span><span class="inp">CTR-2026-0001 · itig-demo · Complet</span></label>
+      <label class="f">Élèves inscrits<span class="inp">800</span><span class="help">Laissez vide : le nombre est compté dans l'école.</span></label>
+      <label class="f">Ligne en plus (installation, formation…)<span class="inp">Formation du personnel — 1 × 150,00</span></label></div>
+      <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn primary" href="#">Émettre</a></div></div>
+    <div class="dialog dlg"><div class="hd"><h2>Enregistrer un paiement</h2></div><div class="bd col">
+      <label class="f"><span>Montant <span class="req">*</span></span><span class="inp">500,00</span><span class="help">Au plus le reste dû : 1 100,00 USD.</span></label>
+      <label class="f">Moyen<span class="inp">Virement ▾</span></label>
+      <label class="f">Reçu le<span class="inp">01/11/2026</span></label>
+      <label class="f">Référence<span class="inp">BK-8841</span></label></div>
+      <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn primary" href="#">Enregistrer</a></div></div>
+    <div class="dialog dlg"><div class="hd"><h2>Annuler la facture FAC-2026-0003 ?</h2></div><div class="bd col">
+      <p>Un avoir du même montant est émis : la facture reste au dossier, rien n'est effacé.</p>
+      <label class="f"><span>Motif <span class="req">*</span></span><span class="inp">Erreur sur le nombre d'élèves</span></label></div>
+      <div class="ft"><a class="btn" href="#">Retour</a><a class="btn dangerf" href="#">Émettre l'avoir</a></div></div>
+  </div>
+
+  <p class="cap">Onglet Contrats</p>
+  <div class="card"><div class="tblwrap"><table class="tbl"><thead><tr><th>N°</th><th>École</th><th>Offre</th><th>Période</th><th class="num">Prix / élève</th><th>État</th><th></th></tr></thead><tbody>
+    <tr><td><b>CTR-2026-0001</b></td><td>itig-demo</td><td>Complet</td><td>01/09/2026 → 31/08/2027</td><td class="num">2,00 USD / période</td><td><span class="pill ok">Signé</span></td><td><div class="row"><a class="btn sm ghost" href="#">PDF</a><a class="btn sm ghost" href="#">Avenant</a></div></td></tr>
+    <tr><td><b>CTR-2026-0002</b></td><td>volcans</td><td>Essentiel</td><td>01/10/2026 → 30/09/2027</td><td class="num">1,00 USD / période</td><td><span class="pill warn">Brouillon</span></td><td><div class="row"><a class="btn sm ghost" href="#">PDF</a><a class="btn sm primary" href="#">Signer</a></div></td></tr>
+  </tbody></table></div></div>
+  <div class="dlgs">
+    <div class="dialog dlg"><div class="hd"><h2>Nouveau contrat</h2></div><div class="bd col">
+      <label class="f"><span>École <span class="req">*</span></span><span class="inp">volcans</span></label>
+      <label class="f"><span>Offre <span class="req">*</span></span><span class="inp">Essentiel ▾</span></label>
+      <label class="f">Début<span class="inp">01/10/2026</span></label><label class="f">Fin<span class="inp">30/09/2027</span></label>
+      <label class="f">Prix par élève (à la place de l'offre)<span class="inp"></span></label>
+      <label class="f">Jours d'essai<span class="inp">0</span></label>
+      <label class="check"><span class="box"></span><span>Renouvellement automatique</span></label></div>
+      <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn primary" href="#">Créer le brouillon</a></div></div>
+    <div class="dialog dlg"><div class="hd"><h2>Signer CTR-2026-0002</h2></div><div class="bd col">
+      <p class="small muted">Un contrat signé ne change plus : pour modifier, faites un avenant.</p>
+      <div class="rl"><div class="check on"><span class="box"></span><span><b>Papier signé</b><small>Joignez le scan</small></span></div><div class="check"><span class="box"></span><span><b>Acceptation en ligne</b><small>L'école accepte dans la Gestion</small></span></div></div>
+      <label class="f">Signataire de l'école<span class="inp">Père Jean Kasereka</span></label><label class="f">Scan du contrat<span class="inp">contrat-volcans.pdf</span></label></div>
+      <div class="ft"><a class="btn" href="#">Annuler</a><a class="btn primary" href="#">Signer</a></div></div>
+  </div>
+
+  <p class="cap">Onglet Offres</p>
+  <div class="card"><div class="hd"><h2>Offres</h2><a class="btn sm" href="#">Nouvelle offre</a></div><div class="tblwrap"><table class="tbl"><thead><tr><th>Offre</th><th>Modules</th><th class="num">Prix / élève</th><th>Période</th><th>Vente</th><th></th></tr></thead><tbody>
+    <tr><td><b>Essentiel</b><br><span class="small muted">Élèves, caisse, bulletins</span></td><td><div class="roles"><span class="tag">Élèves</span><span class="tag">Finances</span><span class="tag">Notes</span></div></td><td class="num">1,00 USD</td><td>Par période</td><td><span class="pill ok">En vente</span></td><td><a class="btn sm ghost" href="#">Modifier</a></td></tr>
+    <tr><td><b>Complet</b><br><span class="small muted">Tous les modules</span></td><td><div class="roles"><span class="tag">Tous les modules</span></div></td><td class="num">2,00 USD</td><td>Par période</td><td><span class="pill ok">En vente</span></td><td><a class="btn sm ghost" href="#">Modifier</a></td></tr></tbody></table></div></div>
+
+  <p class="cap">Onglet Conditions</p>
+  <div class="card"><div class="hd"><h2>Conditions générales</h2><span class="small muted">Version 1 · publiée le 29/10/2026</span><a class="btn sm" href="#">Publier une nouvelle version</a></div><div class="doc">Article 1 — Objet. Les présentes conditions encadrent l'usage de la plateforme Mwangaza par l'école…</div>
+    <div class="hd"><h2>Politique de confidentialité</h2><span class="small muted">Version 1</span><a class="btn sm" href="#">Publier une nouvelle version</a></div><div class="doc">…</div>
+    <div class="hd"><h2>Registre des traitements</h2><span class="small muted">Version 1</span><a class="btn sm" href="#">Publier une nouvelle version</a></div><div class="doc">…</div></div>
+  <div class="note"><b>ABO.2 / CTR.1 :</b> page réservée au droit « Abonnements et factures » (rôle Finance) ; « Offres » et « Conditions » se lisent aussi avec « voir les écoles ». Une facture, un paiement, un contrat signé et une version publiée ne se modifient jamais : avoir complet, annulation de paiement avec motif, avenant, nouvelle version. Montants en entiers côté serveur, affichés avec la devise. Un paiement ne dépasse jamais le reste dû. Publier une version redemande l'acceptation à chaque école.</div>
+</main>
+</body></html>

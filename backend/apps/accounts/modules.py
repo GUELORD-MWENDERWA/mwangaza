@@ -10,7 +10,9 @@ from django.utils.translation import gettext_lazy as _
 from apps.accounts.roles import PERMISSIONS
 
 # Jamais désactivables.
-CORE_PERMISSIONS = frozenset({"school.configure", "classes.manage", "roles.manage", "audit.view"})
+CORE_PERMISSIONS = frozenset(
+    {"school.configure", "classes.manage", "roles.manage", "audit.view", "billing.view"}
+)
 
 MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
     "students": (

@@ -35,6 +35,7 @@ def test_each_school_sees_its_own_name(client, school, other_school):
         },
         # École neuve : sa liste « Mise en route » n'est pas terminée (C4).
         "setup_done": False,
+        "read_only": False,
     }
     assert beta.json()["name"] == "École Beta (fictive)"
 

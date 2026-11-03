@@ -59,6 +59,7 @@ TABLE = {
     "ai.use": ". . . . . . . .",
     "announcements.publish": "✔ ✔ ✔ . . ✔ . .",
     "audit.view": "✔ . . . . . ✔ .",
+    "billing.view": "✔ . . . . . ✔ .",
 }
 
 
