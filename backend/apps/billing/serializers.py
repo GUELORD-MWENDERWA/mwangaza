@@ -6,6 +6,7 @@ from apps.billing.models import (
     InvoiceLine,
     InvoicePayment,
     LegalDocument,
+    ModuleRequest,
     Plan,
 )
 
@@ -147,3 +148,42 @@ class InvoicePaymentCreateSerializer(serializers.Serializer):
     method = serializers.ChoiceField(choices=InvoicePayment.Method.choices)
     paid_on = serializers.DateField()
     reference = serializers.CharField(max_length=80, required=False, allow_blank=True)
+
+
+class ModuleRequestCreateSerializer(serializers.Serializer):
+    module = serializers.CharField(max_length=20)
+    note = serializers.CharField(max_length=300, required=False, allow_blank=True, default="")
+
+
+class ModuleRequestSerializer(serializers.ModelSerializer):
+    school = serializers.SlugRelatedField(slug_field="code", read_only=True)
+
+    class Meta:
+        model = ModuleRequest
+        fields = ["id", "school", "module", "note", "status", "created_at"]
+        read_only_fields = fields
+
+
+class SubscriptionAmountSerializer(serializers.Serializer):
+    currency = serializers.CharField()
+    amount = serializers.IntegerField()
+
+
+class SubscriptionDueSerializer(serializers.Serializer):
+    number = serializers.CharField()
+    due_on = serializers.DateField()
+    currency = serializers.CharField()
+    amount = serializers.IntegerField()
+
+
+class SubscriptionSerializer(serializers.Serializer):
+    """« Mon abonnement » : le contrat en vigueur (ou rien) et l'état des paiements."""
+
+    contract = ContractSerializer(allow_null=True)
+    plan_name = serializers.CharField()
+    balance = SubscriptionAmountSerializer(many=True)
+    next_due = SubscriptionDueSerializer(allow_null=True)
+    late = serializers.BooleanField()
+    read_only = serializers.BooleanField()
+    payment_details = serializers.CharField(allow_blank=True)
+    open_requests = serializers.ListField(child=serializers.CharField())

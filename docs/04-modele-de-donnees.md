@@ -214,6 +214,7 @@ Règles :
 | `finance.import_prior_payments` | ✔ | | | ✔ | | | | |
 | `announcements.publish` | ✔ | ✔ | ✔ | | | ✔ | | |
 | `audit.view` | ✔ | | | | | | ✔ | |
+| `billing.view` (« Mon abonnement » : contrat, factures, solde, demande de module ; ABO.4 ; toujours actif, hors modules) | ✔ | | | | | | ✔ | |
 
 - `announcements.publish` couvre toute la communication de l'école (5.7) : annonces aux familles et au personnel, calendrier (écriture), convocations. Lire les annonces au personnel et le calendrier ne demande aucun droit : tout compte de l'école.
 - **Portail** (`School.settings["portal"]`, 5.7) : `teacher_phone` (faux par défaut) — le portail montre toujours le nom du titulaire de la classe de l'enfant, son téléphone seulement si l'école l'a choisi.

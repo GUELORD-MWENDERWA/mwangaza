@@ -1730,6 +1730,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/billing/module-requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Demandes de modules de toutes les écoles, ouvertes d'abord. */
+        get: operations["console_billing_module_requests_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/billing/plans/": {
         parameters: {
             query?: never;
@@ -5751,6 +5768,93 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/subscription/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description « Mon abonnement » (ABO.4) : contrat en vigueur, solde, prochaine échéance, comment payer.
+         *     Reste ouvert en lecture seule : c'est là qu'on voit pourquoi et comment rouvrir.
+         */
+        get: operations["subscription_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription/contract/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["subscription_contract_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription/invoices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Factures et avoirs de l'école, avec leurs paiements, récents d'abord. */
+        get: operations["subscription_invoices_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription/invoices/{id}/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Factures et avoirs de l'école, avec leurs paiements, récents d'abord. */
+        get: operations["subscription_invoices_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription/module-requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description L'école demande un module de plus ; la plateforme la traite dans la console. */
+        post: operations["subscription_module_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/summons/": {
         parameters: {
             query?: never;
@@ -8392,6 +8496,7 @@ export interface components {
              *
              *     * `trial` - Free trial
              *     * `active` - Active
+             *     * `readonly` - Read-only
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
              *     * `deleting` - Being deleted
@@ -8467,6 +8572,7 @@ export interface components {
              *
              *     * `trial` - Free trial
              *     * `active` - Active
+             *     * `readonly` - Read-only
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
              *     * `deleting` - Being deleted
@@ -8517,6 +8623,7 @@ export interface components {
              *
              *     * `trial` - Free trial
              *     * `active` - Active
+             *     * `readonly` - Read-only
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
              *     * `deleting` - Being deleted
@@ -10864,6 +10971,28 @@ export interface components {
             course: string;
             term: string;
         };
+        ModuleRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            readonly school: string;
+            readonly module: components["schemas"]["ModulesEnum"];
+            readonly note: string;
+            readonly status: components["schemas"]["ModuleStatusEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ModuleRequestCreateRequest: {
+            module: string;
+            /** @default  */
+            note: string;
+        };
+        /**
+         * @description * `open` - Open
+         *     * `done` - Handled
+         * @enum {string}
+         */
+        ModuleStatusEnum: "open" | "done";
         /**
          * @description * `students` - Students, families and enrolments
          *     * `finance` - Fees, cash desk and payments
@@ -10912,6 +11041,7 @@ export interface components {
          *     * `announcement` - School announcement
          *     * `cancellation_request` - Cancellation to approve
          *     * `cash_difference` - Cash difference
+         *     * `subscription` - Subscription invoice
          *     * `payment_due` - Payment due soon
          *     * `payment_overdue` - Late payment
          *     * `register_open` - Register still open
@@ -10928,7 +11058,7 @@ export interface components {
          *     * `ai_credits` - AI credits running low
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "timetable_published" | "ai_credits";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "timetable_published" | "ai_credits";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -11318,6 +11448,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["LegalDocument"][];
+        };
+        PaginatedModuleRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ModuleRequest"][];
         };
         PaginatedNotificationList: {
             /** @example 123 */
@@ -11973,6 +12118,7 @@ export interface components {
              *
              *     * `trial` - Free trial
              *     * `active` - Active
+             *     * `readonly` - Read-only
              *     * `suspended` - Suspended
              *     * `stopped` - Stopped
              *     * `deleting` - Being deleted
@@ -12530,9 +12676,10 @@ export interface components {
          *     * `ai.use` - Use the AI assistance
          *     * `announcements.publish` - Publish announcements
          *     * `audit.view` - View the audit log
+         *     * `billing.view` - View the subscription, invoices and payments to the platform
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "timetable.manage" | "timetable.publish" | "ai.use" | "announcements.publish" | "audit.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "timetable.manage" | "timetable.publish" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -14022,12 +14169,13 @@ export interface components {
         /**
          * @description * `trial` - Free trial
          *     * `active` - Active
+         *     * `readonly` - Read-only
          *     * `suspended` - Suspended
          *     * `stopped` - Stopped
          *     * `deleting` - Being deleted
          * @enum {string}
          */
-        SchoolStatusEnum: "trial" | "active" | "suspended" | "stopped" | "deleting";
+        SchoolStatusEnum: "trial" | "active" | "readonly" | "suspended" | "stopped" | "deleting";
         SchoolStopRequest: {
             /** @description Motif, gardé dans le journal de la plateforme. */
             reason: string;
@@ -14846,6 +14994,28 @@ export interface components {
              * @default false
              */
             allow_duplicate: boolean;
+        };
+        /** @description « Mon abonnement » : le contrat en vigueur (ou rien) et l'état des paiements. */
+        Subscription: {
+            contract: components["schemas"]["Contract"] | null;
+            plan_name: string;
+            balance: components["schemas"]["SubscriptionAmount"][];
+            next_due: components["schemas"]["SubscriptionDue"] | null;
+            late: boolean;
+            read_only: boolean;
+            payment_details: string;
+            open_requests: string[];
+        };
+        SubscriptionAmount: {
+            currency: string;
+            amount: number;
+        };
+        SubscriptionDue: {
+            number: string;
+            /** Format: date */
+            due_on: string;
+            currency: string;
+            amount: number;
         };
         Summons: {
             /** Format: uuid */
@@ -20823,6 +20993,28 @@ export interface operations {
             };
         };
     };
+    console_billing_module_requests_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedModuleRequestList"];
+                };
+            };
+        };
+    };
     console_billing_plans_list: {
         parameters: {
             query?: {
@@ -21497,7 +21689,7 @@ export interface operations {
                 page?: number;
                 /** @description Nom, nom officiel ou code. */
                 search?: string;
-                status?: "active" | "deleting" | "stopped" | "suspended" | "trial";
+                status?: "active" | "deleting" | "readonly" | "stopped" | "suspended" | "trial";
             };
             header?: never;
             path?: never;
@@ -32756,6 +32948,113 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    subscription_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subscription"];
+                };
+            };
+        };
+    };
+    subscription_contract_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    subscription_invoices_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedInvoiceList"];
+                };
+            };
+        };
+    };
+    subscription_invoices_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
+    subscription_module_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ModuleRequestCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ModuleRequestCreateRequest"];
+                "multipart/form-data": components["schemas"]["ModuleRequestCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModuleRequest"];
                 };
             };
         };

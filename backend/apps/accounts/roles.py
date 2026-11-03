@@ -45,6 +45,7 @@ PERMISSIONS: dict[str, Promise] = {
     "ai.use": _("Use the AI assistance"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
+    "billing.view": _("View the subscription, invoices and payments to the platform"),
 }
 PERMISSION_CHOICES = list(PERMISSIONS.items())
 # Droits sensibles (S.3.1) : les rôles et l'argent. L'école est prévenue quand un compte en reçoit
@@ -79,6 +80,8 @@ TIMETABLE_PUBLISH = "timetable.publish"
 ANNOUNCEMENTS_PUBLISH = "announcements.publish"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
+# Abonnement de l'école à la plateforme : contrat, factures, solde, demande de module (ABO.4).
+BILLING_VIEW = "billing.view"
 # Élèves, familles et inscriptions (D2-D4) : lire, puis créer et modifier.
 STUDENTS_VIEW = "students.view"
 STUDENTS_EDIT = "students.edit"
@@ -150,6 +153,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "timetable.publish",
             "announcements.publish",
             "audit.view",
+            "billing.view",
         ),
     ),
     "study_director": StarterRole(
@@ -211,7 +215,9 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "announcements.publish",
         ),
     ),
-    "promoter": StarterRole(_("Promoter"), ("students.view", "finance.view_reports", "audit.view")),
+    "promoter": StarterRole(
+        _("Promoter"), ("students.view", "finance.view_reports", "audit.view", "billing.view")
+    ),
     # Enseignant : les notes de ses cours et de la classe dont il est titulaire (8.2.1). Parent :
     # rien dans la Gestion, le portail lui montre ses enfants.
     "teacher": StarterRole(_("Teacher"), ("grades.enter", "discipline.record")),

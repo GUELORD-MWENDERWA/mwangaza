@@ -190,7 +190,16 @@ def cancel_invoice(invoice: Invoice, *, actor, reason: str) -> Invoice:
             actor=actor,
             after={"invoice": invoice.number, "total": note.total, "reason": reason.strip()},
         )
+        _refresh(invoice.school, actor)
     return note
+
+
+def _refresh(school: School, actor) -> None:
+    """Un paiement, une annulation de paiement ou un avoir change peut-être l'état de l'école
+    (lecture seule, ABO.3) : on le dit tout de suite, sans attendre le passage du matin."""
+    from apps.billing import reminders
+
+    reminders.refresh(school, actor=actor)
 
 
 def record_payment(
@@ -223,6 +232,7 @@ def record_payment(
             actor=actor,
             after={"invoice": invoice.number, "amount": amount, "method": method},
         )
+        _refresh(invoice.school, actor)
     return payment
 
 
@@ -256,6 +266,7 @@ def reverse_payment(payment: InvoicePayment, *, actor, reason: str) -> InvoicePa
             actor=actor,
             after={"invoice": payment.invoice.number, "amount": payment.amount, "reason": reason},
         )
+        _refresh(payment.invoice.school, actor)
     return reversal
 
 

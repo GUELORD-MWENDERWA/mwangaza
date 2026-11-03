@@ -10,6 +10,14 @@ router.register(
 )
 router.register("console/billing/invoices", views.ConsoleInvoiceViewSet, basename="console-invoice")
 router.register("console/billing/legal", views.ConsoleLegalViewSet, basename="console-legal")
+router.register(
+    "console/billing/module-requests",
+    views.ConsoleModuleRequestViewSet,
+    basename="console-module-request",
+)
+router.register(
+    "subscription/invoices", views.SubscriptionInvoiceViewSet, basename="subscription-invoice"
+)
 
 urlpatterns = [
     path("legal/current/", views.LegalCurrentView.as_view(), name="legal-current"),
@@ -20,5 +28,12 @@ urlpatterns = [
         views.ConsoleStatementView.as_view(),
         name="console-statement",
     ),
+    path("subscription/", views.SubscriptionView.as_view(), name="subscription"),
+    path(
+        "subscription/contract/pdf/",
+        views.SubscriptionContractPdfView.as_view(),
+        name="subscription-contract-pdf",
+    ),
+    path("subscription/module-requests/", views.ModuleRequestView.as_view(), name="module-request"),
     *router.urls,
 ]

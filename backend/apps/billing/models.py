@@ -225,3 +225,24 @@ class InvoicePayment(TenantModel):
 
     class Meta:
         ordering = ["paid_on", "created_at"]
+
+
+class ModuleRequest(TenantModel):
+    """Demande d'ajout d'un module faite par l'école depuis « Mon abonnement » (ABO.4) ; la
+    plateforme la traite dans la console (avenant au contrat). Ce n'est pas de l'argent : rien
+    n'est facturé ni activé par la demande."""
+
+    class Status(models.TextChoices):
+        OPEN = "open", _("Open")
+        DONE = "done", _("Handled")
+
+    module = models.CharField(_("module"), max_length=20, choices=MODULE_CHOICES)
+    note = models.CharField(_("note"), max_length=300, blank=True)
+    status = models.CharField(
+        _("status"), max_length=4, choices=Status.choices, default=Status.OPEN
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("module request")
+        verbose_name_plural = _("module requests")

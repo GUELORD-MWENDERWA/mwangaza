@@ -20,6 +20,7 @@ from datetime import date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from django.db import transaction
+from django.db.models import Q
 from django.utils import formats, timezone, translation
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -78,16 +79,41 @@ def tick(now: datetime | None = None, *, force: bool = False) -> dict[str, int]:
             except Exception:
                 # Une école en erreur ne retient pas les autres ; reprise au passage suivant.
                 logger.exception("Notifications à heure fixe : %s, %s", school.code, job)
+    _subscriptions(now, done, created, force=force)
     return dict(created)
 
 
-def run(school: School, job: str, now: datetime) -> int:
+def _subscriptions(now: datetime, done: set, created: dict, *, force: bool) -> None:
+    """Abonnement des écoles à la plateforme (ABO.3), à `REMINDERS_TIME` : rappels, lecture seule,
+    réouverture. Une requête pour toutes les factures dues ; seules les écoles concernées (une
+    facture due, ou déjà en lecture seule) sont servies, quels que soient leurs modules."""
+    from apps.billing import reminders
+
+    owing = reminders.unpaid(now.date())
+    concerned = School.objects.filter(
+        Q(pk__in=owing) | Q(status=School.Status.READ_ONLY), environment=School.Environment.LIVE
+    )
+    for school in concerned:
+        local = now.astimezone(ZoneInfo(school.timezone))
+        if (school.pk, Job.SUBSCRIPTION, local.date()) in done or not (
+            force or local.time() >= REMINDERS_TIME
+        ):
+            continue
+        try:
+            created[school.code] += run(
+                school, Job.SUBSCRIPTION, now, invoices=owing.get(school.pk, [])
+            )
+        except Exception:
+            logger.exception("Abonnement : %s", school.code)
+
+
+def run(school: School, job: str, now: datetime, **extra) -> int:
     """Le travail du jour d'une école, dans son fuseau, une seule fois : rien (0) s'il est déjà
     marqué. Rend le nombre de notifications créées."""
     local = now.astimezone(ZoneInfo(school.timezone))
     with use_school(school), timezone.override(local.tzinfo), transaction.atomic():
         _mark, new = ScheduledRun.objects.get_or_create(job=job, day=local.date())
-        return JOBS[job](school, local.date()) if new else 0
+        return JOBS[job](school, local.date(), **extra) if new else 0
 
 
 def purge(now: datetime | None = None) -> int:
@@ -230,4 +256,42 @@ def _open_registers(school: School, day: date) -> int:
     )
 
 
-JOBS = {Job.REMINDERS: _reminders, Job.OPEN_REGISTERS: _open_registers}
+def _subscription(school: School, day: date, *, invoices: list) -> int:
+    """Rappels d'échéance au personnel qui voit l'abonnement (avant, le jour même, une semaine
+    après) ; puis lecture seule ou réouverture selon les factures. Le passage en lecture seule
+    est annoncé à son tour."""
+    from apps.billing import reminders
+
+    state = reminders.sync_status(school, invoices, day)
+    recipients = list(events.staff(Kind.SUBSCRIPTION))
+    drafts = []
+    for invoice in invoices:
+        offset = (day - invoice.due_on).days
+        if offset in reminders.REMINDER_OFFSETS:
+            for user in recipients:
+                title, body = reminders.reminder_text(invoice, offset, user.language)
+                drafts.append(
+                    push.draft(
+                        user, app=App.GESTION, kind=Kind.SUBSCRIPTION, title=title, body=body,
+                        url="/subscription",
+                    )
+                )  # fmt: skip
+    if state == School.Status.READ_ONLY:
+        for user in recipients:
+            with translation.override(user.language):
+                title = _("Your school is now read-only")
+                body = _("An invoice is overdue. Pay it to write again; nothing is lost.")
+            drafts.append(
+                push.draft(
+                    user, app=App.GESTION, kind=Kind.SUBSCRIPTION, title=title, body=body,
+                    url="/subscription",
+                )
+            )  # fmt: skip
+    return len(push.create(school, drafts))
+
+
+JOBS = {
+    Job.REMINDERS: _reminders,
+    Job.OPEN_REGISTERS: _open_registers,
+    Job.SUBSCRIPTION: _subscription,
+}

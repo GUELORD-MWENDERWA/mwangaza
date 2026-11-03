@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -9,8 +10,16 @@ from rest_framework.views import APIView
 
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission, HasSchoolPermission
-from apps.billing import documents, invoicing, services
-from apps.billing.models import Contract, Invoice, InvoiceLine, InvoicePayment, LegalDocument, Plan
+from apps.billing import documents, invoicing, services, subscription
+from apps.billing.models import (
+    Contract,
+    Invoice,
+    InvoiceLine,
+    InvoicePayment,
+    LegalDocument,
+    ModuleRequest,
+    Plan,
+)
 from apps.billing.serializers import (
     ContractCreateSerializer,
     ContractSerializer,
@@ -22,7 +31,10 @@ from apps.billing.serializers import (
     InvoiceSerializer,
     LegalAcceptSerializer,
     LegalDocumentSerializer,
+    ModuleRequestCreateSerializer,
+    ModuleRequestSerializer,
     PlanSerializer,
+    SubscriptionSerializer,
 )
 from apps.core.http import client_ip
 from apps.schools.models import School
@@ -277,6 +289,7 @@ class LegalPendingView(APIView):
     """Versions que l'école n'a pas encore acceptées, pour son administrateur principal."""
 
     permission_classes = [HasSchoolPermission]
+    allowed_when_read_only = True
     required_permission = "roles.manage"
 
     @extend_schema(responses={200: LegalDocumentSerializer(many=True)})
@@ -288,6 +301,7 @@ class LegalPendingView(APIView):
 
 class LegalAcceptView(APIView):
     permission_classes = [HasSchoolPermission]
+    allowed_when_read_only = True
     required_permission = "roles.manage"
 
     @extend_schema(request=LegalAcceptSerializer, responses={204: None})
@@ -299,3 +313,84 @@ class LegalAcceptView(APIView):
             school=request.school, user=request.user, document=document, ip=client_ip(request)
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SubscriptionView(APIView):
+    """« Mon abonnement » (ABO.4) : contrat en vigueur, solde, prochaine échéance, comment payer.
+    Reste ouvert en lecture seule : c'est là qu'on voit pourquoi et comment rouvrir."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = "billing.view"
+    allowed_when_read_only = True
+
+    @extend_schema(responses={200: SubscriptionSerializer})
+    def get(self, request):
+        contract = subscription.current_contract()
+        return Response(
+            SubscriptionSerializer(
+                {
+                    "contract": contract,
+                    "plan_name": contract.plan.name if contract else "",
+                    **subscription.summary(request.school),
+                }
+            ).data
+        )
+
+
+class SubscriptionInvoiceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Factures et avoirs de l'école, avec leurs paiements, récents d'abord."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = "billing.view"
+    allowed_when_read_only = True
+    serializer_class = InvoiceSerializer
+    queryset = Invoice.all_schools.none()  # type de l'identifiant pour le schéma ; voir ci-dessous
+
+    def get_queryset(self):
+        return subscription.invoices()
+
+    @extend_schema(responses={(200, "application/pdf"): bytes})
+    @action(detail=True, methods=["get"])
+    def pdf(self, request, pk=None):
+        return documents.invoice_pdf(self.get_object())
+
+
+class SubscriptionContractPdfView(APIView):
+    permission_classes = [HasSchoolPermission]
+    required_permission = "billing.view"
+    allowed_when_read_only = True
+
+    @extend_schema(responses={(200, "application/pdf"): bytes})
+    def get(self, request):
+        contract = subscription.current_contract()
+        if contract is None:
+            raise Http404
+        return documents.contract_pdf(contract)
+
+
+class ModuleRequestView(APIView):
+    """L'école demande un module de plus ; la plateforme la traite dans la console."""
+
+    permission_classes = [HasSchoolPermission]
+    required_permission = "billing.view"
+    allowed_when_read_only = True
+
+    @extend_schema(request=ModuleRequestCreateSerializer, responses={201: ModuleRequestSerializer})
+    def post(self, request):
+        form = ModuleRequestCreateSerializer(data=request.data)
+        form.is_valid(raise_exception=True)
+        created = subscription.request_module(
+            request.school, user=request.user, **form.validated_data
+        )
+        return Response(ModuleRequestSerializer(created).data, status=status.HTTP_201_CREATED)
+
+
+class ConsoleModuleRequestViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Demandes de modules de toutes les écoles, ouvertes d'abord."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = {"list": READ}
+    serializer_class = ModuleRequestSerializer
+
+    def get_queryset(self):
+        return ModuleRequest.all_schools.select_related("school").order_by("status", "-created_at")

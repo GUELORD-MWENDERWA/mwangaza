@@ -6,7 +6,8 @@
 - [x] ① Offres, conditions générales, contrat (serveur) : app `billing` — `Plan`, `Contract` (brouillon → signé, immuable, avenant), `LegalDocument` versionné, `LegalAcceptance` ; API console + API école ; 6 tests
 - [x] ② Serveur : factures, avoirs, paiements de l'école, relevé (ABO.2) ; contrat et facture en PDF (WeasyPrint) ; identité légale de la plateforme (I20) ; textes CTR.1 (CGU, confidentialité, registre) semés
 - [x] ③ Écrans : console (offres, contrats, conditions, factures, paiements, relevé) et fenêtre d'acceptation dans la Gestion ; maquettes d'abord
-- [ ] ④ Échéances et lecture seule (ABO.3), « Mon abonnement » (ABO.4), page des prix (WEB.1, SITE.4)
+- [x] ④ Serveur : échéances, rappels, lecture seule (ABO.3) ; API « Mon abonnement » et demande de module (ABO.4) ; droit `billing.view`
+- [ ] ⑤ Écrans : « Mon abonnement » dans la Gestion (+ bandeau lecture seule), demandes de modules dans la console, page des prix du site (WEB.1, SITE.4) ; maquettes d'abord
 
 ## Décisions (regard senior)
 - Prix = **par élève inscrit et par période** (un seul chiffre par offre) ; « prix par module » retiré : un module en plus = un autre plan ou un avenant. Moins de cas à facturer.
@@ -15,6 +16,9 @@
 - La partie ② d'origine (serveur + PDF + écrans) ne tenait pas dans une conversation : serveur d'abord, écrans ensuite.
 - Facture = jamais modifiée ; annulation = avoir complet lié (pas d'avoir partiel). Paiement = jamais modifié ; erreur = écriture d'annulation liée avec motif.
 - Tarif (T6) et informations légales (I20) inventés pour la démo, modifiables dans la console.
+
+- Lecture seule = statut `readonly` + refus de toute écriture (`ensure_writable`, 403 `school_read_only`), connexion et lectures gardées ; délai de grâce 15 jours (constante `GRACE_DAYS`) ; rappels à J-7, J, J+7 via `tick` (pas de tâche en plus) ; réouverture immédiate au paiement.
+- La partie ④ d'origine (serveur + écrans + site) ne tenait pas en une conversation : serveur d'abord.
 
 ## Hors périmètre
 Paiement en ligne (V2), signature électronique qualifiée.

@@ -79,6 +79,8 @@ class School(BaseModel):
     class Status(models.TextChoices):
         TRIAL = "trial", _("Free trial")
         ACTIVE = "active", _("Active")
+        # Facture impayée après le délai de grâce (ABO.3) : on lit, on n'écrit plus.
+        READ_ONLY = "readonly", _("Read-only")
         SUSPENDED = "suspended", _("Suspended")
         STOPPED = "stopped", _("Stopped")
         # Espace d'essai ou de démonstration que la tâche de fond est en train d'effacer (4.16).

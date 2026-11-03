@@ -14,6 +14,7 @@ from django.utils.text import Truncator
 
 from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
+    BILLING_VIEW,
     FINANCE_APPROVE_CANCELLATION,
     FINANCE_VIEW_REPORTS,
     GRADES_ENTER,
@@ -48,6 +49,8 @@ STAFF_KINDS = {
     Kind.TIMETABLE_PUBLISHED: GRADES_ENTER,
     # Crédits de l'IA presque épuisés (IA.1.1) : ceux qui gèrent les rôles de l'école.
     Kind.AI_CREDITS: ROLES_MANAGE,
+    # Facture de l'abonnement à échéance ou impayée (ABO.3) : ceux qui voient l'abonnement.
+    Kind.SUBSCRIPTION: BILLING_VIEW,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})
