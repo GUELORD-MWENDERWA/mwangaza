@@ -3238,6 +3238,7 @@ export const en: Messages<typeof fr> = {
       },
       portal: {
         activated: "Portal activated by the parent",
+        report_viewed: "Report card read by a parent",
         password_reset: "New password chosen by the parent",
       },
       finance: {
@@ -4923,6 +4924,9 @@ export const en: Messages<typeof fr> = {
       grades_validated: "Grade sheet validated",
       results_proclaimed: "Results proclaimed",
       results_reopened: "Results reopened",
+      grades_corrected: "Grades corrected",
+      course_teacher: "Course assigned or taken",
+      resits_to_enter: "Resit grades to enter",
       parent_message: "Message from a parent",
       school_reply: "Reply from the school",
       report_cards_ready: "Report cards ready",
@@ -4952,6 +4956,9 @@ export const en: Messages<typeof fr> = {
       grades_validated: "The director of studies validates the grade sheet of your course or class",
       results_proclaimed: "The results of a class are proclaimed",
       results_reopened: "The results of a class are reopened for correction",
+      grades_corrected: "Someone else corrects the grades of your course",
+      course_teacher: "A course is given to you or taken from you",
+      resits_to_enter: "The year is proclaimed and students resit your course",
       parent_message: "A parent writes to the school from the Portal",
       school_reply: "When the school answers your message",
       report_cards_ready: "A homeroom teacher declares the report cards of their class ready",

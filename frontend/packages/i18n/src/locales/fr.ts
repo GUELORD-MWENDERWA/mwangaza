@@ -3271,6 +3271,7 @@ export const fr = {
       portal: {
         activated: "Portail activé par le parent",
         password_reset: "Nouveau mot de passe choisi par le parent",
+        report_viewed: "Bulletin lu par un parent",
       },
       finance: {
         fee_type_created: "Type de frais créé",
@@ -4967,6 +4968,9 @@ export const fr = {
       grades_validated: "Fiche de cotes validée",
       results_proclaimed: "Résultats proclamés",
       results_reopened: "Résultats rouverts",
+      grades_corrected: "Notes corrigées",
+      course_teacher: "Cours confié ou retiré",
+      resits_to_enter: "Repêchage à saisir",
       parent_message: "Message d'un parent",
       school_reply: "Réponse de l'école",
       report_cards_ready: "Bulletins prêts",
@@ -4996,6 +5000,9 @@ export const fr = {
         "Le directeur des études valide la fiche de cotes de votre cours ou de votre classe",
       results_proclaimed: "Les résultats d'une classe sont proclamés",
       results_reopened: "Les résultats d'une classe sont rouverts pour correction",
+      grades_corrected: "Quelqu'un d'autre corrige les notes de votre cours",
+      course_teacher: "Un cours vous est confié ou retiré",
+      resits_to_enter: "La fin d'année est proclamée et des élèves repassent votre cours",
       parent_message: "Un parent écrit à l'école depuis le Portail",
       school_reply: "Quand l'école répond à votre message",
       report_cards_ready: "Un titulaire déclare prêts les bulletins de sa classe",
