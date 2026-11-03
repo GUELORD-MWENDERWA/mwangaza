@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Lot 4 — Bulletins aux parents, parties ① à ④ faites (4/4), reste : mesure PERF.6 |
-| Prochain lot | Lot 5 (après le lot 4) |
+| Lot en cours | Lot 5 — Console finie, démarré (fiche, branche, issue faites) ; partie ① à faire |
+| Prochain lot | Lot 6 (après le lot 5) ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #420 (une par lot, jalon « V1 complète ») |
-| Branche | `lot/4-bulletins-parents` |
-| Dernière mise à jour | 2026-11-03 (lot 4, partie ④ faite) |
+| Issue GitHub | #423 (lot 5 ; une par lot, jalon « V1 complète ») |
+| Branche | `lot/5-console` |
+| Dernière mise à jour | 2026-11-03 (lot 5 démarré) |
 
 ## Avancement
 

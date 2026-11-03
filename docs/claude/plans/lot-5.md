@@ -1,0 +1,30 @@
+# Lot 5 — Console finie
+
+**But** : l'équipe de la plateforme pilote ses affaires depuis la console : voir où en sont les écoles (essai, payante, retard, départ), suivre les prospects jusqu'à la signature, créer une école avec ses modules, et rendre ses données à une école qui part.
+
+## Parties
+- [ ] ① CON.1 tableau de bord des affaires (chiffres en SQL, cache 5 min, exports Excel) + CON.2 fiche d'école, cycle de vie, export complet à la résiliation
+- [ ] ② CON.3 prospects : suivi commercial des demandes de démonstration, rappels, « Créer l'espace d'essai »
+- [ ] ③ IA.1.2 page « IA » et carte de la fiche d'école ; S.8 alertes de sécurité (carte « Sécurité » de la santé)
+- [ ] ④ MOD.1 registre des modules (champs, réglages, rôles, widgets, documents), forfaits de départ à la création d'une école, matrice de tests par forfait
+
+## Décisions (regard senior)
+- Pas de nouveau statut : « résiliée » = `School.Status.STOPPED` + motif et date au journal de la plateforme ; « archivée » = arrêtée, export remis, plus de connexion.
+- Prospects : on **étend `DemoRequest`** (étapes, responsable, relance, motif de perte) au lieu d'un nouveau modèle ; anciennes étapes migrées (`called`→contactée, `dropped`→perdue).
+- Tableau de bord : un seul appel, résultat gardé 5 min (cache), espaces réels seulement, montants jamais additionnés entre devises ; exports Excel en flux, avec `openpyxl` (déjà une dépendance).
+- Export complet : tâche Celery, fichier à lien signé de 7 jours, nettoyé ensuite ; jamais pendant la requête.
+
+## Hors périmètre
+Facturation en ligne, relances automatiques aux écoles (ABO existant), page Équipements (lot 16).
+
+## Critères d'acceptation
+Chaque rôle de l'équipe ne voit que ce que son droit permet (commercial : prospects et essais seulement) ; changement d'état = journal + e-mail à l'école ; données d'un espace réel jamais effacées ; création d'une école ne montre que les réglages de ses modules.
+
+## Tests obligatoires
+Droits par rôle (403), isolation (export d'une école ne contient rien d'une autre), argent par devise, audit des changements d'état, lien d'export expiré, matrice par forfait (Sonnerie seule, Présences, Gestion complète).
+
+## Documents à mettre à jour
+`reference.md`, `A-FAIRE.md` § 11, `04` (DemoRequest, états), `03` journal, `07` § 1 et § 4, `maquettes/README.md`, `docs/specs/equipements.md` § 1 bis, 05 (cases), 06.
+
+## Risques / à vérifier
+Requêtes du tableau de bord sur 100+ écoles ; `make demo` : prospects à toutes les étapes ; `import_cancellation.py` non concerné (pas de clé vers un élève).
