@@ -167,6 +167,57 @@ def send_email(request_id: str) -> None:
     )
 
 
+OPEN = (
+    DemoRequest.Status.NEW,
+    DemoRequest.Status.CONTACTED,
+    DemoRequest.Status.DEMO_DONE,
+    DemoRequest.Status.TRIAL,
+)
+
+
+def assignees():
+    """Membres de l'équipe à qui confier un prospect : comptes actifs dont un rôle porte le droit
+    « demandes du site »."""
+    from apps.accounts import platform_roles
+    from apps.accounts.models import User
+
+    return User.objects.filter(
+        is_active=True,
+        is_platform_admin=True,
+        platform_roles__overlap=platform_roles.roles_with(platform_roles.LEADS_MANAGE),
+    )
+
+
+def link_trial(request: DemoRequest, school) -> None:
+    """Un espace d'essai vient d'être créé depuis ce prospect : lien gardé, étape « essai »
+    (sauf s'il est déjà signé)."""
+    request.school_code = school.code
+    fields = ["school_code", "updated_at"]
+    if request.status != DemoRequest.Status.SIGNED:
+        request.status = DemoRequest.Status.TRIAL
+        fields.append("status")
+    request.save(update_fields=fields)
+
+
+def remind_follow_ups() -> int:
+    """Chaque matin : prévient le responsable de chaque prospect ouvert à relancer aujourd'hui.
+    Une relance dépassée n'est pas répétée : la console la montre « en retard »."""
+    today = timezone.localdate()
+    due = DemoRequest.objects.filter(
+        status__in=OPEN, follow_up_on=today, assignee__isnull=False
+    ).only("id", "school_name", "name", "assignee_id")
+    count = 0
+    for request in due:
+        console.alert(
+            console.FOLLOW_UP,
+            request.pk,
+            request.school_name or request.name,
+            concerned=request.assignee_id,
+        )
+        count += 1
+    return count
+
+
 def purge() -> int:
     """Efface les demandes de plus d'un an (chaque nuit)."""
     deleted, _rows = DemoRequest.objects.filter(created_at__lt=timezone.now() - KEEP).delete()

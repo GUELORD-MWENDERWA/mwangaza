@@ -6094,9 +6094,10 @@ paths:
     get:
       operationId: console_demo_requests_list
       description: |-
-        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+        Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+        récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+        console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+        on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - name: page
         required: false
@@ -6109,9 +6110,11 @@ paths:
         schema:
           type: string
           enum:
-          - called
-          - dropped
+          - contacted
+          - demo_done
+          - lost
           - new
+          - signed
           - trial
       tags:
       - console
@@ -6146,9 +6149,10 @@ paths:
     patch:
       operationId: console_demo_requests_partial_update
       description: |-
-        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+        Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+        récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+        console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+        on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - in: path
         name: id
@@ -6200,9 +6204,10 @@ paths:
     delete:
       operationId: console_demo_requests_destroy
       description: |-
-        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+        Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+        récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+        console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+        on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - in: path
         name: id
@@ -6218,6 +6223,41 @@ paths:
       responses:
         '204':
           description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/demo-requests/assignees/:
+    get:
+      operationId: console_demo_requests_assignees_list
+      description: Membres de l'équipe à qui confier un prospect.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProspectAssignee'
+          description: ''
         '400':
           content:
             application/json:
@@ -24675,8 +24715,9 @@ components:
     ConsoleDemoRequest:
       type: object
       description: |-
-        Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-        interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+        Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+        se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+        interne. Fonction, taille et langue : codes, traduits par la console.
       properties:
         id:
           type: string
@@ -24732,19 +24773,47 @@ components:
           type: string
           title: Internal note
           maxLength: 2000
+        assignee:
+          type: string
+          format: uuid
+          nullable: true
+        assignee_name:
+          type: string
+          readOnly: true
+          description: Nom du responsable, ou vide.
+        follow_up_on:
+          type: string
+          format: date
+          nullable: true
+          title: Next follow-up
+        lost_reason:
+          type: string
+          title: Reason lost
+          maxLength: 200
+        school_code:
+          type: string
+          readOnly: true
+          title: Trial space
+        overdue:
+          type: boolean
+          readOnly: true
+          description: Vrai si la relance est dépassée et le prospect encore ouvert.
         updated_at:
           type: string
           format: date-time
           readOnly: true
       required:
+      - assignee_name
       - created_at
       - email
       - id
       - language
       - message
       - name
+      - overdue
       - phone
       - role
+      - school_code
       - school_name
       - size
       - source
@@ -25709,6 +25778,12 @@ components:
           allOf:
           - $ref: '#/components/schemas/SchoolHeadRequest'
           writeOnly: true
+        prospect:
+          type: string
+          format: uuid
+          writeOnly: true
+          description: 'Prospect (demande de démonstration) d''où vient l''essai :
+            il passe à « essai » et garde le lien vers l''école.'
       required:
       - code
       - default_currency
@@ -27744,15 +27819,19 @@ components:
     DemoRequestStatusEnum:
       enum:
       - new
-      - called
+      - contacted
+      - demo_done
       - trial
-      - dropped
+      - signed
+      - lost
       type: string
       description: |-
         * `new` - New
-        * `called` - Called back
-        * `trial` - Trial space opened
-        * `dropped` - No follow-up
+        * `contacted` - Contacted
+        * `demo_done` - Demonstration done
+        * `trial` - Trial
+        * `signed` - Signed
+        * `lost` - Lost
     Demonstration:
       type: object
       description: 'Espace de démonstration créé depuis la console (4.17.2) : où en
@@ -33066,8 +33145,9 @@ components:
     PatchedConsoleDemoRequestRequest:
       type: object
       description: |-
-        Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-        interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+        Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+        se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+        interne. Fonction, taille et langue : codes, traduits par la console.
       properties:
         status:
           allOf:
@@ -33077,6 +33157,19 @@ components:
           type: string
           title: Internal note
           maxLength: 2000
+        assignee:
+          type: string
+          format: uuid
+          nullable: true
+        follow_up_on:
+          type: string
+          format: date
+          nullable: true
+          title: Next follow-up
+        lost_reason:
+          type: string
+          title: Reason lost
+          maxLength: 200
     PatchedConsolePartnerRequest:
       type: object
       description: |-
@@ -36011,6 +36104,19 @@ components:
         * `waiting` - waiting
         * `no_place` - no_place
         * `undecided` - undecided
+    ProspectAssignee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - name
     PublishRequest:
       type: object
       properties:

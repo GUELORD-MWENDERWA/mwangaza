@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from apps.academics.demo import create_demo_courses, create_demo_grades, create_demo_promotion
 from apps.accounts.demo import create_demo_accounts
+from apps.accounts.models import User
 from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.ai.demo import create_demo_ai
 from apps.core.models import DemoRequest, PlatformSettings
@@ -102,6 +103,7 @@ SOCIAL_FIELDS = (
     "tiktok_url",
 )
 # Demandes de démonstration fictives (WEB.1d) : (heures écoulées, champs). Numéros du bloc fictif.
+SELLER_PHONE = "+243000000003"  # compte « commercial » de `accounts/demo.py`
 DEMO_REQUESTS = [
     (
         1,
@@ -146,8 +148,49 @@ DEMO_REQUESTS = [
             "phone": "+243000300003",
             "size": "300-800",
             "language": "en",
-            "status": "called",
-            "notes": "Rappelé le 15/10 : démonstration en ligne jeudi à 10 h.",
+            "status": "demo_done",
+            "notes": "Démonstration en ligne faite le 15/10 : revient vers nous après son conseil.",
+            "follow_up_in_days": 5,
+        },
+    ),
+    (
+        140,
+        {
+            "name": "SIFA NEEMA Rose",
+            "role": "head",
+            "school_name": "Lycée Tuungane",
+            "town": "Goma",
+            "phone": "+243000300005",
+            "size": "800-1500",
+            "status": "contacted",
+            "notes": "Appelée lundi : veut voir la paie. Rappeler.",
+            "follow_up_in_days": -2,
+        },
+    ),
+    (
+        300,
+        {
+            "name": "KATEMBO LUC",
+            "role": "promoter",
+            "school_name": "Institut Bon Berger",
+            "town": "Butembo",
+            "phone": "+243000300006",
+            "size": "300-800",
+            "status": "signed",
+            "notes": "Contrat signé ; ouverture de l'espace réel à faire.",
+        },
+    ),
+    (
+        400,
+        {
+            "name": "MBUSA JEAN",
+            "role": "accountant",
+            "school_name": "École Étoile du Kivu",
+            "town": "Goma",
+            "phone": "+243000300007",
+            "size": "lt300",
+            "status": "lost",
+            "lost_reason": "Trop petite pour le moment, paie encore sur papier.",
         },
     ),
 ]
@@ -157,7 +200,14 @@ def create_demo_requests() -> None:
     """Demandes de démonstration fictives pour la console, remises comme au départ."""
     DemoRequest.objects.filter(phone__startswith=DEMO_PHONE_PREFIX).delete()
     now = timezone.now()
+    today = timezone.localdate()
+    seller = User.objects.filter(phone=SELLER_PHONE).first()  # le commercial de démonstration
     for hours, fields in DEMO_REQUESTS:
+        fields = dict(fields)
+        days = fields.pop("follow_up_in_days", None)
+        if days is not None:
+            fields["follow_up_on"] = today + timedelta(days=days)
+            fields["assignee"] = seller
         request = DemoRequest.objects.create(**fields)
         # `auto_now_add` remplit la date à la création : on la recule ensuite.
         DemoRequest.objects.filter(pk=request.pk).update(created_at=now - timedelta(hours=hours))

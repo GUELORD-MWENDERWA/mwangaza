@@ -272,9 +272,15 @@ class ConsoleSchoolCreateSerializer(ConsoleSchoolSerializer):
         help_text="Réel ou essai, jamais changé ensuite. Démonstration : `schools/demo/`.",
     )
     head = SchoolHeadSerializer(write_only=True)
+    prospect = serializers.UUIDField(
+        write_only=True,
+        required=False,
+        help_text="Prospect (demande de démonstration) d'où vient l'essai : il passe à « essai » "
+        "et garde le lien vers l'école.",
+    )
 
     class Meta(ConsoleSchoolSerializer.Meta):
-        fields = [*ConsoleSchoolSerializer.Meta.fields, "head"]
+        fields = [*ConsoleSchoolSerializer.Meta.fields, "head", "prospect"]
         read_only_fields = ["created_at"]
 
 

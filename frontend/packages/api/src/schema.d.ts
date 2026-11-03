@@ -1887,9 +1887,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         * @description Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+         *     récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+         *     console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+         *     on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         get: operations["console_demo_requests_list"];
         put?: never;
@@ -1911,19 +1912,38 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         * @description Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+         *     récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+         *     console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+         *     on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         delete: operations["console_demo_requests_destroy"];
         options?: never;
         head?: never;
         /**
-         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         * @description Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+         *     récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+         *     console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+         *     on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         patch: operations["console_demo_requests_partial_update"];
+        trace?: never;
+    };
+    "/api/console/demo-requests/assignees/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Membres de l'équipe à qui confier un prospect. */
+        get: operations["console_demo_requests_assignees_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/console/devices/": {
@@ -8497,8 +8517,9 @@ export interface components {
             platform: components["schemas"]["PlatformHealth"];
         };
         /**
-         * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-         *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+         * @description Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+         *     se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+         *     interne. Fonction, taille et langue : codes, traduits par la console.
          */
         ConsoleDemoRequest: {
             /** Format: uuid */
@@ -8526,6 +8547,21 @@ export interface components {
             status?: components["schemas"]["DemoRequestStatusEnum"];
             /** Internal note */
             notes?: string;
+            /** Format: uuid */
+            assignee?: string | null;
+            /** @description Nom du responsable, ou vide. */
+            readonly assignee_name: string;
+            /**
+             * Next follow-up
+             * Format: date
+             */
+            follow_up_on?: string | null;
+            /** Reason lost */
+            lost_reason?: string;
+            /** Trial space */
+            readonly school_code: string;
+            /** @description Vrai si la relance est dépassée et le prospect encore ouvert. */
+            readonly overdue: boolean;
             /** Format: date-time */
             readonly updated_at: string;
         };
@@ -8958,6 +8994,11 @@ export interface components {
             contact_email?: string;
             internal_notes?: string;
             head: components["schemas"]["SchoolHeadRequest"];
+            /**
+             * Format: uuid
+             * @description Prospect (demande de démonstration) d'où vient l'essai : il passe à « essai » et garde le lien vers l'école.
+             */
+            prospect?: string;
         };
         ConsoleSchoolCreated: {
             school: components["schemas"]["ConsoleSchool"];
@@ -9896,12 +9937,14 @@ export interface components {
         DeliberationStatusEnum: "draft" | "proclaimed";
         /**
          * @description * `new` - New
-         *     * `called` - Called back
-         *     * `trial` - Trial space opened
-         *     * `dropped` - No follow-up
+         *     * `contacted` - Contacted
+         *     * `demo_done` - Demonstration done
+         *     * `trial` - Trial
+         *     * `signed` - Signed
+         *     * `lost` - Lost
          * @enum {string}
          */
-        DemoRequestStatusEnum: "new" | "called" | "trial" | "dropped";
+        DemoRequestStatusEnum: "new" | "contacted" | "demo_done" | "trial" | "signed" | "lost";
         /** @description Espace de démonstration créé depuis la console (4.17.2) : où en est son remplissage. */
         Demonstration: {
             profile: components["schemas"]["ProfileEnum"];
@@ -12431,14 +12474,24 @@ export interface components {
             published_at?: string | null;
         };
         /**
-         * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-         *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+         * @description Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+         *     se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+         *     interne. Fonction, taille et langue : codes, traduits par la console.
          */
         PatchedConsoleDemoRequestRequest: {
             /** Follow-up */
             status?: components["schemas"]["DemoRequestStatusEnum"];
             /** Internal note */
             notes?: string;
+            /** Format: uuid */
+            assignee?: string | null;
+            /**
+             * Next follow-up
+             * Format: date
+             */
+            follow_up_on?: string | null;
+            /** Reason lost */
+            lost_reason?: string;
         };
         /**
          * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
@@ -13822,6 +13875,11 @@ export interface components {
          * @enum {string}
          */
         ProposalEnum: "next_level" | "same_level" | "choose" | "finished" | "waiting" | "no_place" | "undecided";
+        ProspectAssignee: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly name: string;
+        };
         PublishRequest: {
             /**
              * Format: date
@@ -21843,7 +21901,7 @@ export interface operations {
             query?: {
                 /** @description A page number within the paginated result set. */
                 page?: number;
-                status?: "called" | "dropped" | "new" | "trial";
+                status?: "contacted" | "demo_done" | "lost" | "new" | "signed" | "trial";
             };
             header?: never;
             path?: never;
@@ -21954,6 +22012,49 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ConsoleDemoRequest"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_demo_requests_assignees_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProspectAssignee"][];
                 };
             };
             400: {

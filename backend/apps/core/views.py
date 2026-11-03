@@ -41,7 +41,7 @@ from rest_framework.views import APIView
 
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission
-from apps.core import markdown, services, site_content
+from apps.core import demo_requests, markdown, services, site_content
 from apps.core.errors import ErrorSerializer
 from apps.core.http import serve_image
 from apps.core.images import PHOTO_WIDTHS
@@ -77,6 +77,7 @@ from apps.core.serializers import (
     PlatformIconUploadSerializer,
     PlatformLogoUploadSerializer,
     PlatformSerializer,
+    ProspectAssigneeSerializer,
     SiteEntryMoveSerializer,
 )
 
@@ -267,9 +268,10 @@ class ConsoleDemoRequestViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
-    """Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-    d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-    interne ; on efface une demande quand la personne le demande (sinon : seule après un an)."""
+    """Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+    récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+    console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+    on efface une demande quand la personne le demande (sinon : seule après un an)."""
 
     permission_classes = [HasPlatformPermission]
     platform_permission = team.LEADS_MANAGE
@@ -278,11 +280,17 @@ class ConsoleDemoRequestViewSet(
     http_method_names = ["get", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
-        requests = DemoRequest.objects.all()
+        requests = DemoRequest.objects.select_related("assignee")
         status = self.request.query_params.get("status")
         if self.action == "list" and status in DemoRequest.Status.values:
             requests = requests.filter(status=status)
         return requests
+
+    @extend_schema(responses={200: ProspectAssigneeSerializer(many=True), **CONSOLE_ERRORS})
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def assignees(self, request: Request) -> Response:
+        """Membres de l'équipe à qui confier un prospect."""
+        return Response(ProspectAssigneeSerializer(demo_requests.assignees(), many=True).data)
 
 
 class OrderedSiteViewSet(

@@ -26,7 +26,12 @@ RENEWAL_DAYS = 30
 RENEWALS_SHOWN = 10
 LIVE = School.Environment.LIVE
 # Une demande est « ouverte » tant qu'on n'a ni signé ni perdu le prospect.
-OPEN_PROSPECTS = (DemoRequest.Status.NEW, DemoRequest.Status.CALLED, DemoRequest.Status.TRIAL)
+OPEN_PROSPECTS = (
+    DemoRequest.Status.NEW,
+    DemoRequest.Status.CONTACTED,
+    DemoRequest.Status.DEMO_DONE,
+    DemoRequest.Status.TRIAL,
+)
 STATES = ("trial", "active", "readonly", "suspended", "stopped")
 
 

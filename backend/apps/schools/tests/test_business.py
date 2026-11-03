@@ -51,7 +51,7 @@ def test_business_sections_follow_the_rights_and_count_live_spaces_only(
         invoice, actor=finance, amount=1000, method="cash", paid_on=timezone.localdate()
     )
     DemoRequest.objects.create(name="Visiteur A", phone="+243970000001", status="new")
-    DemoRequest.objects.create(name="Visiteur B", phone="+243970000002", status="dropped")
+    DemoRequest.objects.create(name="Visiteur B", phone="+243970000002", status="lost")
 
     data = api(finance, host=CONSOLE).get(BUSINESS).json()
     assert data["prospects_open"] is None  # la finance ne gère pas les prospects

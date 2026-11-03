@@ -86,14 +86,18 @@ export function NewSchoolPage() {
   const [general, setGeneral] = useState<string | null>(null);
   // Type de l'onglet d'où l'on vient (`?type=`) ; sinon un espace réel. Seulement les types que
   // les rôles du membre permettent de créer (EQ.2).
-  const asked = useSearchParams()[0].get("type");
+  const params = useSearchParams()[0];
+  const asked = params.get("type");
+  // « Créer l'espace d'essai » depuis un prospect (CON.3) : nom et téléphone préremplis, le
+  // serveur lie l'essai au prospect.
+  const prospect = params.get("prospect") ?? undefined;
   const can = useCan();
   const kinds = KINDS.filter((value) => can(spaceRight(value, RIGHTS.schoolsManage)));
   const form = useForm<Values>({
     resolver: zodResolver(useSchema()),
     defaultValues: {
       environment: kinds.find((kind) => kind === asked) ?? kinds[0],
-      name: "",
+      name: prospect ? (params.get("name") ?? "") : "",
       official_name: "",
       code: "",
       status: "trial",
@@ -103,7 +107,12 @@ export function NewSchoolPage() {
       enabled_currencies: [...CURRENCIES],
       default_currency: CURRENCIES[0],
       modules: [...MODULES],
-      head: { phone: "", last_name: "", middle_name: "", first_name: "" },
+      head: {
+        phone: prospect ? (params.get("phone") ?? "") : "",
+        last_name: "",
+        middle_name: "",
+        first_name: "",
+      },
     },
   });
   const kind = useWatch({ control: form.control, name: "environment" });
@@ -112,7 +121,12 @@ export function NewSchoolPage() {
       call(
         api.POST("/api/console/schools/", {
           // Un espace de démonstration passe par son propre formulaire.
-          body: { ...values, ...schoolBody(values), environment: environment as "live" | "test" },
+          body: {
+            ...values,
+            ...schoolBody(values),
+            environment: environment as "live" | "test",
+            prospect,
+          },
         }),
       ),
     onSuccess: () => {

@@ -782,6 +782,9 @@ class ConsoleSchoolViewSet(
         serializer.is_valid(raise_exception=True)
         data = dict(serializer.validated_data)
         head = data.pop("head")
+        prospect = data.pop("prospect", None)
+        if prospect is not None:
+            ensure_platform_permission(request, team.LEADS_MANAGE)
         director = services.Director(
             phone=head["phone"],
             **{
@@ -790,7 +793,7 @@ class ConsoleSchoolViewSet(
             },
         )
         membership, password = services.create_school(
-            School(**data), actor=request.user, director=director
+            School(**data), actor=request.user, director=director, prospect_id=prospect
         )
         created = {
             "school": console.schools().get(pk=membership.school_id),

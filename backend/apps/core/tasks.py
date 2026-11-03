@@ -35,3 +35,8 @@ def email_demo_request(request_id: str) -> None:
 @shared_task(ignore_result=True, soft_time_limit=120, time_limit=150)
 def purge_demo_requests() -> None:
     demo_requests.purge()
+
+
+@shared_task(ignore_result=True, soft_time_limit=120, time_limit=150)
+def remind_prospects() -> None:
+    demo_requests.remind_follow_ups()

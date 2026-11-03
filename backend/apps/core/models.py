@@ -291,10 +291,14 @@ class DemoRequest(models.Model):
         CHAT = "chat", _("Site chat")
 
     class Status(models.TextChoices):
+        """Étapes du suivi commercial (CON.3), dans l'ordre ; « perdue » exige un motif."""
+
         NEW = "new", _("New")
-        CALLED = "called", _("Called back")
-        TRIAL = "trial", _("Trial space opened")
-        DROPPED = "dropped", _("No follow-up")
+        CONTACTED = "contacted", _("Contacted")
+        DEMO_DONE = "demo_done", _("Demonstration done")
+        TRIAL = "trial", _("Trial")
+        SIGNED = "signed", _("Signed")
+        LOST = "lost", _("Lost")
 
     id = models.UUIDField(primary_key=True, default=uuid7, editable=False)
     created_at = models.DateTimeField(_("received at"), auto_now_add=True)
@@ -313,15 +317,31 @@ class DemoRequest(models.Model):
     message = models.TextField(_("message"), max_length=1000, blank=True)
     language = models.CharField(_("language"), max_length=2, default="fr")
     status = models.CharField(
-        _("follow-up"), max_length=8, choices=Status.choices, default=Status.NEW
+        _("follow-up"), max_length=9, choices=Status.choices, default=Status.NEW
     )
     notes = models.TextField(_("internal note"), max_length=2000, blank=True)
+    assignee = models.ForeignKey(
+        "accounts.User",
+        verbose_name=_("assigned to"),
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    follow_up_on = models.DateField(_("next follow-up"), null=True, blank=True)
+    lost_reason = models.CharField(_("reason lost"), max_length=200, blank=True)
+    # Code de l'espace d'essai créé depuis ce prospect. Pas de clé vers `School` : supprimer
+    # l'essai (`schools/deletion.py`) ne doit rien changer à l'historique commercial.
+    school_code = models.CharField(_("trial space"), max_length=63, blank=True)
 
     class Meta:
         verbose_name = _("demo request")
         verbose_name_plural = _("demo requests")
         ordering = ["-created_at"]
-        indexes = [models.Index(fields=["status", "-created_at"], name="demorequest_status")]
+        indexes = [
+            models.Index(fields=["status", "-created_at"], name="demorequest_status"),
+            models.Index(fields=["follow_up_on"], name="demorequest_follow_up"),
+        ]
 
     def __str__(self) -> str:
         return f"{self.school_name} | {self.name}" if self.school_name else self.name

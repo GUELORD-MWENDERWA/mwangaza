@@ -1,7 +1,8 @@
-// Demandes de démonstration et messages du chat envoyés par le site public (WEB.1d, maquette
-// `console/demandes` et `site/chat`) :
-// filtrées par suivi (« Nouvelles » d'abord, avec leur nombre), suivi et note interne, « Effacer »
-// après confirmation quand la personne le demande. Le serveur efface seul après un an.
+// Prospects (CON.3) : demandes de démonstration et messages du chat envoyés par le site public
+// (WEB.1d, maquette `console/demandes` et `site/chat`), filtrés par étape (« Nouvelles » d'abord,
+// avec leur nombre) ; étape, responsable, prochaine relance, motif de perte et note interne,
+// « Créer l'espace d'essai » (Nouvelle école préremplie), « Effacer » après confirmation quand la
+// personne le demande. Le serveur efface seul après un an.
 import { api, call, type Schemas } from "@mwangaza/api";
 import { errorMessage, formatDateTime, formatPhone, useTranslation } from "@mwangaza/i18n";
 import {
@@ -11,6 +12,7 @@ import {
   ConfirmDialog,
   Field,
   Icon,
+  Input,
   PageHeader,
   Segmented,
   Select,
@@ -28,10 +30,17 @@ import { Pager } from "../shell/Pager";
 
 type DemoRequest = Schemas["ConsoleDemoRequest"];
 type Status = Schemas["DemoRequestStatusEnum"];
-const STATUSES: Status[] = ["new", "called", "trial", "dropped"];
+const STATUSES: Status[] = ["new", "contacted", "demo_done", "trial", "signed", "lost"];
 const FILTERS = [...STATUSES, "all"] as const;
 type Filter = (typeof FILTERS)[number];
-const TONES = { new: "info", called: "warn", trial: "ok", dropped: "gray" } as const;
+const TONES = {
+  new: "info",
+  contacted: "warn",
+  demo_done: "warn",
+  trial: "ok",
+  signed: "ok",
+  lost: "gray",
+} as const;
 
 function useRequests(filter: Filter, page: number) {
   return useQuery({
@@ -43,6 +52,14 @@ function useRequests(filter: Filter, page: number) {
         }),
       ),
     placeholderData: keepPreviousData,
+  });
+}
+
+function useAssignees() {
+  return useQuery({
+    queryKey: [...keys.demoRequests, "assignees"],
+    queryFn: () => call(api.GET("/api/console/demo-requests/assignees/")),
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -152,19 +169,34 @@ function RequestCard({ request, onErase }: { request: DemoRequest; onErase: () =
   const current = request.status ?? "new";
   const [status, setStatus] = useState<Status>(current);
   const [notes, setNotes] = useState(request.notes);
+  const [assignee, setAssignee] = useState(request.assignee ?? "");
+  const [followUp, setFollowUp] = useState(request.follow_up_on ?? "");
+  const [lostReason, setLostReason] = useState(request.lost_reason ?? "");
+  const assignees = useAssignees();
   const save = useMutation({
     mutationFn: () =>
       call(
         api.PATCH("/api/console/demo-requests/{id}/", {
           params: { path: { id: request.id } },
-          body: { status, notes },
+          body: {
+            status,
+            notes,
+            assignee: assignee || null,
+            follow_up_on: followUp || null,
+            lost_reason: status === "lost" ? lostReason : "",
+          },
         }),
       ),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: keys.demoRequests }),
   });
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const digits = request.phone.replace("+", "");
-  const changed = status !== current || notes !== request.notes;
+  const changed =
+    status !== current ||
+    notes !== request.notes ||
+    assignee !== (request.assignee ?? "") ||
+    followUp !== (request.follow_up_on ?? "") ||
+    lostReason !== (request.lost_reason ?? "");
   const chat = request.source === "chat";
   const facts = [
     request.town,
@@ -184,6 +216,9 @@ function RequestCard({ request, onErase }: { request: DemoRequest; onErase: () =
             <p className="text-sm text-ink-3">{facts.join(" · ")}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {request.overdue && (
+              <StatusPill tone="due">{t("console.demoRequests.overdue")}</StatusPill>
+            )}
             {chat && <StatusPill tone="gray">{t("console.demoRequests.chat")}</StatusPill>}
             <StatusPill tone={TONES[current]}>
               {t(`console.demoRequests.statuses.${current}`)}
@@ -225,6 +260,10 @@ function RequestCard({ request, onErase }: { request: DemoRequest; onErase: () =
               </dd>
             </>
           )}
+          <dt className="text-ink-3">{t("console.demoRequests.trialSpace")}</dt>
+          <dd className="break-words">
+            {request.school_code || t("console.demoRequests.noTrial")}
+          </dd>
         </dl>
         {request.message ? (
           <p className="rounded-md bg-surface px-3 py-2.5 text-sm break-words whitespace-pre-line">
@@ -250,6 +289,48 @@ function RequestCard({ request, onErase }: { request: DemoRequest; onErase: () =
             </Select>
           )}
         </Field>
+        <Field id={`assignee-${request.id}`} label={t("console.demoRequests.assignee")}>
+          {(control) => (
+            <Select
+              {...control}
+              value={assignee}
+              onChange={(event) => setAssignee(event.target.value)}
+            >
+              <option value="">{t("console.demoRequests.nobody")}</option>
+              {assignees.data?.map((person) => (
+                <option key={person.id} value={person.id}>
+                  {person.name}
+                </option>
+              ))}
+            </Select>
+          )}
+        </Field>
+        <Field id={`follow-up-${request.id}`} label={t("console.demoRequests.followUp")}>
+          {(control) => (
+            <Input
+              {...control}
+              type="date"
+              value={followUp}
+              onChange={(event) => setFollowUp(event.target.value)}
+            />
+          )}
+        </Field>
+        {status === "lost" && (
+          <Field
+            id={`lost-${request.id}`}
+            label={t("console.demoRequests.lostReason")}
+            help={t("console.demoRequests.lostReasonHelp")}
+          >
+            {(control) => (
+              <Input
+                {...control}
+                maxLength={200}
+                value={lostReason}
+                onChange={(event) => setLostReason(event.target.value)}
+              />
+            )}
+          </Field>
+        )}
         <Field
           id={`notes-${request.id}`}
           label={t("console.demoRequests.notes")}
@@ -270,8 +351,16 @@ function RequestCard({ request, onErase }: { request: DemoRequest; onErase: () =
           <Button size="sm" disabled={!changed || save.isPending} onClick={() => save.mutate()}>
             {t("console.demoRequests.save")}
           </Button>
-          {!chat && (
-            <Link className={buttonVariants({ variant: "ghost", size: "sm" })} to="/schools/new">
+          {!chat && !request.school_code && (
+            <Link
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+              to={`/schools/new?${new URLSearchParams({
+                prospect: request.id,
+                type: "test",
+                name: request.school_name,
+                phone: request.phone,
+              })}`}
+            >
               {t("console.demoRequests.openTrial")}
             </Link>
           )}

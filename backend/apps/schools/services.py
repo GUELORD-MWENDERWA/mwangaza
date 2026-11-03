@@ -21,7 +21,9 @@ from apps.accounts import services as accounts
 from apps.accounts.models import Membership
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
+from apps.core import demo_requests
 from apps.core.errors import ApiError, BusinessError
+from apps.core.models import DemoRequest
 from apps.core.tenancy import use_school
 from apps.schools import (
     alerts,
@@ -108,12 +110,19 @@ def _record_platform(action: str, school: School, *, actor, before: dict | None 
     audit.record_platform(action, school, actor=actor, before=before, after=after)
 
 
-def create_school(school: School, *, actor, director: Director) -> tuple[Membership, str | None]:
+def create_school(
+    school: School, *, actor, director: Director, prospect_id=None
+) -> tuple[Membership, str | None]:
     """Nouvelle école (`school`, pas encore enregistrée) : rôles de départ copiés, premier
     directeur avec celui qui gère les comptes. Nouveau numéro : mot de passe provisoire renvoyé une
-    seule fois, à transmettre au directeur (pas de SMS en V1)."""
+    seule fois, à transmettre au directeur (pas de SMS en V1). `prospect_id` : la demande de
+    démonstration d'où vient l'essai, qui garde le lien (CON.3)."""
     with transaction.atomic():
         open_space(school, actor=actor)
+        if prospect_id is not None:
+            prospect = DemoRequest.objects.filter(pk=prospect_id).first()
+            if prospect is not None:
+                demo_requests.link_trial(prospect, school)
         with use_school(school):
             return accounts.add_staff_member(
                 actor=actor,
