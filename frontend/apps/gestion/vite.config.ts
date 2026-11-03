@@ -31,6 +31,9 @@ export default defineConfig({
       manifest: false,
       workbox: {
         globPatterns: ["**/*.{js,css,html,woff2,png,svg}"],
+        // La Gestion marche hors ligne : son fichier principal (2,1 Mo) reste précaché ; la
+        // limite par défaut de 2 Mio le refusait (Vite 8).
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         navigateFallback: "/app/index.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/admin\//, /^\/static\//, /^\/media\//],
         // Notifications sur l'écran (5.5) : réception et clic, `public/push-sw.js`.
