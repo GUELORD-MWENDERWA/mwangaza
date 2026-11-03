@@ -87,10 +87,10 @@ Pour tout écran : regarder la capture PNG **et** le HTML de la maquette, reprod
 | Prime / motivation enseignants | `TeacherBonus` |
 | Passage de classe, confirmation de place | `PlaceConfirmation` (`academics/promotion.py`) |
 | Règlement des études (règles de délibération) | `School.settings["pass_rules"]` et `Level.pass_rules` (`schools/pass_rules.py`), décision proposée : `academics/resits.py` |
-| Appareil (console, lecteur, relais), sonnerie, présence par lecteur | `Device` (`kind` : `console`, `reader`, `relay`), `BellProfile` / `BellSlot`, `AttendanceSession` / `AttendanceRecord` (`docs/specs/equipements.md`) |
+| Appareil (console, lecteur, relais), sonnerie, présence par lecteur | `Equipment` (`kind` : `console`, `reader`, `relay`, `sounder` ; `Device` reste l'appareil/navigateur de la Gestion hors ligne), `BellProfile` / `BellSlot`, `AttendanceSession` / `AttendanceRecord` (`docs/specs/equipements.md`) |
 | Cours principal, branche d'option, pratique (atelier) | `Course.category` (`main`, `option`, `practical`, `general`) |
 
-- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `timetable`, `payroll`, `portal`, `notifications`, `sync`, `audit`, `ai`, `billing`, `devices`). Logique métier dans `services.py`, pas dans les vues.
+- Backend : une app Django par domaine (`core`, `accounts`, `schools`, `students`, `finance`, `academics`, `timetable`, `payroll`, `portal`, `notifications`, `sync`, `audit`, `ai`, `billing`, `equipment`). Logique métier dans `services.py`, pas dans les vues.
 - Front : dossiers par fonctionnalité (`features/finance/...`). Client API typé généré depuis l'OpenAPI (`packages/api`).
 - Messages de commit en français, style conventionnel : `feat(finance): encaissement partiel`.
 

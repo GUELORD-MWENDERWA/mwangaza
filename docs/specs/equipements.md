@@ -10,16 +10,41 @@ Décidé le 2026-11-03. Mwangaza englobe désormais deux projets existants : la 
 | `attendance` — Présences | Élèves, enseignants, cours, séances, cartes, lecteurs, justifications, rapports. Pas la sonnerie. | `students`, `academics` |
 | les deux | les deux entrées, sur le **même** appareil | — |
 
-- **Équipements** (liste, jumelage, état, réglages, journal) est un socle **dérivé** : visible dès qu'un des deux modules est pris, jamais vendu à part (`accounts/modules.py`, module interne `devices`, sans case dans la console).
+- **Équipements** (liste, jumelage, état, réglages, journal) est un socle **dérivé** : visible dès qu'un des deux modules est pris, jamais vendu à part (`accounts/modules.py`, module interne `equipment`, sans case dans la console).
 - **À la création d'une école**, la console propose des **forfaits de départ** (Sonnerie seule · Présences · Gestion complète · Sur mesure). Chaque module porte une fonction `setup(school)` (registre `MODULE_SETUP`) qui crée ses **réglages par défaut** (profil « Normal » et créneaux types pour `bell` ; seuils et retard toléré pour `attendance`). Activer un module plus tard l'appelle une fois ; le désactiver ne supprime rien (règle M.1).
 - Le **premier écran après connexion** dépend des modules : une école « Sonnerie seule » arrive sur Sonnerie ; menus, recherche, tableau de bord, rôles proposés et permissions sont filtrés par module (déjà vrai côté serveur depuis M.2 ; à vérifier écran par écran).
 - Rôles utiles pour `bell` : `bell_operator` (sonner, alerte), `bell_admin` (horaires) ; l'**administrateur principal** garde tout. Pas de rôle « enseignant » obligatoire pour une école sans élèves.
+
+## 1 bis. Tout suit les modules choisis (décidé le 2026-11-03)
+
+**Règle générale** : une école ne voit, ne remplit et ne configure que ce qui concerne ses modules **et les modules dont ils dépendent**. Ce qui n'en dépend pas n'apparaît ni dans les menus, ni dans les formulaires, ni dans les paramètres, ni dans les imports et exports, ni dans l'aide, ni dans les documents.
+
+- **Registre unique** (`accounts/modules.py`) : chaque **champ**, **section de paramètres**, **règle**, **rôle**, **widget du tableau de bord**, **document** et **étape de première configuration** déclare le ou les modules qui en ont besoin. Un seul test (`school.applies(feature)`) décide partout : serveur (sérialiseurs, validations, imports, exports), `/me` (menus) et interface. Le front ne fait que masquer ; le serveur **n'exige jamais** un champ qui ne s'applique pas à l'école et refuse d'écrire ceux qui ne s'y appliquent pas.
+- **Exemples** :
+
+| Donnée | Demandée seulement si l'école a… |
+|---|---|
+| Nom, sexe, classe, photo, carte | `attendance` ou `students` (minimum d'une fiche élève) |
+| Téléphone du parent (alertes d'absence) | `attendance` avec notifications, `portal`, `finance` |
+| Numéro d'identification (EPST) et **numéro permanent**, lieu et date de naissance, nationalité, province d'origine | `academics` (en-tête du bulletin) |
+| École précédente, pièces d'inscription | inscriptions (lot 14) |
+| Barème des frais, devises, formats de reçu, caisses | `finance` |
+| Barème des notes, périodes, règlement des études | `academics` |
+| Grille horaire, salles | `timetable` (la **sonnerie** a ses propres créneaux et n'a besoin ni de classes ni d'élèves) |
+| Années scolaires et classes | tout module qui touche des élèves (`students`, `attendance`…), **pas** `bell` seul |
+| Horaires de sonnerie, zones, calendrier | `bell` |
+| Seuils de présence, retard toléré, lecteurs | `attendance` |
+
+- **Création d'une école (console)** : identité + forfait/modules, puis **seulement** les réglages de ces modules ; ajouter un module plus tard ouvre ses réglages et sa première configuration. Une **liste de première configuration** (à cocher) par module remplace la page de réglages générale : Sonnerie = horaires, calendrier, jumeler la console, essai de sonnerie ; Présences = année, classes, élèves, cartes, lecteurs, première séance.
+- **Rôles proposés, tableau de bord, recherche, notifications, guides et articles d'aide** sont filtrés de la même façon. Premier écran après connexion : celui du module principal.
+- **Données déjà saisies** : retirer un module ne supprime rien ; ses champs redeviennent visibles à la réactivation.
+- **Tests** (une matrice, pas une pile) : pour chaque forfait (Sonnerie seule, Présences seules, Gestion complète) : menus de `/me`, création d'un élève avec le minimum de champs (aucun numéro permanent exigé en Présences seules), 403/404 sur les points d'API des autres modules, export sans colonnes hors module, isolation entre écoles.
 
 ## 2. Matériel
 
 ### 2.1 Trois familles d'appareils (une seule carte logicielle commune)
 
-| Type (`Device.kind`) | Carte | Rôle |
+| Type (`Equipment.kind`) | Carte | Rôle |
 |---|---|---|
 | `console` (**principal**) | ESP32 (NodeMCU-32S) + **Arduino Uno + shield TFT tactile** + DS3231 + relais sirène + buzzer + RC522 | Appareil central de l'école : sonnerie autonome **et** lecteur de présence. Sert aussi de **passerelle** vers internet. |
 | `reader` | ESP32 **ou** ESP8266 + RC522 + 4 LED + buzzer | Lecteur de présence dans une salle ; commande aussi un avertisseur local. |
@@ -156,41 +181,74 @@ Passerelle de secours, bascule automatique entre deux consoles, 4G/GSM (V2).
 
 ## 4. Logiciel : serveur
 
-Nouvelle application Django **`devices`** (tout modèle d'école hérite de `TenantModel`) :
+Nouvelle application Django **`equipment`** (tout modèle d'école hérite de `TenantModel`) :
 
 | Modèle | Rôle |
 |---|---|
-| `Device` | appareil : école, `kind`, nom, salle (`Room` de l'emploi du temps si présent), identifiant matériel, clé (chiffrée), version firmware, `last_seen`, RSSI, parent dans le maillage, `gateway`, `state` |
-| `DevicePairing` | code de jumelage à usage unique avec expiration |
-| `DeviceCommand` | commande (type, charge, expiration, état : en attente / envoyée / exécutée / expirée) |
-| `DeviceEvent` | événement brut reçu (UUID v7, appareil, type, charge, heure appareil, `clock_untrusted`) ; table purgée après traitement selon S.7 |
+| `Equipment` | appareil : école, `kind`, nom, salle (`Room` de l'emploi du temps si présent), identifiant matériel, clé (chiffrée), version firmware, `last_seen`, RSSI, parent dans le maillage, `gateway`, `state` |
+| `EquipmentPairing` | code de jumelage à usage unique avec expiration |
+| `EquipmentCommand` | commande (type, charge, expiration, état : en attente / envoyée / exécutée / expirée) |
+| `EquipmentEvent` | événement brut reçu (UUID v7, appareil, type, charge, heure appareil, `clock_untrusted`) ; table purgée après traitement selon S.7 |
 | `FirmwareRelease` | version signée, canal (essai / stable), notes |
 | `bell.*` | `BellProfile`, `BellSlot` (heure, durée, motif de son, jours), `BellException` (date → profil ou silence), `BellRing` (journal des sonneries réelles) |
 | `attendance.*` | `AttendanceSession` (cours, salle, début/fin, liste figée), `AttendanceRecord` (élève, séance, heure, source : lecteur / téléphone / main), cartes (6.1) |
 
 Principes :
-- **API d'appareil** `/api/devices/sync/` (une seule porte) : la passerelle envoie un lot `{events:[…]}` et reçoit `{commands:[…], config_rev, roster_changes:[…]}` ; réponse **delta par `rev`** comme la synchronisation de la Gestion (`/hors-ligne`). Pas de Firebase, pas de WebSocket permanent (charge serveur faible : un appel toutes les 10 à 30 s par passerelle, plus long si rien à dire).
+- **API d'appareil** `/api/equipment/sync/` (une seule porte) : la passerelle envoie un lot `{events:[…]}` et reçoit `{commands:[…], config_rev, roster_changes:[…]}` ; réponse **delta par `rev`** comme la synchronisation de la Gestion (`/hors-ligne`). Pas de Firebase, pas de WebSocket permanent (charge serveur faible : un appel toutes les 10 à 30 s par passerelle, plus long si rien à dire).
 - **Planning de la sonnerie** : source de vérité sur le serveur, **copie complète sur l'appareil** (JSON signé, versionné). Les créneaux peuvent venir de la **grille horaire de l'emploi du temps** (`TimeSlot`) quand l'école a ce module, ou être saisis seuls : une école « Sonnerie seule » n'a pas besoin de classes. Les jours fériés et congés viennent du **calendrier de l'école** (`SchoolEvent`), avec les jours fériés de la RDC en valeurs par défaut modifiables.
 - **Présences** : le lecteur envoie le tap ; un service crée l'`AttendanceRecord` (idempotent par UUID), notifie les parents au besoin (lot 10), alimente les rapports. Une carte (6.1) est une clé d'identité unique par école ; les lecteurs et le pointage par téléphone (6.3) alimentent la **même** table.
 - Tout changement d'appareil, de planning, de commande d'alerte ou de séance va dans l'`AuditLog` (règle 5). Isolation : un appareil ne lit et n'écrit que dans son école ; test dédié pour chaque point d'API.
 
-## 5. Ce qui doit marcher sans connexion (revue du plan, 2026-11-03)
+## 5. Ce qui reste hors ligne (revue de développeur senior, 2026-11-03)
 
-| Fonction | Où ça tourne sans internet | Prévu |
+Le hors-ligne coûte cher : file d'opérations, conflits, stockage, tests. On ne le donne donc **que** là où il rapporte. Critères, dans l'ordre : (1) l'acte se fait à un **guichet, une porte ou une salle** où le réseau tombe ; (2) l'opération est un **ajout** (append-only) ou rejouable sans conflit (UUID v7, idempotente) ; (3) personne d'autre ne **dépend de son effet immédiat** ; (4) elle ne demande pas un **pouvoir central** (annulation, rôles, argent d'un tiers). Trois niveaux :
+
+| Niveau | Contenu | Technique |
 |---|---|---|
-| Sonnerie (planning, calendrier, sirène, boutons) | **sur l'appareil** (DS3231 + copie du planning) ; jamais dépendante du réseau | lot 16 |
-| Pointage par lecteur | sur le lecteur (liste de la séance en mémoire) ; événements gardés puis envoyés | lot 16 |
-| Pointage par téléphone / tablette (6.3) | Gestion hors ligne (Dexie + file d'opérations) | lot 10 |
-| Caisse, reçus, élèves en lecture | Gestion hors ligne | fait (V1.0) |
-| Saisie des notes, conduite | Gestion hors ligne | lots 8 (HL.2) |
-| Dépenses, sorties de caisse, inscription | Gestion hors ligne | lot 7 (HL.1) |
-| **Bibliothèque : prêt, retour, inventaire** (scan) | **à ajouter** : file d'opérations comme la caisse | lot 11 (INV.1, BIB) |
-| **Ateliers : sortie et retour d'outils** | **à ajouter** : idem | lot 11 (ATL) |
-| Présence du personnel (pointage du personnel) | via lecteur ou téléphone, même moteur | lots 10 et 16 |
-| Messagerie, portail des parents et des élèves, factures, console | en ligne seulement (lecture du dernier état en cache pour le portail) | — |
-| Paie, personnel | en ligne ; consultation du dernier bulletin de paie hors ligne | lot 12 |
+| **A. Écriture + lecture hors ligne** | actes de guichet et de porte, ajouts | file d'opérations (outbox) Dexie, UUID v7, rejouée sans doublon |
+| **B. Lecture seule hors ligne** | consultation de ce qu'on a déjà ouvert ou du jour | cache de lecture, daté (« à jour depuis 14:02 ») |
+| **C. En ligne seulement** | décisions centrales, tiers, calculs lourds | écran grisé avec explication, jamais de saisie perdue |
 
-Règle générale : **tout ce qui s'enregistre à un guichet ou à une porte** se fait hors ligne ; tout ce qui s'écrit à un bureau, avec un tiers, reste en ligne.
+| Fonction (module) | Niveau | Décision et raison |
+|---|---|---|
+| Sonnerie (`bell`) | **A, sur l'appareil** | DS3231 + copie du planning ; ne dépend jamais du réseau |
+| Pointage par lecteur (`attendance`) | **A, sur l'appareil** | séance reçue d'avance ; événements gardés (2 000) puis rejoués |
+| Pointage par téléphone / tablette (`attendance`) | **A** | caméra QR/NFC ; même table que les lecteurs ; ajout seulement |
+| Présence manuelle (appel en classe) | **A** | ajout ; une correction = nouvelle ligne au journal |
+| Présence du personnel | **A** | même moteur que les élèves |
+| Caisse : encaisser, reçu, clôture (`finance`) | **A** | **fait** (V1.0) ; numéro de reçu par appareil, signature du reçu |
+| Frais, soldes d'un élève | **B** | lus au guichet ; recalculés au retour du réseau |
+| **Annulation d'un paiement** | **C** | règle 3 : motif, permission dédiée, audit — jamais hors ligne |
+| Dépenses, sorties de caisse (lot 7) | **A** | acte de guichet, ajout ; justificatif ajouté ensuite |
+| Budget, rapports financiers | **B** | lourds ; lus si déjà ouverts |
+| Fiches élèves, listes de classe (`students`) | **B** (+ **A** pour l'inscription d'un élève au guichet, lot 7) | la recherche d'un élève doit marcher partout |
+| Modification d'une fiche (nom, famille) | **C** | risque de conflit entre deux postes ; peu urgent |
+| Import Excel | **C** | gros fichier, aperçu serveur |
+| Notes : saisie, conduite (`academics`) | **A** | l'enseignant saisit en salle ; une note = ajout versionné, dernière validée gagne, **validation et proclamation en ligne** |
+| Bulletins, palmarès, délibération | **C** (lecture **B** d'un bulletin déjà ouvert) | calcul central ; PDF lourd |
+| Emploi du temps : consulter (`timetable`) | **B** | l'horaire du jour de l'enseignant en cache |
+| Emploi du temps : calcul, publication | **C** | optimisation serveur |
+| Bibliothèque : prêt, retour, inventaire scanné (lot 11) | **A** | guichet ; ajouts ; conflit « livre déjà prêté » résolu au rejeu et signalé |
+| Ateliers : sortie et retour d'outils (lot 11) | **A** | idem |
+| Catalogue, acquisitions, fiches d'inventaire | **C** | bureau |
+| Annonces, circulaires, convocations (`communication`) | **B** (lecture) | l'envoi est **C** (un tiers doit le recevoir) |
+| Messagerie, rendez-vous, mérites, sanctions (lot 13) | **C** (brouillon gardé localement) | échange avec un tiers |
+| Portail des parents / élèves | **B** | dernier état (frais, notes, bulletins) en cache ; pas d'écriture |
+| Équipements : liste, état | **B** | écran de la console : état local en direct, sans serveur |
+| Équipements : jumelage, commandes, mise à jour | **local sur la console**, **C** depuis l'application | l'écran de la console agit sans internet (§ 3.4) |
+| Personnel, paie, contrats (lot 12) | **C** (lecture **B** de son dernier bulletin de paie) | calcul et argent d'un tiers |
+| Rôles, comptes, paramètres de l'école | **C** | pouvoir central, audit |
+| Mon abonnement, factures de la plateforme (lot 3) | **C** | rien d'urgent |
+| Console de la plateforme, site public | **C** | équipe, toujours connectée |
+
+**Règles qui en découlent**
+1. **Un cache par module** : le premier chargement hors ligne (`snapshot`) ne contient que les données des **modules de l'école** et des droits du compte (une école « Présences seules » ne télécharge ni frais ni notes) : moins de stockage, moins de temps, moins de fuite. Taille visée : < 30 Mo par appareil pour 1 200 élèves.
+2. **Conflits** : ajout seulement (A) = jamais de conflit ; une même donnée modifiée deux fois = la **dernière validée par le serveur gagne** et l'autre version reste au journal ; une opération refusée au rejeu (permission retirée, élève supprimé) va dans une **boîte « à revoir »** visible de l'utilisateur, jamais en silence.
+3. **Jamais d'argent ni d'identité modifié hors ligne** en dehors de la caisse existante.
+4. **Indicateur unique** (déjà en place) : en ligne / hors ligne / à synchroniser (n opérations) / à revoir ; chaque module hors ligne le réutilise, sans second mécanisme.
+5. **Appareils (équipements)** : leur hors-ligne est celui de leur micrologiciel (§ 3.4) ; ils ne passent pas par la file Dexie.
+6. **Tests** : un parcours Playwright réseau coupé par type d'acte (déjà : caisse ; à ajouter : pointage par téléphone, notes, prêt de livre) — pas un par écran.
+7. **À ne pas faire** (décidé) : édition hors ligne des fiches, des paramètres et des rôles ; synchronisation de fichiers lourds (PDF, photos) hors ligne ; mode hors ligne du portail en écriture.
 
 ## 6. Écrans (maquettes à dessiner au début du lot, 390 et 1440 px)
 
@@ -218,3 +276,9 @@ firmware/
 - **Écriture SD** : jamais dans la boucle de dessin ; en ajout, par blocs de 512 octets, avec CRC ; le journal est aussi gardé par l'ESP32 (double copie).
 - **Revoir si trop juste** : Uno → écran direct sur l'ESP32 (repli décrit en 2.2).
 - **Hors V1** : écran de couleur autre que le shield 2.4–2.8″, son MP3, synthèse vocale, batterie avec mesure de charge, passerelle 4G/GSM (envisagée pour les écoles sans WiFi, V2).
+
+## 9. Site, aide et documents à mettre à jour avec ces modules
+
+- **Site de la plateforme** : page Modules (Sonnerie automatique, Présences par lecteur : icônes et points dans `MODULE_ICONS` / `MODULE_FEATURES`), **nouvelle page Équipements** (la console, les lecteurs, la sirène déportée, comment ils se parlent, l'autonomie, ce que l'école reçoit), accueil et page Écoles (« une école, un module ou tous »), page des prix (abonnement par module **et** matériel), démonstration (une console fictive), `llms.txt` et `sitemap.xml`, français et anglais. Photos du **vrai** matériel de l'utilisateur ; rien de technique pour le visiteur.
+- **Aide** (lot 6) : un article par module, affiché seulement aux écoles qui l'ont ; guide de montage du matériel (schéma, pièces, jumelage, dépannage) en PDF.
+- **Documents internes** à garder à jour avec le lot : `02`, `03`, `04` (modèle de données), `07`, `reference.md`, `A-FAIRE.md`, guide de présentation, skills.
