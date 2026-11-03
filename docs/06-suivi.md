@@ -35,9 +35,9 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 13 — Messagerie et portail des élèves | 0 | 2 |
 | 14 — Inscriptions, transferts, langues | 0 | 3 |
 | 15 — Sites des écoles | 0 | 2 |
-| 16 — Cartes NFC et lecteurs | 0 | 2 |
+| 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 4 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **2 lots sur 17** | **43** |
+| **V1 complète** | **2 lots sur 17** | **45** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -65,6 +65,9 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-11-03 — Équipements : sirène et présences RFID dans Mwangaza (décision de l'utilisateur)
+Les projets « sirène automatique » et « présences RFID ULPGL 001 » entrent dans Mwangaza : conception dans `docs/specs/equipements.md` (modules `bell` / `attendance`, forfaits de départ, appareils, réseau ESP-NOW maillé chiffré, console ESP32 + Uno/TFT/SD, lecteurs ESP32/ESP8266, revue du hors-ligne). Lot 16 remplacé par « Équipements : sonnerie, lecteurs et réseau » (EQP.1 à EQP.4, 4 parties, **une PR**) ; toujours 17 lots. Bibliothèque et ateliers passent par la file hors ligne (lot 11). Lot 3 partie ① faite (serveur `billing`).
 
 ### 2026-10-30 — Lot 2 : retouches après la mise en ligne
 Site en erreur 500 après le déploiement : le cache gardait le contenu au format d'avant (clé du cache changée, `site_content.py`). Section de l'ITIG remise sur l'accueil ; nom d'école du bulletin d'exemple remplacé par « Institut technique d'exemple » ; « — » remplacé par « | » dans les textes (interface, documents imprimés, traductions) ; motif de relief blanc visible (20 %) sur les fonds bleus ; teintes neutres alignées sur le livre de marque (brume, gris, trait, fond) dans le site, `packages/ui`, les maquettes et la skill `design`. `test_demo` expire (« timeout ») sur cette machine, avec ou sans ces changements : la CI tranche.

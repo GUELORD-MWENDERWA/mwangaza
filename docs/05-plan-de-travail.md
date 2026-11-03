@@ -56,12 +56,12 @@ Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche u
 | 8 | **Cours communs et notes** | 8.1.2a, 8.1.2b, 8.2.5, 8.2.4, HL.2 | ① cours communs ② remplaçant, import Excel des notes, conduite hors ligne | — |
 | 9 | **Emploi du temps fini et IA** | EDT.5b, EDT.6, IA.5, IA.3, IA.4 | ① horaire des épreuves, heures prestées ② grille de cours depuis un PDF, assistant de questions, aide à la rédaction | — |
 | 10 | **Carte et présences** | 6.1, 6.3, 6.5, 6.6, A.5 | ① carte et impression ② pointage (caméra, borne, hors ligne) ③ suivi, rapports, parents prévenus | — |
-| 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 | ① moteur commun ② bibliothèque ③ ateliers | — |
+| 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 (prêts, retours, sorties d'outils et inventaire **hors ligne**) | ① moteur commun ② bibliothèque ③ ateliers | — |
 | 12 | **Personnel et paie** | 7.2, 7.3, 7.4 | ① dossier et contrats ② paie ③ espace enseignant | — |
 | 13 | **Messagerie et portail des élèves** | 8.5.2, 8.6 | ① messagerie, rendez-vous, mérites, sanctions ② portail des élèves | — |
 | 14 | **Inscriptions, transferts, langues** | 7.5, 8.7, 8.9, 7.6, I18N.1 | ① pénalités, inscription validée par le paiement, documents ② transfert, attestations, sondages ③ swahili, connexion Google | — |
 | 15 | **Sites des écoles** | WEB.2 | ① serveur et Gestion ② pages publiques | — |
-| 16 | **Cartes NFC et lecteurs** | 6.2, 6.4 | ① liaison des cartes ② lecteurs ESP32 | cartes et matériel |
+| 16 | **Équipements : sonnerie, lecteurs et réseau** | EQP.1, EQP.2, EQP.3, EQP.4 (reprend 6.2, 6.4) | ① modules `bell` et `attendance`, assistant de création d'école, appareils, jumelage, API d'appareil ② sonnerie automatique ③ firmware, réseau maillé, console Uno + SD ④ lecteurs de présence, cartes, essais au banc | matériel pour les essais |
 | 17 | **Revue finale de la V1** | S.9 | ① revue ASVS des trois applications, mesures, guides et présentation, V1 déclarée finie | test d'intrusion par une personne extérieure |
 
 Après le lot 17 : la **V2** (§ 7), dans un ordre à valider à ce moment-là.
@@ -96,6 +96,17 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 - [ ] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
 - [ ] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
+
+## 2 ter. Équipements : tâches ajoutées le 2026-11-03
+
+Mwangaza englobe la **sirène automatique** et les **présences par lecteur RFID** (projets PlatformIO existants, Firebase remplacé par l'API). Conception complète, matériel, réseau, sécurité, hors-ligne : **`docs/specs/equipements.md`**. Quatre tâches, une seule PR (lot 16) ; le lot 10 (carte et présences, logiciel) reste avant et fournit la table des présences que les lecteurs alimentent.
+
+- [ ] **EQP.1** Socle : modules et appareils *(P1, L, 🤖)* — modules `bell` (Sonnerie, sans élèves) et `attendance` (Présences) au catalogue, module interne `devices` ; **forfaits de départ** à la création d'une école (Sonnerie seule, Présences, Gestion complète, Sur mesure) et registre `MODULE_SETUP` (réglages par défaut de chaque module) ; premier écran et menus selon les modules ; app `devices` (`Device`, jumelage par code/QR, `DeviceCommand`, `DeviceEvent`, `FirmwareRelease`) ; `/api/devices/sync/` idempotente, signée, delta par `rev` ; écran **Équipements** (liste, état, ajout, réglages, commandes) ; appareils fictifs dans `make demo`. Isolation, permissions, audit testés.
+- [ ] **EQP.2** Sonnerie automatique *(P1, L, 🤖)* — profils, créneaux (depuis la grille de l'emploi du temps ou saisis seuls), exceptions par date, calendrier de l'école et jours fériés RDC, sonner maintenant / alerte / arrêt (permission dédiée, journal), journal des sonneries, planning poussé à l'appareil (JSON versionné) ; écran **Sonnerie** ; une école « Sonnerie seule » n'a ni élèves ni classes.
+- [ ] **EQP.3** Firmware et réseau *(P1, L, 🤖 + 👤 essais)* — dossier `firmware/` (logique pure testée sur PC, reprise de la sirène et du lecteur ULPGL), console ESP32 + **Uno/TFT/SD** (liaison UART à trames CRC, copie de secours et journal sur la carte SD), lecteur et relais ESP32 / ESP8266, **réseau ESP-NOW maillé** avec passerelle, trames chiffrées et anti-rejeu, mise à jour signée par morceaux ; `make firmware`, `make firmware-test` en CI.
+- [ ] **EQP.4** Lecteurs de présence et cartes *(P1, L, 🤖 + 👤 matériel)* — jumelage d'une carte depuis la fiche (le lecteur attend la carte), séance ouverte → liste envoyée au lecteur, taps → `AttendanceRecord` idempotents, retard et déjà passé, fonctionnement coupé d'internet, cartes NFC NTAG215/216 en plus du QR (6.1), carte perdue refusée par tous les lecteurs, état en direct de la séance ; guide de montage (schéma, liste des pièces).
+
+> **Revue des fonctions hors ligne (2026-11-03)** : tout ce qui s'enregistre à un guichet ou à une porte marche sans internet. Ajouté aux lots existants : **prêt, retour et inventaire de la bibliothèque** et **sorties et retours d'outils des ateliers** passent par la file d'opérations de la caisse (lot 11) ; **pointage du personnel** par le même moteur que les élèves (lots 10 et 16). Tableau complet : `docs/specs/equipements.md` § 5.
 
 ---
 
@@ -504,8 +515,8 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 - [ ] **6.3** Pointage par téléphone ou tablette enregistrés, caméra QR, mode borne, hors ligne *(P1, M)*
 - [ ] **6.5** Suivi des présences, corrections au journal, rapports, taux au tableau de bord *(P1, M)*
 - [ ] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*
-- [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — 👤 commander quelques cartes d'essai
-- [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — 👤 matériel
+- [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — reprise par **EQP.4** (lot 16, 2026-11-03)
+- [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — reprise par **EQP.3** et **EQP.4** (lot 16, 2026-11-03)
 - [ ] **A.5** Sélection de plusieurs élèves pour une impression (§ 5) *(P3, S)* — avec 6.1
 
 ### V1.6 — Bibliothèque et ateliers
