@@ -21,7 +21,7 @@ export function CardHeader({ className, ...props }: ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-3 border-b border-line-soft px-5 py-4",
+        "flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-line-soft px-5 py-4",
         className,
       )}
       {...props}
