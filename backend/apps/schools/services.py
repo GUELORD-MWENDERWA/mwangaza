@@ -23,7 +23,18 @@ from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import use_school
-from apps.schools import alerts, deletion, grading, pass_rules, portal, receipts, reminders, tasks
+from apps.schools import (
+    alerts,
+    deletion,
+    exports,
+    grading,
+    lifecycle,
+    pass_rules,
+    portal,
+    receipts,
+    reminders,
+    tasks,
+)
 from apps.schools.models import Demonstration, School
 
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
@@ -237,6 +248,12 @@ def change_school(school: School, *, actor, **fields) -> School:
     return school
 
 
+def tell_school(school: School, event: str, *, reason: str = "") -> None:
+    """Prévient l'école par e-mail, en tâche de fond une fois la transaction validée (CON.2)."""
+    if school.environment == School.Environment.LIVE and school.contact_email:
+        transaction.on_commit(partial(tasks.email_school.delay, str(school.pk), event, reason))
+
+
 def suspend(school: School, *, actor) -> School:
     """Plus personne ne se connecte à l'école ; rien n'est supprimé (A1)."""
     if school.is_closed:
@@ -245,6 +262,7 @@ def suspend(school: School, *, actor) -> School:
     with transaction.atomic():
         update_school(school, actor=actor, status=School.Status.SUSPENDED)
         _record_platform(PlatformAction.SCHOOL_SUSPENDED, school, actor=actor, before=before)
+        tell_school(school, lifecycle.SUSPENDED)
     return school
 
 
@@ -273,6 +291,11 @@ def stop(school: School, *, actor, reason: str, confirm: str) -> School:
             before=before,
             after={**after, "reason": reason},
         )
+        if school.environment == School.Environment.LIVE:
+            export = exports.request_export(school, actor=actor)
+            transaction.on_commit(
+                partial(tasks.build_export.delay, str(export.pk), lifecycle.STOPPED, reason)
+            )
     return school
 
 
@@ -287,6 +310,7 @@ def reactivate(school: School, *, actor) -> School:
     with transaction.atomic():
         update_school(school, actor=actor, status=status)
         _record_platform(PlatformAction.SCHOOL_REACTIVATED, school, actor=actor, before=before)
+        tell_school(school, lifecycle.REOPENED)
     return school
 
 

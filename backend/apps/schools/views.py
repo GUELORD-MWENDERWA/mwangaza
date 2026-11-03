@@ -1,8 +1,11 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from django.db.models import Count, Q
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import (
@@ -40,7 +43,17 @@ from apps.accounts.views import SchoolViewSet
 from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
-from apps.schools import console, demonstrations, organisation, services, setup
+from apps.schools import (
+    business,
+    console,
+    demonstrations,
+    exports,
+    lifecycle,
+    organisation,
+    services,
+    setup,
+    tasks,
+)
 from apps.schools.console_serializers import (
     AccessSheetQuerySerializer,
     ConsoleSchoolCreatedSerializer,
@@ -61,6 +74,7 @@ from apps.schools.serializers import (
     ClassGroupFilterSerializer,
     ClassGroupSerializer,
     ClassGroupUpdateSerializer,
+    ConsoleBusinessSerializer,
     ConsoleDashboardSerializer,
     CurrentSchoolSerializer,
     LevelReorderSerializer,
@@ -644,6 +658,46 @@ class ConsoleDashboardView(APIView):
         return Response(ConsoleDashboardSerializer(console.dashboard()).data)
 
 
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+@extend_schema(tags=["console"])
+class ConsoleBusinessView(APIView):
+    """Affaires de la plateforme (CON.1) : écoles par état, élèves facturés, facturé / encaissé /
+    dû par devise, contrats à renouveler, prospects ouverts. Calculé en SQL et gardé 5 minutes ;
+    chaque section demande son droit (`schools.view`, `billing.manage`, `leads.manage`) et
+    manque sinon. Il faut au moins un de ces droits."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.BILLING_MANAGE, team.LEADS_MANAGE)
+
+    @extend_schema(responses={200: ConsoleBusinessSerializer, 403: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        data = business.for_rights(request.user.platform_permissions)
+        return Response(ConsoleBusinessSerializer(data).data)
+
+
+@extend_schema(tags=["console"])
+class ConsoleBusinessExportView(APIView):
+    """Export Excel des écoles, des factures ou des paiements de la plateforme (espaces réels
+    seulement) : `schools` demande `schools.view`, les deux autres `billing.manage`."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.BILLING_MANAGE)
+
+    @extend_schema(
+        responses={(200, XLSX): OpenApiTypes.BINARY, 403: ErrorSerializer, 404: ErrorSerializer}
+    )
+    def get(self, request: Request, kind: str) -> HttpResponse:
+        if kind not in business.EXPORTS:
+            raise Http404
+        ensure_platform_permission(request, business.EXPORTS[kind])
+        response = HttpResponse(business.export_workbook(kind), content_type=XLSX)
+        day = timezone.localdate()
+        response["Content-Disposition"] = f'attachment; filename="mwangaza-{kind}-{day}.xlsx"'
+        return response
+
+
 CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
 
 
@@ -784,6 +838,17 @@ class ConsoleSchoolViewSet(
         active."""
         return self._detail(services.reactivate(self._object(), actor=request.user))
 
+    @extend_schema(request=None, responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS})
+    @action(detail=True, methods=["post"], url_path="export")
+    def export_data(self, request: Request, pk=None) -> Response:
+        """Export complet des données de l'école (Excel), fait en tâche de fond ; un lien valable
+        7 jours est envoyé par e-mail à son contact (CON.2). Demandé à l'arrêt, ou ici à la main
+        (école qui part, ou qui veut ses données)."""
+        school = self._object()
+        export = exports.request_export(school, actor=request.user)
+        transaction.on_commit(lambda: tasks.build_export.delay(str(export.pk), lifecycle.EXPORT))
+        return self._detail(school)
+
     @extend_schema(
         request=SchoolDeleteSerializer,
         responses={204: None, 409: ErrorSerializer, **CONSOLE_ERRORS},
@@ -844,3 +909,17 @@ class ConsoleSchoolViewSet(
         context = demonstrations.access_sheet(school)
         name = f"fiche-acces-{school.code}.pdf"
         return render("schools/access_sheet.html", context, params.validated_data["output"], name)
+
+
+@require_GET
+def school_export_download(request: HttpRequest, token: str) -> HttpResponse:
+    """Lien de l'export complet d'une école (CON.2), ouvert par son contact sans compte : signé,
+    valable 7 jours, sur l'adresse de la plateforme (l'école arrêtée n'a plus la sienne). Un lien
+    faux, périmé ou déjà effacé répond 404 sans rien dire de plus."""
+    export = exports.resolve(token)
+    if export is None:
+        raise Http404
+    response = FileResponse(export.file.open("rb"), as_attachment=True)
+    response["Cache-Control"] = "private, no-store"
+    response["X-Robots-Tag"] = "noindex"
+    return response

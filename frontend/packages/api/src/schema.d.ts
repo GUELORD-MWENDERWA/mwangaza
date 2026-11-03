@@ -1817,6 +1817,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/business/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Affaires de la plateforme (CON.1) : écoles par état, élèves facturés, facturé / encaissé /
+         *     dû par devise, contrats à renouveler, prospects ouverts. Calculé en SQL et gardé 5 minutes ;
+         *     chaque section demande son droit (`schools.view`, `billing.manage`, `leads.manage`) et
+         *     manque sinon. Il faut au moins un de ces droits.
+         */
+        get: operations["console_business_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/business/export/{kind}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Export Excel des écoles, des factures ou des paiements de la plateforme (espaces réels
+         *     seulement) : `schools` demande `schools.view`, les deux autres `billing.manage`.
+         */
+        get: operations["console_business_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/dashboard/": {
         parameters: {
             query?: never;
@@ -2089,6 +2131,27 @@ export interface paths {
          *     suppression est relancée.
          */
         post: operations["console_schools_delete_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/schools/{id}/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Export complet des données de l'école (Excel), fait en tâche de fond ; un lien valable
+         *     7 jours est envoyé par e-mail à son contact (CON.2). Demandé à l'arrêt, ou ici à la main
+         *     (école qui part, ou qui veut ses données).
+         */
+        post: operations["console_schools_export_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7530,6 +7593,37 @@ export interface components {
          * @enum {string}
          */
         BoardCourseStatusEnum: "not_started" | "in_progress" | "submitted" | "validated" | "returned";
+        BusinessMoney: {
+            currency: string;
+            /** @description Facturé ce mois-ci (unités entières). */
+            invoiced: number;
+            /** @description Encaissé ce mois-ci, net des annulations. */
+            collected: number;
+            /** @description Reste dû sur toutes les factures. */
+            outstanding: number;
+            /** @description Dont échu. */
+            overdue: number;
+        };
+        BusinessRenewal: {
+            /** Format: uuid */
+            school_id: string;
+            code: string;
+            name: string;
+            /** Format: date */
+            end_date: string;
+            auto_renew: boolean;
+        };
+        BusinessRenewals: {
+            count: number;
+            items: components["schemas"]["BusinessRenewal"][];
+        };
+        BusinessSchools: {
+            trial: number;
+            active: number;
+            readonly: number;
+            suspended: number;
+            stopped: number;
+        };
         CancelRequest: {
             reason: string;
         };
@@ -8372,6 +8466,20 @@ export interface components {
          * @enum {string}
          */
         ConsoleArticleStateEnum: "draft" | "scheduled" | "published";
+        /**
+         * @description Affaires de la plateforme (CON.1), espaces réels seulement. Une section est `null` quand
+         *     les droits de l'équipier ne la couvrent pas (le serveur ne l'envoie pas).
+         */
+        ConsoleBusiness: {
+            /** Format: date */
+            day: string;
+            schools: components["schemas"]["BusinessSchools"] | null;
+            trials_ending: number | null;
+            billed_students: number | null;
+            money: components["schemas"]["BusinessMoney"][] | null;
+            renewals: components["schemas"]["BusinessRenewals"] | null;
+            prospects_open: number | null;
+        };
         ConsoleCollected: {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
@@ -8777,6 +8885,11 @@ export interface components {
              * @description Dernière entrée de son journal, hors support et super-admin.
              */
             readonly last_activity_at: string | null;
+            /** Contact person */
+            contact_name: string;
+            contact_phone: string;
+            contact_email: string;
+            internal_notes: string;
             /** Format: date-time */
             readonly created_at: string;
         };
@@ -8839,6 +8952,11 @@ export interface components {
             /** @description Devises de l'école (au moins une). */
             enabled_currencies: components["schemas"]["CurrencyEnum"][];
             default_currency: components["schemas"]["CurrencyEnum"];
+            /** Contact person */
+            contact_name?: string;
+            contact_phone?: string;
+            contact_email?: string;
+            internal_notes?: string;
             head: components["schemas"]["SchoolHeadRequest"];
         };
         ConsoleSchoolCreated: {
@@ -8904,12 +9022,24 @@ export interface components {
              * @description Dernière entrée de son journal, hors support et super-admin.
              */
             readonly last_activity_at: string | null;
+            /** Contact person */
+            contact_name: string;
+            contact_phone: string;
+            contact_email: string;
+            internal_notes: string;
             /** Format: date-time */
             readonly created_at: string;
             /** @description Les derniers changements faits dans la console, du plus récent au plus ancien. */
             readonly history: components["schemas"]["PlatformChange"][];
             /** @description Vide : pas un espace de démonstration créé depuis la console. */
             readonly demonstration: components["schemas"]["Demonstration"] | null;
+            /** @description Contrat en cours, vide sans contrat (espaces d'essai compris). */
+            readonly contract: components["schemas"]["SchoolContract"] | null;
+            /** @description Les 5 dernières factures et avoirs. */
+            readonly invoices: components["schemas"]["SchoolInvoice"][];
+            readonly usage: components["schemas"]["SchoolUsage"];
+            /** @description Les 3 derniers exports complets. */
+            readonly exports: components["schemas"]["SchoolExport"][];
         };
         ConsoleSchoolRef: {
             /** Format: uuid */
@@ -12466,6 +12596,11 @@ export interface components {
             paid_until?: string | null;
             /** Longest timetable calculation (seconds) */
             timetable_max_seconds?: number;
+            /** Contact person */
+            contact_name?: string;
+            contact_phone?: string;
+            contact_email?: string;
+            internal_notes?: string;
         };
         /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
         PatchedConsoleSiteBannerRequest: {
@@ -14362,6 +14497,17 @@ export interface components {
             /** @description Vide : sans salle. */
             room: string;
         };
+        SchoolContract: {
+            number: string;
+            plan: string;
+            /** Format: date */
+            start_date: string;
+            /** Format: date */
+            end_date: string;
+            price_per_student: number;
+            currency: string;
+            auto_renew: boolean;
+        };
         SchoolDeleteRequest: {
             /** @description Code de l'espace, retapé pour confirmer. */
             confirm: string;
@@ -14441,6 +14587,23 @@ export interface components {
              */
             start_time?: string | null;
         };
+        SchoolExport: {
+            /** Format: uuid */
+            readonly id: string;
+            state: components["schemas"]["SchoolExportStateEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            expires_at: string | null;
+        };
+        /**
+         * @description * `pending` - Being prepared
+         *     * `ready` - Ready
+         *     * `failed` - Failed
+         *     * `expired` - Expired
+         * @enum {string}
+         */
+        SchoolExportStateEnum: "pending" | "ready" | "failed" | "expired";
         /** @description Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu : noms ignorés (B3). */
         SchoolHeadRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
@@ -14448,6 +14611,18 @@ export interface components {
             last_name?: string;
             middle_name?: string;
             first_name?: string;
+        };
+        SchoolInvoice: {
+            number: string;
+            kind: string;
+            /** Format: date */
+            issued_on: string;
+            /** Format: date */
+            due_on: string;
+            currency: string;
+            total: number;
+            /** @description Reste dû, 0 pour un avoir ou une facture soldée. */
+            balance: number;
         };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
@@ -14530,6 +14705,15 @@ export interface components {
             reason: string;
             /** @description Code de l'espace, retapé pour confirmer. */
             confirm: string;
+        };
+        SchoolUsage: {
+            students: number;
+            /** @description Comptes ayant accès à l'école. */
+            accounts: number;
+            /** Format: date-time */
+            last_activity_at: string | null;
+            /** Format: date-time */
+            last_sync_at: string | null;
         };
         /**
          * @description * `all` - Whole timetable
@@ -21555,6 +21739,70 @@ export interface operations {
             };
         };
     };
+    console_business_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleBusiness"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_business_export_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_dashboard_retrieve: {
         parameters: {
             query?: never;
@@ -22412,6 +22660,52 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_export_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

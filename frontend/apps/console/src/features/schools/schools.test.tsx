@@ -32,6 +32,14 @@ const GAMMA = {
   student_count: 0,
   last_activity_at: null,
   created_at: "2026-10-03T08:00:00Z",
+  contact_name: "",
+  contact_phone: "",
+  contact_email: "",
+  internal_notes: "",
+  contract: null,
+  invoices: [],
+  usage: { students: 0, accounts: 1, last_activity_at: null, last_sync_at: null },
+  exports: [],
   history: [],
 };
 

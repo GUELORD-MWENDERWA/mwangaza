@@ -3,7 +3,7 @@
 **But** : l'équipe de la plateforme pilote ses affaires depuis la console : voir où en sont les écoles (essai, payante, retard, départ), suivre les prospects jusqu'à la signature, créer une école avec ses modules, et rendre ses données à une école qui part.
 
 ## Parties
-- [ ] ① CON.1 tableau de bord des affaires (chiffres en SQL, cache 5 min, exports Excel) + CON.2 fiche d'école, cycle de vie, export complet à la résiliation
+- [x] ① CON.1 tableau de bord des affaires (chiffres en SQL, cache 5 min, exports Excel) + CON.2 fiche d'école, cycle de vie, export complet à la résiliation
 - [ ] ② CON.3 prospects : suivi commercial des demandes de démonstration, rappels, « Créer l'espace d'essai »
 - [ ] ③ IA.1.2 page « IA » et carte de la fiche d'école ; S.8 alertes de sécurité (carte « Sécurité » de la santé)
 - [ ] ④ MOD.1 registre des modules (champs, réglages, rôles, widgets, documents), forfaits de départ à la création d'une école, matrice de tests par forfait
@@ -13,6 +13,8 @@
 - Prospects : on **étend `DemoRequest`** (étapes, responsable, relance, motif de perte) au lieu d'un nouveau modèle ; anciennes étapes migrées (`called`→contactée, `dropped`→perdue).
 - Tableau de bord : un seul appel, résultat gardé 5 min (cache), espaces réels seulement, montants jamais additionnés entre devises ; exports Excel en flux, avec `openpyxl` (déjà une dépendance).
 - Export complet : tâche Celery, fichier à lien signé de 7 jours, nettoyé ensuite ; jamais pendant la requête.
+
+- Partie ① (2026-11-03) : « Affaires » est une **page à part** (`/business`, menu « Affaires ») et non un ajout au tableau de bord : elle suit d'autres droits (finance, commercial) et le tableau de bord reste léger. L'export complet est un **classeur Excel seul** : le PDF d'origine ne dirait rien de plus et pèserait des centaines de pages ; décision à valider. Le contact de l'école (`School.contact_*`) reçoit l'e-mail de chaque changement d'état ; sans adresse ou sans serveur d'envoi, le journal reste la trace.
 
 ## Hors périmètre
 Facturation en ligne, relances automatiques aux écoles (ABO existant), page Équipements (lot 16).

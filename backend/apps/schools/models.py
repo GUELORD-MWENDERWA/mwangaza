@@ -222,6 +222,12 @@ class School(BaseModel):
         validators=[MinValueValidator(MIN_RUN_SECONDS), MaxValueValidator(MAX_RUN_SECONDS)],
     )
     # Règles réglées par l'école : `receipt` (M5, `receipts.py`), plus tard les alertes (4.2).
+    # Contact de l'école pour la plateforme (CON.2) : à qui écrire à chaque changement d'état.
+    contact_name = models.CharField(_("contact person"), max_length=120, blank=True)
+    contact_phone = models.CharField(_("contact phone"), max_length=30, blank=True)
+    contact_email = models.EmailField(_("contact email"), blank=True)
+    # Note de l'équipe de la plateforme ; l'école ne la voit jamais.
+    internal_notes = models.TextField(_("internal notes"), max_length=4000, blank=True)
     settings = models.JSONField(_("settings"), default=dict, blank=True)
     # Fin de la liste « Mise en route » (C4, `setup.py`) : ensuite elle n'est plus calculée.
     setup_completed_at = models.DateTimeField(
@@ -645,3 +651,30 @@ class ClassGroup(TenantModel):
         """« 3HT ÉLECTRICITÉ A » : en majuscules, comme sur les documents de l'école."""
         parts = [self.level.name, self.track.name if self.track else "", self.section]
         return " ".join(part for part in parts if part).upper()
+
+
+class SchoolExport(BaseModel):
+    """Export complet des données d'une école (CON.2, S.7), remis quand elle part : un classeur
+    Excel fait en tâche de fond (`exports.py`), téléchargeable par un lien signé de 7 jours, puis
+    effacé. `created_by` : qui l'a demandé."""
+
+    class State(models.TextChoices):
+        PENDING = "pending", _("Being prepared")
+        READY = "ready", _("Ready")
+        FAILED = "failed", _("Failed")
+        EXPIRED = "expired", _("Expired")
+
+    school = models.ForeignKey(
+        School, on_delete=models.CASCADE, related_name="exports", verbose_name=_("school")
+    )
+    state = models.CharField(_("state"), max_length=8, choices=State.choices, default=State.PENDING)
+    file = models.FileField(_("file"), upload_to="exports/", blank=True)
+    expires_at = models.DateTimeField(_("expires at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("school export")
+        verbose_name_plural = _("school exports")
+
+    def __str__(self) -> str:
+        return f"{self.school} ({self.get_state_display()})"

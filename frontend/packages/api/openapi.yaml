@@ -6000,6 +6000,67 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/console/business/:
+    get:
+      operationId: console_business_retrieve
+      description: |-
+        Affaires de la plateforme (CON.1) : écoles par état, élèves facturés, facturé / encaissé /
+        dû par devise, contrats à renouveler, prospects ouverts. Calculé en SQL et gardé 5 minutes ;
+        chaque section demande son droit (`schools.view`, `billing.manage`, `leads.manage`) et
+        manque sinon. Il faut au moins un de ces droits.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleBusiness'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/business/export/{kind}/:
+    get:
+      operationId: console_business_export_retrieve
+      description: |-
+        Export Excel des écoles, des factures ou des paiements de la plateforme (espaces réels
+        seulement) : `schools` demande `schools.view`, les deux autres `billing.manage`.
+      parameters:
+      - in: path
+        name: kind
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/dashboard/:
     get:
       operationId: console_dashboard_retrieve
@@ -6827,6 +6888,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/schools/{id}/export/:
+    post:
+      operationId: console_schools_export_create
+      description: |-
+        Export complet des données de l'école (Excel), fait en tâche de fond ; un lien valable
+        7 jours est envoyé par e-mail à son contact (CON.2). Demandé à l'arrêt, ou ici à la main
+        (école qui part, ou qui veut ses données).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSchoolDetail'
           description: ''
         '400':
           content:
@@ -22501,6 +22606,81 @@ components:
         * `submitted` - submitted
         * `validated` - validated
         * `returned` - returned
+    BusinessMoney:
+      type: object
+      properties:
+        currency:
+          type: string
+        invoiced:
+          type: integer
+          description: Facturé ce mois-ci (unités entières).
+        collected:
+          type: integer
+          description: Encaissé ce mois-ci, net des annulations.
+        outstanding:
+          type: integer
+          description: Reste dû sur toutes les factures.
+        overdue:
+          type: integer
+          description: Dont échu.
+      required:
+      - currency
+      - invoiced
+      - collected
+      - outstanding
+      - overdue
+    BusinessRenewal:
+      type: object
+      properties:
+        school_id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        end_date:
+          type: string
+          format: date
+        auto_renew:
+          type: boolean
+      required:
+      - school_id
+      - code
+      - name
+      - end_date
+      - auto_renew
+    BusinessRenewals:
+      type: object
+      properties:
+        count:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessRenewal'
+      required:
+      - count
+      - items
+    BusinessSchools:
+      type: object
+      properties:
+        trial:
+          type: integer
+        active:
+          type: integer
+        readonly:
+          type: integer
+        suspended:
+          type: integer
+        stopped:
+          type: integer
+      required:
+      - trial
+      - active
+      - readonly
+      - suspended
+      - stopped
     CancelRequest:
       type: object
       properties:
@@ -24407,6 +24587,45 @@ components:
         * `draft` - draft
         * `scheduled` - scheduled
         * `published` - published
+    ConsoleBusiness:
+      type: object
+      description: |-
+        Affaires de la plateforme (CON.1), espaces réels seulement. Une section est `null` quand
+        les droits de l'équipier ne la couvrent pas (le serveur ne l'envoie pas).
+      properties:
+        day:
+          type: string
+          format: date
+        schools:
+          allOf:
+          - $ref: '#/components/schemas/BusinessSchools'
+          nullable: true
+        trials_ending:
+          type: integer
+          nullable: true
+        billed_students:
+          type: integer
+          nullable: true
+        money:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessMoney'
+          nullable: true
+        renewals:
+          allOf:
+          - $ref: '#/components/schemas/BusinessRenewals'
+          nullable: true
+        prospects_open:
+          type: integer
+          nullable: true
+      required:
+      - day
+      - schools
+      - trials_ending
+      - billed_students
+      - money
+      - renewals
+      - prospects_open
     ConsoleCollected:
       type: object
       properties:
@@ -25327,6 +25546,23 @@ components:
           readOnly: true
           nullable: true
           description: Dernière entrée de son journal, hors support et super-admin.
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
         created_at:
           type: string
           format: date-time
@@ -25348,6 +25584,10 @@ components:
       - default_currency
       - student_count
       - last_activity_at
+      - contact_name
+      - contact_phone
+      - contact_email
+      - internal_notes
       - created_at
     ConsoleSchoolCounts:
       type: object
@@ -25448,6 +25688,23 @@ components:
           description: Devises de l'école (au moins une).
         default_currency:
           $ref: '#/components/schemas/CurrencyEnum'
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
         head:
           allOf:
           - $ref: '#/components/schemas/SchoolHeadRequest'
@@ -25568,6 +25825,23 @@ components:
           readOnly: true
           nullable: true
           description: Dernière entrée de son journal, hors support et super-admin.
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
         created_at:
           type: string
           format: date-time
@@ -25585,6 +25859,28 @@ components:
           readOnly: true
           nullable: true
           description: 'Vide : pas un espace de démonstration créé depuis la console.'
+        contract:
+          allOf:
+          - $ref: '#/components/schemas/SchoolContract'
+          nullable: true
+          readOnly: true
+          description: Contrat en cours, vide sans contrat (espaces d'essai compris).
+        invoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolInvoice'
+          readOnly: true
+          description: Les 5 dernières factures et avoirs.
+        usage:
+          allOf:
+          - $ref: '#/components/schemas/SchoolUsage'
+          readOnly: true
+        exports:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolExport'
+          readOnly: true
+          description: Les 3 derniers exports complets.
       required:
       - id
       - code
@@ -25602,9 +25898,17 @@ components:
       - default_currency
       - student_count
       - last_activity_at
+      - contact_name
+      - contact_phone
+      - contact_email
+      - internal_notes
       - created_at
       - history
       - demonstration
+      - contract
+      - invoices
+      - usage
+      - exports
     ConsoleSchoolRef:
       type: object
       properties:
@@ -33075,6 +33379,23 @@ components:
           maximum: 180
           minimum: 10
           title: Longest timetable calculation (seconds)
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
     PatchedConsoleSiteBannerRequest:
       type: object
       description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
@@ -37043,6 +37364,33 @@ components:
       - class_group
       - teacher
       - room
+    SchoolContract:
+      type: object
+      properties:
+        number:
+          type: string
+        plan:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        price_per_student:
+          type: integer
+        currency:
+          type: string
+        auto_renew:
+          type: boolean
+      required:
+      - number
+      - plan
+      - start_date
+      - end_date
+      - price_per_student
+      - currency
+      - auto_renew
     SchoolDeleteRequest:
       type: object
       properties:
@@ -37185,6 +37533,40 @@ components:
       required:
       - starts_on
       - title
+    SchoolExport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        state:
+          $ref: '#/components/schemas/SchoolExportStateEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - state
+      - created_at
+      - expires_at
+    SchoolExportStateEnum:
+      enum:
+      - pending
+      - ready
+      - failed
+      - expired
+      type: string
+      description: |-
+        * `pending` - Being prepared
+        * `ready` - Ready
+        * `failed` - Failed
+        * `expired` - Expired
     SchoolHeadRequest:
       type: object
       description: 'Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu
@@ -37205,6 +37587,34 @@ components:
           maxLength: 100
       required:
       - phone
+    SchoolInvoice:
+      type: object
+      properties:
+        number:
+          type: string
+        kind:
+          type: string
+        issued_on:
+          type: string
+          format: date
+        due_on:
+          type: string
+          format: date
+        currency:
+          type: string
+        total:
+          type: integer
+        balance:
+          type: integer
+          description: Reste dû, 0 pour un avoir ou une facture soldée.
+      required:
+      - number
+      - kind
+      - issued_on
+      - due_on
+      - currency
+      - total
+      - balance
     SchoolSettings:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
@@ -37385,6 +37795,27 @@ components:
       required:
       - confirm
       - reason
+    SchoolUsage:
+      type: object
+      properties:
+        students:
+          type: integer
+        accounts:
+          type: integer
+          description: Comptes ayant accès à l'école.
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_sync_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - students
+      - accounts
+      - last_activity_at
+      - last_sync_at
     ScopeEnum:
       enum:
       - all

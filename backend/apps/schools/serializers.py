@@ -741,6 +741,48 @@ class ConsoleDashboardSerializer(serializers.Serializer):
     platform = PlatformHealthSerializer()
 
 
+class BusinessMoneySerializer(serializers.Serializer):
+    currency = serializers.CharField()
+    invoiced = serializers.IntegerField(help_text="Facturé ce mois-ci (unités entières).")
+    collected = serializers.IntegerField(help_text="Encaissé ce mois-ci, net des annulations.")
+    outstanding = serializers.IntegerField(help_text="Reste dû sur toutes les factures.")
+    overdue = serializers.IntegerField(help_text="Dont échu.")
+
+
+class BusinessRenewalSerializer(serializers.Serializer):
+    school_id = serializers.UUIDField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    end_date = serializers.DateField()
+    auto_renew = serializers.BooleanField()
+
+
+class BusinessRenewalsSerializer(serializers.Serializer):
+    count = serializers.IntegerField()
+    items = BusinessRenewalSerializer(many=True)
+
+
+class BusinessSchoolsSerializer(serializers.Serializer):
+    trial = serializers.IntegerField()
+    active = serializers.IntegerField()
+    readonly = serializers.IntegerField()
+    suspended = serializers.IntegerField()
+    stopped = serializers.IntegerField()
+
+
+class ConsoleBusinessSerializer(serializers.Serializer):
+    """Affaires de la plateforme (CON.1), espaces réels seulement. Une section est `null` quand
+    les droits de l'équipier ne la couvrent pas (le serveur ne l'envoie pas)."""
+
+    day = serializers.DateField()
+    schools = BusinessSchoolsSerializer(allow_null=True)
+    trials_ending = serializers.IntegerField(allow_null=True)
+    billed_students = serializers.IntegerField(allow_null=True)
+    money = BusinessMoneySerializer(many=True, allow_null=True)
+    renewals = BusinessRenewalsSerializer(allow_null=True)
+    prospects_open = serializers.IntegerField(allow_null=True)
+
+
 class SetupStepSerializer(serializers.Serializer):
     key = serializers.ChoiceField(
         choices=["year", "classes", "fees", "staff", "cash", "students", "prior", "invitations"]

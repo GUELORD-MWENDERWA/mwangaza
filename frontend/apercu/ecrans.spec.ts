@@ -339,6 +339,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await admin.waitForURL((url) => !url.pathname.includes("login"));
     for (const path of [
       "",
+      "business",
       "schools",
       "schools/new",
       "demo-requests",

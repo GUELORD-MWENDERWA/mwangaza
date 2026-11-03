@@ -30,6 +30,9 @@ TASK_ROUTES = {
     "apps.core.tasks.email_demo_request": {"queue": FAST_QUEUE},
     "apps.core.tasks.purge_demo_requests": {"queue": FAST_QUEUE},
     "apps.sync.tasks.purge": {"queue": FAST_QUEUE},
+    "apps.schools.tasks.build_export": {"queue": HEAVY_QUEUE},
+    "apps.schools.tasks.email_school": {"queue": FAST_QUEUE},
+    "apps.schools.tasks.purge_exports": {"queue": FAST_QUEUE},
 }
 
 # Les heures propres à chaque école (relances, clôture) sont décidées dans le passage, pas ici
@@ -60,5 +63,9 @@ BEAT_SCHEDULE = {
     "demo-requests-purge": {
         "task": "apps.core.tasks.purge_demo_requests",
         "schedule": crontab(hour=3, minute=55),
+    },
+    "school-exports-purge": {
+        "task": "apps.schools.tasks.purge_exports",
+        "schedule": crontab(hour=3, minute=58),
     },
 }

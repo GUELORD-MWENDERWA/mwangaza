@@ -56,8 +56,8 @@ describe("Menu de la console selon les rôles", () => {
       within(nav)
         .getAllByRole("link")
         .map((link) => link.textContent),
-    ).toEqual(["Écoles", "Demandes"]);
-    expect(router.state.location.pathname).toBe("/schools");
+    ).toEqual(["Affaires", "Écoles", "Demandes"]);
+    expect(router.state.location.pathname).toBe("/business");
     // Pas d'onglet « Réels », pas d'administration de dépannage.
     expect(screen.queryByRole("tab", { name: "Réels" })).toBeNull();
     await user.click(screen.getByRole("button", { name: "Menu du compte" }));

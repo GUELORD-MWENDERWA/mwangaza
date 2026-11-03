@@ -38,6 +38,12 @@ export function spaceRight(environment: string, liveRight: Right): Right {
 /** Entrées du menu et les droits (un seul suffit) que demande chacune. */
 export const MENU = [
   { to: "/", key: "dashboard", end: true, rights: [RIGHTS.schoolsView] },
+  {
+    to: "/business",
+    key: "business",
+    end: true,
+    rights: [RIGHTS.schoolsView, RIGHTS.billingManage, RIGHTS.leadsManage],
+  },
   { to: "/schools", key: "schools", end: false, rights: [RIGHTS.schoolsView, RIGHTS.demosManage] },
   { to: "/demo-requests", key: "demoRequests", end: true, rights: [RIGHTS.leadsManage] },
   { to: "/accounts", key: "accounts", end: false, rights: [RIGHTS.accountsSupport] },

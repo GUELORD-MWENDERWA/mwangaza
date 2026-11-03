@@ -4,6 +4,7 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/accounts/AccountPage";
 import { AccountsPage } from "./features/accounts/AccountsPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { BusinessPage } from "./features/business/BusinessPage";
 import { BillingPage } from "./features/billing/BillingPage";
 import { CodePage } from "./features/auth/CodePage";
 import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
@@ -52,6 +53,13 @@ export const routes: RouteObject[] = [
         element: <ConsoleShell />,
         children: [
           { index: true, element: <Home /> },
+          {
+            path: "business",
+            element: only(
+              [schoolsView, RIGHTS.billingManage, RIGHTS.leadsManage],
+              <BusinessPage />,
+            ),
+          },
           { path: "schools", element: only([schoolsView, demosManage], <SchoolsPage />) },
           { path: "schools/new", element: only([schoolsManage, demosManage], <NewSchoolPage />) },
           { path: "schools/:id", element: only([schoolsView, demosManage], <SchoolPage />) },

@@ -12,6 +12,12 @@ router.register("console/schools", views.ConsoleSchoolViewSet, basename="console
 
 urlpatterns = [
     path("console/dashboard/", views.ConsoleDashboardView.as_view(), name="console-dashboard"),
+    path("console/business/", views.ConsoleBusinessView.as_view(), name="console-business"),
+    path(
+        "console/business/export/<str:kind>/",
+        views.ConsoleBusinessExportView.as_view(),
+        name="console-business-export",
+    ),
     path("matricule-format/", views.MatriculeFormatView.as_view(), name="matricule-format"),
     path(
         "matricule-format/preview/",

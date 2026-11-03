@@ -18,6 +18,7 @@ from apps.schools.views import (
     SchoolSignatureImageView,
     SchoolStampView,
     current_school,
+    school_export_download,
     school_logo,
     school_logo_monochrome,
 )
@@ -57,6 +58,12 @@ urlpatterns = [
     path("favicon.ico", site.favicon, name="site-favicon"),
     path("admin/", admin.site.urls),
     path("api/health/", health, name="health"),
+    # Export complet remis à une école qui part (CON.2) : lien signé, sans compte.
+    path(
+        "api/platform/school-exports/<str:token>/",
+        school_export_download,
+        name="school-export-download",
+    ),
     path("api/platform/", include("apps.core.urls")),
     path("api/console/platform/", include(core_urls.console_urlpatterns)),
     path("api/", include(core_urls.api_urlpatterns)),
