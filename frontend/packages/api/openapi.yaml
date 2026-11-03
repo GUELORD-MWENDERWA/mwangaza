@@ -824,6 +824,7 @@ paths:
           - students.contact_change_applied
           - students.contact_change_dismissed
           - portal.activated
+          - portal.report_viewed
           - portal.password_reset
           - finance.fee_type_created
           - finance.fee_type_updated
@@ -975,6 +976,7 @@ paths:
           * `students.contact_change_applied` - Contact details sent by the parent applied
           * `students.contact_change_dismissed` - Contact details sent by the parent not applied
           * `portal.activated` - Parent portal activated
+          * `portal.report_viewed` - Report card read by a parent
           * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
           * `finance.fee_type_updated` - Fee type changed
@@ -1313,6 +1315,7 @@ paths:
           - students.contact_change_applied
           - students.contact_change_dismissed
           - portal.activated
+          - portal.report_viewed
           - portal.password_reset
           - finance.fee_type_created
           - finance.fee_type_updated
@@ -1464,6 +1467,7 @@ paths:
           * `students.contact_change_applied` - Contact details sent by the parent applied
           * `students.contact_change_dismissed` - Contact details sent by the parent not applied
           * `portal.activated` - Parent portal activated
+          * `portal.report_viewed` - Report card read by a parent
           * `portal.password_reset` - Parent chose a new password
           * `finance.fee_type_created` - Fee type created
           * `finance.fee_type_updated` - Fee type changed
@@ -21680,6 +21684,7 @@ components:
       - students.contact_change_applied
       - students.contact_change_dismissed
       - portal.activated
+      - portal.report_viewed
       - portal.password_reset
       - finance.fee_type_created
       - finance.fee_type_updated
@@ -21830,6 +21835,7 @@ components:
         * `students.contact_change_applied` - Contact details sent by the parent applied
         * `students.contact_change_dismissed` - Contact details sent by the parent not applied
         * `portal.activated` - Parent portal activated
+        * `portal.report_viewed` - Report card read by a parent
         * `portal.password_reset` - Parent chose a new password
         * `finance.fee_type_created` - Fee type created
         * `finance.fee_type_updated` - Fee type changed
@@ -31003,6 +31009,9 @@ components:
       - grades_validated
       - results_proclaimed
       - results_reopened
+      - grades_corrected
+      - resits_to_enter
+      - course_teacher
       - parent_message
       - school_reply
       - timetable_published
@@ -31031,6 +31040,9 @@ components:
         * `grades_validated` - Grade sheet validated
         * `results_proclaimed` - Results proclaimed
         * `results_reopened` - Results reopened
+        * `grades_corrected` - Grades corrected
+        * `resits_to_enter` - Resit grades to enter
+        * `course_teacher` - Course assignment changed
         * `parent_message` - Message from a parent
         * `school_reply` - Reply from the school
         * `timetable_published` - New timetable
