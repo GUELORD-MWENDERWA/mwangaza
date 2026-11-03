@@ -32,6 +32,7 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
             "grades.enter",
             "grades.enter_any",
             "grades.validate",
+            "grades.waive_fees",
             "discipline.configure",
             "discipline.record",
             "discipline.override",

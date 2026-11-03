@@ -45,6 +45,11 @@ STAFF_KINDS = {
     # Le titulaire la reçoit aussi (`events.grades_sent`), sans pouvoir la couper : une par cours.
     Kind.GRADES_SENT: GRADES_VALIDATE,
     Kind.REPORT_CARDS_READY: GRADES_VALIDATE,
+    # Notes validées : l'enseignant du cours et le titulaire ; résultats de la classe : ceux qui
+    # valident les notes et le titulaire (8.2.6, 8.4.6).
+    Kind.GRADES_VALIDATED: GRADES_ENTER,
+    Kind.RESULTS_PROCLAIMED: GRADES_VALIDATE,
+    Kind.RESULTS_REOPENED: GRADES_VALIDATE,
     # Nouvel horaire (EDT.4b) : envoyé aux enseignants dont les heures changent, réglable par eux.
     Kind.TIMETABLE_PUBLISHED: GRADES_ENTER,
     # Crédits de l'IA presque épuisés (IA.1.1) : ceux qui gèrent les rôles de l'école.

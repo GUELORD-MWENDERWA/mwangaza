@@ -646,6 +646,7 @@ def validate_sheet(course: Course, term: Term, *, actor: User) -> Sheet:
             actor,
             _label(course, term),
         )
+        events.grades_validated(state, actor=actor)
     return totals_sheet(course, term)
 
 

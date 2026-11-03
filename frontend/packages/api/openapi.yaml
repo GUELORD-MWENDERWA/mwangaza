@@ -798,6 +798,8 @@ paths:
           - deliberation.decided
           - deliberation.proclaimed
           - deliberation.reopened
+          - fee_waiver.granted
+          - fee_waiver.lifted
           - deliberation.council
           - deliberation.minutes_printed
           - students.family_created
@@ -947,6 +949,8 @@ paths:
           * `deliberation.decided` - Deliberation decision recorded
           * `deliberation.proclaimed` - Class results proclaimed
           * `deliberation.reopened` - Class results reopened
+          * `fee_waiver.granted` - Report card fee waiver granted
+          * `fee_waiver.lifted` - Report card fee waiver lifted
           * `deliberation.council` - Deliberation council recorded
           * `deliberation.minutes_printed` - Deliberation minutes printed
           * `students.family_created` - Family created
@@ -1029,6 +1033,7 @@ paths:
           - deliberation
           - devices
           - discipline
+          - fee_waiver
           - finance
           - grades
           - legal
@@ -1054,6 +1059,7 @@ paths:
           * `deliberation` - deliberation
           * `devices` - devices
           * `discipline` - discipline
+          * `fee_waiver` - fee_waiver
           * `finance` - finance
           * `grades` - grades
           * `legal` - legal
@@ -1281,6 +1287,8 @@ paths:
           - deliberation.decided
           - deliberation.proclaimed
           - deliberation.reopened
+          - fee_waiver.granted
+          - fee_waiver.lifted
           - deliberation.council
           - deliberation.minutes_printed
           - students.family_created
@@ -1430,6 +1438,8 @@ paths:
           * `deliberation.decided` - Deliberation decision recorded
           * `deliberation.proclaimed` - Class results proclaimed
           * `deliberation.reopened` - Class results reopened
+          * `fee_waiver.granted` - Report card fee waiver granted
+          * `fee_waiver.lifted` - Report card fee waiver lifted
           * `deliberation.council` - Deliberation council recorded
           * `deliberation.minutes_printed` - Deliberation minutes printed
           * `students.family_created` - Family created
@@ -1512,6 +1522,7 @@ paths:
           - deliberation
           - devices
           - discipline
+          - fee_waiver
           - finance
           - grades
           - legal
@@ -1537,6 +1548,7 @@ paths:
           * `deliberation` - deliberation
           * `devices` - devices
           * `discipline` - discipline
+          * `fee_waiver` - fee_waiver
           * `finance` - finance
           * `grades` - grades
           * `legal` - legal
@@ -12011,6 +12023,132 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/fee-waivers/:
+    get:
+      operationId: fee_waivers_list
+      description: Dérogations de l'école, la plus récente d'abord.
+      parameters:
+      - in: query
+        name: active
+        schema:
+          type: boolean
+        description: '1 : seulement les actives.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - waivers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFeeWaiverList'
+          description: ''
+    post:
+      operationId: fee_waivers_create
+      description: |-
+        Accorde une dérogation à une famille **ou** un élève : motif et date de fin
+        obligatoires ; la famille ou l'élève d'une autre école : 400.
+      tags:
+      - waivers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeWaiverInputRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FeeWaiverInputRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FeeWaiverInputRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeWaiver'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/fee-waivers/{id}/lift/:
+    post:
+      operationId: fee_waivers_lift_create
+      description: 'Lève une dérogation : le bulletin est de nouveau retenu s''il
+        y a un retard.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - waivers
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeWaiver'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/grading/:
     get:
       operationId: grading_retrieve
@@ -21159,6 +21297,8 @@ components:
       - deliberation.decided
       - deliberation.proclaimed
       - deliberation.reopened
+      - fee_waiver.granted
+      - fee_waiver.lifted
       - deliberation.council
       - deliberation.minutes_printed
       - students.family_created
@@ -21307,6 +21447,8 @@ components:
         * `deliberation.decided` - Deliberation decision recorded
         * `deliberation.proclaimed` - Class results proclaimed
         * `deliberation.reopened` - Class results reopened
+        * `fee_waiver.granted` - Report card fee waiver granted
+        * `fee_waiver.lifted` - Report card fee waiver lifted
         * `deliberation.council` - Deliberation council recorded
         * `deliberation.minutes_printed` - Deliberation minutes printed
         * `students.family_created` - Family created
@@ -27155,6 +27297,7 @@ components:
       - deliberation
       - devices
       - discipline
+      - fee_waiver
       - finance
       - grades
       - legal
@@ -28149,6 +28292,82 @@ components:
       required:
       - category
       - name
+    FeeWaiver:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        family:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        student:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        target_name:
+          type: string
+          readOnly: true
+          description: Élève ou famille concernée.
+        reason:
+          type: string
+          readOnly: true
+        until:
+          type: string
+          format: date
+          readOnly: true
+        granted_by_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        lifted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        active:
+          type: boolean
+          readOnly: true
+          description: Ni levée ni expirée.
+      required:
+      - id
+      - family
+      - student
+      - target_name
+      - reason
+      - until
+      - granted_by_name
+      - created_at
+      - lifted_at
+      - active
+    FeeWaiverInputRequest:
+      type: object
+      properties:
+        family:
+          type: string
+          format: uuid
+          nullable: true
+        student:
+          type: string
+          format: uuid
+          nullable: true
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+        until:
+          type: string
+          format: date
+      required:
+      - reason
+      - until
     FieldError:
       type: object
       properties:
@@ -30271,6 +30490,9 @@ components:
       - grades_returned
       - grades_reminder
       - report_cards_ready
+      - grades_validated
+      - results_proclaimed
+      - results_reopened
       - timetable_published
       - ai_credits
       type: string
@@ -30294,6 +30516,9 @@ components:
         * `grades_returned` - Grade sheet returned
         * `grades_reminder` - Grade sheets expected
         * `report_cards_ready` - Report cards ready
+        * `grades_validated` - Grade sheet validated
+        * `results_proclaimed` - Results proclaimed
+        * `results_reopened` - Results reopened
         * `timetable_published` - New timetable
         * `ai_credits` - AI credits running low
     NotificationPreferences:
@@ -30916,6 +31141,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FamilyDetail'
+    PaginatedFeeWaiverList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeWaiver'
     PaginatedImportLineList:
       type: object
       required:
@@ -33304,6 +33554,7 @@ components:
       - grades.enter
       - grades.enter_any
       - grades.validate
+      - grades.waive_fees
       - discipline.configure
       - discipline.record
       - discipline.override
@@ -33334,6 +33585,7 @@ components:
         * `grades.enter` - Enter the grades of one's courses and of one's homeroom class
         * `grades.enter_any` - Enter the grades of every class
         * `grades.validate` - Validate the grades sent by teachers and set the entry deadlines
+        * `grades.waive_fees` - Let a family or a student receive report cards despite unpaid fees
         * `discipline.configure` - Configure the offences, their points and the conduct scale
         * `discipline.record` - Record an offence of a student
         * `discipline.override` - Correct the conduct grade of a student
@@ -34433,8 +34685,13 @@ components:
           type: boolean
           description: Montrer aux parents le téléphone du titulaire de la classe
             de leur enfant.
+        report_requires_payment:
+          type: boolean
+          description: Retenir le bulletin PDF tant qu'un frais échu de l'élève est
+            impayé (8.4.6).
       required:
       - teacher_phone
+      - report_requires_payment
     PortalSettingsRequest:
       type: object
       description: Ce que le portail montre aux parents (`portal.py`, 5.7).
@@ -34443,7 +34700,12 @@ components:
           type: boolean
           description: Montrer aux parents le téléphone du titulaire de la classe
             de leur enfant.
+        report_requires_payment:
+          type: boolean
+          description: Retenir le bulletin PDF tant qu'un frais échu de l'élève est
+            impayé (8.4.6).
       required:
+      - report_requires_payment
       - teacher_phone
     PortalStatusEnum:
       enum:

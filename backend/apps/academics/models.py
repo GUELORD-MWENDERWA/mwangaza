@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from apps.core.models import TenantModel
 from apps.schools.grading import DETAILED, TOTALS
 from apps.schools.models import ClassGroup, Term
-from apps.students.models import Enrollment
+from apps.students.models import Enrollment, Family, Student
 
 # Bornes de saisie : un maximum de bulletin va de 10 à 100 (rarement plus), une semaine compte
 # 36 à 41 heures de cours au secondaire.
@@ -715,3 +715,63 @@ class PlaceConfirmation(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.enrollment} → {self.class_group}"
+
+
+class FeeWaiver(TenantModel):
+    """Dérogation du préfet [T] (8.4.6) : une famille ou un élève reçoit son bulletin PDF malgré
+    des frais échus impayés, jusqu'à `until`. Jamais modifiée ni effacée : on la lève (le seul
+    changement, journalisé) ou elle expire ; en accorder une autre garde la trace de chacune."""
+
+    family = models.ForeignKey(
+        Family,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="fee_waivers",
+        verbose_name=_("family"),
+    )
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="fee_waivers",
+        verbose_name=_("student"),
+    )
+    reason = models.CharField(_("reason"), max_length=300)
+    until = models.DateField(_("until"))
+    granted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("granted by"),
+    )
+    lifted_at = models.DateTimeField(_("lifted at"), null=True, blank=True)
+    lifted_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("lifted by"),
+    )
+
+    class Meta:
+        verbose_name = _("fee waiver")
+        verbose_name_plural = _("fee waivers")
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(family__isnull=False, student__isnull=True)
+                    | models.Q(family__isnull=True, student__isnull=False)
+                ),
+                name="fee_waiver_family_xor_student",
+            )
+        ]
+        indexes = [
+            models.Index(fields=["school", "family"], name="waiver_school_family"),
+            models.Index(fields=["school", "student"], name="waiver_school_student"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.student or self.family} → {self.until}"

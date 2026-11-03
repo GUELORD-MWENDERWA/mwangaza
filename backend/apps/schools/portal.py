@@ -3,7 +3,9 @@ téléphone du titulaire de la classe de l'enfant, seulement si elle l'a choisi 
 personnel d'un enseignant ; son nom, lui, est toujours montré). Jamais dans le code.
 """
 
-DEFAULTS = {"teacher_phone": False}
+# `report_requires_payment` (8.4.6) : le PDF du bulletin est retenu tant qu'un frais échu de la
+# famille reste impayé, sauf dérogation du préfet.
+DEFAULTS = {"teacher_phone": False, "report_requires_payment": False}
 
 
 def portal_settings(settings: dict) -> dict:

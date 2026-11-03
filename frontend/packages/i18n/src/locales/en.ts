@@ -519,6 +519,7 @@ export const en: Messages<typeof fr> = {
         enter: "Enter the grades of one's courses and of one's homeroom class",
         enter_any: "Enter the grades of every class",
         validate: "Validate the grades sent and set the entry deadlines",
+        waive_fees: "Let a student or a family receive the report card despite unpaid fees",
       },
       discipline: {
         configure: "Manage the offences list and the conduct scale",
@@ -3195,6 +3196,10 @@ export const en: Messages<typeof fr> = {
       resit: {
         grade_changed: "Resit grade changed",
       },
+      fee_waiver: {
+        granted: "Report card waiver granted",
+        lifted: "Report card waiver lifted",
+      },
       deliberation: {
         decided: "Deliberation decision recorded",
         proclaimed: "Class results proclaimed",
@@ -4869,6 +4874,9 @@ export const en: Messages<typeof fr> = {
       grades_sent: "Grade sheet received",
       grades_returned: "Grade sheet returned",
       grades_reminder: "Grade sheets expected",
+      grades_validated: "Grade sheet validated",
+      results_proclaimed: "Results proclaimed",
+      results_reopened: "Results reopened",
       report_cards_ready: "Report cards ready",
       timetable_published: "New timetable",
       ai_credits: "AI credits running low",
@@ -4893,6 +4901,9 @@ export const en: Messages<typeof fr> = {
       grades_sent: "A teacher sends and signs the grade sheet of a course",
       grades_returned: "The director of studies sends a sheet back to you with remarks",
       grades_reminder: "The director of studies reminds you of the grade sheets still expected",
+      grades_validated: "The director of studies validates the grade sheet of your course or class",
+      results_proclaimed: "The results of a class are proclaimed",
+      results_reopened: "The results of a class are reopened for correction",
       report_cards_ready: "A homeroom teacher declares the report cards of their class ready",
       timetable_published: "When a newly published timetable changes your lessons",
       ai_credits: "80 % of the school's AI credits for the month are used",

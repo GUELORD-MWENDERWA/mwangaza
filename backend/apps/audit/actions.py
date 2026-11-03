@@ -133,6 +133,8 @@ class Action(models.TextChoices):
     DELIBERATION_DECIDED = "deliberation.decided", _("Deliberation decision recorded")
     DELIBERATION_PROCLAIMED = "deliberation.proclaimed", _("Class results proclaimed")
     DELIBERATION_REOPENED = "deliberation.reopened", _("Class results reopened")
+    FEE_WAIVER_GRANTED = "fee_waiver.granted", _("Report card fee waiver granted")
+    FEE_WAIVER_LIFTED = "fee_waiver.lifted", _("Report card fee waiver lifted")
     DELIBERATION_COUNCIL = "deliberation.council", _("Deliberation council recorded")
     DELIBERATION_MINUTES_PRINTED = (
         "deliberation.minutes_printed",

@@ -521,6 +521,7 @@ export const fr = {
         enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
         enter_any: "Saisir les notes de toutes les classes",
         validate: "Valider les notes envoyées et fixer les dates limites de saisie",
+        waive_fees: "Laisser un élève ou une famille recevoir le bulletin malgré des frais impayés",
       },
       discipline: {
         configure: "Tenir la liste des infractions et les seuils de la conduite",
@@ -3227,6 +3228,10 @@ export const fr = {
       resit: {
         grade_changed: "Note de repêchage modifiée",
       },
+      fee_waiver: {
+        granted: "Dérogation de bulletin accordée",
+        lifted: "Dérogation de bulletin levée",
+      },
       deliberation: {
         decided: "Décision de délibération enregistrée",
         proclaimed: "Résultats de la classe proclamés",
@@ -4913,6 +4918,9 @@ export const fr = {
       grades_sent: "Fiche de cotes reçue",
       grades_returned: "Fiche de cotes renvoyée",
       grades_reminder: "Fiches de cotes attendues",
+      grades_validated: "Fiche de cotes validée",
+      results_proclaimed: "Résultats proclamés",
+      results_reopened: "Résultats rouverts",
       report_cards_ready: "Bulletins prêts",
       timetable_published: "Nouvel horaire",
       ai_credits: "Crédits IA bientôt épuisés",
@@ -4936,6 +4944,10 @@ export const fr = {
       grades_sent: "Un enseignant envoie et signe la fiche de cotes d'un cours",
       grades_returned: "Le directeur des études vous renvoie une fiche avec ses remarques",
       grades_reminder: "Le directeur des études vous rappelle les fiches de cotes attendues",
+      grades_validated:
+        "Le directeur des études valide la fiche de cotes de votre cours ou de votre classe",
+      results_proclaimed: "Les résultats d'une classe sont proclamés",
+      results_reopened: "Les résultats d'une classe sont rouverts pour correction",
       report_cards_ready: "Un titulaire déclare prêts les bulletins de sa classe",
       timetable_published: "Quand une publication de l'horaire change vos heures",
       ai_credits: "80 % des crédits IA de l'école pour le mois sont utilisés",

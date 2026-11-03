@@ -61,6 +61,9 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   grades_returned: "undo",
   grades_reminder: "bell",
   report_cards_ready: "check",
+  grades_validated: "check",
+  results_proclaimed: "check",
+  results_reopened: "undo",
   timetable_published: "calendar",
   ai_credits: "alert",
 };

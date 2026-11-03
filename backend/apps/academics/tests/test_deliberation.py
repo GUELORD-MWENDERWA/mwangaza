@@ -7,6 +7,7 @@ from apps.academics.models import DeliberationSnapshot
 from apps.academics.tests import test_resits
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
+from apps.notifications.models import Notification
 from tests.factories import MembershipFactory
 
 pytestmark = pytest.mark.django_db
@@ -55,6 +56,7 @@ def test_proposal_follows_the_rules_and_a_gap_needs_a_reason(director, data):
 
 
 def test_proclaiming_needs_a_date_every_decision_and_freezes_the_results(director, data):
+    colleague = MembershipFactory(school=data["a"].school, roles=["study_director"]).user
     assert director.post(url(data, "proclaim/")).json()["code"] == "date_required"
     assert director.put(url(data), {"held_on": "2027-06-20"}).status_code == 200
     assert director.post(url(data, "proclaim/")).json()["code"] == "undecided"
@@ -81,6 +83,13 @@ def test_proclaiming_needs_a_date_every_decision_and_freezes_the_results(directo
         assert [r["decision"] for r in old.rows if r["enrollment"] == josue] == ["resit"]
         assert [r["decision"] for r in new.rows if r["enrollment"] == josue] == ["repeat"]
         actions = AuditLog.objects.filter(action__startswith="deliberation.")
+        # Un seul message par geste, au collègue qui valide les notes (pas à celui qui agit).
+        mine = Notification.objects.filter(user=colleague)
+        assert sorted(mine.values_list("kind", flat=True)) == [
+            "results_proclaimed",
+            "results_proclaimed",
+            "results_reopened",
+        ]
         assert {a.action for a in actions} == {
             "deliberation.decided",
             "deliberation.proclaimed",

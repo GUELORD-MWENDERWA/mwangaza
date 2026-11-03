@@ -260,6 +260,11 @@ class Notification(TenantModel):
         GRADES_REMINDER = "grades_reminder", _("Grade sheets expected")
         # Espace du titulaire (NB.3) : bulletins d'une classe prêts, à ceux qui valident les notes.
         REPORT_CARDS_READY = "report_cards_ready", _("Report cards ready")
+        # Notes validées (8.2.6), au titulaire et à l'enseignant du cours ; résultats d'une classe
+        # proclamés ou rouverts (8.4.6), à ceux qui valident les notes et au titulaire.
+        GRADES_VALIDATED = "grades_validated", _("Grade sheet validated")
+        RESULTS_PROCLAIMED = "results_proclaimed", _("Results proclaimed")
+        RESULTS_REOPENED = "results_reopened", _("Results reopened")
         # Horaire publié (EDT.4b) : aux enseignants et aux parents dont l'horaire change.
         TIMETABLE_PUBLISHED = "timetable_published", _("New timetable")
         # IA (IA.1.1) : 80 % des crédits du mois dépensés, à ceux qui gèrent les rôles.

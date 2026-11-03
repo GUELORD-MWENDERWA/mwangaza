@@ -7,11 +7,18 @@ from apps.academics import (
     resits_views,
     situation_views,
     views,
+    waiver_views,
 )
 from apps.academics import discipline_views as conduct
 from apps.academics import homeroom_views as homeroom
 
 urlpatterns = [
+    path("fee-waivers/", waiver_views.FeeWaiverListView.as_view(), name="fee-waivers"),
+    path(
+        "fee-waivers/<uuid:pk>/lift/",
+        waiver_views.FeeWaiverLiftView.as_view(),
+        name="fee-waiver-lift",
+    ),
     path("class-groups/<uuid:pk>/courses/", views.ClassCoursesView.as_view(), name="class-courses"),
     path(
         "class-groups/<uuid:pk>/courses/copy/",

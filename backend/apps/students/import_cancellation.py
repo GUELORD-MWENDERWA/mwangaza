@@ -30,6 +30,7 @@ from apps.academics.models import (
     ConductGrade,
     DeliberationDecision,
     DisciplineIncident,
+    FeeWaiver,
     Grade,
     PlaceConfirmation,
     ResitGrade,
@@ -113,7 +114,10 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             | Exists(ApplicationGrade.objects.filter(enrollment__student=student))
             | Exists(ResitGrade.objects.filter(enrollment__student=student))
             | Exists(DeliberationDecision.objects.filter(enrollment__student=student))
-            | Exists(PlaceConfirmation.objects.filter(enrollment__student=student)),
+            | Exists(PlaceConfirmation.objects.filter(enrollment__student=student))
+            # Dérogation du préfet (8.4.6), de l'élève ou de sa famille.
+            | Exists(FeeWaiver.objects.filter(student=student))
+            | Exists(FeeWaiver.objects.filter(family=OuterRef("family_id"))),
         ),
     }
 

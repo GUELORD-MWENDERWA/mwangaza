@@ -353,6 +353,84 @@ def grades_returned(state: GradeSheet, reason: str, *, sender: User | None, acto
     )
 
 
+def grades_validated(state: GradeSheet, *, actor: User) -> None:
+    """Fiche validée par le directeur des études : à l'enseignant du cours (sinon à qui l'avait
+    envoyée) et au titulaire de la classe."""
+    teacher = state.course.teacher_id or state.submitted_by_id
+    homeroom = state.course.class_group.homeroom_teacher_id
+    course, term = _sheet_label(state)
+
+    def text() -> tuple[str, str]:
+        title = _("Grade sheet validated: %(course)s") % {"course": course}
+        return title, _("%(term)s · validated by %(by)s") % {"term": term, "by": _by(actor)}
+
+    send(
+        _members(teacher, homeroom).exclude(pk=actor.pk),
+        app=App.GESTION,
+        kind=Kind.GRADES_VALIDATED,
+        url=f"/grade-sheets/totals?course={state.course_id}&term={state.term_id}",
+        text=text,
+    )
+
+
+def results_proclaimed(group, *, term, second: bool, version: int, actor: User) -> None:
+    """Résultats d'une classe proclamés (8.4.6) : un envoi pour toute la classe, à ceux qui
+    valident les notes et au titulaire. Proclamée de nouveau après une correction : version
+    indiquée."""
+    users = {u.pk: u for u in staff(Kind.RESULTS_PROCLAIMED, but=actor)}
+    users.update({u.pk: u for u in _members(group.homeroom_teacher_id).exclude(pk=actor.pk)})
+    session = _session_label(term, second)
+
+    def text() -> tuple[str, str]:
+        title = _("Results proclaimed: %(class)s") % {"class": group.name}
+        body = _("%(session)s · version %(version)d, by %(by)s") % {
+            "session": session,
+            "version": version,
+            "by": _by(actor),
+        }
+        return title, body
+
+    send(
+        users.values(),
+        app=App.GESTION,
+        kind=Kind.RESULTS_PROCLAIMED,
+        url=f"/deliberation?class={group.pk}",
+        text=text,
+    )
+
+
+def results_reopened(group, *, term, second: bool, reason: str, actor: User) -> None:
+    """Résultats d'une classe rouverts pour correction, avec le motif : mêmes destinataires."""
+    users = {u.pk: u for u in staff(Kind.RESULTS_REOPENED, but=actor)}
+    users.update({u.pk: u for u in _members(group.homeroom_teacher_id).exclude(pk=actor.pk)})
+    session = _session_label(term, second)
+
+    def text() -> tuple[str, str]:
+        title = _("Results reopened: %(class)s") % {"class": group.name}
+        body = _("%(session)s · %(by)s: %(reason)s") % {
+            "session": session,
+            "by": _by(actor),
+            "reason": reason,
+        }
+        return title, body
+
+    send(
+        users.values(),
+        app=App.GESTION,
+        kind=Kind.RESULTS_REOPENED,
+        url=f"/deliberation?class={group.pk}",
+        text=text,
+    )
+
+
+def _session_label(term, second: bool) -> str:
+    from apps.academics.grades import term_label
+
+    if second:
+        return str(_("Second session"))
+    return str(term_label(term)) if term else str(_("End of year"))
+
+
 REMINDER_COURSES_LISTED = 3
 
 
