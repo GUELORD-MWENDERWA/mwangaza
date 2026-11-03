@@ -5,7 +5,8 @@
 ## Parties
 - [x] ① Serveur : blocage du bulletin liés aux frais + dérogation (8.4.6), notifications des notes validées / résultats proclamés ou rouverts (8.2.6) ; maquette `derogations-bulletin.html` dessinée
   - Reste de 8.2.6 (à faire en partie ④) : total corrigé par un autre, fiche rouverte, remplaçant désigné, date limite proche, repêchage à saisir ; chaque sorte est déjà désactivable
-- [ ] ② Serveur Portail : notes, bulletins PDF contrôlés, résultats au tableau de bord, fil parent ↔ école par élève (8.8)
+- [x] ② Serveur Portail : notes, bulletins PDF contrôlés, résultats (un appel par enfant), fil parent ↔ école par élève (8.8)
+  - Droit de répondre = `announcements.publish` ; PDF 10 par minute ; journal des consultations de bulletins à faire en ④ (S.10)
 - [ ] ③ Écrans Portail (scolarité, bulletin, écrire à l'école) et Gestion (dérogations, réponses) ; maquettes d'abord
 - [ ] ④ Portail sans réseau (HL.3), rapidité (PERF.6), revue de sécurité (S.10)
 
