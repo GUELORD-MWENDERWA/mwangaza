@@ -32,6 +32,7 @@ describe("menu selon les permissions (04 § 8)", () => {
       "organisation",
       "staff",
       "roles",
+      "subscription",
       "devices",
       "audit",
     ]);
