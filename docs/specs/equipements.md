@@ -43,7 +43,25 @@ Tout appareil est **configurable, paramétrable et gérable** (CRUD) depuis la G
 
 ESP32 ou ESP8266 + RC522 + LED (verte OK, orange déjà passé, rouge refus, bleue prêt/attente de carte) + buzzer, bouton (appui long = réglage). Signalisation identique à celle du projet ULPGL (vert + 1 bip, orange + 2 bips, rouge + bip long). **Il décide seul** à partir de la liste de la séance reçue ; un tap n'attend jamais le réseau.
 
-### 2.4 Alimentation et robustesse
+### 2.4 Lecteur de cartes (V1) et antennes
+
+- **V1 : RC522 (MFRC522, 13,56 MHz)**, bibliothèque `MFRC522` déjà utilisée par le projet ULPGL. Il lit le numéro unique (UID) des cartes MIFARE et des NTAG215/216, ce qui suffit : la carte est une clé d'identité, rien n'est écrit dedans. PN532 seulement si un jour on veut écrire des données ou lire des téléphones (V2).
+- **Antennes** : un module à antenne externe (ESP32 « U », connecteur U.FL, 3 à 5 dBi) augmente la portée de **chaque lien**, il ne supprime pas les relais : un mur de béton coûte 10 à 20 dB, une antenne en gagne 3 à 5. Effet réel : moins de relais, ou des liens plus fiables entre bâtiments. La puissance d'émission est réglable par appareil (économie de batterie quand le lien est bon). La portée se **mesure** sur le site (qualité du lien affichée dans Équipements) avant de décider d'un relais.
+- **SD** : à tester d'abord **branchée directement sur l'ESP32** (broches SD du shield accessibles, SPI 3,3 V, sans protocole série) ; repli : via l'Uno.
+
+### 2.5 Alimentation : secteur, batterie, ou les deux
+
+Chaque appareil fonctionne **avec la batterie seule, avec l'adaptateur 5 V seul, ou avec les deux** (l'adaptateur alimente et charge, la batterie reprend sans coupure). Le système est **entièrement piloté** : l'ESP32 voit la source, la charge, la tension et la température, et commande la charge.
+
+- **Chaîne** : adaptateur 5 V → **chargeur avec chemin de puissance** (type BQ24074 : l'appareil est alimenté pendant la charge, courant limité, thermistance, signaux d'état) → cellule Li-ion 1S (18650 protégée, BMS à protection surcharge, décharge profonde, court-circuit) → 3,3 V pour l'ESP32, le RC522 et l'horloge (convertisseur élévateur-abaisseur, bon rendement entre 3,0 et 4,2 V) et un **5 V commutable** pour l'Uno/écran et le relais. Un simple TP4056 sans chemin de puissance est refusé : il charge mal quand l'appareil consomme.
+- **Pilotage par l'ESP32** : lecture de la tension (diviseur sur une entrée ADC1, filtrée) ; broche d'activation de la charge ; état de charge ; **arrêt de la charge à 4,1 V** (option « longue durée de vie », −10 % d'autonomie, cellule plus durable) ; **pas de charge sous 0 °C ni au-dessus de 45 °C** (Goma : boîtier au soleil = charge suspendue) ; coupure propre à 3,3 V (heure de coupure notée, relais ouvert, reprise automatique au retour du courant).
+- **Économies** : écran (alimentation 5 V de l'Uno coupée par transistor, réveil au bouton ou à la carte) éteint après 30 s ; RC522 éveillé par courtes interrogations ; sur un **lecteur sur batterie**, l'ESP32 dort **hors des heures de séance** (réveil par l'horloge ; les séances viennent du planning) ; puissance radio réduite quand le lien est bon.
+- **Autonomies attendues (estimations à mesurer au banc, cellule 3 000 mAh)** : console (radio toujours éveillée, écran éteint) ≈ 1 jour : **secteur recommandé, batterie = secours de plusieurs heures** ; lecteur sur batterie, éveillé 6 h par jour ≈ 1 semaine ; relais (toujours à l'écoute) ≈ 1,5 jour : secteur ou **petit panneau solaire 5 V** sur le même chargeur.
+- **La sirène n'est pas alimentée par cette batterie** : le relais ne fait que **fermer un contact sec** ; la sirène a sa propre alimentation. Sans courant, la sirène ne sonne donc pas, même si l'appareil tient l'heure (à signaler à l'école ; sirène sur batterie 12 V possible plus tard).
+- **Remontée à la console** (`heartbeat`) : source (secteur / batterie), tension, pourcentage estimé, autonomie estimée, état de charge, température, nombre de coupures ; alertes « batterie faible », « sur batterie depuis X min », « défaut de charge » ; réglages (limite de charge, mise en veille) modifiables à distance. Tâche de banc : **mesure de consommation** de chaque type d'appareil (EQP.3).
+- Sécurité de la cellule : fusible, protection contre l'inversion, cellule jamais chargée sans protection, boîtier ventilé ; alternative plus sûre et plus durable en chaleur : **LiFePO4** (3,2 V, 2 000 cycles), à comparer au banc.
+
+### 2.6 Alimentation et robustesse
 Condensateur 470–1000 µF à l'entrée, relais sirène commandé par NPN avec tirage vers le bas (GPIO12 jamais haut au démarrage), watchdog, double copie des réglages avec CRC, mise à jour OTA avec retour arrière, autotest quotidien : repris tels quels de la sirène.
 
 ## 3. Réseau d'appareils (vue télécom / réseau / embarqué / logiciel)
