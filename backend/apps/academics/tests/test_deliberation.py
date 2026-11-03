@@ -55,7 +55,9 @@ def test_proposal_follows_the_rules_and_a_gap_needs_a_reason(director, data):
     assert decide(director, data, "amani", "pass").json()["deviations"] == 1
 
 
-def test_proclaiming_needs_a_date_every_decision_and_freezes_the_results(director, data):
+def test_proclaiming_needs_a_date_every_decision_and_freezes_the_results(
+    director, physics_teacher, data
+):
     colleague = MembershipFactory(school=data["a"].school, roles=["study_director"]).user
     assert director.post(url(data, "proclaim/")).json()["code"] == "date_required"
     assert director.put(url(data), {"held_on": "2027-06-20"}).status_code == 200
@@ -65,6 +67,12 @@ def test_proclaiming_needs_a_date_every_decision_and_freezes_the_results(directo
 
     done = director.post(url(data, "proclaim/")).json()
     assert (done["status"], done["version"]) == ("proclaimed", 1)
+    # L'enseignant du cours à repasser reçoit une seule alerte « repêchage à saisir » (8.2.6).
+    with use_school(data["a"].school):
+        alerts = Notification.objects.filter(kind="resits_to_enter")
+        assert [(n.user_id, "Physique (1)" in n.body) for n in alerts] == [
+            (physics_teacher.pk, True)
+        ]
     # Classe proclamée : plus de décision, plus de date.
     assert decide(director, data, "josue", "repeat", "x").json()["code"] == "deliberation_closed"
     assert director.put(url(data), {"held_on": "2027-06-21"}).status_code == 400

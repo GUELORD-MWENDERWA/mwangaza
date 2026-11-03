@@ -7,7 +7,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Lot 4 — Bulletins aux parents, parties ① à ④ faites (4/4), restes : repêchage (8.2.6) et mesure PERF.6 |
+| Lot en cours | Lot 4 — Bulletins aux parents, parties ① à ④ faites (4/4), reste : mesure PERF.6 |
 | Prochain lot | Lot 5 (après le lot 4) |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #420 (une par lot, jalon « V1 complète ») |
@@ -69,7 +69,7 @@ Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
 ### 2026-11-03 — Lot 4 : Bulletins aux parents (presque fini)
 - Fait : bulletin retenu pour frais échus + dérogations ; notes, décision et bulletin PDF contrôlé sur le Portail ; fil parent ↔ école ; Portail lisible sans réseau (notes, conduite, fil, bandeau « vu le ») ; journal des consultations de bulletins ; alertes « notes corrigées par un autre » et « cours confié / retiré ».
 - Tests : isolation, droits, audit, budget de requêtes du Portail, notifications. 
-- Reste : alerte « repêchage à saisir » (8.2.6) et mesure `make perf` (PERF.6) — gardées ouvertes dans `05`.
+- Reste : mesure `make perf` (PERF.6), gardée ouverte dans `05` ; alerte « repêchage à saisir » faite (8.2.6).
 - Suite : lot 5 — Console finie.
 
 ### 2026-11-03 — Lot 3 : Vendre (contrats, abonnements, factures), partie ⑤ et fin du lot

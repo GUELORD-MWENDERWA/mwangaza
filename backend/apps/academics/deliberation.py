@@ -615,6 +615,8 @@ def proclaim(
         events.results_proclaimed(
             group, term=term, second=second, version=deliberation.version, actor=actor
         )
+        if term is None and not second:
+            events.resits_to_enter(group, frozen_rows, actor=actor)
     return snapshot
 
 

@@ -268,6 +268,7 @@ class Notification(TenantModel):
         # Notes corrigées par un autre que l'enseignant ; enseignant désigné ou retiré d'un cours
         # (8.2.6), à l'enseignant concerné.
         GRADES_CORRECTED = "grades_corrected", _("Grades corrected")
+        RESITS_TO_ENTER = "resits_to_enter", _("Resit grades to enter")
         COURSE_TEACHER = "course_teacher", _("Course assignment changed")
         # Fil parent ↔ école (8.8) : un message du parent, au personnel qui communique avec les
         # familles ; la réponse de l'école, au parent.

@@ -412,6 +412,35 @@ def grades_corrected(course, term, *, count: int, actor: User) -> None:
     )
 
 
+def resits_to_enter(group, rows: list[dict], *, actor: User) -> None:
+    """Fin d'année proclamée : élèves envoyés en seconde session (8.2.6). Une notification par
+    enseignant, avec ses cours et le nombre d'élèves qui les repassent. `rows` : lignes figées."""
+    counts: dict[str, int] = defaultdict(int)
+    for row in rows:
+        if row.get("decision") == "resit":
+            for name in row.get("resit_courses", []):
+                counts[name] += 1
+    if not counts:
+        return
+    by_teacher: dict = defaultdict(list)
+    for course in group.courses.filter(name__in=counts, teacher__isnull=False):
+        by_teacher[course.teacher_id].append(course)
+    for teacher, courses in by_teacher.items():
+        detail = ", ".join(f"{c.name} ({counts[c.name]})" for c in sorted(courses, key=str))
+
+        def text(detail=detail) -> tuple[str, str]:
+            title = _("Resit grades to enter: %(group)s") % {"group": group.name}
+            return title, _("%(courses)s · by %(by)s") % {"courses": detail, "by": _by(actor)}
+
+        send(
+            _members(teacher).exclude(pk=actor.pk),
+            app=App.GESTION,
+            kind=Kind.RESITS_TO_ENTER,
+            url="/grades",
+            text=text,
+        )
+
+
 def course_teacher_changed(changes: list, *, actor: User) -> None:
     """Enseignants désignés ou retirés d'un ou plusieurs cours d'une classe (8.2.6) : une
     notification par enseignant et par enregistrement. `changes` : (cours, ancien id, nouvel id)."""
