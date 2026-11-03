@@ -130,10 +130,22 @@ def test_a_sheet_is_sent_and_signed_then_validated_or_returned_with_remarks(
         and changed["history"][0]["changes"] == 1
     )
 
+    # Notes corrigées (8.2.6) : l'enseignant n'est pas prévenu de ses propres changements, mais
+    # il l'est quand le directeur des études corrige.
+    assert notified(school, "grades_corrected") == []
+    fixed = boss.put(
+        url, {**sent, "grades": [{**sent["grades"][0], "score": "14"}], "reason": "Revu"}
+    )
+    assert fixed.status_code == 200
+    corrected = notified(school, "grades_corrected")
+    assert [user for user, _link in corrected] == [teacher.pk]
+
     # Seul qui a `grades.validate` valide ; la feuille validée est fermée à tous.
     assert client.post(action_url(data["physics"], data["p1"], "validate")).status_code == 403
     validated = boss.post(action_url(data["physics"], data["p1"], "validate")).json()
     assert validated["status"] == "validated" and "evaluations" not in validated
+    # L'enseignant du cours et le titulaire en sont avertis (8.2.6), pas celui qui a validé.
+    assert notified(school, "grades_validated") == sorted([(teacher.pk, link), (homeroom.pk, link)])
     closed = client.put(url, {**sent, "reason": "Encore"})
     assert closed.status_code == 409 and closed.json()["code"] == "sheet_validated"
     assert states(boss)["1RE ÉLECTRICITÉ A"]["Physique"] == "validated"

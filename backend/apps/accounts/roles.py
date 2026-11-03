@@ -24,6 +24,7 @@ PERMISSIONS: dict[str, Promise] = {
     "grades.enter": _("Enter the grades of one's courses and of one's homeroom class"),
     "grades.enter_any": _("Enter the grades of every class"),
     "grades.validate": _("Validate the grades sent by teachers and set the entry deadlines"),
+    "grades.waive_fees": _("Let a family or a student receive report cards despite unpaid fees"),
     "discipline.configure": _("Configure the offences, their points and the conduct scale"),
     "discipline.record": _("Record an offence of a student"),
     "discipline.override": _("Correct the conduct grade of a student"),
@@ -71,6 +72,8 @@ DISCIPLINE_RECORD = "discipline.record"
 DISCIPLINE_OVERRIDE = "discipline.override"
 # Valider les notes envoyées, les rouvrir, fixer la date limite de saisie (8.2.2).
 GRADES_VALIDATE = "grades.validate"
+# Dispenser une famille ou un élève du blocage du bulletin pour frais impayés (8.4.6).
+GRADES_WAIVE_FEES = "grades.waive_fees"
 # Gérer les rôles et les comptes du personnel : une école garde toujours un compte actif qui l'a.
 ROLES_MANAGE = "roles.manage"
 # Publier et archiver les annonces aux familles (H4).
@@ -136,6 +139,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "school.configure",
             "classes.manage",
             "courses.configure",
+            "grades.waive_fees",
             "discipline.configure",
             "discipline.record",
             "discipline.override",

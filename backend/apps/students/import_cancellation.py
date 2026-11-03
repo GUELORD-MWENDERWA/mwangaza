@@ -30,6 +30,7 @@ from apps.academics.models import (
     ConductGrade,
     DeliberationDecision,
     DisciplineIncident,
+    FeeWaiver,
     Grade,
     PlaceConfirmation,
     ResitGrade,
@@ -39,6 +40,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.finance.models import CreditAllocation, Discount, Payment, StudentCharge, StudentCredit
+from apps.notifications.models import Thread
 from apps.schools.models import AcademicYear
 from apps.students.models import Enrollment, Family, MatriculeSequence, Student, StudentImport
 from apps.students.services import _student_data
@@ -113,7 +115,12 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             | Exists(ApplicationGrade.objects.filter(enrollment__student=student))
             | Exists(ResitGrade.objects.filter(enrollment__student=student))
             | Exists(DeliberationDecision.objects.filter(enrollment__student=student))
-            | Exists(PlaceConfirmation.objects.filter(enrollment__student=student)),
+            | Exists(PlaceConfirmation.objects.filter(enrollment__student=student))
+            # Dérogation du préfet (8.4.6), de l'élève ou de sa famille.
+            | Exists(FeeWaiver.objects.filter(student=student))
+            | Exists(FeeWaiver.objects.filter(family=OuterRef("family_id")))
+            # Fil avec les parents (8.8) : les messages restent.
+            | Exists(Thread.objects.filter(student=student)),
         ),
     }
 

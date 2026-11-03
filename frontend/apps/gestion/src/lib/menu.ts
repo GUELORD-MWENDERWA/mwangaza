@@ -269,6 +269,21 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         permissions: ["students.edit"],
         task: "4.4",
       },
+      {
+        key: "parentMessages",
+        path: "parent-messages",
+        icon: "inbox",
+        permissions: ["announcements.publish"],
+        task: "8.8",
+      },
+      {
+        key: "waivers",
+        path: "waivers",
+        icon: "alert",
+        permissions: ["grades.waive_fees"],
+        module: "academics",
+        task: "8.4.6",
+      },
     ],
   },
   {

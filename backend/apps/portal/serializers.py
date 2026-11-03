@@ -9,7 +9,7 @@ from apps.accounts.serializers import LoginSerializer, PhoneField
 from apps.core.money import Currency
 from apps.finance.models import Payment
 from apps.finance.serializers import BalanceSerializer, LastPaymentSerializer
-from apps.notifications.models import SchoolEvent
+from apps.notifications.models import Message, SchoolEvent
 from apps.notifications.serializers import NotificationSerializer
 from apps.portal import children, families
 from apps.schools.models import School
@@ -279,3 +279,69 @@ class ChildConductSerializer(serializers.Serializer):
     full_name = serializers.CharField()
     terms = ChildTermConductSerializer(many=True)
     incidents = ChildIncidentSerializer(many=True)
+
+
+class ChildCourseScoreSerializer(serializers.Serializer):
+    course = serializers.CharField()
+    score = serializers.DecimalField(
+        max_digits=6, decimal_places=1, allow_null=True, help_text="Vide : notes incomplètes."
+    )
+    maximum = serializers.IntegerField()
+
+
+class ChildTermResultSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    released = serializers.BooleanField(
+        help_text="Résultats proclamés : le bulletin de cette période est remis aux parents."
+    )
+    courses = ChildCourseScoreSerializer(many=True)
+    total = serializers.DecimalField(
+        max_digits=7,
+        decimal_places=1,
+        allow_null=True,
+        help_text="Vide tant que tout n'est pas validé.",
+    )
+    maximum = serializers.IntegerField(allow_null=True)
+
+
+class ChildDecisionSerializer(serializers.Serializer):
+    decision = serializers.CharField(help_text="`promoted`, `repeat`, `resit`… (délibération).")
+    resit_courses = serializers.ListField(child=serializers.CharField())
+    held_on = serializers.DateField()
+
+
+class ChildResultsSerializer(serializers.Serializer):
+    """Notes validées, décision de passage et état du bulletin d'un enfant (8.8)."""
+
+    id = serializers.UUIDField()
+    full_name = serializers.CharField()
+    class_group = serializers.CharField()
+    terms = ChildTermResultSerializer(many=True)
+    decision = ChildDecisionSerializer(allow_null=True)
+    report_available = serializers.BooleanField()
+    withheld = serializers.BooleanField(
+        help_text="Frais échus sans dérogation : PDF refusé, décision toujours visible."
+    )
+
+
+class PortalMessageSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    from_school = serializers.BooleanField()
+    author_name = serializers.CharField(source="author.get_full_name")
+    topic = serializers.CharField(help_text="`waiver`, `grade` ou `other` ; vide pour l'école.")
+    body = serializers.CharField()
+    created_at = serializers.DateTimeField()
+
+
+class ChildThreadSerializer(serializers.Serializer):
+    """Fil d'un enfant avec l'école (8.8)."""
+
+    id = serializers.UUIDField(help_text="Identifiant de l'enfant.")
+    messages = PortalMessageSerializer(many=True)
+    unread = serializers.BooleanField(help_text="Une réponse de l'école n'a pas été lue.")
+
+
+class ThreadWriteSerializer(serializers.Serializer):
+    body = serializers.CharField(max_length=1500)
+    topic = serializers.ChoiceField(choices=Message.Topic.choices, default=Message.Topic.OTHER)

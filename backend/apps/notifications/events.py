@@ -25,7 +25,7 @@ from apps.core.money import format_amount
 from apps.core.tenancy import require_current_school
 from apps.finance.models import CancellationRequest, CashClosing, CashSession, Payment
 from apps.notifications import push
-from apps.notifications.models import Announcement, Notification, Summons
+from apps.notifications.models import Announcement, Message, Notification, Summons, Thread
 from apps.students.models import Enrollment, Family
 
 App = Notification.App
@@ -287,6 +287,40 @@ def places_offered(family_ids: Iterable, year_name: str) -> None:
     )
 
 
+# Fil parent ↔ école (8.8)
+
+
+def parent_message(thread: Thread, message: Message) -> None:
+    """Un parent écrit à l'école : à ceux qui communiquent avec les familles (un envoi par
+    message ; la limite horaire de `threads.py` borne le nombre)."""
+    student = thread.student
+    send(
+        staff(Kind.PARENT_MESSAGE, but=message.author),
+        app=App.GESTION,
+        kind=Kind.PARENT_MESSAGE,
+        url=f"/parent-messages?thread={thread.pk}",
+        text=lambda: (
+            _("Message from a parent: %(student)s") % {"student": student.full_name},
+            message.body,
+        ),
+    )
+
+
+def school_reply(thread: Thread, message: Message) -> None:
+    """L'école répond : le parent ouvre le fil de l'enfant dans le portail."""
+    student = thread.student
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.SCHOOL_REPLY,
+        url=f"/children/{student.pk}/messages",
+        text=lambda: (
+            _("Reply from the school: %(student)s") % {"student": student.full_name},
+            message.body,
+        ),
+    )
+
+
 # Notes : fiche de cotes (NB.1)
 
 
@@ -351,6 +385,164 @@ def grades_returned(state: GradeSheet, reason: str, *, sender: User | None, acto
         url=f"/grades?course={state.course_id}&term={state.term_id}",
         text=text,
     )
+
+
+def grades_corrected(course, term, *, count: int, actor: User) -> None:
+    """Notes d'un cours changées par quelqu'un d'autre que son enseignant (8.2.6) : une
+    notification par enregistrement, à l'enseignant du cours."""
+    from apps.academics.grades import term_label
+
+    label = f"{course.name} · {course.class_group.name}"
+
+    def text() -> tuple[str, str]:
+        title = _("Grades corrected: %(course)s") % {"course": label}
+        body = _("%(term)s · %(count)d change(s) by %(by)s") % {
+            "term": term_label(term),
+            "count": count,
+            "by": _by(actor),
+        }
+        return title, body
+
+    send(
+        _members(course.teacher_id).exclude(pk=actor.pk),
+        app=App.GESTION,
+        kind=Kind.GRADES_CORRECTED,
+        url=f"/grades?course={course.pk}&term={term.pk}",
+        text=text,
+    )
+
+
+def resits_to_enter(group, rows: list[dict], *, actor: User) -> None:
+    """Fin d'année proclamée : élèves envoyés en seconde session (8.2.6). Une notification par
+    enseignant, avec ses cours et le nombre d'élèves qui les repassent. `rows` : lignes figées."""
+    counts: dict[str, int] = defaultdict(int)
+    for row in rows:
+        if row.get("decision") == "resit":
+            for name in row.get("resit_courses", []):
+                counts[name] += 1
+    if not counts:
+        return
+    by_teacher: dict = defaultdict(list)
+    for course in group.courses.filter(name__in=counts, teacher__isnull=False):
+        by_teacher[course.teacher_id].append(course)
+    for teacher, courses in by_teacher.items():
+        detail = ", ".join(f"{c.name} ({counts[c.name]})" for c in sorted(courses, key=str))
+
+        def text(detail=detail) -> tuple[str, str]:
+            title = _("Resit grades to enter: %(group)s") % {"group": group.name}
+            return title, _("%(courses)s · by %(by)s") % {"courses": detail, "by": _by(actor)}
+
+        send(
+            _members(teacher).exclude(pk=actor.pk),
+            app=App.GESTION,
+            kind=Kind.RESITS_TO_ENTER,
+            url="/grades",
+            text=text,
+        )
+
+
+def course_teacher_changed(changes: list, *, actor: User) -> None:
+    """Enseignants désignés ou retirés d'un ou plusieurs cours d'une classe (8.2.6) : une
+    notification par enseignant et par enregistrement. `changes` : (cours, ancien id, nouvel id)."""
+    gained, lost = defaultdict(list), defaultdict(list)
+    for course, old, new in changes:
+        if new:
+            gained[new].append(course)
+        if old:
+            lost[old].append(course)
+    for teachers, assigned in ((gained, True), (lost, False)):
+        for teacher, courses in teachers.items():
+            names = ", ".join(sorted({f"{c.name} · {c.class_group.name}" for c in courses}))
+
+            def text(names=names, assigned=assigned) -> tuple[str, str]:
+                title = _("Course assigned to you") if assigned else _("Course taken from you")
+                return title, _("%(courses)s · by %(by)s") % {"courses": names, "by": _by(actor)}
+
+            send(
+                _members(teacher).exclude(pk=actor.pk),
+                app=App.GESTION,
+                kind=Kind.COURSE_TEACHER,
+                url="/grades",
+                text=text,
+            )
+
+
+def grades_validated(state: GradeSheet, *, actor: User) -> None:
+    """Fiche validée par le directeur des études : à l'enseignant du cours (sinon à qui l'avait
+    envoyée) et au titulaire de la classe."""
+    teacher = state.course.teacher_id or state.submitted_by_id
+    homeroom = state.course.class_group.homeroom_teacher_id
+    course, term = _sheet_label(state)
+
+    def text() -> tuple[str, str]:
+        title = _("Grade sheet validated: %(course)s") % {"course": course}
+        return title, _("%(term)s · validated by %(by)s") % {"term": term, "by": _by(actor)}
+
+    send(
+        _members(teacher, homeroom).exclude(pk=actor.pk),
+        app=App.GESTION,
+        kind=Kind.GRADES_VALIDATED,
+        url=f"/grade-sheets/totals?course={state.course_id}&term={state.term_id}",
+        text=text,
+    )
+
+
+def results_proclaimed(group, *, term, second: bool, version: int, actor: User) -> None:
+    """Résultats d'une classe proclamés (8.4.6) : un envoi pour toute la classe, à ceux qui
+    valident les notes et au titulaire. Proclamée de nouveau après une correction : version
+    indiquée."""
+    users = {u.pk: u for u in staff(Kind.RESULTS_PROCLAIMED, but=actor)}
+    users.update({u.pk: u for u in _members(group.homeroom_teacher_id).exclude(pk=actor.pk)})
+    session = _session_label(term, second)
+
+    def text() -> tuple[str, str]:
+        title = _("Results proclaimed: %(class)s") % {"class": group.name}
+        body = _("%(session)s · version %(version)d, by %(by)s") % {
+            "session": session,
+            "version": version,
+            "by": _by(actor),
+        }
+        return title, body
+
+    send(
+        users.values(),
+        app=App.GESTION,
+        kind=Kind.RESULTS_PROCLAIMED,
+        url=f"/deliberation?class={group.pk}",
+        text=text,
+    )
+
+
+def results_reopened(group, *, term, second: bool, reason: str, actor: User) -> None:
+    """Résultats d'une classe rouverts pour correction, avec le motif : mêmes destinataires."""
+    users = {u.pk: u for u in staff(Kind.RESULTS_REOPENED, but=actor)}
+    users.update({u.pk: u for u in _members(group.homeroom_teacher_id).exclude(pk=actor.pk)})
+    session = _session_label(term, second)
+
+    def text() -> tuple[str, str]:
+        title = _("Results reopened: %(class)s") % {"class": group.name}
+        body = _("%(session)s · %(by)s: %(reason)s") % {
+            "session": session,
+            "by": _by(actor),
+            "reason": reason,
+        }
+        return title, body
+
+    send(
+        users.values(),
+        app=App.GESTION,
+        kind=Kind.RESULTS_REOPENED,
+        url=f"/deliberation?class={group.pk}",
+        text=text,
+    )
+
+
+def _session_label(term, second: bool) -> str:
+    from apps.academics.grades import term_label
+
+    if second:
+        return str(_("Second session"))
+    return str(term_label(term)) if term else str(_("End of year"))
 
 
 REMINDER_COURSES_LISTED = 3

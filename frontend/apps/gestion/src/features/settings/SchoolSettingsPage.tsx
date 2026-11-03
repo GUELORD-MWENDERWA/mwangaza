@@ -167,7 +167,7 @@ function useSchema() {
           days_before: days(30),
           overdue_every_days: days(60),
         }),
-        portal: z.object({ teacher_phone: z.boolean() }),
+        portal: z.object({ teacher_phone: z.boolean(), report_requires_payment: z.boolean() }),
         grading: z.object({ entry: z.enum(["detailed", "totals"]) }),
         pass_rules: z.object({
           pass_percent: percent,

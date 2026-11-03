@@ -113,6 +113,7 @@ def test_the_browser_subscribes_without_a_school_and_alone_gets_the_portal(
             "summons",
             "discipline_incident",
             "place_offered",
+            "school_reply",
             "payment_due",
             "payment_overdue",
             "timetable_published",

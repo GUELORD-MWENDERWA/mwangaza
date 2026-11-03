@@ -14,6 +14,7 @@ from django.utils.text import Truncator
 
 from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
+    ANNOUNCEMENTS_PUBLISH,
     BILLING_VIEW,
     FINANCE_APPROVE_CANCELLATION,
     FINANCE_VIEW_REPORTS,
@@ -45,6 +46,17 @@ STAFF_KINDS = {
     # Le titulaire la reçoit aussi (`events.grades_sent`), sans pouvoir la couper : une par cours.
     Kind.GRADES_SENT: GRADES_VALIDATE,
     Kind.REPORT_CARDS_READY: GRADES_VALIDATE,
+    # Notes validées : l'enseignant du cours et le titulaire ; résultats de la classe : ceux qui
+    # valident les notes et le titulaire (8.2.6, 8.4.6).
+    Kind.GRADES_VALIDATED: GRADES_ENTER,
+    Kind.RESULTS_PROCLAIMED: GRADES_VALIDATE,
+    Kind.RESULTS_REOPENED: GRADES_VALIDATE,
+    # Notes corrigées par un autre, cours confié ou retiré : l'enseignant concerné (8.2.6).
+    Kind.GRADES_CORRECTED: GRADES_ENTER,
+    Kind.COURSE_TEACHER: GRADES_ENTER,
+    Kind.RESITS_TO_ENTER: GRADES_ENTER,
+    # Message d'un parent (8.8) : ceux qui publient les annonces aux familles.
+    Kind.PARENT_MESSAGE: ANNOUNCEMENTS_PUBLISH,
     # Nouvel horaire (EDT.4b) : envoyé aux enseignants dont les heures changent, réglable par eux.
     Kind.TIMETABLE_PUBLISHED: GRADES_ENTER,
     # Crédits de l'IA presque épuisés (IA.1.1) : ceux qui gèrent les rôles de l'école.
@@ -67,6 +79,7 @@ PREFERENCE_KINDS = {
         Kind.SUMMONS,
         Kind.DISCIPLINE_INCIDENT,
         Kind.PLACE_OFFERED,
+        Kind.SCHOOL_REPLY,
         Kind.PAYMENT_DUE,
         Kind.PAYMENT_OVERDUE,
         Kind.TIMETABLE_PUBLISHED,

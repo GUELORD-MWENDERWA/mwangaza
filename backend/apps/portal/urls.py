@@ -14,6 +14,18 @@ urlpatterns = [
     path("families/link/", views.LinkView.as_view(), name="link"),
     path("children/<uuid:pk>/", views.ChildView.as_view(), name="child"),
     path("children/<uuid:pk>/conduct/", views.ChildConductView.as_view(), name="child-conduct"),
+    path("children/<uuid:pk>/results/", views.ChildResultsView.as_view(), name="child-results"),
+    path(
+        "children/<uuid:pk>/report-card/",
+        views.ChildReportCardView.as_view(),
+        name="child-report-card",
+    ),
+    path("children/<uuid:pk>/thread/", views.ChildThreadView.as_view(), name="child-thread"),
+    path(
+        "children/<uuid:pk>/thread/read/",
+        views.ChildThreadReadView.as_view(),
+        name="child-thread-read",
+    ),
     path("children/<uuid:pk>/photo/", views.ChildPhotoView.as_view(), name="child-photo"),
     path(
         "children/<uuid:pk>/timetable/",

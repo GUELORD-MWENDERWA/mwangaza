@@ -133,6 +133,8 @@ class Action(models.TextChoices):
     DELIBERATION_DECIDED = "deliberation.decided", _("Deliberation decision recorded")
     DELIBERATION_PROCLAIMED = "deliberation.proclaimed", _("Class results proclaimed")
     DELIBERATION_REOPENED = "deliberation.reopened", _("Class results reopened")
+    FEE_WAIVER_GRANTED = "fee_waiver.granted", _("Report card fee waiver granted")
+    FEE_WAIVER_LIFTED = "fee_waiver.lifted", _("Report card fee waiver lifted")
     DELIBERATION_COUNCIL = "deliberation.council", _("Deliberation council recorded")
     DELIBERATION_MINUTES_PRINTED = (
         "deliberation.minutes_printed",
@@ -179,6 +181,7 @@ class Action(models.TextChoices):
     )
     # Portail des familles (H1).
     PORTAL_ACTIVATED = "portal.activated", _("Parent portal activated")
+    PORTAL_REPORT_VIEWED = "portal.report_viewed", _("Report card read by a parent")
     PORTAL_PASSWORD_RESET = "portal.password_reset", _("Parent chose a new password")
     # Frais, barèmes et taux de l'année (E1, E2, E5).
     FINANCE_FEE_TYPE_CREATED = "finance.fee_type_created", _("Fee type created")

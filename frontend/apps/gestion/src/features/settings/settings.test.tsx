@@ -45,7 +45,7 @@ const settings = {
     closing_time: "18:00",
   },
   reminders: { enabled: false, days_before: 3, overdue_every_days: 7 },
-  portal: { teacher_phone: false },
+  portal: { teacher_phone: false, report_requires_payment: false },
   grading: { entry: "detailed" },
   pass_rules: RULES,
   pass_rule_presets: { common: RULES, catholic: { ...RULES, resit_percent: 53 } },
@@ -128,7 +128,7 @@ describe("Paramètres de l'école (M5)", () => {
         closing_time: "18:00",
       },
       reminders: { enabled: true, days_before: 5, overdue_every_days: 7 },
-      portal: { teacher_phone: false },
+      portal: { teacher_phone: false, report_requires_payment: false },
       grading: { entry: "detailed" },
       pass_rules: { ...RULES, resit_percent: 53 },
     });

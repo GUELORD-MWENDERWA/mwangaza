@@ -114,6 +114,9 @@ class PortalSettingsSerializer(serializers.Serializer):
     teacher_phone = serializers.BooleanField(
         help_text="Montrer aux parents le téléphone du titulaire de la classe de leur enfant."
     )
+    report_requires_payment = serializers.BooleanField(
+        help_text="Retenir le bulletin PDF tant qu'un frais échu de l'élève est impayé (8.4.6)."
+    )
 
 
 class GradingSettingsSerializer(serializers.Serializer):

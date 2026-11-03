@@ -1,5 +1,5 @@
 import { cleanup, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ACCOUNT, ITIG } from "../../test/fixtures";
 import { apiError, mockApi, renderApp } from "../../test/render";
@@ -109,5 +109,14 @@ describe("accueil du portail", () => {
     expect(requests.find((r) => r.path === "/api/portal/families/link/")?.body).toEqual({
       code: "ydtn-y79c",
     });
+  });
+
+  it("sans réseau, un bandeau dit que ce sont les dernières données lues", async () => {
+    mockApi({ "GET /api/portal/me/": ACCOUNT, "GET /api/portal/families/": [ITIG] });
+    const online = vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+    renderApp("/");
+    await screen.findByText("KASEREKA Muhindo Jean");
+    expect(screen.getByText(/Sans réseau : dernières données lues, vues le/)).toBeTruthy();
+    online.mockRestore();
   });
 });

@@ -21,16 +21,18 @@ from apps.accounts.roles import (
 from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import CancellationRequest, Payment
-from apps.notifications import communication, events, platform, push, scheduled, services
+from apps.notifications import communication, events, platform, push, scheduled, services, threads
 from apps.notifications.models import (
     Announcement,
     AnnouncementRead,
+    Message,
     Notification,
     PlatformAnnouncement,
     PlatformAnnouncementRead,
     ScheduledRun,
     SchoolEvent,
     Summons,
+    Thread,
 )
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, School
@@ -199,6 +201,7 @@ def create_demo_communication(spaces: list[DemoSpace]) -> None:
                 services.publish(actor=publisher, title=title, body=body, audience="staff")
             _plan_events(publisher)
             _summon_parents(publisher)
+            _talk_with_parent(publisher)
             kinds = [Notification.Kind.STAFF_ANNOUNCEMENT, Notification.Kind.SUMMONS]
             Notification.objects.filter(kind__in=kinds).update(read_at=None)
 
@@ -308,6 +311,33 @@ def _alert_sensitive_rights(school: School) -> None:
     )
     if manager and cashier:
         events.sensitive_rights_given(cashier.user, rights[cashier.pk], actor=manager.user)
+
+
+def _talk_with_parent(publisher: User) -> None:
+    """Fil de l'enfant du compte du portail (8.8) : une question du parent sur une note et la
+    réponse de l'école, que le parent n'a pas encore lue (remise à zéro à chaque `make demo`)."""
+    family = _portal_family()
+    enrolled = Enrollment.objects.filter(
+        academic_year__is_current=True, status=Enrollment.Status.ACTIVE, student__family=family
+    )
+    first = enrolled.select_related("student").order_by("student__created_at").first()
+    if first is None:
+        return
+    thread = Thread.objects.filter(student=first.student).first()
+    if thread is None:
+        threads.write_as_parent(
+            first.student,
+            author=family.primary_user,
+            body="Bonjour, pouvez-vous m'expliquer la note de mon enfant en mathématiques ?",
+            topic=Message.Topic.GRADE,
+        )
+        thread = Thread.objects.get(student=first.student)
+        threads.reply(
+            thread,
+            actor=publisher,
+            body="Bonjour, le titulaire vous recevra jeudi pour revoir le cahier de mathématiques.",
+        )
+    Thread.objects.filter(pk=thread.pk).update(parent_read_at=None, school_read_at=None)
 
 
 def _portal_family() -> Family | None:

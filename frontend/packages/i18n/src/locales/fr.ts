@@ -164,6 +164,8 @@ export const fr = {
       calendar: "Calendrier",
       summons: "Convocations",
       parentRequests: "Demandes des parents",
+      parentMessages: "Messages des parents",
+      waivers: "Dérogations de bulletin",
       schoolSettings: "Paramètres de l'école",
       organisation: "Organisation scolaire",
       staff: "Comptes du personnel",
@@ -521,6 +523,7 @@ export const fr = {
         enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
         enter_any: "Saisir les notes de toutes les classes",
         validate: "Valider les notes envoyées et fixer les dates limites de saisie",
+        waive_fees: "Laisser un élève ou une famille recevoir le bulletin malgré des frais impayés",
       },
       discipline: {
         configure: "Tenir la liste des infractions et les seuils de la conduite",
@@ -713,6 +716,9 @@ export const fr = {
       teacherPhone: "Montrer le téléphone du titulaire",
       teacherPhoneHelp:
         "Le nom du titulaire de la classe est toujours montré. Son numéro seulement si vous l'activez : demandez d'abord l'accord des enseignants.",
+      reportPayment: "Retenir le bulletin PDF si un frais échu est impayé",
+      reportPaymentHelp:
+        "Les parents voient « Bulletin disponible après règlement ou dérogation » ; notes et décision restent visibles.",
     },
     receipt: {
       title: "Reçus",
@@ -3107,6 +3113,7 @@ export const fr = {
       application: "Application",
       resit: "Repêchage",
       deliberation: "Délibération",
+      fee_waiver: "Dérogations de bulletin",
       students: "Élèves",
       portal: "Portail des familles",
       finance: "Frais et finances",
@@ -3227,6 +3234,10 @@ export const fr = {
       resit: {
         grade_changed: "Note de repêchage modifiée",
       },
+      fee_waiver: {
+        granted: "Dérogation de bulletin accordée",
+        lifted: "Dérogation de bulletin levée",
+      },
       deliberation: {
         decided: "Décision de délibération enregistrée",
         proclaimed: "Résultats de la classe proclamés",
@@ -3260,6 +3271,7 @@ export const fr = {
       portal: {
         activated: "Portail activé par le parent",
         password_reset: "Nouveau mot de passe choisi par le parent",
+        report_viewed: "Bulletin lu par un parent",
       },
       finance: {
         fee_type_created: "Type de frais créé",
@@ -3392,6 +3404,7 @@ export const fr = {
       meet_with: "Personne à voir",
       cancelled: "Annulée",
       portal_teacher_phone: "Téléphone du titulaire montré aux parents",
+      portal_report_requires_payment: "Bulletin retenu si frais impayés",
       grading_entry: "Saisie des points (détaillée ou total)",
       pass_rules_pass_percent: "Passe : total de l'année (%)",
       pass_rules_course_pass_percent: "Passe : chaque cours (%)",
@@ -4423,6 +4436,45 @@ export const fr = {
       void: "Le reçu {{number}} n'a plus de valeur.",
     },
   },
+  waivers: {
+    title: "Dérogations de bulletin",
+    subtitle:
+      "Un élève ou une famille reçoit son bulletin sur le Portail malgré des frais échus impayés, jusqu'à la date fixée. La décision de passage reste toujours visible.",
+    filter: "Afficher",
+    active: "Actives",
+    all: "Toutes",
+    empty: "Aucune dérogation.",
+    columns: { target: "Concerné", reason: "Motif", until: "Jusqu'au", by: "Accordée par" },
+    student: "Élève",
+    family: "Famille",
+    lift: "Lever",
+    lifted: "Levée",
+    expired: "Expirée",
+    grant: "Accorder une dérogation",
+    for: "Pour",
+    pick_student: "Élève",
+    pick_family: "Famille",
+    search: "Nom ou matricule…",
+    submit: "Accorder",
+    clear: "Retirer",
+  },
+  parentMessages: {
+    title: "Messages des parents",
+    subtitle:
+      "Les parents écrivent depuis le Portail (dérogation, question sur une note). Votre réponse leur arrive sur le téléphone.",
+    empty: "Aucun message de parent.",
+    pick: "Choisissez un message.",
+    new: "Nouveau",
+    count: "{{count}} fils",
+    reply: "Réponse",
+    send: "Répondre",
+    grantWaiver: "Accorder une dérogation",
+    topics: {
+      waiver: "Dérogation",
+      grade: "Note ou décision",
+      other: "Autre",
+    },
+  },
   parentRequests: {
     title: "Demandes des parents",
     subtitle:
@@ -4913,6 +4965,14 @@ export const fr = {
       grades_sent: "Fiche de cotes reçue",
       grades_returned: "Fiche de cotes renvoyée",
       grades_reminder: "Fiches de cotes attendues",
+      grades_validated: "Fiche de cotes validée",
+      results_proclaimed: "Résultats proclamés",
+      results_reopened: "Résultats rouverts",
+      grades_corrected: "Notes corrigées",
+      course_teacher: "Cours confié ou retiré",
+      resits_to_enter: "Repêchage à saisir",
+      parent_message: "Message d'un parent",
+      school_reply: "Réponse de l'école",
       report_cards_ready: "Bulletins prêts",
       timetable_published: "Nouvel horaire",
       ai_credits: "Crédits IA bientôt épuisés",
@@ -4936,6 +4996,15 @@ export const fr = {
       grades_sent: "Un enseignant envoie et signe la fiche de cotes d'un cours",
       grades_returned: "Le directeur des études vous renvoie une fiche avec ses remarques",
       grades_reminder: "Le directeur des études vous rappelle les fiches de cotes attendues",
+      grades_validated:
+        "Le directeur des études valide la fiche de cotes de votre cours ou de votre classe",
+      results_proclaimed: "Les résultats d'une classe sont proclamés",
+      results_reopened: "Les résultats d'une classe sont rouverts pour correction",
+      grades_corrected: "Quelqu'un d'autre corrige les notes de votre cours",
+      course_teacher: "Un cours vous est confié ou retiré",
+      resits_to_enter: "La fin d'année est proclamée et des élèves repassent votre cours",
+      parent_message: "Un parent écrit à l'école depuis le Portail",
+      school_reply: "Quand l'école répond à votre message",
       report_cards_ready: "Un titulaire déclare prêts les bulletins de sa classe",
       timetable_published: "Quand une publication de l'horaire change vos heures",
       ai_credits: "80 % des crédits IA de l'école pour le mois sont utilisés",
@@ -6303,6 +6372,7 @@ export const fr = {
   },
 
   portal: {
+    offline: "Sans réseau : dernières données lues, vues le {{date}}. Rien ne peut être modifié.",
     languages: "Langue",
     login: {
       title: "Bon retour",
@@ -6546,6 +6616,26 @@ export const fr = {
       pdf: "PDF",
       pdfLabel: "Reçu {{number}} en PDF",
       conductTitle: "Conduite",
+      gradesTitle: "Notes · {{term}}",
+      released: "Publiée",
+      total: "Total",
+      decisionTitle: "Décision de fin d'année",
+      decisionOn: "Délibération du {{date}}",
+      resitCourses: "à repasser : {{courses}}",
+      reportCard: "Bulletin",
+      reportWithheld:
+        "Bulletin disponible après règlement ou dérogation. Les notes et la décision restent visibles : écrivez à l'école ci-dessous.",
+      threadTitle: "Écrire à l'école",
+      fromSchool: "École",
+      you: "Vous",
+      topic: "Objet",
+      message: "Message",
+      send: "Envoyer",
+      topics: {
+        waiver: "Demande de dérogation pour le bulletin",
+        grade: "Question sur une note ou une décision",
+        other: "Autre question",
+      },
       timetableTitle: "Horaire de la classe",
       timetableSince: "depuis le {{date}}",
       timetableFrom: "à partir du {{date}}",

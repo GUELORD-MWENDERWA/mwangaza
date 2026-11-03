@@ -37,6 +37,7 @@ from apps.core.models import Article, DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
+from apps.notifications.models import Thread
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
@@ -247,6 +248,11 @@ def created(demo) -> None:
         assert Student.objects.count() == 150
         assert phones & set(Guardian.objects.values_list("phone", flat=True))
     assert all(phone.startswith("+24300") for phone in phones)
+
+    # Fil du parent du portail avec l'école (8.8) : sa question et la réponse pas encore lue.
+    with use_school(itig):
+        thread = Thread.objects.get()
+        assert thread.messages.count() == 2 and thread.parent_read_at is None
 
     # Organisation scolaire (1.7) de l'ITIG.
     with use_school(itig):

@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Aucun : le lot 3 est fini (PR ouverte, à fusionner) |
-| Prochain lot | Lot 4 — Bulletins aux parents |
+| Lot en cours | Lot 4 — Bulletins aux parents, parties ① à ④ faites (4/4), reste : mesure PERF.6 |
+| Prochain lot | Lot 5 (après le lot 4) |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
-| Branche | `lot/3-vendre` |
-| Dernière mise à jour | 2026-11-03 (lot 3 terminé) |
+| Issue GitHub | #420 (une par lot, jalon « V1 complète ») |
+| Branche | `lot/4-bulletins-parents` |
+| Dernière mise à jour | 2026-11-03 (lot 4, partie ④ faite) |
 
 ## Avancement
 
@@ -23,7 +23,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 1 — Marque Mwangaza | 3 ✓ | 3 |
 | 2 — Site public refait | 9 ✓ | 9 |
 | 3 — Vendre : contrats, abonnements, factures | 5 ✓ | 5 |
-| 4 — Bulletins aux parents | 0 | 3 |
+| 4 — Bulletins aux parents | 4 ✓ | 4 |
 | 5 — Console finie | 0 | 4 |
 | 6 — Aide, guide et support | 0 | 2 |
 | 7 — Finances et caisse complètes | 0 | 3 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **3 lots sur 17** | **47** |
+| **V1 complète** | **3 lots sur 17** | **49** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -65,6 +65,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-11-03 — Lot 4 : Bulletins aux parents (presque fini)
+- Fait : bulletin retenu pour frais échus + dérogations ; notes, décision et bulletin PDF contrôlé sur le Portail ; fil parent ↔ école ; Portail lisible sans réseau (notes, conduite, fil, bandeau « vu le ») ; journal des consultations de bulletins ; alertes « notes corrigées par un autre » et « cours confié / retiré ».
+- Tests : isolation, droits, audit, budget de requêtes du Portail, notifications. 
+- Reste : mesure `make perf` (PERF.6), gardée ouverte dans `05` ; alerte « repêchage à saisir » faite (8.2.6).
+- Suite : lot 5 — Console finie.
 
 ### 2026-11-03 — Lot 3 : Vendre (contrats, abonnements, factures), partie ⑤ et fin du lot
 - Fait : « Mon abonnement » dans la Gestion (offre, solde, échéance, factures en PDF, comment payer, demande de module) et bandeau de lecture seule sur tous les écrans (`read_only` ajouté à l'école courante) ; onglet « Demandes de modules » de la console avec « Marquer traitée » (au journal) ; formule du site liée à une offre du catalogue (SITE.4 : le prix par élève du catalogue remplace le prix saisi) ; migration qui donne `billing.view` aux administrateurs des écoles déjà ouvertes.

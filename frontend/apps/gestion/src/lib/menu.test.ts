@@ -28,6 +28,8 @@ describe("menu selon les permissions (04 § 8)", () => {
       "announcements",
       "summons",
       "parentRequests",
+      "parentMessages",
+      "waivers",
       "schoolSettings",
       "organisation",
       "staff",

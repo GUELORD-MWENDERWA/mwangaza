@@ -39,6 +39,7 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
+from apps.notifications import events
 from apps.schools import pass_rules
 from apps.schools.models import ClassGroup, Term
 from apps.students.models import Enrollment
@@ -611,6 +612,11 @@ def proclaim(
             },
             label=f"{group.name} · v{deliberation.version}",
         )
+        events.results_proclaimed(
+            group, term=term, second=second, version=deliberation.version, actor=actor
+        )
+        if term is None and not second:
+            events.resits_to_enter(group, frozen_rows, actor=actor)
     return snapshot
 
 
@@ -642,4 +648,5 @@ def reopen(
             after={"version": deliberation.version, "reason": reason},
             label=f"{group.name} · v{deliberation.version}",
         )
+        events.results_reopened(group, term=term, second=second, reason=reason, actor=actor)
     return deliberation

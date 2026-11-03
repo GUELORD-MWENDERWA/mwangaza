@@ -55,3 +55,28 @@ export const OFFLINE_CACHE = "portal-data";
 export async function forgetOfflineData() {
   if ("caches" in window) await caches.delete(OFFLINE_CACHE);
 }
+
+export type ChildResults = Schemas["ChildResults"];
+export type ChildThread = Schemas["ChildThread"];
+
+/** Notes validées, décision et état du bulletin d'un enfant (8.8). */
+export function useChildResults(id: string) {
+  return useQuery({
+    queryKey: ["portal", "child", id, "results"],
+    queryFn: () =>
+      call(api.GET("/api/portal/children/{id}/results/", { params: { path: { id } } })),
+  });
+}
+
+/** Fil de l'enfant avec l'école (8.8). */
+export function useChildThread(id: string) {
+  return useQuery({
+    queryKey: ["portal", "child", id, "thread"],
+    queryFn: () => call(api.GET("/api/portal/children/{id}/thread/", { params: { path: { id } } })),
+  });
+}
+
+/** Le bulletin PDF contrôle le droit à chaque lecture : pas d'adresse de fichier. */
+export function reportCardUrl(childId: string): string {
+  return `/api/portal/children/${childId}/report-card/`;
+}

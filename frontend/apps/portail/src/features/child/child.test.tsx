@@ -93,4 +93,61 @@ describe("paiements d'un enfant", () => {
       "page",
     );
   });
+
+  it("bulletin retenu : notes et décision visibles, pas de PDF ; écrire à l'école", async () => {
+    const requests = mockApi({
+      "GET /api/portal/me/": ACCOUNT,
+      "GET /api/portal/families/": [ITIG],
+      "GET /api/portal/children/s1/": CHILD,
+      "GET /api/portal/children/s1/results/": {
+        id: "s1",
+        full_name: CHILD.full_name,
+        class_group: "3e Électricité A",
+        terms: [
+          {
+            id: "t1",
+            name: "1re période",
+            released: true,
+            courses: [{ course: "Mathématiques", score: "22.0", maximum: 40 }],
+            total: "22.0",
+            maximum: 40,
+          },
+        ],
+        decision: { decision: "pass", resit_courses: [], held_on: "2027-06-28" },
+        report_available: false,
+        withheld: true,
+      },
+      "GET /api/portal/children/s1/thread/": { id: "s1", messages: [], unread: false },
+      "POST /api/portal/children/s1/thread/": {
+        id: "s1",
+        unread: false,
+        messages: [
+          {
+            id: "m1",
+            from_school: false,
+            author_name: "Parent",
+            topic: "waiver",
+            body: "Je paie vendredi",
+            created_at: "2026-11-03T09:00:00Z",
+          },
+        ],
+      },
+    });
+    const { user } = renderApp("/children/s1");
+
+    await screen.findByText("Mathématiques");
+    expect(screen.getByText(/Bulletin disponible après règlement ou dérogation/)).toBeTruthy();
+    expect(screen.getByText("Admis")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "PDF" })).toBeNull();
+
+    await user.selectOptions(screen.getByLabelText("Objet"), "waiver");
+    await user.type(screen.getByLabelText("Message"), "Je paie vendredi");
+    await user.click(screen.getByRole("button", { name: "Envoyer" }));
+
+    await screen.findByText("Je paie vendredi", { selector: "span.whitespace-pre-line" });
+    expect(requests.find((r) => r.method === "POST")?.body).toEqual({
+      body: "Je paie vendredi",
+      topic: "waiver",
+    });
+  });
 });

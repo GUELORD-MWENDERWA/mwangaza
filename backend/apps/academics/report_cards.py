@@ -158,8 +158,10 @@ def missing_sheets(class_group: ClassGroup) -> list[tuple[Course, Term]]:
     ]
 
 
-def class_report(class_group: ClassGroup) -> ClassReport:
-    """Bulletin de toute la classe, pour l'année de la classe (élèves inscrits actifs)."""
+def class_report(class_group: ClassGroup, released: set[UUID] | None = None) -> ClassReport:
+    """Bulletin de toute la classe, pour l'année de la classe (élèves inscrits actifs).
+    `released` (Portail, 8.8) : seules ces périodes et examens montrent leurs notes aux parents ;
+    les autres restent vides (totaux compris). `None` : tout (l'école)."""
     year_terms = list(Term.objects.filter(academic_year_id=class_group.academic_year_id))
     cols = columns(year_terms)
     leaves = {c.key: c for c in cols if c.kind == "leaf"}
@@ -195,6 +197,9 @@ def class_report(class_group: ClassGroup) -> ClassReport:
                     row[key] = Cell(None, 0)
                     continue
                 maximum = term_maximum(course, term)
+                if released is not None and term.pk not in released:
+                    row[key] = Cell(None, maximum)
+                    continue
                 sheet = evaluations.get((course.pk, term.pk), [])
                 score = period_score(
                     [scores.get((enrollment.pk, e.pk)) for e in sheet],

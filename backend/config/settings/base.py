@@ -237,7 +237,11 @@ REST_FRAMEWORK = {
         "apps.core.throttling.SearchThrottle",
         "apps.core.throttling.OutputThrottle",
     ],
-    "DEFAULT_THROTTLE_RATES": {"search": "120/min", "output": "20/min"},
+    "DEFAULT_THROTTLE_RATES": {
+        "search": "120/min",
+        "output": "20/min",
+        "portal_document": "10/min",
+    },
     # Erreurs au format `{code, detail}` (`apps/core/errors.py`).
     "EXCEPTION_HANDLER": "apps.core.errors.api_exception_handler",
 }

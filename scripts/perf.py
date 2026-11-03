@@ -24,6 +24,7 @@ PAGES = [
     ("Élèves (1re page)", "/api/students/"),
     ("Paiements (1re page)", "/api/payments/"),
     ("Classes", "/api/class-groups/"),
+    ("Situation de l'école", "/api/situation/"),
 ]
 PRINT_TIMEOUT = 600
 
