@@ -5106,6 +5106,12 @@ export const fr = {
       team: "Équipe",
       site: "Site",
       news: "Actualités",
+      groups: {
+        dashboard: "Tableau de bord",
+        clients: "Clients",
+        site: "Site",
+        platform: "Plateforme",
+      },
       photos: "Photothèque",
       account: "Menu du compte",
     },

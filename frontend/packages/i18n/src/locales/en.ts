@@ -5062,6 +5062,7 @@ export const en: Messages<typeof fr> = {
       team: "Team",
       site: "Website",
       news: "News",
+      groups: { dashboard: "Dashboard", clients: "Clients", site: "Site", platform: "Platform" },
       photos: "Photo library",
       account: "Account menu",
     },

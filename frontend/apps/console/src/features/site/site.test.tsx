@@ -49,8 +49,8 @@ describe("Site public dans la console", () => {
     expect(await screen.findByText("Faut-il internet ?")).toBeTruthy();
     // Menu réduit aux droits du membre ; les écoles n'y sont pas.
     const menu = screen.getAllByRole("navigation")[0] as HTMLElement;
-    expect(within(menu).getByRole("link", { name: "Site" })).toBeTruthy();
-    expect(within(menu).queryByRole("link", { name: "Écoles" })).toBeNull();
+    expect(within(menu).getByRole("button", { name: /Site/ })).toBeTruthy();
+    expect(within(menu).queryByRole("button", { name: /Clients/ })).toBeNull();
     // Brouillon, et sans anglais : le français s'affiche.
     expect(screen.getByText("Brouillon")).toBeTruthy();
     expect(screen.getByText("Anglais : le français s'affiche")).toBeTruthy();
