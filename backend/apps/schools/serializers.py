@@ -206,6 +206,9 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
         help_text="Adresse du logo noir et blanc des reçus thermiques (public) ; null sans lui."
     )
     receipt = serializers.SerializerMethodField()
+    read_only = serializers.SerializerMethodField(
+        help_text="Lecture seule (facture impayée, ABO.3) : bandeau sur chaque écran."
+    )
     setup_done = serializers.SerializerMethodField(
         help_text="Liste « Mise en route » terminée : le tableau de bord ne la demande plus."
     )
@@ -225,8 +228,12 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
             "default_currency",
             "auto_matricule",
             "receipt",
+            "read_only",
             "setup_done",
         ]
+
+    def get_read_only(self, school: School) -> bool:
+        return school.status == School.Status.READ_ONLY
 
     def get_setup_done(self, school: School) -> bool:
         return school.setup_completed_at is not None

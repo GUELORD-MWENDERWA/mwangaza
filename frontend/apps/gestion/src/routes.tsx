@@ -38,6 +38,7 @@ import { DeliberationPage } from "./features/deliberation/DeliberationPage";
 import { PriorResultsPage } from "./features/deliberation/PriorResultsPage";
 import { SituationsPage } from "./features/deliberation/SituationsPage";
 import { ResitsPage } from "./features/resits/ResitsPage";
+import { SubscriptionPage } from "./features/billing/SubscriptionPage";
 import { RolesPage } from "./features/roles/RolesPage";
 import { SchoolChoicePage } from "./features/schools/SchoolChoicePage";
 import { SchoolSettingsPage } from "./features/settings/SchoolSettingsPage";
@@ -111,6 +112,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   fees: <FeesPage />,
   staff: <StaffPage />,
   roles: <RolesPage />,
+  subscription: <SubscriptionPage />,
   devices: <DevicesPage />,
   audit: <AuditPage />,
   announcements: <AnnouncementsPage />,

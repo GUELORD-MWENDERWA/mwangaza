@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 3** — parties ① (offres, contrats, conditions), ② (factures, avoirs, paiements, relevé, PDF, textes légaux : serveur) ③ (écrans console « Facturation » et acceptation des conditions dans la Gestion) et ④ (serveur : échéances, rappels, lecture seule, API « Mon abonnement ») faites ; ⑤ écrans « Mon abonnement », demandes de modules, page des prix à faire |
+| Lot en cours | Aucun : le lot 3 est fini (PR ouverte, à fusionner) |
 | Prochain lot | Lot 4 — Bulletins aux parents |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
 | Branche | `lot/3-vendre` |
-| Dernière mise à jour | 2026-11-03 (lot 3, partie ④) |
+| Dernière mise à jour | 2026-11-03 (lot 3 terminé) |
 
 ## Avancement
 
@@ -22,7 +22,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 |---|:-:|:-:|
 | 1 — Marque Mwangaza | 3 ✓ | 3 |
 | 2 — Site public refait | 9 ✓ | 9 |
-| 3 — Vendre : contrats, abonnements, factures | 4 | 5 |
+| 3 — Vendre : contrats, abonnements, factures | 5 ✓ | 5 |
 | 4 — Bulletins aux parents | 0 | 3 |
 | 5 — Console finie | 0 | 4 |
 | 6 — Aide, guide et support | 0 | 2 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **2 lots sur 17** | **47** |
+| **V1 complète** | **3 lots sur 17** | **47** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -65,6 +65,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-11-03 — Lot 3 : Vendre (contrats, abonnements, factures), partie ⑤ et fin du lot
+- Fait : « Mon abonnement » dans la Gestion (offre, solde, échéance, factures en PDF, comment payer, demande de module) et bandeau de lecture seule sur tous les écrans (`read_only` ajouté à l'école courante) ; onglet « Demandes de modules » de la console avec « Marquer traitée » (au journal) ; formule du site liée à une offre du catalogue (SITE.4 : le prix par élève du catalogue remplace le prix saisi) ; migration qui donne `billing.view` aux administrateurs des écoles déjà ouvertes.
+- Tests : droit, journal et isolation de la demande de module ; formule du site liée au catalogue ; écran et bandeau (Vitest). Captures 390 et 1440 px comparées à la maquette.
+- Décisions : la page des prix existait déjà (WEB.1) : SITE.4 la nourrit du catalogue au lieu d'en refaire une ; une demande de module est clôturée à la main (rien d'automatique).
+- Suite : lot 4 — Bulletins aux parents.
 
 ### 2026-11-03 — Équipements : sirène et présences RFID dans Mwangaza (décision de l'utilisateur)
 Les projets « sirène automatique » et « présences RFID ULPGL 001 » entrent dans Mwangaza : conception dans `docs/specs/equipements.md` (modules `bell` / `attendance`, forfaits de départ, appareils, réseau ESP-NOW maillé chiffré, console ESP32 + Uno/TFT/SD, lecteurs ESP32/ESP8266, revue du hors-ligne). Lot 16 remplacé par « Équipements : sonnerie, lecteurs et réseau » (EQP.1 à EQP.4, 4 parties, **une PR**) ; toujours 17 lots. Bibliothèque et ateliers passent par la file hors ligne (lot 11). Lot 3 partie ① faite (serveur `billing`). Même jour : **tout suit les modules choisis** (MOD.1, lot 5 : registre des champs et réglages par module, forfaits, aucun numéro permanent en Présences seules) ; sirène déportée `sounder` en V1 ; console = seul appareil principal ; modèle matériel nommé `Equipment` (`Device` = navigateur de la Gestion hors ligne) ; site et aide à jour au lot 16 (EQP.5).

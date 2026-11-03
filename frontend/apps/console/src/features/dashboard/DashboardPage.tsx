@@ -43,6 +43,7 @@ const SCHOOL_TONES = {
   trial: "info",
   suspended: "due",
   stopped: "gray",
+  readonly: "warn",
   deleting: "gray",
 } as const;
 

@@ -48,7 +48,7 @@ Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche u
 |:-:|---|---|---|---|
 | 1 | ~~**Marque Mwangaza**~~ ✓ | BRAND.1, BRAND.2 | ① trois pistes (logo, couleurs, police) sur une page : tu choisis ② livre de marque PDF et fichiers du logo ③ marque appliquée aux trois applications, aux icônes et aux guides | choisir une piste |
 | 2 | ~~**Site public refait**~~ ✓ | SITE.R, SITE.1b, SITE.2, SITE.3, SITE.5 | ① étude (grands sites, isig.ac.cd), maquettes, photos libres d'élèves congolais ② serveur et console : actualités, photothèque, témoignages, écoles de référence, réseaux sociaux ③ pages du site, captures du produit | accord écrit de chaque témoin |
-| 3 | **Vendre : contrats, abonnements, factures** | CTR.1, ABO.1, ABO.2, ABO.3, ABO.4, WEB.1 (prix), SITE.4 | ① offres, conditions générales, contrat PDF ② factures, avoirs, paiements, relevé ③ échéances, lecture seule, « Mon abonnement », page des prix | tarif (T6), informations légales (I20), juriste |
+| 3 | ~~**Vendre : contrats, abonnements, factures**~~ ✓ | CTR.1, ABO.1, ABO.2, ABO.3, ABO.4, WEB.1 (prix), SITE.4 | ① offres, conditions générales, contrat PDF ② factures, avoirs, paiements, relevé ③ échéances, lecture seule, « Mon abonnement », page des prix | tarif (T6), informations légales (I20), juriste |
 | 4 | **Bulletins aux parents** | 8.4.6, 8.8, 8.2.6, HL.3, PERF.6, S.10 | ① proclamation liée aux frais, notifications des notes ② Portail : notes, bulletins, écrire à l'école, sans réseau ③ rapidité et revue de sécurité | — |
 | 5 | **Console finie** | CON.1, CON.2, CON.3, IA.1.2, S.8, MOD.1 | ① tableau de bord des affaires, fiche et cycle de vie d'une école, export complet ② prospects ③ IA et alertes de sécurité ④ forfaits et réglages selon les modules (MOD.1) | — |
 | 6 | **Aide, guide et support** | AIDE.1, AIDE.2, SUP.1 | ① centre d'aide en ligne et guides PDF tirés des mêmes textes, « Quoi de neuf » ② bouton « Aide » sur chaque écran, demandes d'aide suivies dans la console | — |
@@ -83,8 +83,8 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 **Lot 3 — Vendre**
 
-- [ ] **CTR.1** Contrats et conditions générales *(P1, M, 🤖 + 👤)* — conditions générales d'utilisation et de vente, politique de confidentialité et registre des traitements (partie publique de S.7), **versionnés**, publiés sur le site et dans les trois applications ; l'administrateur principal d'une école les accepte à la première connexion et à chaque nouvelle version (version, date, compte, adresse : journal). **Contrat de l'école** en PDF, numéroté, immuable (un avenant = un nouveau document lié) : parties tirées de l'identité de la plateforme (société, RCCM, adresse, signataire : I20) et des paramètres de l'école, offre, modules, prix, durée, renouvellement, données personnelles ; signé par dépôt du scan ou par acceptation en ligne. Brouillons rédigés par Claude (T5) ; 👤 relus par un juriste avant la première école payante.
-- [ ] **ABO.4** « Mon abonnement » dans la Gestion *(P1, S à M, 🤖)* — avec une permission dédiée : offre, modules, contrat, factures et reçus (PDF), solde, prochaine échéance et comment payer ; demande d'ajout d'un module, rangée dans la console.
+- [x] **CTR.1** Contrats et conditions générales *(P1, M, 🤖 + 👤)* — conditions générales d'utilisation et de vente, politique de confidentialité et registre des traitements (partie publique de S.7), **versionnés**, publiés sur le site et dans les trois applications ; l'administrateur principal d'une école les accepte à la première connexion et à chaque nouvelle version (version, date, compte, adresse : journal). **Contrat de l'école** en PDF, numéroté, immuable (un avenant = un nouveau document lié) : parties tirées de l'identité de la plateforme (société, RCCM, adresse, signataire : I20) et des paramètres de l'école, offre, modules, prix, durée, renouvellement, données personnelles ; signé par dépôt du scan ou par acceptation en ligne. Brouillons rédigés par Claude (T5) ; 👤 relus par un juriste avant la première école payante.
+- [x] **ABO.4** « Mon abonnement » dans la Gestion *(P1, S à M, 🤖)* — avec une permission dédiée : offre, modules, contrat, factures et reçus (PDF), solde, prochaine échéance et comment payer ; demande d'ajout d'un module, rangée dans la console.
 
 **Lot 5 — Console**
 
@@ -333,13 +333,13 @@ Ce qui manque aujourd'hui : l'argent qui **sort**. La caisse ne connaît que les
 
 L'argent de la plateforme. M.1 et M.2 donnent déjà les modules ; il manque le contrat et la facture. Remplace la 9.2.
 
-- [ ] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat ; **allocation IA** de l'offre : usages IA compris et crédits par mois (§ 6.5), une recharge de crédits = une ligne de facture (ABO.2). Console seulement.
-- [ ] **ABO.2** Factures et paiements de l'école à la plateforme *(M)* : facture PDF numérotée, immuable (annulation = avoir), paiement enregistré par le super-admin (espèces, banque, Mobile Money à la main ; en ligne avec 9.3) ; l'école voit ses factures dans ses paramètres ; audit de la plateforme.
-- [ ] **ABO.3** Échéances *(S)* : rappels avant échéance (planificateur existant) ; après le délai de grâce, **lecture seule** plutôt que coupure (l'école garde ses reçus et ses données, la caisse se ferme) — **décidé le 2026-10-13** ; chiffre d'affaires dans le tableau de bord de la console.
+- [x] **ABO.1** Offres et contrats *(M)* : prix par module, par élève inscrit et par période (trimestre ou année scolaire), devise ; offres groupées (ex. « Essentiel » = élèves + frais + caisse) ; contrat d'une école = modules + prix + période + essai ; les modules actifs suivent le contrat ; **allocation IA** de l'offre : usages IA compris et crédits par mois (§ 6.5), une recharge de crédits = une ligne de facture (ABO.2). Console seulement.
+- [x] **ABO.2** Factures et paiements de l'école à la plateforme *(M)* : facture PDF numérotée, immuable (annulation = avoir), paiement enregistré par le super-admin (espèces, banque, Mobile Money à la main ; en ligne avec 9.3) ; l'école voit ses factures dans ses paramètres ; audit de la plateforme.
+- [x] **ABO.3** Échéances *(S)* : rappels avant échéance (planificateur existant) ; après le délai de grâce, **lecture seule** plutôt que coupure (l'école garde ses reçus et ses données, la caisse se ferme) — **décidé le 2026-10-13** ; chiffre d'affaires dans le tableau de bord de la console.
 
 ### 6.3 Sites web (WEB) — P1 pour la plateforme, P2 pour les écoles
 
-- [ ] **WEB.1** Site de la plateforme — **découpée et avancée le 2026-10-17** (demande de l'utilisateur, une fois Google Search Console réglée) en WEB.1a → WEB.1c, ci-dessous. Reste ici, en V1.3 : la page des prix, quand ABO et le tarif (T6) existent.
+- [x] **WEB.1** Site de la plateforme — **découpée et avancée le 2026-10-17** (demande de l'utilisateur, une fois Google Search Console réglée) en WEB.1a → WEB.1c, ci-dessous. Reste ici, en V1.3 : la page des prix, quand ABO et le tarif (T6) existent.
 
 **Site public et visibilité (WEB.1a → WEB.1c, demandés le 2026-10-17)** — But : qu'on trouve la plateforme, l'espace parents et son école **avec très peu de mots** (« Mwangaza School », « Mwangaza parents », « gestion scolaire Goma »), et qu'elle paraisse aussi sérieuse que les grands logiciels. Socle déjà en ligne depuis le 2026-10-14 (`apps/core/site.py` : page fr/en, données structurées, `robots.txt`, `sitemap.xml`, `llms.txt`) ; Search Console et Bing réglés par toi.
 
@@ -378,7 +378,7 @@ But : la personne chargée de la communication tient le site à jour sans dével
 - [x] **SITE.1b** Contenus du site : témoignages, écoles de référence, titres de recherche *(P1, M, 🤖, après SITE.1a)* — témoignages (école, personne, fonction, citation fr/en, accord écrit déposé, fichier privé), écoles de référence (nom, logo, chiffres, lien), titres et descriptions de recherche de chaque page (WEB.1c) ; onglets du même écran.
 - [x] **SITE.2** Actualités *(P1, M, 🤖, après SITE.1a)* — articles (titre, résumé, texte mis en forme, image, langue, brouillon / publié / programmé, auteur) ; pages `/actualites/` et `/en/news/`, liste paginée, dans le `sitemap.xml` ; maquettes d'abord.
 - [x] **SITE.3** Photothèque *(P1, S, 🤖, après SITE.1a)* — photos envoyées depuis la console (ré-encodées, WebP en deux tailles, métadonnées retirées), texte alternatif, crédit, case « élève reconnaissable » qui exige l'accord déposé ; choisies dans les pages et les articles.
-- [ ] **SITE.4** Offres *(P1, S, 🤖, avec ABO et WEB.1 prix)* — offres et prix affichés sur le site, saisis dans la console à partir du catalogue des abonnements.
+- [x] **SITE.4** Offres *(P1, S, 🤖, avec ABO et WEB.1 prix)* — offres et prix affichés sur le site, saisis dans la console à partir du catalogue des abonnements.
 - [x] **SITE.5** Réseaux sociaux *(P1, S, 🤖 + 👤, après EQ.1 et WEB.1d)* — les comptes de Mwangaza (WhatsApp Business, page Facebook, Instagram, page LinkedIn, YouTube, TikTok) sont tenus par le membre « communication » : il en modifie les liens dans la console (droit `platform.site.edit`), un lien vide disparaît du site ; chaque actualité (SITE.2) a son bouton de partage (WhatsApp, Facebook, LinkedIn : simples liens, aucun script ni traceur des réseaux). **Toi** : créer les comptes avec l'adresse `@mwangazaschool.com` (OPS.4), double authentification (OPS.3), et donner l'accès par les rôles de chaque réseau (Meta Business Suite, administrateurs de la page LinkedIn), **jamais un mot de passe partagé** ; quand le membre part, on retire son rôle.
 
 ### 6.4 Emploi du temps (EDT) — P0 pour la prospection, avancé le 2026-10-20
@@ -502,8 +502,8 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 
 ### V1.3 — Plateforme commerciale
 
-- [ ] **ABO.1 → ABO.3** Abonnements par module (§ 6.2) *(P1)*
-- [ ] **WEB.1** Page des prix du site (§ 6.3) *(P1 ; le site public est avancé au lancement : WEB.1a → WEB.1c)*
+- [x] **ABO.1 → ABO.3** Abonnements par module (§ 6.2) *(P1)*
+- [x] **WEB.1** Page des prix du site (§ 6.3) *(P1 ; le site public est avancé au lancement : WEB.1a → WEB.1c)*
 - [ ] **S.7 → S.9** Protection des données (dont **export complet des données d'une école** à sa demande ou à son départ), détection, revue ASVS (§ 4 bis) *(P1)*
 
 ### V1.4 — Emploi du temps et IA

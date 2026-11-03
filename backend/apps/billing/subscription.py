@@ -64,6 +64,25 @@ def summary(school) -> dict:
     }
 
 
+def handle_request(module_request: ModuleRequest, *, actor) -> ModuleRequest:
+    """La plateforme a traité la demande (avenant fait, ou refus parlé) : elle sort de la liste
+    des demandes ouvertes et l'école peut en refaire une. Sans effet si déjà traitée."""
+    from apps.audit import services as audit
+    from apps.audit.actions import PlatformAction
+
+    if module_request.status == ModuleRequest.Status.DONE:
+        return module_request
+    module_request.status = ModuleRequest.Status.DONE
+    module_request.save(update_fields=["status", "updated_at"])
+    audit.record_platform(
+        PlatformAction.MODULE_REQUEST_HANDLED,
+        module_request,
+        actor=actor,
+        after={"school": module_request.school.code, "module": module_request.module},
+    )
+    return module_request
+
+
 def request_module(school, *, user, module: str, note: str = "") -> ModuleRequest:
     from apps.accounts.modules import MODULES
 

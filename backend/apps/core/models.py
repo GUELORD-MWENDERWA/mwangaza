@@ -602,6 +602,11 @@ class SitePlan(BaseModel):
     features_en = models.TextField(
         _("included, one per line, in English"), max_length=800, blank=True
     )
+    # Offre du catalogue des abonnements (lot 3, SITE.4) : si elle est choisie, le prix, la devise
+    # et la période viennent d'elle (par élève inscrit) et les champs ci-dessus sont ignorés.
+    catalogue_plan = models.ForeignKey(
+        "billing.Plan", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
     highlighted = models.BooleanField(_("highlighted"), default=False)
     is_example = models.BooleanField(_("example"), default=False)
     position = models.PositiveSmallIntegerField(_("position"), default=0)

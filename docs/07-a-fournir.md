@@ -66,7 +66,7 @@ Déjà dessinés le 2026-09-26 d'après les **formulaires officiels** trouvés e
 
 ### V1.3 — plateforme commerciale
 
-À dessiner : offres et contrat d'une école, factures (`console`, ABO.1–ABO.2), factures vues par l'école (paramètres), bandeau « lecture seule » (ABO.3) ; page des prix du site (WEB.1).
+Dessinées par Claude (lot 3, 2026-11-03, à valider) : offres, contrats et factures de la console (`console/facturation`), acceptation des conditions, « Mon abonnement » avec le bandeau de lecture seule (`gestion/mon-abonnement`), demandes de modules (`console/demandes-modules`). La page des prix du site existait (WEB.1) : elle lit maintenant le catalogue.
 
 ### V1.4 — emploi du temps et IA
 

@@ -55,6 +55,9 @@ PLAN_FIELDS = (
     "features_fr",
     "features_en",
     "highlighted",
+    "catalogue_plan__price_per_student",
+    "catalogue_plan__currency",
+    "catalogue_plan__period",
 )
 PARTNER_FIELDS = ("name", "link", "logo_id")
 PAGE_FIELDS = ("key", "title_fr", "title_en", "description_fr", "description_en", "photo_id")
@@ -173,11 +176,26 @@ def reference_schools(lang: str) -> list[dict]:
     return [{**row, "logo": _photo(row["logo_id"], lang)} for row in published()["references"]]
 
 
+def _catalogue(row: dict) -> dict:
+    """Prix de l'offre du catalogue (par élève inscrit, par période) quand la formule en a une ;
+    `per_student` dit au site d'écrire « par élève » au lieu de « par mois »."""
+    amount = row["catalogue_plan__price_per_student"]
+    if amount is None:
+        return {"per_student": False}
+    return {
+        "per_student": True,
+        "price": amount,
+        "currency": row["catalogue_plan__currency"],
+        "period": row["catalogue_plan__period"],
+    }
+
+
 def plans(lang: str) -> list[dict]:
     """Formules publiées, dans l'ordre ; le prix reste en centimes (le site le formate)."""
     return [
         {
             **row,
+            **_catalogue(row),
             "name": _in(row, "name", lang),
             "tagline": _in(row, "tagline", lang),
             "features": [

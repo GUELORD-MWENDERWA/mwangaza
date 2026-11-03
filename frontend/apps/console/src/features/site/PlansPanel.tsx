@@ -38,6 +38,7 @@ type Values = {
   price: string;
   currency: "USD" | "CDF";
   period: "month" | "year";
+  catalogue_plan: string;
   features_fr: string;
   features_en: string;
   highlighted: boolean;
@@ -54,6 +55,7 @@ const EMPTY: Values = {
   price: "",
   currency: "USD",
   period: "month",
+  catalogue_plan: "",
   features_fr: "",
   features_en: "",
   highlighted: false,
@@ -167,6 +169,7 @@ function PlanEditor({
       .refine((text) => !Number.isNaN(toMinor(text)), t("console.site.plans.badPrice")),
     currency: z.enum(["USD", "CDF"]),
     period: z.enum(["month", "year"]),
+    catalogue_plan: z.string(),
     features_fr: lines(8).refine((text) => text.trim() !== "", required),
     features_en: lines(8),
     highlighted: z.boolean(),
@@ -183,12 +186,17 @@ function PlanEditor({
           price: fromMinor(item.price),
           currency: item.currency as Values["currency"],
           period: item.period as Values["period"],
+          catalogue_plan: item.catalogue_plan ?? "",
           features_fr: item.features_fr,
           features_en: item.features_en ?? "",
           highlighted: item.highlighted,
           published: item.published,
         }
       : EMPTY,
+  });
+  const catalogue = useQuery({
+    queryKey: ["console", "billing", "plans", "for-site"],
+    queryFn: () => call(api.GET("/api/console/billing/plans/", {})),
   });
   const [example, setExample] = useState(item?.is_example ?? false);
   const [general, setGeneral] = useState<string | null>(null);
@@ -200,6 +208,7 @@ function PlanEditor({
       const body = {
         ...values,
         price: toMinor(values.price),
+        catalogue_plan: values.catalogue_plan || null,
         ...(item?.is_example ? { is_example: example } : {}),
       };
       return item
@@ -319,6 +328,22 @@ function PlanEditor({
               )}
             </Field>
           </div>
+          <Field
+            id="plan-catalogue"
+            label={t("console.site.plans.fields.catalogue")}
+            help={t("console.site.plans.catalogueHelp")}
+          >
+            {(control) => (
+              <Select {...control} {...form.register("catalogue_plan")}>
+                <option value="">{t("console.site.plans.noCatalogue")}</option>
+                {catalogue.data?.results.map((plan) => (
+                  <option key={plan.code} value={plan.code}>
+                    {plan.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+          </Field>
           <div className="grid gap-4 min-[560px]:grid-cols-2">
             {points("fr")}
             {points("en")}

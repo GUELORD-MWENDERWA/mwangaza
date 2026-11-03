@@ -386,11 +386,17 @@ class ModuleRequestView(APIView):
 
 
 class ConsoleModuleRequestViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """Demandes de modules de toutes les écoles, ouvertes d'abord."""
+    """Demandes de modules de toutes les écoles, ouvertes d'abord ; `handled` la clôt."""
 
     permission_classes = [HasPlatformPermission]
-    platform_permission = {"list": READ}
+    platform_permission = {"list": READ, "handled": team.BILLING_MANAGE}
     serializer_class = ModuleRequestSerializer
+
+    @extend_schema(request=None, responses={200: ModuleRequestSerializer})
+    @action(detail=True, methods=["post"])
+    def handled(self, request, pk=None):
+        done = subscription.handle_request(self.get_object(), actor=request.user)
+        return Response(ModuleRequestSerializer(done).data)
 
     def get_queryset(self):
         return ModuleRequest.all_schools.select_related("school").order_by("status", "-created_at")

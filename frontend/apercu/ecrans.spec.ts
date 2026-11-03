@@ -164,6 +164,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "staff",
       "staff/import",
       "roles",
+      "subscription",
       "devices",
       "audit",
       "account",

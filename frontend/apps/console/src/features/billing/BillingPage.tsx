@@ -9,9 +9,10 @@ import { RIGHTS, useCan } from "../../lib/rights";
 import { ContractsTab } from "./ContractsTab";
 import { InvoicesTab } from "./InvoicesTab";
 import { LegalTab } from "./LegalTab";
+import { ModuleRequestsTab } from "./ModuleRequestsTab";
 import { PlansTab } from "./PlansTab";
 
-const TABS = ["invoices", "contracts", "plans", "legal"] as const;
+const TABS = ["invoices", "contracts", "plans", "requests", "legal"] as const;
 type Tab = (typeof TABS)[number];
 
 export function BillingPage() {
@@ -44,6 +45,7 @@ export function BillingPage() {
       {tab === "invoices" && <InvoicesTab />}
       {tab === "contracts" && <ContractsTab />}
       {tab === "plans" && <PlansTab manage={manage} />}
+      {tab === "requests" && <ModuleRequestsTab manage={manage} />}
       {tab === "legal" && <LegalTab manage={manage} />}
     </>
   );

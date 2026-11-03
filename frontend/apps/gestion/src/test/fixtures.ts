@@ -27,6 +27,7 @@ export const school: Schemas["CurrentSchool"] = {
   auto_matricule: true,
   environment: "live",
   setup_done: true,
+  read_only: false,
   receipt: { printer: "thermal_80", sheet_size: "half", header: "", footer: "" },
 };
 
@@ -49,6 +50,7 @@ export const PERMISSIONS = {
     "finance.import_prior_payments",
     "announcements.publish",
     "audit.view",
+    "billing.view",
   ],
   cashier: [
     "students.view",

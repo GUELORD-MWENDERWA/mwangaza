@@ -8,6 +8,8 @@ from zoneinfo import ZoneInfo
 import pytest
 from django.utils import timezone
 
+from apps.audit.actions import PlatformAction
+from apps.audit.models import PlatformAuditLog
 from apps.billing import invoicing, reminders
 from apps.billing.models import Invoice, ModuleRequest
 from apps.billing.tests.test_billing import CONSOLE, END, START, essential, finance, member  # noqa: F401
@@ -128,3 +130,13 @@ def test_module_request_is_kept_for_the_console(api, finance, school, head, othe
     assert [(r["school"], r["module"]) for r in rows] == [("alpha", "timetable")]
     with use_all_schools():
         assert ModuleRequest.all_schools.count() == 1
+    # La console la clôt (journal) ; l'école peut ensuite la redemander.
+    request_id = rows[0]["id"]
+    done = api(finance, host=CONSOLE).post(
+        f"/api/console/billing/module-requests/{request_id}/handled/"
+    )
+    assert done.status_code == 200 and done.json()["status"] == "done"
+    assert (
+        PlatformAuditLog.objects.filter(action=PlatformAction.MODULE_REQUEST_HANDLED).count() == 1
+    )
+    assert admin.get("/api/subscription/").json()["open_requests"] == []

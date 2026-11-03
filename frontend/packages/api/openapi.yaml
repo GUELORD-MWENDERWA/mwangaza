@@ -5809,7 +5809,8 @@ paths:
   /api/console/billing/module-requests/:
     get:
       operationId: console_billing_module_requests_list
-      description: Demandes de modules de toutes les écoles, ouvertes d'abord.
+      description: Demandes de modules de toutes les écoles, ouvertes d'abord ; `handled`
+        la clôt.
       parameters:
       - name: page
         required: false
@@ -5827,6 +5828,30 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedModuleRequestList'
+          description: ''
+  /api/console/billing/module-requests/{id}/handled/:
+    post:
+      operationId: console_billing_module_requests_handled_create
+      description: Demandes de modules de toutes les écoles, ouvertes d'abord ; `handled`
+        la clôt.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this module request.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleRequest'
           description: ''
   /api/console/billing/plans/:
     get:
@@ -24127,6 +24152,11 @@ components:
           $ref: '#/components/schemas/CurrencyEnum'
         period:
           $ref: '#/components/schemas/ConsolePlanPeriodEnum'
+        catalogue_plan:
+          type: string
+          nullable: true
+          description: 'Offre du catalogue (lot 3) : son prix par élève remplace le
+            prix saisi.'
         features_fr:
           type: string
           title: Included, one per line, in French
@@ -24158,6 +24188,7 @@ components:
       - price
       - currency
       - period
+      - catalogue_plan
       - features_fr
       - features_en
       - highlighted
@@ -24207,6 +24238,12 @@ components:
           $ref: '#/components/schemas/CurrencyEnum'
         period:
           $ref: '#/components/schemas/ConsolePlanPeriodEnum'
+        catalogue_plan:
+          type: string
+          minLength: 1
+          nullable: true
+          description: 'Offre du catalogue (lot 3) : son prix par élève remplace le
+            prix saisi.'
         features_fr:
           type: string
           minLength: 1
@@ -26419,6 +26456,11 @@ components:
           allOf:
           - $ref: '#/components/schemas/ReceiptSettings'
           readOnly: true
+        read_only:
+          type: boolean
+          readOnly: true
+          description: 'Lecture seule (facture impayée, ABO.3) : bandeau sur chaque
+            écran.'
         setup_done:
           type: boolean
           readOnly: true
@@ -26437,6 +26479,7 @@ components:
       - default_currency
       - auto_matricule
       - receipt
+      - read_only
       - setup_done
     CurrentSchoolAccess:
       type: object
@@ -31985,6 +32028,12 @@ components:
           $ref: '#/components/schemas/CurrencyEnum'
         period:
           $ref: '#/components/schemas/ConsolePlanPeriodEnum'
+        catalogue_plan:
+          type: string
+          minLength: 1
+          nullable: true
+          description: 'Offre du catalogue (lot 3) : son prix par élève remplace le
+            prix saisi.'
         features_fr:
           type: string
           minLength: 1
@@ -33709,6 +33758,7 @@ components:
       - billing.credit_note_issued
       - billing.invoice_payment
       - billing.invoice_payment_reversed
+      - billing.module_request_handled
       - school.created
       - school.updated
       - school.suspended
@@ -33777,6 +33827,7 @@ components:
         * `billing.credit_note_issued` - Credit note issued
         * `billing.invoice_payment` - Invoice payment recorded
         * `billing.invoice_payment_reversed` - Invoice payment cancelled
+        * `billing.module_request_handled` - Module request handled
         * `school.created` - School created
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended

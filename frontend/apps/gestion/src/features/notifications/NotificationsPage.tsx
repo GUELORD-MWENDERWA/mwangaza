@@ -43,6 +43,7 @@ import { disablePush, enablePush, pushState, type PushState } from "../../lib/pu
 // pour que chaque sorte ait son icône.
 const KIND_ICONS: Record<NotificationKind, IconName> = {
   test: "bell",
+  subscription: "wallet",
   platform_news: "megaphone",
   payment_received: "cash",
   announcement: "megaphone",

@@ -286,6 +286,37 @@ def test_plans_and_partners_are_kept_in_the_console_and_shown_by_the_site(
     assert PlatformAction.SITE_PARTNER_CREATED in actions
 
 
+def test_a_site_plan_linked_to_the_catalogue_takes_its_price_per_student(
+    console, client, django_capture_on_commit_callbacks
+):
+    from apps.billing.models import Plan
+
+    Plan.objects.create(
+        code="complet", name="Complet", price_per_student=200, currency="USD", period="term"
+    )
+    Plan.objects.create(
+        code="ancien",
+        name="Ancien",
+        price_per_student=100,
+        currency="USD",
+        period="term",
+        active=False,
+    )
+    plan = {
+        "name_fr": "Complet",
+        "tagline_fr": "Tout",
+        "price": 9000,
+        "features_fr": "Caisse",
+        "published": True,
+    }
+    assert console.post(PLANS, {**plan, "catalogue_plan": "ancien"}).status_code == 400  # retirée
+    with django_capture_on_commit_callbacks(execute=True):
+        created = console.post(PLANS, {**plan, "catalogue_plan": "complet"})
+    assert created.status_code == 201, created.json()
+    page = client.get("/tarifs/").content.decode()
+    assert "2,00" in page and "90,00" not in page  # le prix du catalogue remplace le prix saisi
+
+
 def test_the_examples_shipped_with_the_site_fill_the_figures_but_never_skip_the_consent(console):
     ReferenceSchool.objects.create(
         name="A", town="Goma", pupils=1200, is_example=True, published=True

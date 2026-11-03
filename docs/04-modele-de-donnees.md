@@ -145,6 +145,8 @@ Règles :
 - En retard : `due_on` < aujourd'hui et reste dû > 0.
 - Aucune suppression physique dans ce module.
 
+**Facturation de la plateforme (lot 3, app `billing`)** — `Plan` [G] (modules, prix par élève inscrit et par période, entier + devise), `Contract` [T] (copie modules et prix du plan ; brouillon → signé, immuable, avenant lié ; un seul actif par école), `Invoice` · `InvoiceLine` · `InvoicePayment` [T] (jamais modifiés : avoir complet lié, paiement annulé par une écriture liée), `LegalDocument` [G] versionné · `LegalAcceptance` [T], `ModuleRequest` [T] (demande d'un module en plus, `open` → `done`). `SitePlan.catalogue_plan` : offre dont le prix s'affiche sur la page des prix du site.
+
 ## 5. Notifications et annonces
 
 **Announcement [T]** — `title`, `body`, `audience` (`all_families`, `class_groups` ; `staff` depuis la 5.7 : tout le personnel de l'école, lue dans la Gestion par tout compte de l'école, jamais dans le portail, sans « lue par »), `class_groups` (une ou plusieurs classes de l'année en cours), `attachment` (PDF, 5 Mo, jamais public, toujours téléchargé), `published_at`, `archived_at`, `archived_by`. Publiée dès sa création, jamais modifiée ensuite (des familles l'ont peut-être lue) : on l'archive (retirée du portail) et on en publie une autre. Familles touchées : celles qui ont un enfant inscrit (actif) cette année dans les classes visées ; une fratrie compte une fois (4.3). Le portail montre à une famille les annonces non archivées qui la visent, publiées après la fin de l'année scolaire précédente (4.4.4).

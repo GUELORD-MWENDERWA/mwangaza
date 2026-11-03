@@ -7,7 +7,7 @@
 - [x] ② Serveur : factures, avoirs, paiements de l'école, relevé (ABO.2) ; contrat et facture en PDF (WeasyPrint) ; identité légale de la plateforme (I20) ; textes CTR.1 (CGU, confidentialité, registre) semés
 - [x] ③ Écrans : console (offres, contrats, conditions, factures, paiements, relevé) et fenêtre d'acceptation dans la Gestion ; maquettes d'abord
 - [x] ④ Serveur : échéances, rappels, lecture seule (ABO.3) ; API « Mon abonnement » et demande de module (ABO.4) ; droit `billing.view`
-- [ ] ⑤ Écrans : « Mon abonnement » dans la Gestion (+ bandeau lecture seule), demandes de modules dans la console, page des prix du site (WEB.1, SITE.4) ; maquettes d'abord
+- [x] ⑤ Écrans : « Mon abonnement » dans la Gestion (+ bandeau lecture seule), demandes de modules dans la console, formules du site liées au catalogue (WEB.1, SITE.4) ; maquettes d'abord
 
 ## Décisions (regard senior)
 - Prix = **par élève inscrit et par période** (un seul chiffre par offre) ; « prix par module » retiré : un module en plus = un autre plan ou un avenant. Moins de cas à facturer.
