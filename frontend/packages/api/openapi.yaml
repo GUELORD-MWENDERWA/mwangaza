@@ -13388,6 +13388,142 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/parent-threads/:
+    get:
+      operationId: parent_threads_list
+      description: Fils des parents, le plus récent d'abord ; l'ouverture d'un fil
+        le marque lu pour l'école.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - parent-messages
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedThreadList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/parent-threads/{id}/:
+    get:
+      operationId: parent_threads_retrieve
+      description: Fils des parents, le plus récent d'abord ; l'ouverture d'un fil
+        le marque lu pour l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this thread.
+        required: true
+      tags:
+      - parent-messages
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreadDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/parent-threads/{id}/reply/:
+    post:
+      operationId: parent_threads_reply_create
+      description: 'Répond au parent : il en est prévenu sur son téléphone.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this thread.
+        required: true
+      tags:
+      - parent-messages
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReplyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReplyRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/payments/:
     get:
       operationId: payments_list
@@ -14072,6 +14208,227 @@ paths:
                 type: string
                 format: binary
           description: PNG ou JPEG.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/children/{id}/report-card/:
+    get:
+      operationId: portal_children_report_card_retrieve
+      description: |-
+        Bulletin PDF d'un enfant, limité aux périodes proclamées ; 403 `report_withheld` (frais
+        échus sans dérogation), 409 `report_not_ready` (rien de proclamé), 429 au-delà de 10 par
+        minute. Pas d'adresse de fichier : chaque lecture contrôle le droit.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: Bulletin PDF.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/children/{id}/results/:
+    get:
+      operationId: portal_children_results_retrieve
+      description: |-
+        Notes validées, décision de passage et état du bulletin d'un enfant (8.8) ; 404 comme
+        `ChildView`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChildResults'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/children/{id}/thread/:
+    get:
+      operationId: portal_children_thread_retrieve
+      description: |-
+        Fil de l'enfant avec l'école (8.8) : lire, puis écrire (5 messages par heure au plus) ;
+        404 comme `ChildView`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChildThread'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: portal_children_thread_create
+      description: Écrit à l'école ; l'école en est prévenue. Rend le fil à jour.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreadWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ThreadWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ThreadWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChildThread'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/children/{id}/thread/read/:
+    post:
+      operationId: portal_children_thread_read_create
+      description: Marque les réponses de l'école comme lues.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
         '403':
           content:
             application/json:
@@ -22961,6 +23318,40 @@ components:
       - full_name
       - terms
       - incidents
+    ChildCourseScore:
+      type: object
+      properties:
+        course:
+          type: string
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,5}(?:\.\d{0,1})?$
+          nullable: true
+          description: 'Vide : notes incomplètes.'
+        maximum:
+          type: integer
+      required:
+      - course
+      - score
+      - maximum
+    ChildDecision:
+      type: object
+      properties:
+        decision:
+          type: string
+          description: '`promoted`, `repeat`, `resit`… (délibération).'
+        resit_courses:
+          type: array
+          items:
+            type: string
+        held_on:
+          type: string
+          format: date
+      required:
+      - decision
+      - resit_courses
+      - held_on
     ChildFee:
       type: object
       description: Un frais dû de l'année (« Minerval · 1re tranche »), après réductions.
@@ -23114,6 +23505,40 @@ components:
       - balance
       - fees
       - payments
+    ChildResults:
+      type: object
+      description: Notes validées, décision de passage et état du bulletin d'un enfant
+        (8.8).
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        class_group:
+          type: string
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChildTermResult'
+        decision:
+          allOf:
+          - $ref: '#/components/schemas/ChildDecision'
+          nullable: true
+        report_available:
+          type: boolean
+        withheld:
+          type: boolean
+          description: 'Frais échus sans dérogation : PDF refusé, décision toujours
+            visible.'
+      required:
+      - id
+      - full_name
+      - class_group
+      - terms
+      - decision
+      - report_available
+      - withheld
     ChildTermConduct:
       type: object
       properties:
@@ -23128,6 +23553,57 @@ components:
       - term_name
       - points
       - grade
+    ChildTermResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        released:
+          type: boolean
+          description: 'Résultats proclamés : le bulletin de cette période est remis
+            aux parents.'
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChildCourseScore'
+        total:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,1})?$
+          nullable: true
+          description: Vide tant que tout n'est pas validé.
+        maximum:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - name
+      - released
+      - courses
+      - total
+      - maximum
+    ChildThread:
+      type: object
+      description: Fil d'un enfant avec l'école (8.8).
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant de l'enfant.
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalMessage'
+        unread:
+          type: boolean
+          description: Une réponse de l'école n'a pas été lue.
+      required:
+      - id
+      - messages
+      - unread
     ChildTimetable:
       type: object
       description: Horaire de la classe d'un enfant (EDT.4b).
@@ -30275,6 +30751,40 @@ components:
       - homeroom
       - courses
       - present
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        from_school:
+          type: boolean
+          readOnly: true
+          title: From the school
+        author_name:
+          type: string
+          readOnly: true
+        topic:
+          allOf:
+          - $ref: '#/components/schemas/TopicEnum'
+          readOnly: true
+          title: Subject
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - from_school
+      - author_name
+      - topic
+      - body
+      - created_at
     MissingFieldsEnum:
       enum:
       - last_name
@@ -30493,6 +31003,8 @@ components:
       - grades_validated
       - results_proclaimed
       - results_reopened
+      - parent_message
+      - school_reply
       - timetable_published
       - ai_credits
       type: string
@@ -30519,6 +31031,8 @@ components:
         * `grades_validated` - Grade sheet validated
         * `results_proclaimed` - Results proclaimed
         * `results_reopened` - Results reopened
+        * `parent_message` - Message from a parent
+        * `school_reply` - Reply from the school
         * `timetable_published` - New timetable
         * `ai_credits` - AI credits running low
     NotificationPreferences:
@@ -31766,6 +32280,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TeamMember'
+    PaginatedThreadList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Thread'
     PaginatedUnpaidStudentList:
       type: object
       required:
@@ -34555,6 +35094,31 @@ components:
       - phone
       - name
       - language
+    PortalMessage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        from_school:
+          type: boolean
+        author_name:
+          type: string
+        topic:
+          type: string
+          description: '`waiver`, `grade` ou `other` ; vide pour l''école.'
+        body:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - from_school
+      - author_name
+      - topic
+      - body
+      - created_at
     PortalNotification:
       type: object
       description: 'Notification du parent, avec son école : le centre du portail
@@ -35490,6 +36054,15 @@ components:
           maxLength: 300
       required:
       - reason
+    ReplyRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1500
+      required:
+      - body
     ReportCardStatus:
       type: object
       description: Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes
@@ -39464,6 +40037,78 @@ components:
             $ref: '#/components/schemas/TermInputRequest'
       required:
       - terms
+    Thread:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+        last_message_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Last message
+        unread:
+          type: boolean
+          readOnly: true
+          description: Le parent a écrit depuis votre lecture.
+      required:
+      - id
+      - student
+      - student_name
+      - last_message_at
+      - unread
+    ThreadDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+        student_name:
+          type: string
+        last_message_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Last message
+        unread:
+          type: boolean
+          readOnly: true
+          description: Le parent a écrit depuis votre lecture.
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+      required:
+      - id
+      - student
+      - student_name
+      - last_message_at
+      - unread
+      - messages
+    ThreadWriteRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1500
+        topic:
+          allOf:
+          - $ref: '#/components/schemas/TopicEnum'
+          default: other
+      required:
+      - body
     TimeGrid:
       type: object
       properties:
@@ -39875,6 +40520,16 @@ components:
         * `draft` - Draft
         * `published` - Published
         * `archived` - Archived
+    TopicEnum:
+      enum:
+      - waiver
+      - grade
+      - other
+      type: string
+      description: |-
+        * `waiver` - Request for a report card waiver
+        * `grade` - Question about a grade or a decision
+        * `other` - Other question
     TotalsRow:
       type: object
       properties:

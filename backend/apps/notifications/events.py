@@ -25,7 +25,7 @@ from apps.core.money import format_amount
 from apps.core.tenancy import require_current_school
 from apps.finance.models import CancellationRequest, CashClosing, CashSession, Payment
 from apps.notifications import push
-from apps.notifications.models import Announcement, Notification, Summons
+from apps.notifications.models import Announcement, Message, Notification, Summons, Thread
 from apps.students.models import Enrollment, Family
 
 App = Notification.App
@@ -283,6 +283,40 @@ def places_offered(family_ids: Iterable, year_name: str) -> None:
                 "Tell it whether they are coming back."
             )
             % {"year": year_name},
+        ),
+    )
+
+
+# Fil parent ↔ école (8.8)
+
+
+def parent_message(thread: Thread, message: Message) -> None:
+    """Un parent écrit à l'école : à ceux qui communiquent avec les familles (un envoi par
+    message ; la limite horaire de `threads.py` borne le nombre)."""
+    student = thread.student
+    send(
+        staff(Kind.PARENT_MESSAGE, but=message.author),
+        app=App.GESTION,
+        kind=Kind.PARENT_MESSAGE,
+        url=f"/parent-messages?thread={thread.pk}",
+        text=lambda: (
+            _("Message from a parent: %(student)s") % {"student": student.full_name},
+            message.body,
+        ),
+    )
+
+
+def school_reply(thread: Thread, message: Message) -> None:
+    """L'école répond : le parent ouvre le fil de l'enfant dans le portail."""
+    student = thread.student
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.SCHOOL_REPLY,
+        url=f"/children/{student.pk}/messages",
+        text=lambda: (
+            _("Reply from the school: %(student)s") % {"student": student.full_name},
+            message.body,
         ),
     )
 

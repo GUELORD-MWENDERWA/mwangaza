@@ -64,6 +64,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   grades_validated: "check",
   results_proclaimed: "check",
   results_reopened: "undo",
+  parent_message: "megaphone",
   timetable_published: "calendar",
   ai_credits: "alert",
 };

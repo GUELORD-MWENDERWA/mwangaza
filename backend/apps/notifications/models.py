@@ -265,6 +265,10 @@ class Notification(TenantModel):
         GRADES_VALIDATED = "grades_validated", _("Grade sheet validated")
         RESULTS_PROCLAIMED = "results_proclaimed", _("Results proclaimed")
         RESULTS_REOPENED = "results_reopened", _("Results reopened")
+        # Fil parent ↔ école (8.8) : un message du parent, au personnel qui communique avec les
+        # familles ; la réponse de l'école, au parent.
+        PARENT_MESSAGE = "parent_message", _("Message from a parent")
+        SCHOOL_REPLY = "school_reply", _("Reply from the school")
         # Horaire publié (EDT.4b) : aux enseignants et aux parents dont l'horaire change.
         TIMETABLE_PUBLISHED = "timetable_published", _("New timetable")
         # IA (IA.1.1) : 80 % des crédits du mois dépensés, à ceux qui gèrent les rôles.
@@ -388,3 +392,56 @@ class NotificationPreference(BaseModel):
 
     def __str__(self) -> str:
         return str(self.user)
+
+
+class Thread(TenantModel):
+    """Fil de discussion d'un élève entre ses parents et l'école (8.8) : un seul par élève, créé au
+    premier message du parent. Version légère (la messagerie complète reste V1.7) : du texte, pas
+    de pièce jointe, pas de temps réel. `*_read_at` : jusqu'où chaque côté a lu."""
+
+    student = models.OneToOneField(
+        Student, on_delete=models.PROTECT, related_name="thread", verbose_name=_("student")
+    )
+    last_message_at = models.DateTimeField(_("last message"))
+    parent_read_at = models.DateTimeField(_("read by the parent"), null=True, blank=True)
+    school_read_at = models.DateTimeField(_("read by the school"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("thread")
+        verbose_name_plural = _("threads")
+        indexes = [models.Index(fields=["school", "-last_message_at"], name="thread_school_last")]
+
+    def __str__(self) -> str:
+        return str(self.student)
+
+
+class Message(TenantModel):
+    """Message d'un fil : du parent (avec son sujet) ou de l'école. Jamais modifié ni effacé."""
+
+    class Topic(models.TextChoices):
+        WAIVER = "waiver", _("Request for a report card waiver")
+        GRADE = "grade", _("Question about a grade or a decision")
+        OTHER = "other", _("Other question")
+
+    thread = models.ForeignKey(
+        Thread, on_delete=models.CASCADE, related_name="messages", verbose_name=_("thread")
+    )
+    from_school = models.BooleanField(_("from the school"))
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("author"),
+    )
+    # Seulement pour un message du parent.
+    topic = models.CharField(_("subject"), max_length=10, choices=Topic.choices, blank=True)
+    body = models.TextField(_("message"), max_length=1500)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        verbose_name = _("message")
+        verbose_name_plural = _("messages")
+        indexes = [models.Index(fields=["school", "thread", "created_at"], name="message_thread")]
+
+    def __str__(self) -> str:
+        return self.body[:40]

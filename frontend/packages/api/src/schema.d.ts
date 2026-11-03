@@ -4269,6 +4269,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/parent-threads/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Fils des parents, le plus récent d'abord ; l'ouverture d'un fil le marque lu pour l'école. */
+        get: operations["parent_threads_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/parent-threads/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Fils des parents, le plus récent d'abord ; l'ouverture d'un fil le marque lu pour l'école. */
+        get: operations["parent_threads_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/parent-threads/{id}/reply/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Répond au parent : il en est prévenu sur son téléphone. */
+        post: operations["parent_threads_reply_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/payments/": {
         parameters: {
             query?: never;
@@ -4561,6 +4612,85 @@ export interface paths {
         get: operations["portal_children_photo_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/report-card/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Bulletin PDF d'un enfant, limité aux périodes proclamées ; 403 `report_withheld` (frais
+         *     échus sans dérogation), 409 `report_not_ready` (rien de proclamé), 429 au-delà de 10 par
+         *     minute. Pas d'adresse de fichier : chaque lecture contrôle le droit.
+         */
+        get: operations["portal_children_report_card_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/results/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Notes validées, décision de passage et état du bulletin d'un enfant (8.8) ; 404 comme
+         *     `ChildView`.
+         */
+        get: operations["portal_children_results_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/thread/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Fil de l'enfant avec l'école (8.8) : lire, puis écrire (5 messages par heure au plus) ;
+         *     404 comme `ChildView`.
+         */
+        get: operations["portal_children_thread_retrieve"];
+        put?: never;
+        /** @description Écrit à l'école ; l'école en est prévenue. Rend le fil à jour. */
+        post: operations["portal_children_thread_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/thread/read/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Marque les réponses de l'école comme lues. */
+        post: operations["portal_children_thread_read_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -7750,6 +7880,22 @@ export interface components {
             terms: components["schemas"]["ChildTermConduct"][];
             incidents: components["schemas"]["ChildIncident"][];
         };
+        ChildCourseScore: {
+            course: string;
+            /**
+             * Format: decimal
+             * @description Vide : notes incomplètes.
+             */
+            score: string | null;
+            maximum: number;
+        };
+        ChildDecision: {
+            /** @description `promoted`, `repeat`, `resit`… (délibération). */
+            decision: string;
+            resit_courses: string[];
+            /** Format: date */
+            held_on: string;
+        };
         /** @description Un frais dû de l'année (« Minerval · 1re tranche »), après réductions. */
         ChildFee: {
             /** Format: uuid */
@@ -7825,11 +7971,48 @@ export interface components {
             /** @description Les plus récents d'abord. */
             payments: components["schemas"]["ChildPayment"][];
         };
+        /** @description Notes validées, décision de passage et état du bulletin d'un enfant (8.8). */
+        ChildResults: {
+            /** Format: uuid */
+            id: string;
+            full_name: string;
+            class_group: string;
+            terms: components["schemas"]["ChildTermResult"][];
+            decision: components["schemas"]["ChildDecision"] | null;
+            report_available: boolean;
+            /** @description Frais échus sans dérogation : PDF refusé, décision toujours visible. */
+            withheld: boolean;
+        };
         ChildTermConduct: {
             term_name: string;
             points: number;
             /** @description TB, B, AB, ME ou MA. */
             grade: string;
+        };
+        ChildTermResult: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            /** @description Résultats proclamés : le bulletin de cette période est remis aux parents. */
+            released: boolean;
+            courses: components["schemas"]["ChildCourseScore"][];
+            /**
+             * Format: decimal
+             * @description Vide tant que tout n'est pas validé.
+             */
+            total: string | null;
+            maximum: number | null;
+        };
+        /** @description Fil d'un enfant avec l'école (8.8). */
+        ChildThread: {
+            /**
+             * Format: uuid
+             * @description Identifiant de l'enfant.
+             */
+            id: string;
+            messages: components["schemas"]["PortalMessage"][];
+            /** @description Une réponse de l'école n'a pas été lue. */
+            unread: boolean;
         };
         /** @description Horaire de la classe d'un enfant (EDT.4b). */
         ChildTimetable: {
@@ -11043,6 +11226,19 @@ export interface components {
             courses: string[];
             present: boolean;
         };
+        Message: {
+            /** Format: uuid */
+            readonly id: string;
+            /** From the school */
+            readonly from_school: boolean;
+            readonly author_name: string;
+            /** Subject */
+            readonly topic: components["schemas"]["TopicEnum"];
+            /** Message */
+            readonly body: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         /**
          * @description * `last_name` - last_name
          *     * `middle_name` - middle_name
@@ -11149,11 +11345,13 @@ export interface components {
          *     * `grades_validated` - Grade sheet validated
          *     * `results_proclaimed` - Results proclaimed
          *     * `results_reopened` - Results reopened
+         *     * `parent_message` - Message from a parent
+         *     * `school_reply` - Reply from the school
          *     * `timetable_published` - New timetable
          *     * `ai_credits` - AI credits running low
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "timetable_published" | "ai_credits";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -11873,6 +12071,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["TeamMember"][];
+        };
+        PaginatedThreadList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Thread"][];
         };
         PaginatedUnpaidStudentList: {
             /** @example 123 */
@@ -13200,6 +13413,17 @@ export interface components {
             name: string;
             language: components["schemas"]["LanguageEnum"];
         };
+        PortalMessage: {
+            /** Format: uuid */
+            id: string;
+            from_school: boolean;
+            author_name: string;
+            /** @description `waiver`, `grade` ou `other` ; vide pour l'école. */
+            topic: string;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+        };
         /** @description Notification du parent, avec son école : le centre du portail mêle toutes ses écoles. */
         PortalNotification: {
             /** Format: uuid */
@@ -13642,6 +13866,9 @@ export interface components {
         };
         ReopenRequest: {
             reason: string;
+        };
+        ReplyRequest: {
+            body: string;
         };
         /** @description Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées. */
         ReportCardStatus: {
@@ -15500,6 +15727,40 @@ export interface components {
         TermsUpdateRequest: {
             terms: components["schemas"]["TermInputRequest"][];
         };
+        Thread: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            student: string;
+            student_name: string;
+            /**
+             * Last message
+             * Format: date-time
+             */
+            readonly last_message_at: string;
+            /** @description Le parent a écrit depuis votre lecture. */
+            readonly unread: boolean;
+        };
+        ThreadDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            student: string;
+            student_name: string;
+            /**
+             * Last message
+             * Format: date-time
+             */
+            readonly last_message_at: string;
+            /** @description Le parent a écrit depuis votre lecture. */
+            readonly unread: boolean;
+            messages: components["schemas"]["Message"][];
+        };
+        ThreadWriteRequest: {
+            body: string;
+            /** @default other */
+            topic: components["schemas"]["TopicEnum"];
+        };
         TimeGrid: {
             /** Format: uuid */
             readonly id: string;
@@ -15686,6 +15947,13 @@ export interface components {
          * @enum {string}
          */
         TimetableStatusEnum: "draft" | "published" | "archived";
+        /**
+         * @description * `waiver` - Request for a report card waiver
+         *     * `grade` - Question about a grade or a decision
+         *     * `other` - Other question
+         * @enum {string}
+         */
+        TopicEnum: "waiver" | "grade" | "other";
         TotalsRow: {
             /** Format: uuid */
             enrollment_id: string;
@@ -29018,6 +29286,150 @@ export interface operations {
             };
         };
     };
+    parent_threads_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedThreadList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    parent_threads_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this thread. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThreadDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    parent_threads_reply_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this thread. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReplyRequest"];
+                "multipart/form-data": components["schemas"]["ReplyRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     payments_list: {
         parameters: {
             query?: {
@@ -29713,6 +30125,245 @@ export interface operations {
                 content: {
                     "image/*": string;
                 };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_report_card_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bulletin PDF. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_results_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildResults"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_thread_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildThread"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_thread_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ThreadWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ThreadWriteRequest"];
+                "multipart/form-data": components["schemas"]["ThreadWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildThread"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_thread_read_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             403: {
                 headers: {

@@ -29,6 +29,7 @@ from apps.portal import (
     calendar,
     children,
     families,
+    messages,
     notifications,
     places,
     receipts,
@@ -40,6 +41,7 @@ from apps.portal.serializers import (
     ChildConductSerializer,
     ChildPaymentsSerializer,
     ChildResultsSerializer,
+    ChildThreadSerializer,
     ChildTimetableSerializer,
     FamilyCodeSerializer,
     LinkedFamilySerializer,
@@ -53,6 +55,7 @@ from apps.portal.serializers import (
     PortalSummonsSerializer,
     ReadSerializer,
     SummonsSeenSerializer,
+    ThreadWriteSerializer,
 )
 from apps.students import contact_changes
 from apps.students.photos import photo_response
@@ -242,6 +245,38 @@ class ChildReportCardView(APIView):
                 request.user, pk, absolute=request.build_absolute_uri
             )
             return render("academics/report_card.html", context, "pdf", name)
+
+
+@extend_schema(tags=["portal"])
+class ChildThreadView(APIView):
+    """Fil de l'enfant avec l'école (8.8) : lire, puis écrire (5 messages par heure au plus) ;
+    404 comme `ChildView`."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: ChildThreadSerializer, **READ_ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        return Response(ChildThreadSerializer(messages.read(request.user, pk)).data)
+
+    @extend_schema(request=ThreadWriteSerializer, responses={200: ChildThreadSerializer, **ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        """Écrit à l'école ; l'école en est prévenue. Rend le fil à jour."""
+        data = ThreadWriteSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        messages.write(request.user, pk, **data.validated_data)
+        return Response(ChildThreadSerializer(messages.read(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildThreadReadView(APIView):
+    """Marque les réponses de l'école comme lues."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(request=None, responses={204: None, **READ_ERRORS})
+    def post(self, request: Request, pk) -> Response:
+        messages.mark_read(request.user, pk)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @extend_schema(tags=["portal"])

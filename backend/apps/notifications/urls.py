@@ -1,5 +1,6 @@
 from rest_framework.routers import SimpleRouter
 
+from apps.notifications.thread_views import ParentThreadViewSet
 from apps.notifications.views import (
     AnnouncementViewSet,
     ConsoleAlertViewSet,
@@ -20,6 +21,7 @@ router.register("console/alerts", ConsoleAlertViewSet, basename="console-alert")
 router.register("calendar-events", SchoolEventViewSet, basename="calendar-event")
 router.register("staff-announcements", StaffAnnouncementViewSet, basename="staff-announcement")
 router.register("summons", SummonsViewSet, basename="summons")
+router.register("parent-threads", ParentThreadViewSet, basename="parent-thread")
 router.register("notifications", NotificationViewSet, basename="notification")
 router.register("platform-announcements", PlatformNewsViewSet, basename="platform-announcement")
 

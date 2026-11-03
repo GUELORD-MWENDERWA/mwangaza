@@ -14,6 +14,7 @@ from django.utils.text import Truncator
 
 from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
+    ANNOUNCEMENTS_PUBLISH,
     BILLING_VIEW,
     FINANCE_APPROVE_CANCELLATION,
     FINANCE_VIEW_REPORTS,
@@ -50,6 +51,8 @@ STAFF_KINDS = {
     Kind.GRADES_VALIDATED: GRADES_ENTER,
     Kind.RESULTS_PROCLAIMED: GRADES_VALIDATE,
     Kind.RESULTS_REOPENED: GRADES_VALIDATE,
+    # Message d'un parent (8.8) : ceux qui publient les annonces aux familles.
+    Kind.PARENT_MESSAGE: ANNOUNCEMENTS_PUBLISH,
     # Nouvel horaire (EDT.4b) : envoyé aux enseignants dont les heures changent, réglable par eux.
     Kind.TIMETABLE_PUBLISHED: GRADES_ENTER,
     # Crédits de l'IA presque épuisés (IA.1.1) : ceux qui gèrent les rôles de l'école.
@@ -72,6 +75,7 @@ PREFERENCE_KINDS = {
         Kind.SUMMONS,
         Kind.DISCIPLINE_INCIDENT,
         Kind.PLACE_OFFERED,
+        Kind.SCHOOL_REPLY,
         Kind.PAYMENT_DUE,
         Kind.PAYMENT_OVERDUE,
         Kind.TIMETABLE_PUBLISHED,

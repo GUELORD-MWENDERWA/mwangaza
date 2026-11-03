@@ -20,6 +20,12 @@ urlpatterns = [
         views.ChildReportCardView.as_view(),
         name="child-report-card",
     ),
+    path("children/<uuid:pk>/thread/", views.ChildThreadView.as_view(), name="child-thread"),
+    path(
+        "children/<uuid:pk>/thread/read/",
+        views.ChildThreadReadView.as_view(),
+        name="child-thread-read",
+    ),
     path("children/<uuid:pk>/photo/", views.ChildPhotoView.as_view(), name="child-photo"),
     path(
         "children/<uuid:pk>/timetable/",
