@@ -708,7 +708,6 @@ export const en: Messages<typeof fr> = {
         "A single mark per period (and per exam), copied onto the marking sheet. A course can choose otherwise.",
     },
     portal: {
-      offline: "Offline: showing the last data read, seen on {{date}}. Nothing can be changed.",
       title: "Parent portal",
       intro: "What parents see besides payments and announcements.",
       teacherPhone: "Show the homeroom teacher's phone",
@@ -6304,6 +6303,7 @@ export const en: Messages<typeof fr> = {
   },
 
   portal: {
+    offline: "Offline: showing the last data read, seen on {{date}}. Nothing can be changed.",
     languages: "Language",
     login: {
       title: "Welcome back",

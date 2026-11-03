@@ -711,7 +711,6 @@ export const fr = {
         "Une seule note par période (et par examen), reportée sur la fiche de cotation. Un cours peut choisir autrement.",
     },
     portal: {
-      offline: "Sans réseau : dernières données lues, vues le {{date}}. Rien ne peut être modifié.",
       title: "Portail des parents",
       intro: "Ce que les parents voient en plus des paiements et des annonces.",
       teacherPhone: "Montrer le téléphone du titulaire",
@@ -6366,6 +6365,7 @@ export const fr = {
   },
 
   portal: {
+    offline: "Sans réseau : dernières données lues, vues le {{date}}. Rien ne peut être modifié.",
     languages: "Langue",
     login: {
       title: "Bon retour",
