@@ -358,6 +358,16 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
         path.replace(/\//g, "-") || "tableau-de-bord",
       );
     }
+    // Onglets de la facturation (les boutons des cartes ne doivent pas déborder).
+    for (const [slug, label] of [
+      ["plans", "Offres"],
+      ["legal", "Conditions"],
+    ] as const) {
+      await visit(admin, `${CONSOLE}billing`, "console", `billing-${slug}`, async (page) => {
+        await page.getByRole("button", { name: label }).click();
+        await page.waitForTimeout(400);
+      });
+    }
     const schools = await json<{ results: { id: string }[] }>(
       admin,
       "/api/console/schools/?page_size=1",
