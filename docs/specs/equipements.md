@@ -140,7 +140,16 @@ L'utilisateur ne se connecte **qu'à la console**. Les appareils secondaires (`r
 - **Mise à jour** : le serveur envoie le micrologiciel **signé** à la console (HTTPS), qui le **range sur la carte SD** (image de 1,3 Mo) puis le distribue aux secondaires en morceaux de 190 octets, chacun vérifié, signature contrôlée à la fin, partition de secours (A/B) et retour arrière. **Déploiement progressif** : un appareil d'abord, les autres quand il a confirmé ; progression visible à l'écran et dans l'application. **Mise à jour hors ligne** : fichier signé déposé sur la carte SD de la console. La console se met à jour elle-même de la même façon.
 - **Fonctions locales de l'écran** (avec code PIN pour les actions sensibles : alerte, ajout ou retrait d'appareil, WiFi, mise à jour, avec blocage après essais ratés) : état de tous les appareils (signal, batterie, version), sonner maintenant, WiFi, jumelage, mise à jour.
 - **Si la console est éteinte** : les secondaires continuent seuls (lecteurs : séance déjà reçue, événements gardés jusqu'à 2 000 en mémoire ; sonneries déportées : dernier planning reçu) et resynchronisent à son retour.
-- **Nouveau type `sounder` (proposition)** : sirène déportée, ESP + relais, pour sonner **en même temps** dans plusieurs bâtiments à partir du planning de la console (même contact sec 220 V).
+- **Type `sounder` (sirène déportée) : dans la V1**, voir § 3.6.
+
+### 3.6 Sirène déportée (`sounder`, V1)
+
+Un ESP32 (ou ESP8266) + un relais 250 V / 10 A (contact sec sur la sirène du bâtiment, même précautions 220 V qu'au § 2.5) + un DS3231 + deux voyants + un bouton de jumelage. Secondaire de la console (§ 3.4).
+- **Synchronisation** : la console diffuse l'heure toutes les minutes (trame `time`, correction de la dérive à chaque trame, écart toléré < 1 s). Pour une sonnerie **immédiate** (« sonner maintenant », alerte), la console envoie « sonner à T + 300 ms » : la latence des sauts n'a plus d'effet, toutes les sirènes partent ensemble.
+- **Autonome comme la console** : le sounder garde sa **copie du planning** et son propre DS3231 ; console éteinte ou hors de portée, il sonne seul à l'heure. Les sonneries manquées par coupure de courant ne sont pas rejouées (§ 2.5).
+- **Zones** : chaque sounder a une zone (Bâtiment A, Atelier…). Un créneau de sonnerie cible « toutes les zones » (par défaut) ou certaines ; une alerte sonne partout. Réglé dans l'application (Sonnerie, créneau) et envoyé par la console.
+- **Retour d'état** : accusé « sonnerie exécutée à HH:MM:SS » dans le journal des sonneries ; alerte « sirène déportée muette » si l'accusé manque ou si le sounder disparaît du réseau.
+- Même mise à jour signée, même jumelage et même chiffrement que les autres secondaires. Un sounder sur secteur seul n'a pas besoin de batterie.
 
 ### 3.5 Hors V1 de la couche réseau
 Passerelle de secours, bascule automatique entre deux consoles, 4G/GSM (V2).
