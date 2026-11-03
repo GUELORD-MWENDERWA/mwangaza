@@ -396,6 +396,7 @@ Chaque PR se termine par trois sections en français simple : **« À valider »
 | `make deploy-setup` | prépare le serveur (mises à jour automatiques, Docker, pare-feu, SSH par clé) | une seule fois |
 | `make deploy` | met en ligne la dernière version de `main` sur le vrai serveur : envoie le code, construit l'application sur le serveur et la relance (`make deploy ref=origin/<branche>` pour une autre branche) | après une PR fusionnée que tu veux montrer |
 | `make deploy-superuser` | crée un compte super-administrateur sur le vrai serveur | pour ton propre compte |
+| `make deploy-site` | sur le vrai serveur : ajoute les actualités d'exemple du site si elles manquent (rien n'est écrasé, aucune donnée d'école touchée). Tu les relis et modifies ensuite dans la console, page « Actualités ». |
 | `make deploy-demo` | sur un serveur d'essai seulement (`DJANGO_DEMO_DATA`) : efface puis recrée les démonstrations de `make demo`. **Refusé sur le vrai serveur** : là, console → Écoles → Démonstration → « Remettre à zéro » | rarement |
 | `make deploy-logs` | derniers journaux du serveur et version en ligne (`make deploy-logs service=django`, `caddy`…) | quand quelque chose ne marche pas |
 | `make deploy-memoire` | mémoire du serveur : la machine, chaque conteneur et les 15 programmes les plus lourds | quand la carte Santé montre peu de mémoire libre |

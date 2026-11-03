@@ -236,3 +236,19 @@ def test_public_news_pages_show_only_published_articles_in_their_language(client
     assert 'hreflang="en" href' not in page.replace('hreflang="en" lang="en"', "")
     sitemap = client.get("/sitemap.xml").content.decode()
     assert "/actualites/paru/" in sitemap and "bientot" not in sitemap
+
+
+def test_seed_site_fills_an_empty_site_once_and_never_overwrites():
+    from django.core.management import call_command
+
+    from apps.core.models import Article
+
+    call_command("seed_site")
+    first = Article.objects.count()
+    assert first > 0
+    Article.objects.filter(status=Article.Status.PUBLISHED).update(
+        title="Titre changé par l'équipe"
+    )
+    call_command("seed_site")
+    assert Article.objects.count() == first
+    assert Article.objects.filter(title="Titre changé par l'équipe").exists()
