@@ -21,8 +21,9 @@ Décidé le 2026-11-03. Mwangaza englobe désormais deux projets existants : la 
 
 | Type (`Device.kind`) | Carte | Rôle |
 |---|---|---|
-| `console` | ESP32 (NodeMCU-32S) + **Arduino Uno + shield TFT tactile** + DS3231 + relais sirène + buzzer + RC522 | Appareil central de l'école : sonnerie autonome **et** lecteur de présence. Sert aussi de **passerelle** vers internet. |
+| `console` (**principal**) | ESP32 (NodeMCU-32S) + **Arduino Uno + shield TFT tactile** + DS3231 + relais sirène + buzzer + RC522 | Appareil central de l'école : sonnerie autonome **et** lecteur de présence. Sert aussi de **passerelle** vers internet. |
 | `reader` | ESP32 **ou** ESP8266 + RC522 + 4 LED + buzzer | Lecteur de présence dans une salle ; commande aussi un avertisseur local. |
+| `sounder` | ESP32 ou ESP8266 + relais 220 V | Sirène déportée : sonne en même temps que la console (secondaire). |
 | `relay` | ESP32 ou ESP8266 seul | Répéteur : prolonge la portée entre des bâtiments éloignés. Aucun capteur. |
 
 Tout appareil est **configurable, paramétrable et gérable** (CRUD) depuis la Gestion : nom, salle, type, version du micrologiciel, dernière vue, qualité du signal, réglages (volume, couleurs, délais), état « actif / retiré ».
@@ -57,7 +58,8 @@ Chaque appareil fonctionne **avec la batterie seule, avec l'adaptateur 5 V seul,
 - **Pilotage par l'ESP32** : lecture de la tension (diviseur sur une entrée ADC1, filtrée) ; broche d'activation de la charge ; état de charge ; **arrêt de la charge à 4,1 V** (option « longue durée de vie », −10 % d'autonomie, cellule plus durable) ; **pas de charge sous 0 °C ni au-dessus de 45 °C** (Goma : boîtier au soleil = charge suspendue) ; coupure propre à 3,3 V (heure de coupure notée, relais ouvert, reprise automatique au retour du courant).
 - **Économies** : écran (alimentation 5 V de l'Uno coupée par transistor, réveil au bouton ou à la carte) éteint après 30 s ; RC522 éveillé par courtes interrogations ; sur un **lecteur sur batterie**, l'ESP32 dort **hors des heures de séance** (réveil par l'horloge ; les séances viennent du planning) ; puissance radio réduite quand le lien est bon.
 - **Autonomies attendues (estimations à mesurer au banc, cellule 3 000 mAh)** : console (radio toujours éveillée, écran éteint) ≈ 1 jour : **secteur recommandé, batterie = secours de plusieurs heures** ; lecteur sur batterie, éveillé 6 h par jour ≈ 1 semaine ; relais (toujours à l'écoute) ≈ 1,5 jour : secteur ou **petit panneau solaire 5 V** sur le même chargeur.
-- **La sirène n'est pas alimentée par cette batterie** : le relais ne fait que **fermer un contact sec** ; la sirène a sa propre alimentation. Sans courant, la sirène ne sonne donc pas, même si l'appareil tient l'heure (à signaler à l'école ; sirène sur batterie 12 V possible plus tard).
+- **La sirène est alimentée en 220 V** (décidé le 2026-11-03) : le relais ne fait que **fermer un contact sec** sur son alimentation. Sans secteur elle est muette de toute façon : **une école « Sonnerie seule » n'a besoin d'aucune batterie** (adaptateur 5 V sur le même secteur ; la pile du DS3231 garde l'heure). La batterie est une **option** (secours pour les lecteurs et les relais, ou pour garder le journal et l'alerte « coupure » de la console). Au retour du courant, les sonneries **manquées ne sont pas rejouées** (tolérance de 30 s, ligne « manquée : coupure » au journal).
+- **Sécurité 220 V** : contact sec d'un relais **250 V AC 10 A** ou d'un **contacteur** (sirène à moteur : courant d'appel, circuit RC en parallèle du contact), carte basse tension **séparée** du circuit secteur (isolation, distances de fuite, fusible, terre, boîtier fermé), câblage secteur par un électricien.
 - **Remontée à la console** (`heartbeat`) : source (secteur / batterie), tension, pourcentage estimé, autonomie estimée, état de charge, température, nombre de coupures ; alertes « batterie faible », « sur batterie depuis X min », « défaut de charge » ; réglages (limite de charge, mise en veille) modifiables à distance. Tâche de banc : **mesure de consommation** de chaque type d'appareil (EQP.3).
 - Sécurité de la cellule : fusible, protection contre l'inversion, cellule jamais chargée sans protection, boîtier ventilé ; alternative plus sûre et plus durable en chaleur : **LiFePO4** (3,2 V, 2 000 cycles), à comparer au banc.
 
@@ -95,11 +97,10 @@ Condensateur 470–1000 µF à l'entrée, relais sirène commandé par NPN avec 
                                                                   lecteur B
 ```
 
-- **Une passerelle par école** (au moins) : seul appareil à parler à l'API. Elle peut être la console, ou un `reader`/`relay` désigné `gateway` si l'école n'a pas de console. Une école plus grande peut avoir **deux passerelles** (reprise automatique).
+- **L'appareil principal (la console, avec l'écran) est la seule passerelle** de son site : seul à parler à l'API et seul à avoir une interface. Toute école a au moins une console ; un site éloigné peut avoir sa propre console (un autre *groupe*, vu séparément dans l'application). Pas de passerelle de secours automatique en V1.
 - Les autres appareils parlent **ESP-NOW** (couche 2 du WiFi, sans point d'accès, portée ≈ 100–200 m en vue directe, plus avec antenne externe) vers leur **parent** (la passerelle, ou un relais). Pas d'internet côté capteur : pas de mot de passe WiFi à saisir sur chaque lecteur, un seul réglage WiFi par école.
 - **Relais** : retransmet les trames d'un appareil éloigné (maillage multi-sauts, 4 sauts au plus). Un appareil choisit son parent selon la qualité du signal (RSSI) et le nombre de sauts jusqu'à la passerelle, et en change si le parent disparaît.
 - **Repli sans routeur** : si la passerelle perd internet ou le WiFi, **le réseau local continue** (sonnerie, taps, séances ouvertes) ; les événements s'accumulent (§ 5) et partent au retour de la liaison.
-- Un appareil sans portée vers un parent mais avec un WiFi connu peut se déclarer lui-même passerelle (option « autonome »).
 
 ### 3.2 Trame (couche liaison applicative)
 
@@ -113,10 +114,23 @@ Condensateur 470–1000 µF à l'entrée, relais sirène commandé par NPN avec 
 
 - Chaque appareil a une **clé de 256 bits propre** (générée par le serveur au jumelage, jamais réutilisée, jamais journalisée, stockée en NVS) ; chiffrement et authentification des charges en **AES-128-GCM** (mbedTLS sur ESP32 ; bibliothèque légère équivalente sur ESP8266) avec **compteur anti-rejeu** ; une trame non authentifiée est ignorée sans réponse.
 - La clé ESP-NOW native (limite de 10 pairs chiffrés) n'est **pas** utilisée : la sécurité est applicative, donc sans limite de pairs et indépendante du relais (un relais ne peut ni lire ni modifier ce qu'il transmet).
-- **Jumelage** : l'appareil neuf n'a aucune clé. Dans la Gestion, « Ajouter un appareil » affiche un **code à 8 caractères et un QR** valable 15 minutes, à usage unique ; l'appareil, mis en mode jumelage (appui long), le présente à la passerelle ; le serveur répond par la clé de l'appareil, chiffrée avec une clé dérivée du code. Appareil retiré = clé révoquée, trames refusées au prochain contact.
+- **Jumelage (sans internet)** : sur l'écran de la console, « Ajouter un appareil » ouvre une fenêtre de 2 minutes ; sur l'appareil neuf, un appui long sur son bouton le met en jumelage. Les deux calculent un secret commun par échange de clés (X25519) et affichent le **même code à 6 chiffres** ; l'utilisateur le **compare et confirme sur l'écran** de la console. La console crée alors la clé de l'appareil et l'inscrit au serveur à la prochaine synchronisation. L'application web voit l'appareil et peut le renommer ou le retirer, mais **ne l'ajoute pas** à distance. Appareil retiré = clé révoquée, trames refusées.
 - Passerelle ↔ API : HTTPS, jeton d'appareil + signature HMAC de chaque requête (horodatage, nonce) ; **toutes les écritures sont idempotentes** (règle 4) : chaque événement porte un **UUID v7 généré par l'appareil** (horloge DS3231 valide) ou, horloge douteuse, un UUID dérivé de `(appareil, seq)` marqué `clock_untrusted`.
 - Toute commande envoyée à un appareil (sonner, alerte, réglage, mise à jour) a un **identifiant, une expiration** (une sonnerie de 10 min n'est pas exécutée à 14 h) et un **accusé** ; l'évacuation/alerte exige la permission dédiée et est journalisée.
 - Micrologiciel : **signé** (clé publique de la plateforme dans l'appareil, ed25519), mise à jour par la passerelle puis relais en morceaux ; refus d'une version plus ancienne ; retour arrière si l'appareil ne confirme pas au démarrage.
+
+### 3.4 Principal et secondaires (décidé le 2026-11-03)
+
+L'utilisateur ne se connecte **qu'à la console**. Les appareils secondaires (`reader`, `relay`, `sounder`) n'ont **ni écran, ni page web, ni WiFi à régler, ni compte** : seulement un bouton (jumelage, appui long) et des voyants. Moins de code, moins de réglages sur le terrain, moins de surface d'attaque.
+
+- **Tout passe par la console** : réglages, commandes, listes de séance, planning, mises à jour, remontée de l'état et des événements. L'application web agit sur les secondaires **par la console** (le serveur dépose la demande, la console l'exécute).
+- **Mise à jour** : le serveur envoie le micrologiciel **signé** à la console (HTTPS), qui le **range sur la carte SD** (image de 1,3 Mo) puis le distribue aux secondaires en morceaux de 190 octets, chacun vérifié, signature contrôlée à la fin, partition de secours (A/B) et retour arrière. **Déploiement progressif** : un appareil d'abord, les autres quand il a confirmé ; progression visible à l'écran et dans l'application. **Mise à jour hors ligne** : fichier signé déposé sur la carte SD de la console. La console se met à jour elle-même de la même façon.
+- **Fonctions locales de l'écran** (avec code PIN pour les actions sensibles : alerte, ajout ou retrait d'appareil, WiFi, mise à jour, avec blocage après essais ratés) : état de tous les appareils (signal, batterie, version), sonner maintenant, WiFi, jumelage, mise à jour.
+- **Si la console est éteinte** : les secondaires continuent seuls (lecteurs : séance déjà reçue, événements gardés jusqu'à 2 000 en mémoire ; sonneries déportées : dernier planning reçu) et resynchronisent à son retour.
+- **Nouveau type `sounder` (proposition)** : sirène déportée, ESP + relais, pour sonner **en même temps** dans plusieurs bâtiments à partir du planning de la console (même contact sec 220 V).
+
+### 3.5 Hors V1 de la couche réseau
+Passerelle de secours, bascule automatique entre deux consoles, 4G/GSM (V2).
 
 ## 4. Logiciel : serveur
 
