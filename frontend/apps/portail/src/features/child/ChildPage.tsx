@@ -31,6 +31,7 @@ import {
 } from "../../lib/families";
 import { PortalFrame } from "../home/PortalFrame";
 import { ChildAvatar } from "./ChildAvatar";
+import { ChildResults, ChildThread } from "./ChildSchooling";
 import { ChildTimetable } from "./ChildTimetable";
 
 const TONES = {
@@ -69,6 +70,12 @@ export function ChildPage() {
       )}
       {data && <Payments child={data} />}
       {data && <Conduct id={id} />}
+      {data && (
+        <div className="mt-4 flex flex-col gap-4">
+          <ChildResults id={id} />
+          <ChildThread id={id} />
+        </div>
+      )}
       {data && <ChildTimetable id={id} />}
     </PortalFrame>
   );

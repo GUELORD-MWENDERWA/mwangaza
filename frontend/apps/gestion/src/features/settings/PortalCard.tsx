@@ -30,6 +30,21 @@ export function PortalCard({ form }: CardProps) {
             }
           />
         </div>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <label htmlFor="portal-report-payment" className="cursor-pointer">
+            <b>{t("settings.portal.reportPayment")}</b>
+            <span className="block text-sm text-ink-3">
+              {t("settings.portal.reportPaymentHelp")}
+            </span>
+          </label>
+          <Switch
+            id="portal-report-payment"
+            checked={form.watch("portal.report_requires_payment")}
+            onCheckedChange={(on) =>
+              form.setValue("portal.report_requires_payment", on, { shouldDirty: true })
+            }
+          />
+        </div>
       </CardContent>
     </Card>
   );

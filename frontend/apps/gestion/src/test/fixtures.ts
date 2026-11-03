@@ -49,6 +49,7 @@ export const PERMISSIONS = {
     "finance.view_reports",
     "finance.import_prior_payments",
     "announcements.publish",
+    "grades.waive_fees",
     "audit.view",
     "billing.view",
   ],

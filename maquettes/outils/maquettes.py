@@ -159,6 +159,7 @@ ACTIVE_FOR = {
     "situation-financiere.html": "impayes.html",
     "impayes-export.html": "impayes.html",
     "derogations-bulletin.html": "notes-saisie.html",
+    "messages-parents.html": "changements-coordonnees.html",
     "registre-recus.html": "clotures-caisse.html",
     "caisse-ouverture.html": "caisse-encaissement.html",
     "caisse-accueil.html": "caisse-encaissement.html",
@@ -373,6 +374,7 @@ GESTION = [
     ("reprise-resultats", "Reprise des résultats (année sans notes)", "V1.2", "Plus tard · 8.4.7", True),
     ("passage-classe", "Passage de classe et confirmation de place", "V1.2", "Plus tard · 8.4.5", True),
     ("derogations-bulletin", "Dérogations de bulletin (frais impayés)", "V1.7", "Notes · 8.4.6", True),
+    ("messages-parents", "Messages des parents", "V1.7", "Messagerie · 8.8", True),
     ("conduite-incidents", "Conduite : attribuer une infraction", "V1.2", "Plus tard · 8.5.1a", True),
     ("conduite-bareme", "Barème de conduite", "V1.2", "Plus tard · 8.5.1a", True),
     ("application", "Application : cote par période", "V1.2", "Plus tard · 8.5.1c", True),
@@ -408,6 +410,7 @@ PORTAIL = [
     ("verification-recu", "Vérification publique d'un reçu", "V1.0", "F4", False),
     ("enfant-scolarite", "Scolarité d'un enfant", "V1.2", "6.8", False),
     ("enfant-horaire", "Horaire de la classe d'un enfant", "V1.2", "EDT.4b", True),
+    ("enfant-bulletin", "Notes, bulletin et message à l'école", "V1.7", "8.8", True),
 ]
 
 

@@ -63,6 +63,8 @@ import { HomePage } from "./features/shell/HomePage";
 import { MenuScreen } from "./features/shell/MenuScreen";
 import { RequireAuth } from "./features/shell/RequireAuth";
 import { SchoolGate } from "./features/shell/SchoolGate";
+import { ParentMessagesPage } from "./features/parent-messages/ParentMessagesPage";
+import { WaiversPage } from "./features/waivers/WaiversPage";
 import { ParentRequestsPage } from "./features/parent-requests/ParentRequestsPage";
 import { PromotionPage } from "./features/promotion/PromotionPage";
 import { NotFound, RouteError } from "./features/status/StatusPages";
@@ -120,6 +122,8 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   calendar: <CalendarPage />,
   summons: <SummonsPage />,
   parentRequests: <ParentRequestsPage />,
+  parentMessages: <ParentMessagesPage />,
+  waivers: <WaiversPage />,
 };
 
 const menuItem = (key: MenuKey) => MENU_ITEMS.find((item) => item.key === key)!;

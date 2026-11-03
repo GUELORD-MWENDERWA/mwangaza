@@ -7,7 +7,8 @@
   - Reste de 8.2.6 (à faire en partie ④) : total corrigé par un autre, fiche rouverte, remplaçant désigné, date limite proche, repêchage à saisir ; chaque sorte est déjà désactivable
 - [x] ② Serveur Portail : notes, bulletins PDF contrôlés, résultats (un appel par enfant), fil parent ↔ école par élève (8.8)
   - Droit de répondre = `announcements.publish` ; PDF 10 par minute ; journal des consultations de bulletins à faire en ④ (S.10)
-- [ ] ③ Écrans Portail (scolarité, bulletin, écrire à l'école) et Gestion (dérogations, réponses) ; maquettes d'abord
+- [x] ③ Écrans Portail (scolarité, bulletin, écrire à l'école) et Gestion (dérogations, réponses) ; maquettes `portail/enfant-bulletin`, `gestion/messages-parents`
+  - Gestion : « Dérogations de bulletin » (`grades.waive_fees`) et « Messages des parents » (`announcements.publish`) sous Communication ; réglage « Retenir le bulletin » dans Paramètres › Portail ; Portail : cartes notes / décision / bulletin / « Écrire à l'école » sous la conduite
 - [ ] ④ Portail sans réseau (HL.3), rapidité (PERF.6), revue de sécurité (S.10)
 
 ## Décisions (regard senior)
