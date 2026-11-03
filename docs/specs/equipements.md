@@ -61,6 +61,24 @@ Chaque appareil fonctionne **avec la batterie seule, avec l'adaptateur 5 V seul,
 - **Remontée à la console** (`heartbeat`) : source (secteur / batterie), tension, pourcentage estimé, autonomie estimée, état de charge, température, nombre de coupures ; alertes « batterie faible », « sur batterie depuis X min », « défaut de charge » ; réglages (limite de charge, mise en veille) modifiables à distance. Tâche de banc : **mesure de consommation** de chaque type d'appareil (EQP.3).
 - Sécurité de la cellule : fusible, protection contre l'inversion, cellule jamais chargée sans protection, boîtier ventilé ; alternative plus sûre et plus durable en chaleur : **LiFePO4** (3,2 V, 2 000 cycles), à comparer au banc.
 
+#### Batterie 3S (BMS « 3S 10A » déjà disponible) et gestion de l'énergie
+
+- **Console, relais, panneau solaire : pack 3S** (3 cellules 18650, 9 à 12,6 V, ≈ 33 Wh pour 3 × 3 000 mAh, trois fois la capacité d'une cellule seule) avec le BMS 3S 10A de l'utilisateur ; un abaisseur (type MP1584 / XL4015, 90 % de rendement) donne le 5 V, puis le 3,3 V. **Lecteurs sur batterie : une cellule 1S** (un pack 3S serait surdimensionné). Le pack 3S peut aussi alimenter une sirène 12 V.
+- **À vérifier sur le module réel** (la plupart de ces cartes sont une *protection*, pas un chargeur) : sa charge demande une **source 12,6 V à courant limité** (un adaptateur 12 V ne charge pas à fond ; prévoir un chargeur 3S ou un 12 V + élévateur réglé à 12,6 V) ; fils d'équilibrage vers chaque cellule ; courant de décharge maxi 10 A, pas de courant de charge réglable ; pas de mesure de charge. Les cellules d'un pack sont de la même marque, du même lot et à la même tension à l'assemblage ; fusible sur le pack.
+- **Pilotage ajouté par l'ESP32** (le BMS ne parle pas) : diviseur de tension sur une entrée ADC1 (12,6 V → < 3,3 V), capteur courant/tension **INA219** (I2C, intègre les mAh consommés → pourcentage et autonomie estimés), interrupteur MOSFET sur l'entrée de charge (suspendre la charge hors 0–45 °C ou à la limite choisie), thermistance sur le pack.
+- **États d'énergie du micrologiciel** (machine d'états dans `lib/core`, testée sur PC) :
+
+| État | Quand | Ce qui est éteint |
+|---|---|---|
+| `ACTIVE` | séance ou sonnerie en cours, interaction | rien |
+| `IDLE` | rien à faire depuis 30 s | écran (alimentation 5 V de l'Uno coupée par transistor) ; radio en économie |
+| `SCHEDULED_SLEEP` | lecteur sur batterie hors des heures de séance | tout sauf l'horloge ; réveil par l'alarme du DS3231 (broche SQW), un bouton, ou le RC522 (broche IRQ) ; **réveil de contrôle toutes les 5 min** pour recevoir les commandes (une radio en sommeil profond n'écoute pas) |
+| `LOW_BATTERY` | < 20 % | écran, signalisation lumineuse réduite ; alerte envoyée ; la sonnerie continue |
+| `SHUTDOWN` | < 3,3 V par cellule (< 9,9 V pour le pack) | tout ; heure de coupure notée ; reprise automatique au retour de l'adaptateur |
+
+  Une console ne dort jamais profondément (elle est passerelle et sonnerie). **« Éteindre » depuis l'application** = veille jusqu'au prochain réveil planifié, car seul un interrupteur physique coupe vraiment l'alimentation.
+- **Banc d'essai (EQP.3)** : consommation mesurée de chaque état et de chaque type d'appareil, avant de promettre une autonomie à une école.
+
 ### 2.6 Alimentation et robustesse
 Condensateur 470–1000 µF à l'entrée, relais sirène commandé par NPN avec tirage vers le bas (GPIO12 jamais haut au démarrage), watchdog, double copie des réglages avec CRC, mise à jour OTA avec retour arrière, autotest quotidien : repris tels quels de la sirène.
 
