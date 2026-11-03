@@ -38,3 +38,12 @@ class OutputThrottle(_Throttle):
 
     def applies(self, request) -> bool:
         return request.query_params.get("output") in OUTPUTS or request.path.endswith("/export/")
+
+
+class PortalDocumentThrottle(_Throttle):
+    """Bulletin PDF du Portail (8.8) : toujours compté, par compte."""
+
+    scope = "portal_document"
+
+    def applies(self, request) -> bool:
+        return True

@@ -15,6 +15,7 @@ from apps.accounts import login
 from apps.accounts.views import AuthView
 from apps.core.documents import PDF, render
 from apps.core.errors import ErrorSerializer
+from apps.core.throttling import PortalDocumentThrottle
 from apps.notifications import push
 from apps.notifications.attachments import attachment_response
 from apps.notifications.serializers import (
@@ -31,12 +32,14 @@ from apps.portal import (
     notifications,
     places,
     receipts,
+    results,
     services,
 )
 from apps.portal.serializers import (
     AnnouncementsQuerySerializer,
     ChildConductSerializer,
     ChildPaymentsSerializer,
+    ChildResultsSerializer,
     ChildTimetableSerializer,
     FamilyCodeSerializer,
     LinkedFamilySerializer,
@@ -203,6 +206,42 @@ class ChildConductView(APIView):
     @extend_schema(responses={200: ChildConductSerializer, **READ_ERRORS})
     def get(self, request: Request, pk) -> Response:
         return Response(ChildConductSerializer(children.child_conduct(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildResultsView(APIView):
+    """Notes validées, décision de passage et état du bulletin d'un enfant (8.8) ; 404 comme
+    `ChildView`."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: ChildResultsSerializer, **READ_ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        return Response(ChildResultsSerializer(results.child_results(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildReportCardView(APIView):
+    """Bulletin PDF d'un enfant, limité aux périodes proclamées ; 403 `report_withheld` (frais
+    échus sans dérogation), 409 `report_not_ready` (rien de proclamé), 429 au-delà de 10 par
+    minute. Pas d'adresse de fichier : chaque lecture contrôle le droit."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    throttle_classes = [PortalDocumentThrottle]
+
+    @extend_schema(
+        responses={
+            (200, PDF): OpenApiResponse(OpenApiTypes.BINARY, description="Bulletin PDF."),
+            **ERRORS,
+        }
+    )
+    def get(self, request: Request, pk):
+        student = children.find_student(request.user, pk)
+        with children.in_school(student.school):
+            context, name = results.report_context(
+                request.user, pk, absolute=request.build_absolute_uri
+            )
+            return render("academics/report_card.html", context, "pdf", name)
 
 
 @extend_schema(tags=["portal"])

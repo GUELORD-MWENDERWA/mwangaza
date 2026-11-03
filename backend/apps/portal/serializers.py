@@ -279,3 +279,47 @@ class ChildConductSerializer(serializers.Serializer):
     full_name = serializers.CharField()
     terms = ChildTermConductSerializer(many=True)
     incidents = ChildIncidentSerializer(many=True)
+
+
+class ChildCourseScoreSerializer(serializers.Serializer):
+    course = serializers.CharField()
+    score = serializers.DecimalField(
+        max_digits=6, decimal_places=1, allow_null=True, help_text="Vide : notes incomplètes."
+    )
+    maximum = serializers.IntegerField()
+
+
+class ChildTermResultSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    released = serializers.BooleanField(
+        help_text="Résultats proclamés : le bulletin de cette période est remis aux parents."
+    )
+    courses = ChildCourseScoreSerializer(many=True)
+    total = serializers.DecimalField(
+        max_digits=7,
+        decimal_places=1,
+        allow_null=True,
+        help_text="Vide tant que tout n'est pas validé.",
+    )
+    maximum = serializers.IntegerField(allow_null=True)
+
+
+class ChildDecisionSerializer(serializers.Serializer):
+    decision = serializers.CharField(help_text="`promoted`, `repeat`, `resit`… (délibération).")
+    resit_courses = serializers.ListField(child=serializers.CharField())
+    held_on = serializers.DateField()
+
+
+class ChildResultsSerializer(serializers.Serializer):
+    """Notes validées, décision de passage et état du bulletin d'un enfant (8.8)."""
+
+    id = serializers.UUIDField()
+    full_name = serializers.CharField()
+    class_group = serializers.CharField()
+    terms = ChildTermResultSerializer(many=True)
+    decision = ChildDecisionSerializer(allow_null=True)
+    report_available = serializers.BooleanField()
+    withheld = serializers.BooleanField(
+        help_text="Frais échus sans dérogation : PDF refusé, décision toujours visible."
+    )
