@@ -5,7 +5,7 @@
 ## Parties
 - [x] ① Offres, conditions générales, contrat (serveur) : app `billing` — `Plan`, `Contract` (brouillon → signé, immuable, avenant), `LegalDocument` versionné, `LegalAcceptance` ; API console + API école ; 6 tests
 - [x] ② Serveur : factures, avoirs, paiements de l'école, relevé (ABO.2) ; contrat et facture en PDF (WeasyPrint) ; identité légale de la plateforme (I20) ; textes CTR.1 (CGU, confidentialité, registre) semés
-- [ ] ③ Écrans : console (offres, contrats, conditions, factures, paiements, relevé) et fenêtre d'acceptation dans la Gestion ; maquettes d'abord
+- [x] ③ Écrans : console (offres, contrats, conditions, factures, paiements, relevé) et fenêtre d'acceptation dans la Gestion ; maquettes d'abord
 - [ ] ④ Échéances et lecture seule (ABO.3), « Mon abonnement » (ABO.4), page des prix (WEB.1, SITE.4)
 
 ## Décisions (regard senior)

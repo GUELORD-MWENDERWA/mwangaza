@@ -30,6 +30,7 @@ import { useKeepMyTimetable } from "../timetable/mine";
 import { SearchPalette } from "./SearchPalette";
 import { PinBanner } from "./PinBanner";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
+import { LegalAcceptance } from "./LegalAcceptance";
 import { SpaceBanner } from "./SpaceBanner";
 import { SupportBanner } from "./SupportBanner";
 import { StorageBanner, SyncMenu, useSyncSession } from "./SyncMenu";
@@ -59,6 +60,7 @@ export function AppShell() {
             <StorageBanner />
             <PinBanner me={me} />
             <Outlet />
+            <LegalAcceptance me={me} />
           </main>
         </div>
       </div>
