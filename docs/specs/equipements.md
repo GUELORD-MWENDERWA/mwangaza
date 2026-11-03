@@ -81,6 +81,19 @@ Chaque appareil fonctionne **avec la batterie seule, avec l'adaptateur 5 V seul,
   Une console ne dort jamais profondément (elle est passerelle et sonnerie). **« Éteindre » depuis l'application** = veille jusqu'au prochain réveil planifié, car seul un interrupteur physique coupe vraiment l'alimentation.
 - **Banc d'essai (EQP.3)** : consommation mesurée de chaque état et de chaque type d'appareil, avant de promettre une autonomie à une école.
 
+### 2.5 bis Écran et voyants : ne rien consommer pour rien
+
+L'écran du shield (rétroéclairage fixe, Uno et TFT ≈ 100 à 150 mA sous 5 V, soit plus que l'ESP32 au repos) est le premier poste à économiser. Règles du micrologiciel de la console :
+
+- **Écran éteint par défaut.** Il s'allume sur un **réveil** et s'éteint après un délai : **30 s sur batterie, 2 min sur secteur** (réglable de 10 s à 10 min dans Réglages). Jamais éteint pendant un jumelage, une mise à jour ou une alerte qui demande une réponse.
+- **Éteindre = couper le 5 V de l'Uno** par un transistor commandé par l'ESP32 (rétroéclairage non réglable sur ce shield, donc pas de « luminosité réduite »). Conséquence à connaître : **le toucher ne peut pas réveiller un Uno éteint**. Sources de réveil : un **bouton physique** (celui de la façade), la **présentation d'une carte** devant le lecteur de la console, un **événement** (alerte, sonnerie manuelle demandée depuis l'application, batterie faible, appareil perdu, jumelage demandé). Option plus économique à tester au banc : Uno en veille (≈ 5 mA) avec rétroéclairage coupé par un transistor ajouté sur la ligne LED du shield (modification matérielle légère), réveil au toucher ; retenue seulement si le banc le justifie.
+- **Verrouillage avec l'écran** : le code PIN est redemandé après extinction ; aucune action sensible sans lui.
+- **Dessin économe** : redessin **partiel** uniquement sur changement de donnée, aucune animation, aucune trame de rafraîchissement en continu ; l'ESP32 n'envoie à l'Uno que ce qui change et **n'envoie rien quand il est éteint** (pas de file d'attente d'écran). À l'allumage, un seul envoi de l'état complet.
+- **Voyants** : une brève impulsion toutes les 5 s en veille (pas de LED fixe), éteints la nuit ; le signal d'une carte (vert, orange, rouge) reste complet ; le buzzer ne sonne que sur un événement (jamais de bip de vie).
+- **Plage « nuit et congés »** (tirée du calendrier de l'école : soirs, fins de semaine, vacances) : écran et voyants éteints, synchronisation avec le serveur espacée (toutes les 5 min au lieu de 30 s), lecteurs en veille planifiée ; la sonnerie, elle, reste exacte.
+- **Processeur et capteurs** : ESP32 à 80 MHz hors calcul lourd ; RC522 interrogé par courtes séquences avec l'antenne coupée entre deux ; capteurs de tension et de courant lus toutes les 10 s, pas en continu.
+- **Mesure** (banc EQP.3) : consommation de la console écran allumé / éteint / Uno en veille, et gain réel de chaque règle ; on garde celles qui rapportent. Chaque appareil remonte à l'application le temps d'écran allumé et l'énergie estimée.
+
 ### 2.6 Alimentation et robustesse
 Condensateur 470–1000 µF à l'entrée, relais sirène commandé par NPN avec tirage vers le bas (GPIO12 jamais haut au démarrage), watchdog, double copie des réglages avec CRC, mise à jour OTA avec retour arrière, autotest quotidien : repris tels quels de la sirène.
 
