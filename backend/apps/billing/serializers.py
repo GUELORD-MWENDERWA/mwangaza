@@ -1,6 +1,13 @@
 from rest_framework import serializers
 
-from apps.billing.models import Contract, LegalDocument, Plan
+from apps.billing.models import (
+    Contract,
+    Invoice,
+    InvoiceLine,
+    InvoicePayment,
+    LegalDocument,
+    Plan,
+)
 
 
 class PlanSerializer(serializers.ModelSerializer):
@@ -64,3 +71,79 @@ class LegalDocumentSerializer(serializers.ModelSerializer):
 
 class LegalAcceptSerializer(serializers.Serializer):
     document = serializers.UUIDField()
+
+
+class InvoiceLineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InvoiceLine
+        fields = ["description", "quantity", "unit_amount", "amount"]
+        read_only_fields = fields
+
+
+class InvoicePaymentSerializer(serializers.ModelSerializer):
+    invoice = serializers.SlugRelatedField(slug_field="number", read_only=True)
+    reverses = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = InvoicePayment
+        fields = [
+            "id", "invoice", "amount", "method", "reference", "paid_on", "reverses", "reason",
+        ]  # fmt: skip
+        read_only_fields = fields
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    school = serializers.SlugRelatedField(slug_field="code", read_only=True)
+    contract = serializers.SlugRelatedField(slug_field="number", read_only=True)
+    credit_for = serializers.SlugRelatedField(slug_field="number", read_only=True)
+    cancelled = serializers.SerializerMethodField()
+    paid = serializers.SerializerMethodField()
+    balance = serializers.SerializerMethodField()
+    lines = InvoiceLineSerializer(many=True, read_only=True)
+    payments = InvoicePaymentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            "id", "number", "kind", "school", "contract", "credit_for", "issued_on", "due_on",
+            "period_start", "period_end", "currency", "total", "cancelled", "paid", "balance",
+            "lines", "payments",
+        ]  # fmt: skip
+        read_only_fields = fields
+
+    def get_cancelled(self, invoice) -> bool:
+        return hasattr(invoice, "credit_note")
+
+    def get_paid(self, invoice) -> int:
+        return getattr(invoice, "paid", 0) or 0
+
+    def get_balance(self, invoice) -> int:
+        from apps.billing import invoicing
+
+        return invoicing.balance(invoice)
+
+
+class InvoiceLineInput(serializers.Serializer):
+    description = serializers.CharField(max_length=200)
+    quantity = serializers.IntegerField(min_value=1)
+    unit_amount = serializers.IntegerField(min_value=1)
+
+
+class InvoiceCreateSerializer(serializers.Serializer):
+    contract = serializers.CharField(max_length=20)
+    students = serializers.IntegerField(min_value=0, required=False)
+    lines = InvoiceLineInput(many=True, required=False)
+    issued_on = serializers.DateField(required=False)
+    period_start = serializers.DateField(required=False)
+    period_end = serializers.DateField(required=False)
+
+
+class InvoiceReasonSerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=200)
+
+
+class InvoicePaymentCreateSerializer(serializers.Serializer):
+    amount = serializers.IntegerField(min_value=1)
+    method = serializers.ChoiceField(choices=InvoicePayment.Method.choices)
+    paid_on = serializers.DateField()
+    reference = serializers.CharField(max_length=80, required=False, allow_blank=True)

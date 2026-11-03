@@ -1554,6 +1554,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/billing/contracts/{id}/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Le contrat en PDF (numéroté ; un avenant porte le numéro du contrat qu'il remplace). */
+        get: operations["console_billing_contracts_pdf_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/billing/contracts/{id}/sign/": {
         parameters: {
             query?: never;
@@ -1565,6 +1582,124 @@ export interface paths {
         put?: never;
         /** @description Contrats des écoles (CTR.1) : brouillon, signature (scan ou en ligne), avenant. */
         post: operations["console_billing_contracts_sign_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/invoices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+         *     annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+         */
+        get: operations["console_billing_invoices_list"];
+        put?: never;
+        /**
+         * @description Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+         *     annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+         */
+        post: operations["console_billing_invoices_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/invoices/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+         *     annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+         */
+        get: operations["console_billing_invoices_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/invoices/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Avoir complet : la facture reste, son reste dû tombe à 0. */
+        post: operations["console_billing_invoices_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/invoices/{id}/pay/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+         *     annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+         */
+        post: operations["console_billing_invoices_pay_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/invoices/{id}/payments/{payment}/reverse/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Annule un paiement par une écriture liée, avec motif. */
+        post: operations["console_billing_invoices_payments_reverse_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/billing/invoices/{id}/pdf/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+         *     annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+         */
+        get: operations["console_billing_invoices_pdf_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1629,6 +1764,23 @@ export interface paths {
         head?: never;
         /** @description Offres de la plateforme (ABO.1) : prix par élève inscrit et par période, modules compris. */
         patch: operations["console_billing_plans_partial_update"];
+        trace?: never;
+    };
+    "/api/console/billing/statement/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Relevé d'une école (ABO.2) : factures, avoirs et paiements par devise, solde courant. */
+        get: operations["console_billing_statement_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/console/dashboard/": {
@@ -7185,7 +7337,7 @@ export interface components {
             rate_used: string | null;
             /** Format: date-time */
             paid_at: string;
-            method: components["schemas"]["MethodEnum"];
+            method: components["schemas"]["PaymentMethodEnum"];
             note: string;
             readonly allocations: components["schemas"]["PaymentAllocation"][];
             /** @description Vide pour une reprise. */
@@ -8110,6 +8262,21 @@ export interface components {
             support_phone: string;
             support_email: string;
             legal_notice: string;
+            company_name: string;
+            /**
+             * Registration numbers
+             * @description RCCM, national ID, tax number: printed under the company name.
+             */
+            company_ids: string;
+            /** Signer */
+            signer_name: string;
+            /** Signer's position */
+            signer_title: string;
+            /**
+             * How to pay
+             * @description Bank account, Mobile Money number: printed on invoices.
+             */
+            payment_details: string;
             /** @description Street, number, district. */
             address: string;
             /** Town */
@@ -10301,6 +10468,90 @@ export interface components {
             /** @description Numéro du tuteur principal (E.164). */
             phone: string;
         };
+        Invoice: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: string;
+            readonly kind: components["schemas"]["InvoiceKindEnum"];
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            readonly school: string;
+            readonly contract: string;
+            readonly credit_for: string;
+            /** Format: date */
+            readonly issued_on: string;
+            /** Format: date */
+            readonly due_on: string;
+            /** Format: date */
+            readonly period_start: string | null;
+            /** Format: date */
+            readonly period_end: string | null;
+            readonly currency: components["schemas"]["CurrencyEnum"];
+            readonly total: number;
+            readonly cancelled: boolean;
+            readonly paid: number;
+            readonly balance: number;
+            readonly lines: components["schemas"]["InvoiceLine"][];
+            readonly payments: components["schemas"]["InvoicePayment"][];
+        };
+        InvoiceCreateRequest: {
+            contract: string;
+            students?: number;
+            lines?: components["schemas"]["InvoiceLineInputRequest"][];
+            /** Format: date */
+            issued_on?: string;
+            /** Format: date */
+            period_start?: string;
+            /** Format: date */
+            period_end?: string;
+        };
+        /**
+         * @description * `invoice` - Invoice
+         *     * `credit_note` - Credit note
+         * @enum {string}
+         */
+        InvoiceKindEnum: "invoice" | "credit_note";
+        InvoiceLine: {
+            readonly description: string;
+            readonly quantity: number;
+            /** Unit price */
+            readonly unit_amount: number;
+            readonly amount: number;
+        };
+        InvoiceLineInputRequest: {
+            description: string;
+            quantity: number;
+            unit_amount: number;
+        };
+        InvoicePayment: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly invoice: string;
+            readonly amount: number;
+            readonly method: components["schemas"]["InvoicePaymentMethodEnum"];
+            readonly reference: string;
+            /** Format: date */
+            readonly paid_on: string;
+            /** Format: uuid */
+            readonly reverses: string;
+            readonly reason: string;
+        };
+        InvoicePaymentCreateRequest: {
+            amount: number;
+            method: components["schemas"]["InvoicePaymentMethodEnum"];
+            /** Format: date */
+            paid_on: string;
+            reference?: string;
+        };
+        /**
+         * @description * `cash` - Cash
+         *     * `bank` - Bank transfer
+         *     * `mobile_money` - Mobile Money
+         * @enum {string}
+         */
+        InvoicePaymentMethodEnum: "cash" | "bank" | "mobile_money";
+        InvoiceReasonRequest: {
+            reason: string;
+        };
         /**
          * @description * `fr` - Français
          *     * `en` - English
@@ -10593,11 +10844,6 @@ export interface components {
             courses: string[];
             present: boolean;
         };
-        /**
-         * @description * `cash` - Cash
-         * @enum {string}
-         */
-        MethodEnum: "cash";
         /**
          * @description * `last_name` - last_name
          *     * `middle_name` - middle_name
@@ -11042,6 +11288,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["ImportLine"][];
+        };
+        PaginatedInvoiceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Invoice"][];
         };
         PaginatedLegalDocumentList: {
             /** @example 123 */
@@ -11641,6 +11902,21 @@ export interface components {
             support_phone?: string;
             support_email?: string;
             legal_notice?: string;
+            company_name?: string;
+            /**
+             * Registration numbers
+             * @description RCCM, national ID, tax number: printed under the company name.
+             */
+            company_ids?: string;
+            /** Signer */
+            signer_name?: string;
+            /** Signer's position */
+            signer_title?: string;
+            /**
+             * How to pay
+             * @description Bank account, Mobile Money number: printed on invoices.
+             */
+            payment_details?: string;
             /** @description Street, number, district. */
             address?: string;
             /** Town */
@@ -12108,7 +12384,7 @@ export interface components {
             rate_used: string | null;
             /** Format: date-time */
             paid_at: string;
-            method: components["schemas"]["MethodEnum"];
+            method: components["schemas"]["PaymentMethodEnum"];
             note: string;
             readonly cancelled: boolean;
             /** Format: date-time */
@@ -12169,6 +12445,11 @@ export interface components {
             note: string;
         };
         /**
+         * @description * `cash` - Cash
+         * @enum {string}
+         */
+        PaymentMethodEnum: "cash";
+        /**
          * @description * `cash` - Collected at the cash desk
          *     * `prior` - Paid before the school started here
          * @enum {string}
@@ -12203,7 +12484,7 @@ export interface components {
             rate_used: string | null;
             /** Format: date-time */
             paid_at: string;
-            method: components["schemas"]["MethodEnum"];
+            method: components["schemas"]["PaymentMethodEnum"];
             note: string;
             readonly cancelled: boolean;
             /** Format: date-time */
@@ -12373,6 +12654,21 @@ export interface components {
             support_phone: string;
             support_email: string;
             legal_notice: string;
+            company_name: string;
+            /**
+             * Registration numbers
+             * @description RCCM, national ID, tax number: printed under the company name.
+             */
+            company_ids: string;
+            /** Signer */
+            signer_name: string;
+            /** Signer's position */
+            signer_title: string;
+            /**
+             * How to pay
+             * @description Bank account, Mobile Money number: printed on invoices.
+             */
+            payment_details: string;
             /** @description Street, number, district. */
             address: string;
             /** Town */
@@ -12406,6 +12702,10 @@ export interface components {
          *     * `billing.contract_activated` - Contract started
          *     * `billing.contract_ended` - Contract ended
          *     * `billing.legal_published` - Terms or policy version published
+         *     * `billing.invoice_issued` - Invoice issued
+         *     * `billing.credit_note_issued` - Credit note issued
+         *     * `billing.invoice_payment` - Invoice payment recorded
+         *     * `billing.invoice_payment_reversed` - Invoice payment cancelled
          *     * `school.created` - School created
          *     * `school.updated` - School or subscription changed
          *     * `school.suspended` - School suspended
@@ -12457,7 +12757,7 @@ export interface components {
          *     * `site.photo_deleted` - Photo deleted from the photo library
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -20250,6 +20550,28 @@ export interface operations {
             };
         };
     };
+    console_billing_contracts_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this contract. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                };
+            };
+        };
+    };
     console_billing_contracts_sign_create: {
         parameters: {
             query?: never;
@@ -20274,6 +20596,182 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Contract"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedInvoiceList"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceCreateRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceReasonRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceReasonRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceReasonRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Invoice"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_pay_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoicePaymentCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoicePaymentCreateRequest"];
+                "multipart/form-data": components["schemas"]["InvoicePaymentCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicePayment"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_payments_reverse_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+                payment: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceReasonRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvoiceReasonRequest"];
+                "multipart/form-data": components["schemas"]["InvoiceReasonRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicePayment"];
+                };
+            };
+        };
+    };
+    console_billing_invoices_pdf_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this invoice. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
                 };
             };
         };
@@ -20418,6 +20916,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Plan"];
+                };
+            };
+        };
+    };
+    console_billing_statement_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
         };

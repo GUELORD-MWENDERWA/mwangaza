@@ -192,6 +192,21 @@ class PlatformSettings(models.Model):
     )
     city = models.CharField(_("town"), max_length=60, blank=True, default="Goma")
     region = models.CharField(_("province"), max_length=60, blank=True, default="Nord-Kivu")
+    # Société qui signe les contrats et les factures (I20, CTR.1) : « à compléter » tant que vide.
+    company_name = models.CharField(_("company name"), max_length=120, blank=True)
+    company_ids = models.CharField(
+        _("registration numbers"),
+        max_length=200,
+        blank=True,
+        help_text=_("RCCM, national ID, tax number: printed under the company name."),
+    )
+    signer_name = models.CharField(_("signer"), max_length=120, blank=True)
+    signer_title = models.CharField(_("signer's position"), max_length=80, blank=True)
+    payment_details = models.TextField(
+        _("how to pay"),
+        blank=True,
+        help_text=_("Bank account, Mobile Money number: printed on invoices."),
+    )
     whatsapp_url = models.URLField(
         "WhatsApp", blank=True, validators=[platform.SocialLinkValidator("whatsapp_url")]
     )

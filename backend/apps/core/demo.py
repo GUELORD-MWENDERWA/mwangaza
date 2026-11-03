@@ -180,6 +180,13 @@ def create_demo_platform() -> PlatformSettings:
             "support_email": "support@example.com",
             "address": "Avenue de la Paix n° 1, quartier Les Volcans",
             **{field: "" for field in SOCIAL_FIELDS},
+            "company_name": "Mwangaza SARL (démonstration)",
+            "company_ids": "RCCM CD/GOM/RCCM/00-X-0000 · Id. nat. 00-000-N00000X (fictifs)",
+            "signer_name": "Directrice générale (à compléter)",
+            "signer_title": "Directrice générale",
+            "payment_details": (
+                "Banque (fictive) : compte 00000-00000-00000000000-00\nMobile Money : +243000000999"
+            ),
             "legal_notice": (
                 "Plateforme de démonstration : toutes les données sont fictives.\n"
                 "Éditeur, hébergeur et contact : à compléter dans les paramètres de la plateforme."

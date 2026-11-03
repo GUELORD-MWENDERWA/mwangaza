@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 3** — partie ① faite (serveur : offres, contrats, conditions) ; ② et ③ à faire |
+| Lot en cours | **Lot 3** — parties ① (offres, contrats, conditions) et ② (factures, avoirs, paiements, relevé, PDF, textes légaux : serveur) faites ; ③ écrans et ④ échéances / « Mon abonnement » / prix à faire |
 | Prochain lot | Lot 4 — Bulletins aux parents |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #411 (une par lot, jalon « V1 complète ») |
 | Branche | `lot/3-vendre` |
-| Dernière mise à jour | 2026-11-02 (lot 3, partie ①) |
+| Dernière mise à jour | 2026-11-03 (lot 3, partie ②) |
 
 ## Avancement
 

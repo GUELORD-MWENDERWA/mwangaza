@@ -1,0 +1,19 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{{ invoice.number }}{% endblock %}
+{% block content %}
+{% include "billing/_party.html" %}
+<h1>{% if is_credit %}{% translate "Credit note" %}{% else %}{% translate "Invoice" %}{% endif %} {% translate "No." %} {{ invoice.number }}</h1>
+<p class="center small">{% translate "Issued on" %} {{ invoice.issued_on|date:"d/m/Y" }}
+{% if is_credit %} — {% translate "cancels invoice" %} {{ invoice.credit_for.number }}{% else %} — {% translate "due on" %} {{ invoice.due_on|date:"d/m/Y" }}{% endif %}
+ — {% translate "contract" %} {{ invoice.contract.number }}</p>
+<table>
+  <thead><tr><th>{% translate "Description" %}</th><th class="num">{% translate "Quantity" %}</th><th class="num">{% translate "Unit price" %}</th><th class="num">{% translate "Amount" %}</th></tr></thead>
+  <tbody>{% for line in lines %}<tr><td>{{ line.description }}</td><td class="num">{{ line.quantity }}</td><td class="num">{{ line.unit }}</td><td class="num">{{ line.amount }}</td></tr>{% endfor %}</tbody>
+  <tfoot>
+    <tr><td colspan="3">{% translate "Total" %}</td><td class="num">{{ total }}</td></tr>
+    {% if not is_credit %}<tr><td colspan="3">{% translate "Paid" %}</td><td class="num">{{ paid }}</td></tr>
+    <tr><td colspan="3">{% translate "Still due" %}</td><td class="num">{{ due }}</td></tr>{% endif %}
+  </tfoot>
+</table>
+{% if not is_credit and platform.payment_details %}<h2>{% translate "How to pay" %}</h2><p style="white-space:pre-line">{{ platform.payment_details }}</p>{% endif %}
+{% endblock %}

@@ -258,6 +258,8 @@ SPECTACULAR_SETTINGS = {
     "ENUM_NAME_OVERRIDES": {
         "GradeEntryEnum": "apps.schools.grading.ENTRY_CHOICES",
         "BillingPeriodEnum": "apps.billing.models.Plan.Period",
+        "InvoicePaymentMethodEnum": "apps.billing.models.InvoicePayment.Method",
+        "PaymentMethodEnum": "apps.finance.models.Payment.Method",
         "CourseCategoryEnum": "apps.academics.models.CATEGORIES",
         "TimeSlotKindEnum": "apps.timetable.models.TimeSlot.Kind",
         "RoomKindEnum": "apps.timetable.models.Room.Kind",

@@ -17,6 +17,7 @@ from apps.accounts.demo import (
     demo_password,
 )
 from apps.accounts.models import User
+from apps.billing.demo import create_demo_billing, create_demo_legal
 from apps.core.demo import (
     create_demo_platform,
     create_demo_requests,
@@ -96,12 +97,14 @@ class Command(BaseCommand):
         with use_all_schools(), transaction.atomic():
             create_demo_platform()
             create_demo_articles()
+            create_demo_legal()
             admin = create_demo_admin()
             spaces = create_demo_schools(password=demo_password(), shared_totp_key=shared_key)
             fill(spaces)
             if admin is not None:
                 create_demo_platform_announcements(spaces)
                 create_demo_requests()
+                create_demo_billing(spaces, admin)
         for space in spaces:
             school = space.school
             self.stdout.write(f"  {school.code:<8} {school.name} | {school.url}/app/")

@@ -1,5 +1,7 @@
+from django.db.models import Prefetch
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,12 +9,17 @@ from rest_framework.views import APIView
 
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission, HasSchoolPermission
-from apps.billing import services
-from apps.billing.models import Contract, LegalDocument, Plan
+from apps.billing import documents, invoicing, services
+from apps.billing.models import Contract, Invoice, InvoiceLine, InvoicePayment, LegalDocument, Plan
 from apps.billing.serializers import (
     ContractCreateSerializer,
     ContractSerializer,
     ContractSignSerializer,
+    InvoiceCreateSerializer,
+    InvoicePaymentCreateSerializer,
+    InvoicePaymentSerializer,
+    InvoiceReasonSerializer,
+    InvoiceSerializer,
     LegalAcceptSerializer,
     LegalDocumentSerializer,
     PlanSerializer,
@@ -21,6 +28,7 @@ from apps.core.http import client_ip
 from apps.schools.models import School
 
 READ = (team.BILLING_MANAGE, team.SCHOOLS_VIEW)
+FINANCE = (team.BILLING_MANAGE,)  # factures et paiements : l'équipe finance seulement
 
 
 class ConsolePlanViewSet(
@@ -70,6 +78,7 @@ class ConsoleContractViewSet(
         "create": team.BILLING_MANAGE,
         "sign": team.BILLING_MANAGE,
         "amend": team.BILLING_MANAGE,
+        "pdf": READ,
     }
     serializer_class = ContractSerializer
     http_method_names = ["get", "post", "head", "options"]
@@ -104,6 +113,12 @@ class ConsoleContractViewSet(
         )
         return Response(ContractSerializer(contract).data)
 
+    @extend_schema(responses={(200, "application/pdf"): bytes})
+    @action(detail=True, methods=["get"])
+    def pdf(self, request, pk=None):
+        """Le contrat en PDF (numéroté ; un avenant porte le numéro du contrat qu'il remplace)."""
+        return documents.contract_pdf(self.get_object())
+
     @extend_schema(request=ContractCreateSerializer, responses={201: ContractSerializer})
     @action(detail=True, methods=["post"])
     def amend(self, request, pk=None):
@@ -122,6 +137,113 @@ def serializers_partial(data) -> dict:
     if code := values.pop("plan", None):
         values["plan"] = get_object_or_404(Plan, code=code)
     return values
+
+
+class ConsoleInvoiceViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+    annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = {
+        "list": FINANCE,
+        "retrieve": FINANCE,
+        "pdf": FINANCE,
+        "create": team.BILLING_MANAGE,
+        "cancel": team.BILLING_MANAGE,
+        "pay": team.BILLING_MANAGE,
+        "reverse_payment": team.BILLING_MANAGE,
+    }
+    serializer_class = InvoiceSerializer
+    http_method_names = ["get", "post", "head", "options"]
+
+    def get_queryset(self):
+        invoices = invoicing.with_balance(
+            Invoice.all_schools.select_related("school", "contract", "credit_for", "credit_note")
+            .prefetch_related(
+                Prefetch("lines", queryset=InvoiceLine.all_schools.all()),
+                Prefetch("payments", queryset=InvoicePayment.all_schools.all()),
+            )
+            .order_by("-issued_on", "-number")
+        )
+        if code := self.request.query_params.get("school"):
+            invoices = invoices.filter(school__code=code)
+        return invoices
+
+    @extend_schema(request=InvoiceCreateSerializer, responses={201: InvoiceSerializer})
+    def create(self, request, *args, **kwargs):
+        form = InvoiceCreateSerializer(data=request.data)
+        form.is_valid(raise_exception=True)
+        data = dict(form.validated_data)
+        contract = get_object_or_404(Contract.all_schools, number=data.pop("contract"))
+        extra = [(x["description"], x["quantity"], x["unit_amount"]) for x in data.pop("lines", [])]
+        invoice = invoicing.issue_invoice(contract, actor=request.user, extra_lines=extra, **data)
+        return Response(self._one(invoice), status=status.HTTP_201_CREATED)
+
+    def _one(self, invoice):
+        return InvoiceSerializer(self.get_queryset().get(pk=invoice.pk)).data
+
+    @extend_schema(request=InvoiceReasonSerializer, responses={201: InvoiceSerializer})
+    @action(detail=True, methods=["post"])
+    def cancel(self, request, pk=None):
+        """Avoir complet : la facture reste, son reste dû tombe à 0."""
+        form = InvoiceReasonSerializer(data=request.data)
+        form.is_valid(raise_exception=True)
+        note = invoicing.cancel_invoice(
+            self.get_object(), actor=request.user, reason=form.validated_data["reason"]
+        )
+        return Response(self._one(note), status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        request=InvoicePaymentCreateSerializer, responses={201: InvoicePaymentSerializer}
+    )
+    @action(detail=True, methods=["post"])
+    def pay(self, request, pk=None):
+        form = InvoicePaymentCreateSerializer(data=request.data)
+        form.is_valid(raise_exception=True)
+        payment = invoicing.record_payment(
+            self.get_object(), actor=request.user, **form.validated_data
+        )
+        return Response(InvoicePaymentSerializer(payment).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(
+        request=InvoiceReasonSerializer,
+        responses={201: InvoicePaymentSerializer},
+        parameters=[OpenApiParameter("payment", OpenApiTypes.UUID, OpenApiParameter.PATH)],
+    )
+    @action(detail=True, methods=["post"], url_path=r"payments/(?P<payment>[^/.]+)/reverse")
+    def reverse_payment(self, request, pk=None, payment=None):
+        """Annule un paiement par une écriture liée, avec motif."""
+        form = InvoiceReasonSerializer(data=request.data)
+        form.is_valid(raise_exception=True)
+        original = get_object_or_404(
+            InvoicePayment.all_schools, pk=payment, invoice=self.get_object()
+        )
+        reversal = invoicing.reverse_payment(
+            original, actor=request.user, reason=form.validated_data["reason"]
+        )
+        return Response(InvoicePaymentSerializer(reversal).data, status=status.HTTP_201_CREATED)
+
+    @extend_schema(responses={(200, "application/pdf"): bytes})
+    @action(detail=True, methods=["get"])
+    def pdf(self, request, pk=None):
+        return documents.invoice_pdf(self.get_object())
+
+
+class ConsoleStatementView(APIView):
+    """Relevé d'une école (ABO.2) : factures, avoirs et paiements par devise, solde courant."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = {"get": FINANCE}
+
+    @extend_schema(responses={200: dict})
+    def get(self, request, code):
+        school = get_object_or_404(School, code=code)
+        return Response(invoicing.statement(school))
 
 
 class ConsoleLegalViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):

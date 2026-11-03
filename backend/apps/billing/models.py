@@ -157,3 +157,71 @@ class LegalAcceptance(TenantModel):
         constraints = [
             models.UniqueConstraint(fields=["school", "document"], name="legal_accepted_once")
         ]
+
+
+class Invoice(TenantModel):
+    """Facture de la plateforme à une école (ABO.2), ou avoir qui l'annule en entier. Jamais
+    modifiée ni supprimée : une erreur se corrige par un avoir (`credit_for`) puis une nouvelle
+    facture. Montants en entiers de la plus petite unité de la devise (règle 2)."""
+
+    class Kind(models.TextChoices):
+        INVOICE = "invoice", _("Invoice")
+        CREDIT_NOTE = "credit_note", _("Credit note")
+
+    number = models.CharField(_("number"), max_length=20, unique=True)
+    kind = models.CharField(_("kind"), max_length=11, choices=Kind.choices, default=Kind.INVOICE)
+    contract = models.ForeignKey(Contract, on_delete=models.PROTECT, related_name="invoices")
+    credit_for = models.OneToOneField(
+        "self", null=True, blank=True, on_delete=models.PROTECT, related_name="credit_note"
+    )
+    issued_on = models.DateField(_("issued on"))
+    due_on = models.DateField(_("due on"))
+    period_start = models.DateField(_("period start"), null=True, blank=True)
+    period_end = models.DateField(_("period end"), null=True, blank=True)
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    total = models.PositiveIntegerField(_("total"))
+
+    class Meta:
+        ordering = ["-issued_on", "-number"]
+
+    def __str__(self) -> str:
+        return self.number
+
+
+class InvoiceLine(TenantModel):
+    """Ligne d'une facture : élèves inscrits x prix, ou ligne libre (recharge de crédits IA,
+    module en plus)."""
+
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="lines")
+    description = models.CharField(_("description"), max_length=200)
+    quantity = models.PositiveIntegerField(_("quantity"), default=1)
+    unit_amount = models.PositiveIntegerField(_("unit price"))
+    amount = models.PositiveIntegerField(_("amount"))
+
+    class Meta:
+        ordering = ["created_at"]
+
+
+class InvoicePayment(TenantModel):
+    """Paiement d'une facture par l'école, saisi par la console (espèces, banque, Mobile Money).
+    Jamais modifié ni supprimé (règle 3) : une erreur est une écriture d'annulation liée
+    (`reverses`), avec motif. La devise est celle de la facture : pas de conversion, donc pas de
+    taux à garder."""
+
+    class Method(models.TextChoices):
+        CASH = "cash", _("Cash")
+        BANK = "bank", _("Bank transfer")
+        MOBILE = "mobile_money", _("Mobile Money")
+
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="payments")
+    amount = models.PositiveIntegerField(_("amount"))
+    method = models.CharField(_("method"), max_length=12, choices=Method.choices)
+    reference = models.CharField(_("reference"), max_length=80, blank=True)
+    paid_on = models.DateField(_("paid on"))
+    reverses = models.OneToOneField(
+        "self", null=True, blank=True, on_delete=models.PROTECT, related_name="reversal"
+    )
+    reason = models.CharField(_("reason"), max_length=200, blank=True)
+
+    class Meta:
+        ordering = ["paid_on", "created_at"]

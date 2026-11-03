@@ -5477,6 +5477,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/Contract'
           description: ''
+  /api/console/billing/contracts/{id}/pdf/:
+    get:
+      operationId: console_billing_contracts_pdf_retrieve
+      description: Le contrat en PDF (numéroté ; un avenant porte le numéro du contrat
+        qu'il remplace).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this contract.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/console/billing/contracts/{id}/sign/:
     post:
       operationId: console_billing_contracts_sign_create
@@ -5512,6 +5537,222 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Contract'
+          description: ''
+  /api/console/billing/invoices/:
+    get:
+      operationId: console_billing_invoices_list
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvoiceList'
+          description: ''
+    post:
+      operationId: console_billing_invoices_create
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoiceCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoiceCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: ''
+  /api/console/billing/invoices/{id}/:
+    get:
+      operationId: console_billing_invoices_retrieve
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: ''
+  /api/console/billing/invoices/{id}/cancel/:
+    post:
+      operationId: console_billing_invoices_cancel_create
+      description: 'Avoir complet : la facture reste, son reste dû tombe à 0.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+          description: ''
+  /api/console/billing/invoices/{id}/pay/:
+    post:
+      operationId: console_billing_invoices_pay_create
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoicePaymentCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePayment'
+          description: ''
+  /api/console/billing/invoices/{id}/payments/{payment}/reverse/:
+    post:
+      operationId: console_billing_invoices_payments_reverse_create
+      description: Annule un paiement par une écriture liée, avec motif.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      - in: path
+        name: payment
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvoiceReasonRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePayment'
+          description: ''
+  /api/console/billing/invoices/{id}/pdf/:
+    get:
+      operationId: console_billing_invoices_pdf_retrieve
+      description: |-
+        Factures des écoles (ABO.2) : émettre, annuler par un avoir, encaisser (à la main),
+        annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this invoice.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
           description: ''
   /api/console/billing/legal/:
     get:
@@ -5672,6 +5913,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Plan'
+          description: ''
+  /api/console/billing/statement/{code}/:
+    get:
+      operationId: console_billing_statement_retrieve
+      description: 'Relevé d''une école (ABO.2) : factures, avoirs et paiements par
+        devise, solde courant.'
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
           description: ''
   /api/console/dashboard/:
     get:
@@ -21823,7 +22087,7 @@ components:
           type: string
           format: date-time
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         note:
           type: string
           maxLength: 200
@@ -23884,6 +24148,26 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        company_name:
+          type: string
+          maxLength: 120
+        company_ids:
+          type: string
+          title: Registration numbers
+          description: 'RCCM, national ID, tax number: printed under the company name.'
+          maxLength: 200
+        signer_name:
+          type: string
+          title: Signer
+          maxLength: 120
+        signer_title:
+          type: string
+          title: Signer's position
+          maxLength: 80
+        payment_details:
+          type: string
+          title: How to pay
+          description: 'Bank account, Mobile Money number: printed on invoices.'
         address:
           type: string
           description: Street, number, district.
@@ -23965,6 +24249,11 @@ components:
       - support_phone
       - support_email
       - legal_notice
+      - company_name
+      - company_ids
+      - signer_name
+      - signer_title
+      - payment_details
       - address
       - city
       - region
@@ -28705,6 +28994,241 @@ components:
       required:
       - text
       - phone
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/InvoiceKindEnum'
+          readOnly: true
+        school:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          readOnly: true
+        contract:
+          type: string
+          readOnly: true
+        credit_for:
+          type: string
+          readOnly: true
+        issued_on:
+          type: string
+          format: date
+          readOnly: true
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+        period_start:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        period_end:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        total:
+          type: integer
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        paid:
+          type: integer
+          readOnly: true
+        balance:
+          type: integer
+          readOnly: true
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLine'
+          readOnly: true
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoicePayment'
+          readOnly: true
+      required:
+      - id
+      - number
+      - kind
+      - school
+      - contract
+      - credit_for
+      - issued_on
+      - due_on
+      - period_start
+      - period_end
+      - currency
+      - total
+      - cancelled
+      - paid
+      - balance
+      - lines
+      - payments
+    InvoiceCreateRequest:
+      type: object
+      properties:
+        contract:
+          type: string
+          minLength: 1
+          maxLength: 20
+        students:
+          type: integer
+          minimum: 0
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceLineInputRequest'
+        issued_on:
+          type: string
+          format: date
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+      required:
+      - contract
+    InvoiceKindEnum:
+      enum:
+      - invoice
+      - credit_note
+      type: string
+      description: |-
+        * `invoice` - Invoice
+        * `credit_note` - Credit note
+    InvoiceLine:
+      type: object
+      properties:
+        description:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          readOnly: true
+        unit_amount:
+          type: integer
+          readOnly: true
+          title: Unit price
+        amount:
+          type: integer
+          readOnly: true
+      required:
+      - description
+      - quantity
+      - unit_amount
+      - amount
+    InvoiceLineInputRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 200
+        quantity:
+          type: integer
+          minimum: 1
+        unit_amount:
+          type: integer
+          minimum: 1
+      required:
+      - description
+      - quantity
+      - unit_amount
+    InvoicePayment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        invoice:
+          type: string
+          readOnly: true
+        amount:
+          type: integer
+          readOnly: true
+        method:
+          allOf:
+          - $ref: '#/components/schemas/InvoicePaymentMethodEnum'
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        paid_on:
+          type: string
+          format: date
+          readOnly: true
+        reverses:
+          type: string
+          format: uuid
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - invoice
+      - amount
+      - method
+      - reference
+      - paid_on
+      - reverses
+      - reason
+    InvoicePaymentCreateRequest:
+      type: object
+      properties:
+        amount:
+          type: integer
+          minimum: 1
+        method:
+          $ref: '#/components/schemas/InvoicePaymentMethodEnum'
+        paid_on:
+          type: string
+          format: date
+        reference:
+          type: string
+          maxLength: 80
+      required:
+      - amount
+      - method
+      - paid_on
+    InvoicePaymentMethodEnum:
+      enum:
+      - cash
+      - bank
+      - mobile_money
+      type: string
+      description: |-
+        * `cash` - Cash
+        * `bank` - Bank transfer
+        * `mobile_money` - Mobile Money
+    InvoiceReasonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
     LanguageEnum:
       enum:
       - fr
@@ -29357,11 +29881,6 @@ components:
       - homeroom
       - courses
       - present
-    MethodEnum:
-      enum:
-      - cash
-      type: string
-      description: '* `cash` - Cash'
     MissingFieldsEnum:
       enum:
       - last_name
@@ -30190,6 +30709,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ImportLine'
+    PaginatedInvoiceList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
     PaginatedLegalDocumentList:
       type: object
       required:
@@ -31290,6 +31834,26 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        company_name:
+          type: string
+          maxLength: 120
+        company_ids:
+          type: string
+          title: Registration numbers
+          description: 'RCCM, national ID, tax number: printed under the company name.'
+          maxLength: 200
+        signer_name:
+          type: string
+          title: Signer
+          maxLength: 120
+        signer_title:
+          type: string
+          title: Signer's position
+          maxLength: 80
+        payment_details:
+          type: string
+          title: How to pay
+          description: 'Bank account, Mobile Money number: printed on invoices.'
         address:
           type: string
           description: Street, number, district.
@@ -32193,7 +32757,7 @@ components:
           type: string
           format: date-time
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         note:
           type: string
           maxLength: 200
@@ -32330,6 +32894,11 @@ components:
       - enrollment
       - received_amount_minor
       - received_currency
+    PaymentMethodEnum:
+      enum:
+      - cash
+      type: string
+      description: '* `cash` - Cash'
     PaymentOriginEnum:
       enum:
       - cash
@@ -32395,7 +32964,7 @@ components:
           type: string
           format: date-time
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         note:
           type: string
           maxLength: 200
@@ -32799,6 +33368,26 @@ components:
             maxLength: 0
         legal_notice:
           type: string
+        company_name:
+          type: string
+          maxLength: 120
+        company_ids:
+          type: string
+          title: Registration numbers
+          description: 'RCCM, national ID, tax number: printed under the company name.'
+          maxLength: 200
+        signer_name:
+          type: string
+          title: Signer
+          maxLength: 120
+        signer_title:
+          type: string
+          title: Signer's position
+          maxLength: 80
+        payment_details:
+          type: string
+          title: How to pay
+          description: 'Bank account, Mobile Money number: printed on invoices.'
         address:
           type: string
           description: Street, number, district.
@@ -32870,6 +33459,11 @@ components:
       - support_phone
       - support_email
       - legal_notice
+      - company_name
+      - company_ids
+      - signer_name
+      - signer_title
+      - payment_details
       - address
       - city
       - region
@@ -32894,6 +33488,10 @@ components:
       - billing.contract_activated
       - billing.contract_ended
       - billing.legal_published
+      - billing.invoice_issued
+      - billing.credit_note_issued
+      - billing.invoice_payment
+      - billing.invoice_payment_reversed
       - school.created
       - school.updated
       - school.suspended
@@ -32958,6 +33556,10 @@ components:
         * `billing.contract_activated` - Contract started
         * `billing.contract_ended` - Contract ended
         * `billing.legal_published` - Terms or policy version published
+        * `billing.invoice_issued` - Invoice issued
+        * `billing.credit_note_issued` - Credit note issued
+        * `billing.invoice_payment` - Invoice payment recorded
+        * `billing.invoice_payment_reversed` - Invoice payment cancelled
         * `school.created` - School created
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended

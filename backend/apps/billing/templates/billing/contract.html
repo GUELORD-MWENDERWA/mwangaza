@@ -1,0 +1,27 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{{ contract.number }}{% endblock %}
+{% block content %}
+{% include "billing/_party.html" %}
+<h1>{% translate "Service contract" %} {% translate "No." %} {{ contract.number }}</h1>
+{% if contract.replaces %}<p class="center small">{% translate "Amendment to contract" %} {{ contract.replaces.number }}</p>{% endif %}
+<h2>{% translate "1. Parties" %}</h2>
+<p>{% blocktranslate with provider=platform.company_name|default:platform.name school_name=school.official_name|default:school.name %}Between {{ provider }}, hereafter “the Provider”, and the school {{ school_name }}, hereafter “the School”.{% endblocktranslate %}</p>
+<h2>{% translate "2. Purpose" %}</h2>
+<p>{% blocktranslate with plan=plan.name %}The Provider gives the School access, as a service, to the “{{ plan }}” plan of the school management platform, with these modules:{% endblocktranslate %} {{ modules|join:", " }}.</p>
+<h2>{% translate "3. Term and renewal" %}</h2>
+<p>{% blocktranslate with start=contract.start_date|date:"d/m/Y" end=contract.end_date|date:"d/m/Y" %}From {{ start }} to {{ end }}.{% endblocktranslate %}
+{% if contract.trial_days %}{% blocktranslate with days=contract.trial_days %}It starts with a free trial of {{ days }} days.{% endblocktranslate %}{% endif %}
+{% if contract.auto_renew %}{% translate "It renews automatically for the same duration unless one party gives notice before the end date." %}{% else %}{% translate "It does not renew automatically." %}{% endif %}</p>
+<h2>{% translate "4. Price and payment" %}</h2>
+<p>{% blocktranslate with price=price period=contract.get_period_display %}{{ price }} per enrolled student, {{ period }}. Invoices are due within 30 days; payment can be made in cash, by bank transfer or by Mobile Money.{% endblocktranslate %}</p>
+<h2>{% translate "5. Personal data" %}</h2>
+<p>{% translate "The School stays responsible for the personal data of its students and families; the Provider processes it only to run the service, for the School, as described in the privacy policy and the register of processing, and gives it back or erases it at the end of the contract." %}</p>
+<h2>{% translate "6. General terms" %}</h2>
+<p>{% translate "The terms of use and sale and the privacy policy in force, accepted by the School, are part of this contract." %}</p>
+<h2>{% translate "7. Signature" %}</h2>
+<div class="row between" style="margin-top:8mm">
+  <div class="signer"><div class="signer__marks"></div>{{ platform.signer_name|default:"…" }}<br><span class="small">{{ platform.signer_title }}</span></div>
+  <div class="signer"><div class="signer__marks"></div>{{ contract.signer_name|default:school.head_name|default:"…" }}<br><span class="small">{{ school.official_name|default:school.name }}</span></div>
+</div>
+{% if contract.signed_at %}<p class="small muted center">{% blocktranslate with date=contract.signed_at|date:"d/m/Y" %}Signed on {{ date }}.{% endblocktranslate %}</p>{% endif %}
+{% endblock %}
