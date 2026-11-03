@@ -67,7 +67,40 @@ Tout appareil est **configurable, paramétrable et gérable** (CRUD) depuis la G
 
 ### 2.3 Lecteur de salle
 
-ESP32 ou ESP8266 + RC522 + LED (verte OK, orange déjà passé, rouge refus, bleue prêt/attente de carte) + buzzer, bouton (appui long = réglage). Signalisation identique à celle du projet ULPGL (vert + 1 bip, orange + 2 bips, rouge + bip long). **Il décide seul** à partir de la liste de la séance reçue ; un tap n'attend jamais le réseau.
+ESP32 ou ESP8266 + RC522 + LED (verte OK, orange déjà passé, rouge refus, bleue prêt/attente de carte) + buzzer, bouton (appui long = réglage). Signalisation reprise du projet ULPGL **et améliorée** : voir § 2.3 bis. **Il décide seul** à partir de la liste de la séance reçue ; un tap n'attend jamais le réseau.
+
+### 2.3 bis Signalisation : LED et buzzer (reprise de ULPGL, améliorée)
+
+Source : `rfid_attendance_Nth/src/main.cpp` (tableaux `Etape {leds, fréquence, durée}` joués sans `delay`, trois priorités). On **garde** ce principe et le vocabulaire (vert = OK, jaune = attention, rouge = refus, bleue = réseau) ; on **améliore** :
+
+| Amélioration | Pourquoi |
+|---|---|
+| **Un seul catalogue de signaux** (`signals.h`), commun au lecteur, à la console et au sounder, avec le même code de sons ; il vit dans le dépôt, pas dupliqué par firmware | ULPGL avait ses tableaux dans un seul fichier ; ici trois appareils doivent sonner pareil |
+| **Le rythme dit le sens, pas la couleur seule** (1 bip = OK, 2 bips = déjà passé, bip long = refus) | une personne daltonienne ou une salle en plein soleil reconnaissent encore le signal |
+| **Volume et mode muet réglés depuis la Gestion** (par appareil, par plage : silencieux en examen, plus fort dans l'atelier) ; les alertes graves (serveur perdu, batterie faible) restent audibles sauf choix contraire | ULPGL : `SONS_ETAT` compilé en dur |
+| **Sons d'état coupés la nuit** (plage « nuit et congés », § 2.5 bis) ; le résultat d'une carte et l'alerte gardent leur voyant | pas de bip de vie |
+| **Priorités : alerte > résultat de carte > événement > état**, un signal en attente par niveau, un résultat de carte annule les événements en attente | ULPGL en avait trois ; on ajoute l'alerte (sirène manuelle, batterie, appareil perdu) |
+| **Deux familles de refus** : « carte inconnue » (2 bips longs) et « pas dans cette séance » (1 bip long), toutes deux avec le **motif lisible à l'écran de la console** | l'élève comprend quoi faire |
+| **Signal « sans séance ouverte »** (jaune + bip moyen) conservé ; **« séance fermée »** et **« séance ouverte »** par deux notes montantes/descendantes | repris tel quel |
+| **Test de démarrage et mode « essai »** (appui long, depuis la console) : chaque LED et chaque note, pour vérifier le câblage sans ouvrir le boîtier | repris, rendu déclenchable à distance |
+| **Pas de blocage** : seuls le démarrage et l'effacement utilisent des pauses ; un tap n'attend jamais un signal | repris |
+| **Signal hors-ligne explicite** : jaune fixe + « tic » = carte gardée, envoi en attente ; vert = enregistrée et déjà synchronisée n'existe plus (le lecteur décide seul, § 2.3) | la décision locale remplace l'attente du serveur d'ULPGL |
+
+Signaux de base (à confirmer au banc, fréquences d'ULPGL gardées) :
+
+| Situation | LED | Son |
+|---|---|---|
+| Présence enregistrée | vert 1 s | 1 bip aigu (2 500 Hz, 180 ms) |
+| Déjà passé | orange 1 s | 2 bips courts (1 800 Hz) |
+| Séance non ouverte | orange 1 s | 1 bip moyen (1 200 Hz, 500 ms) |
+| Carte inconnue | rouge 1 s | 2 bips longs (2 000 Hz, 300 ms) |
+| Pas inscrit à cette séance | rouge 1 s | 1 bip long (1 500 Hz, 700 ms) |
+| Console injoignable (secondaires) | rouge clignotant | 3 bips graves (1 000 Hz) |
+| Lecteur RFID en panne | rouge/orange alternés | 2 bips graves (500 Hz) |
+| Jumelage ouvert / réussi / refusé | bleu rapide / vert 1 s / rouge | 3 bips aigus / bip long / bip grave |
+| Batterie faible, appareil perdu, sonnerie manuelle | selon l'événement | motif propre, jamais confondu avec un résultat de carte |
+
+Les motifs sont des **données** (liste d'étapes `{leds, fréquence, durée}`) : un nouveau signal s'ajoute sans toucher à la logique. Le buzzer est un buzzer **passif** piloté en PWM (`ledcWriteTone`), comme ULPGL, pour pouvoir jouer des notes.
 
 ### 2.4 Lecteur de cartes (V1) et antennes
 
