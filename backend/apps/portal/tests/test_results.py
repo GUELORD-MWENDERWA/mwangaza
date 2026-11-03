@@ -8,6 +8,7 @@ import pytest
 from apps.academics import report_cards, waivers
 from apps.academics.models import Deliberation, GradeSheet
 from apps.academics.tests.test_resits import data, physics_teacher
+from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
 from apps.portal import results
 from apps.portal.tests.test_access import activate, new_family, portal
@@ -56,11 +57,13 @@ def released(school, data):
 
 
 def test_a_parent_sees_validated_totals_and_the_report_card_of_a_proclaimed_period(
-    school, released, monkeypatch
+    school, released, monkeypatch, django_assert_max_num_queries
 ):
     client = parent_of(released)
 
-    body = client.get(results_url(released)).json()
+    # Budget de requêtes (PERF.6) : un appel par enfant, quel que soit le nombre de cours.
+    with django_assert_max_num_queries(25):
+        body = client.get(results_url(released)).json()
     # 70 % de 20 en Physique ; l'atelier n'est pas validé : rien.
     assert [(t["released"], t["courses"]) for t in body["terms"]] == [
         (True, [{"course": "Physique", "score": "14.0", "maximum": 20}])
@@ -68,6 +71,9 @@ def test_a_parent_sees_validated_totals_and_the_report_card_of_a_proclaimed_peri
     assert (body["report_available"], body["withheld"]) == (True, False)
     pdf = client.get(card_url(released))
     assert (pdf.status_code, pdf["Content-Type"]) == (200, "application/pdf")
+    # Journal des consultations (S.10) : une ligne par lecture réussie du PDF.
+    with use_school(released["a"].school):
+        assert AuditLog.objects.filter(action="portal.report_viewed").count() == 1
 
     # Frais échus sans dérogation : le PDF est refusé, les notes restent visibles.
     monkeypatch.setattr(waivers, "withheld_ids", lambda rows: {e.pk for e in rows})

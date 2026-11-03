@@ -181,6 +181,7 @@ class Action(models.TextChoices):
     )
     # Portail des familles (H1).
     PORTAL_ACTIVATED = "portal.activated", _("Parent portal activated")
+    PORTAL_REPORT_VIEWED = "portal.report_viewed", _("Report card read by a parent")
     PORTAL_PASSWORD_RESET = "portal.password_reset", _("Parent chose a new password")
     # Frais, barèmes et taux de l'année (E1, E2, E5).
     FINANCE_FEE_TYPE_CREATED = "finance.fee_type_created", _("Fee type created")

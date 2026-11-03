@@ -51,6 +51,9 @@ STAFF_KINDS = {
     Kind.GRADES_VALIDATED: GRADES_ENTER,
     Kind.RESULTS_PROCLAIMED: GRADES_VALIDATE,
     Kind.RESULTS_REOPENED: GRADES_VALIDATE,
+    # Notes corrigées par un autre, cours confié ou retiré : l'enseignant concerné (8.2.6).
+    Kind.GRADES_CORRECTED: GRADES_ENTER,
+    Kind.COURSE_TEACHER: GRADES_ENTER,
     # Message d'un parent (8.8) : ceux qui publient les annonces aux familles.
     Kind.PARENT_MESSAGE: ANNOUNCEMENTS_PUBLISH,
     # Nouvel horaire (EDT.4b) : envoyé aux enseignants dont les heures changent, réglable par eux.

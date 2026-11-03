@@ -9,7 +9,8 @@
   - Droit de répondre = `announcements.publish` ; PDF 10 par minute ; journal des consultations de bulletins à faire en ④ (S.10)
 - [x] ③ Écrans Portail (scolarité, bulletin, écrire à l'école) et Gestion (dérogations, réponses) ; maquettes `portail/enfant-bulletin`, `gestion/messages-parents`
   - Gestion : « Dérogations de bulletin » (`grades.waive_fees`) et « Messages des parents » (`announcements.publish`) sous Communication ; réglage « Retenir le bulletin » dans Paramètres › Portail ; Portail : cartes notes / décision / bulletin / « Écrire à l'école » sous la conduite
-- [ ] ④ Portail sans réseau (HL.3), rapidité (PERF.6), revue de sécurité (S.10)
+- [x] ④ Portail sans réseau (HL.3 : cache des notes, conduite et fil + bandeau « vu le »), journal des consultations de bulletins (S.10, `portal.report_viewed`), notifications « notes corrigées par un autre » et « cours confié ou retiré » (8.2.6), budget de requêtes du Portail et `make perf` + situation (PERF.6)
+  - Reste (non fait) : notification « repêchage à saisir » (8.2.6) ; mesure `make perf` de PERF.6 et note dans `docs/claude/recherches/`
 
 ## Décisions (regard senior)
 - Le blocage porte sur le **PDF du bulletin** (servi par le Portail après contrôle du droit), pas sur la décision de passage, toujours visible. Règle : frais **échus** impayés = bulletin retenu ; réglage de l'école (`report_requires_payment`, défaut : non) ; calcul à la lecture, rien stocké en plus ; réglage rangé dans `School.settings["portal"]`.

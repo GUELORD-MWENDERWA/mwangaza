@@ -1,5 +1,5 @@
 import { api, call } from "@mwangaza/api";
-import { errorMessage, useTranslation } from "@mwangaza/i18n";
+import { errorMessage, formatDateTime, useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
   Brand,
@@ -17,6 +17,7 @@ import { Link, NavLink } from "react-router";
 
 import { accountKey, forgetFamilyData, forgetLastSession } from "../../lib/account";
 import { useFamilies } from "../../lib/families";
+import { useOfflineSince } from "../../lib/offline";
 import { disablePush } from "../../lib/push";
 import { NotificationBell } from "../notifications/NotificationBell";
 
@@ -47,7 +48,8 @@ export function PortalFrame({
   wide?: boolean;
   children: ReactNode;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const offlineSince = useOfflineSince();
   const logout = useLogout();
   const families = useFamilies();
   const desktop = useMediaQuery(DESKTOP);
@@ -60,6 +62,13 @@ export function PortalFrame({
       {space && (
         <Banner tone="warn" className="rounded-none" role="note">
           <b>{t(`space.${space.school_environment as "demo" | "test"}`)}</b>
+        </Banner>
+      )}
+      {offlineSince && (
+        <Banner tone="warn" className="rounded-none" role="status">
+          {t("portal.offline", {
+            date: formatDateTime(offlineSince, i18n.language, "Africa/Lubumbashi"),
+          })}
         </Banner>
       )}
       {desktop && (

@@ -22,6 +22,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import require_current_school
+from apps.notifications import events
 from apps.schools.models import AcademicYear, ClassGroup, Term
 from apps.timetable import placement as placing
 from apps.timetable.models import Room
@@ -239,6 +240,7 @@ def set_courses(
         ):
             raise BusinessError(MAX_GRADED)
         before = {pk: (_snapshot(course), course.order) for pk, course in existing.items()}
+        teachers_before = {pk: course.teacher_id for pk, course in existing.items()}
         wanted = {item.id for item in items}
         removed = [course for pk, course in existing.items() if pk not in wanted]
         try:
@@ -282,6 +284,14 @@ def set_courses(
                 updated.append(course)
         Course.objects.bulk_create(created)
         Course.objects.bulk_update(updated, [*FIELDS, *PLACEMENT, "order", "updated_at"])
+        events.course_teacher_changed(
+            [
+                (course, teachers_before.get(course.pk), course.teacher_id)
+                for course in final
+                if teachers_before.get(course.pk) != course.teacher_id
+            ],
+            actor=actor,
+        )
         # Journal : ce qui change sur le bulletin, pas l'ordre des lignes.
         old_rows = {pk: row for pk, (row, _order) in before.items()}
         after = {course.pk: _snapshot(course) for course in final}

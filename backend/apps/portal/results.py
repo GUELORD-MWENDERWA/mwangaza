@@ -22,6 +22,8 @@ from rest_framework.exceptions import NotFound
 from apps.academics import deliberation, grades, report_card_documents, report_cards, waivers
 from apps.academics.models import Course, Deliberation, Evaluation, Grade, GradeSheet
 from apps.accounts.models import User
+from apps.audit import services as audit
+from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.portal import children
 from apps.schools.models import Term
@@ -186,4 +188,6 @@ def report_context(user: User, student_id, *, absolute) -> tuple[dict, str]:
             for cell, column in zip(context[line], columns, strict=False)
         ]
     context["missing_count"] = 0
+    # Journal des consultations (S.10) : qui a lu le bulletin de quel élève.
+    audit.record(Action.PORTAL_REPORT_VIEWED, student, actor=user, label=student.full_name)
     return context, f"bulletin-{slugify(student.full_name)}.pdf"

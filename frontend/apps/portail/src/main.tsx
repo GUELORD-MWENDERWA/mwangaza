@@ -1,5 +1,6 @@
 import "./index.css";
 
+import { api } from "@mwangaza/api";
 import { setupI18n } from "@mwangaza/i18n";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { StrictMode } from "react";
@@ -8,11 +9,13 @@ import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 
 import { listenForInstallPrompt } from "./lib/install";
+import { rememberSeen } from "./lib/offline";
 import { PlatformProvider, startPlatform } from "./lib/platform";
 import { createQueryClient } from "./lib/queryClient";
 import { routes } from "./routes";
 
 setupI18n();
+api.use({ onResponse: ({ response }) => void rememberSeen(response) });
 startPlatform();
 listenForInstallPrompt();
 // Application installable (H6) : service worker seulement après `make build` ; une nouvelle

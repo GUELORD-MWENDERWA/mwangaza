@@ -387,6 +387,57 @@ def grades_returned(state: GradeSheet, reason: str, *, sender: User | None, acto
     )
 
 
+def grades_corrected(course, term, *, count: int, actor: User) -> None:
+    """Notes d'un cours changées par quelqu'un d'autre que son enseignant (8.2.6) : une
+    notification par enregistrement, à l'enseignant du cours."""
+    from apps.academics.grades import term_label
+
+    label = f"{course.name} · {course.class_group.name}"
+
+    def text() -> tuple[str, str]:
+        title = _("Grades corrected: %(course)s") % {"course": label}
+        body = _("%(term)s · %(count)d change(s) by %(by)s") % {
+            "term": term_label(term),
+            "count": count,
+            "by": _by(actor),
+        }
+        return title, body
+
+    send(
+        _members(course.teacher_id).exclude(pk=actor.pk),
+        app=App.GESTION,
+        kind=Kind.GRADES_CORRECTED,
+        url=f"/grades?course={course.pk}&term={term.pk}",
+        text=text,
+    )
+
+
+def course_teacher_changed(changes: list, *, actor: User) -> None:
+    """Enseignants désignés ou retirés d'un ou plusieurs cours d'une classe (8.2.6) : une
+    notification par enseignant et par enregistrement. `changes` : (cours, ancien id, nouvel id)."""
+    gained, lost = defaultdict(list), defaultdict(list)
+    for course, old, new in changes:
+        if new:
+            gained[new].append(course)
+        if old:
+            lost[old].append(course)
+    for teachers, assigned in ((gained, True), (lost, False)):
+        for teacher, courses in teachers.items():
+            names = ", ".join(sorted({f"{c.name} · {c.class_group.name}" for c in courses}))
+
+            def text(names=names, assigned=assigned) -> tuple[str, str]:
+                title = _("Course assigned to you") if assigned else _("Course taken from you")
+                return title, _("%(courses)s · by %(by)s") % {"courses": names, "by": _by(actor)}
+
+            send(
+                _members(teacher).exclude(pk=actor.pk),
+                app=App.GESTION,
+                kind=Kind.COURSE_TEACHER,
+                url="/grades",
+                text=text,
+            )
+
+
 def grades_validated(state: GradeSheet, *, actor: User) -> None:
     """Fiche validée par le directeur des études : à l'enseignant du cours (sinon à qui l'avait
     envoyée) et au titulaire de la classe."""

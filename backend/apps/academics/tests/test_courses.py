@@ -243,3 +243,26 @@ def test_a_new_year_with_the_classes_takes_their_courses_without_teachers(
         ]
         created = AuditLog.objects.get(action="organisation.year_created", entity_id=year.pk)
     assert created.after["course_count"] == 3
+
+
+def test_a_teacher_is_told_when_a_course_is_given_or_taken_away(api, school, alpha, head, teacher):
+    from apps.notifications.models import Notification
+
+    client = api(head)
+    url = courses_url(alpha["a"])
+    client.put(url, {"courses": grid(str(teacher.pk))})
+    course = client.get(url).json()
+    rows = course["courses"] if isinstance(course, dict) else course
+    first = next(c for c in rows if c["name"] == "Français")
+    # Même enseignant renvoyé : rien de plus ; retiré : une seconde notification.
+    client.put(url, {"courses": [{**c, "teacher_id": c.get("teacher_id")} for c in rows]})
+    client.put(
+        url, {"courses": [{**c, "teacher_id": None} if c["id"] == first["id"] else c for c in rows]}
+    )
+    with use_school(school):
+        titles = list(
+            Notification.objects.filter(kind="course_teacher", user=teacher)
+            .order_by("created_at")
+            .values_list("title", flat=True)
+        )
+    assert titles == ["Course assigned to you", "Course taken from you"]

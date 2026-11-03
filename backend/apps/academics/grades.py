@@ -577,6 +577,10 @@ def save_sheet(
                 after=after or None,
                 label=_label(course, term),
             )
+            if before_grades or after_grades:
+                events.grades_corrected(
+                    course, term, count=max(len(before_grades), len(after_grades)), actor=actor
+                )
     return sheet(course, term, total_only=total_only)
 
 
