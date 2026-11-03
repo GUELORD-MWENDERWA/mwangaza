@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-03 20:50+0200\n"
+"POT-Creation-Date: 2026-11-03 21:07+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -5641,7 +5641,7 @@ msgstr ""
 msgid "News | %(name)s"
 msgstr "Actualités | %(name)s"
 
-#: apps/core/site.py:457
+#: apps/core/site.py:457 apps/core/templates/core/site/news.html:8
 #, python-format
 msgid ""
 "New features, tips for the new school year and life of the schools using "
@@ -7085,13 +7085,6 @@ msgid ""
 msgstr ""
 "Dites-nous comment travaille votre école : on vous propose les modules "
 "utiles, et rien de plus."
-
-#
-#: apps/core/templates/core/site/news.html:8
-msgid "New features, tips for the new school year, life of the schools."
-msgstr ""
-"Nouvelles fonctions, conseils pour la rentrée et vie des écoles qui "
-"utilisent %(name)s."
 
 #: apps/core/templates/core/site/news.html:13
 msgid "No news yet. Come back soon."
