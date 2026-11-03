@@ -18,6 +18,14 @@ export async function enterCode(page: Page) {
   await expect(page.getByRole("heading", { name: "Code de vérification" })).toBeVisible();
   await page.getByLabel("Code à 6 chiffres").fill(await totp());
   await page.getByRole("button", { name: "Vérifier" }).click();
+  await laterConditions(page);
+}
+
+/** L'administrateur voit à l'ouverture les conditions de la plateforme à accepter (CTR.1) : ces
+ *  parcours n'en parlent pas, ils disent « Plus tard » s'il apparaît. */
+export async function laterConditions(page: Page) {
+  const later = page.getByRole("dialog").getByRole("button", { name: "Plus tard" });
+  await later.click({ timeout: 4000 }).catch(() => undefined);
 }
 
 /** Première connexion avec un mot de passe provisoire : la personne choisit le sien. */
@@ -39,6 +47,7 @@ export async function activateTwoFactor(page: Page): Promise<string> {
   await expect(finish).toBeDisabled();
   await page.getByText("J'ai imprimé ou recopié mes 8 codes de secours").click();
   await finish.click();
+  await laterConditions(page);
   return key;
 }
 
