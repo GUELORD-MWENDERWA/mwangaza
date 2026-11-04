@@ -6736,6 +6736,63 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/help/:
+    get:
+      operationId: console_help_list
+      description: Articles d'aide de la console ; avec `search`, ceux qui contiennent
+        tous les mots.
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Deux lettres au moins.
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpList'
+          description: ''
+  /api/console/help/{key}/:
+    get:
+      operationId: console_help_article
+      description: Un article d'aide de la console.
+      parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpArticle'
+          description: ''
   /api/console/platform/:
     get:
       operationId: console_platform_retrieve
@@ -12812,6 +12869,110 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Health'
+          description: ''
+  /api/help/{app}/:
+    get:
+      operationId: help_list
+      description: |-
+        Articles d'aide de la Gestion ou du Portail ; avec `search`, ceux qui contiennent tous les
+        mots (20 au plus, titre d'abord).
+      parameters:
+      - in: path
+        name: app
+        schema:
+          type: string
+          pattern: ^gestion|portail$
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Deux lettres au moins.
+      tags:
+      - help
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpList'
+          description: ''
+  /api/help/{app}/{key}/:
+    get:
+      operationId: help_article
+      description: Un article d'aide (clé commune aux deux langues), son texte et
+        ceux de sa rubrique.
+      parameters:
+      - in: path
+        name: app
+        schema:
+          type: string
+          pattern: ^gestion|portail$
+        required: true
+      - in: path
+        name: key
+        schema:
+          type: string
+          pattern: ^[a-z0-9-]+$
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      tags:
+      - help
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpArticle'
+          description: ''
+  /api/help/whats-new/:
+    get:
+      operationId: help_whats_new_retrieve
+      description: 'La dernière mise en ligne qui a des nouveautés pour cette application
+        ; aucune : 404.'
+      parameters:
+      - in: query
+        name: app
+        schema:
+          type: string
+          enum:
+          - gestion
+          - portail
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      tags:
+      - help
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhatsNew'
           description: ''
   /api/homeroom/:
     get:
@@ -30465,6 +30626,90 @@ components:
         * `warning` - warning
         * `error` - error
         * `off` - off
+    HelpArticle:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        group:
+          type: string
+        group_label:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        minutes:
+          type: integer
+        updated:
+          type: string
+          format: date
+          nullable: true
+        html:
+          type: string
+          description: Texte de l'article, rendu par le serveur.
+        url:
+          type: string
+        related:
+          type: array
+          items:
+            $ref: '#/components/schemas/HelpItem'
+      required:
+      - key
+      - title
+      - summary
+      - group
+      - group_label
+      - roles
+      - minutes
+      - updated
+      - html
+      - url
+      - related
+    HelpItem:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        group:
+          type: string
+        group_label:
+          type: string
+        title_html:
+          type: string
+          description: Titre échappé, mots cherchés dans <mark>.
+        excerpt_html:
+          type: string
+          description: Résumé ou passage du texte, échappé.
+        url:
+          type: string
+          description: Adresse sur le site ; vide pour la console.
+      required:
+      - key
+      - title
+      - summary
+      - group
+      - group_label
+      - title_html
+      - excerpt_html
+      - url
+    HelpList:
+      type: object
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: '#/components/schemas/HelpItem'
+      required:
+      - articles
     HistoryEntry:
       type: object
       properties:
@@ -42416,6 +42661,25 @@ components:
       - published_at
       - published_by
       - hours
+    WhatsNew:
+      type: object
+      properties:
+        day:
+          type: string
+          format: date
+        summary:
+          type: string
+        html:
+          type: string
+          description: Liste des nouveautés de cette application.
+        url:
+          type: string
+          description: Page « Quoi de neuf » du centre d'aide.
+      required:
+      - day
+      - summary
+      - html
+      - url
     Year:
       type: object
       properties:

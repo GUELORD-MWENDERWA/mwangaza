@@ -1,0 +1,15 @@
+{% extends "core/site/base.html" %}{% load i18n %}
+{% block main %}
+<section class="art hart-sec"><div class="wrap hart">
+  <nav class="toc" aria-label="{{ group_label }}"><small>{{ group_label }}</small>{% for item in toc %}<a href="{{ item.path }}"{% if item.key == article.key %} class="on" aria-current="page"{% endif %}>{{ item.title }}</a>{% endfor %}</nav>
+  <div>
+    <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}"><a href="{{ help_home }}">{% translate "Help centre" %}</a><span aria-hidden="true">/</span><a href="{{ help_home }}#{{ article.group }}">{{ group_label }}</a></nav>
+    <h1 class="display">{{ article.title }}</h1>
+    <p class="lead">{{ article.summary }}</p>
+    {% if article.roles %}<div class="hfor" aria-label="{% translate 'For' %}">{% for role in article.role_labels %}<span>{{ role }}</span>{% endfor %}</div>{% endif %}
+    <div class="body">{{ html }}</div>
+    {% if related %}<div class="hrel"><h2>{% translate "Related articles" %}</h2><ul class="hlist">{% for item in related %}<li><a href="{{ item.path }}">{{ item.title }}</a></li>{% endfor %}</ul></div>{% endif %}
+    <p class="hmore small muted">{% if article.updated %}{% blocktranslate with date=article.updated|date:"j F Y" %}Updated on {{ date }}.{% endblocktranslate %} {% endif %}{% translate "In the app, the “Help” button at the top of each screen opens its article." %}</p>
+  </div>
+</div></section>
+{% endblock %}

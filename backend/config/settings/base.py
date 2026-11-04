@@ -151,6 +151,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 # Portail des parents (un seul domaine pour toutes les écoles), écrit sur la fiche d'inscription.
 PORTAL_URL = env("DJANGO_PORTAL_URL", "https://parents.mwangaza.school")
+# Site public de la plateforme (domaine nu) : liens du panneau « Aide » des applications vers le
+# centre d'aide, pied des guides PDF.
+SITE_URL = env("DJANGO_SITE_URL", f"https://{SCHOOL_BASE_DOMAINS[0]}")
 # Auteur du logiciel (pas l'identité de la plateforme, qui vient de ses paramètres) : balise
 # `<meta name="author">` du site public, ses données structurées et `llms.txt`, jamais signé dans
 # la page (`apps/core/site.py`). Titulaire des droits : le « © … Tous droits réservés » du pied.

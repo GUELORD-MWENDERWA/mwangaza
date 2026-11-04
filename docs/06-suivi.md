@@ -7,7 +7,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 6 — Aide, guide et support**, partie ② (moteur du centre d'aide) ; ① maquettes faites ; fiche `docs/claude/plans/lot-6.md` |
+| Lot en cours | **Lot 6 — Aide, guide et support**, partie ③ (articles fr + en, captures, `make guide`) ; ① maquettes et ② moteur faits ; fiche `docs/claude/plans/lot-6.md` |
 | Prochain lot | Lot 7 ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #426 (lot 6 ; une par lot, jalon « V1 complète ») |
@@ -25,7 +25,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 3 — Vendre : contrats, abonnements, factures | 5 ✓ | 5 |
 | 4 — Bulletins aux parents | 4 ✓ | 4 |
 | 5 — Console finie | 7 ✓ | 7 |
-| 6 — Aide, guide et support | 1 | 5 |
+| 6 — Aide, guide et support | 2 | 5 |
 | 7 — Finances et caisse complètes | 0 | 3 |
 | 8 — Cours communs et notes | 0 | 2 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |

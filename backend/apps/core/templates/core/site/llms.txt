@@ -24,6 +24,14 @@
 
 {{ answer }}
 {% endfor %}
+## {% translate "Help centre" %}
+
+{{ site }}{{ pages.help.fr }} ({% translate "English" %} : {{ site }}{{ pages.help.en }})
+{% for group in help %}
+### {{ group.label }}
+{% for item in group.articles %}
+- [{{ item.title }}]({{ site }}{{ item.path }}) : {{ item.summary }}{% endfor %}
+{% endfor %}
 ## {% translate "Links" %}
 
 - [{% translate "Presentation (French)" %}]({{ site }}{{ paths.fr }})

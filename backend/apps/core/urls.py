@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from rest_framework.routers import SimpleRouter
 
-from apps.core import views
+from apps.core import help_views, views
 
 urlpatterns = [
     path("", views.platform_identity, name="platform"),
@@ -42,6 +42,20 @@ router.register("console/site/articles", views.ConsoleArticleViewSet, basename="
 router.register("console/site/photos", views.ConsoleSitePhotoViewSet, basename="console-photo")
 api_urlpatterns = [
     *router.urls,
+    # Centre d'aide (AIDE.1, AIDE.2) : panneau « Aide » des applications.
+    path("help/whats-new/", help_views.whats_new, name="help-whats-new"),
+    re_path(r"^help/(?P<app>gestion|portail)/$", help_views.help_list, name="help-list"),
+    re_path(
+        r"^help/(?P<app>gestion|portail)/(?P<key>[a-z0-9-]+)/$",
+        help_views.help_article,
+        name="help-article",
+    ),
+    path("console/help/", help_views.ConsoleHelpListView.as_view(), name="console-help"),
+    path(
+        "console/help/<slug:key>/",
+        help_views.ConsoleHelpArticleView.as_view(),
+        name="console-help-article",
+    ),
     path("console/site/banner/", views.ConsoleSiteBannerView.as_view(), name="console-site-banner"),
     path("console/site/social/", views.ConsoleSocialLinksView.as_view(), name="console-social"),
 ]

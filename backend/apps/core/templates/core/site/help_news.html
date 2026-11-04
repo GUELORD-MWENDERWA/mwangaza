@@ -1,0 +1,17 @@
+{% extends "core/site/base.html" %}{% load i18n %}
+{% block main %}
+<section class="phero"><div class="wrap">
+  <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}"><a href="{{ help_home }}">{% translate "Help centre" %}</a></nav>
+  <h1 class="display">{% translate "What's new" %}</h1>
+  <p class="lead">{% blocktranslate trimmed with name=platform.name %}What changes with each release of {{ name }}.{% endblocktranslate %}</p>
+</div></section>
+<section class="sec"><div class="wrap">
+  {% for entry in entries %}<article class="hnew"><time datetime="{{ entry.day|date:'Y-m-d' }}">{{ entry.day|date:"j F Y" }}</time><div>{% for label, html in entry.sections %}<h3>{{ label }}</h3>{{ html }}{% endfor %}</div></article>
+  {% empty %}<p class="lead">{% translate "Nothing yet. Come back soon." %}</p>{% endfor %}
+  {% if page_obj.paginator.num_pages > 1 %}<nav class="pager" aria-label="{% translate 'Pages' %}">
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}" rel="prev">← {% translate "More recent" %}</a>{% else %}<span class="off">← {% translate "More recent" %}</span>{% endif %}
+    <span>{% blocktranslate with n=page_obj.number total=page_obj.paginator.num_pages %}Page {{ n }} of {{ total }}{% endblocktranslate %}</span>
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}" rel="next">{% translate "Older" %} →</a>{% else %}<span class="off">{% translate "Older" %} →</span>{% endif %}
+  </nav>{% endif %}
+</div></section>
+{% endblock %}

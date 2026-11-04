@@ -2127,6 +2127,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/help/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Articles d'aide de la console ; avec `search`, ceux qui contiennent tous les mots. */
+        get: operations["console_help_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/help/{key}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Un article d'aide de la console. */
+        get: operations["console_help_article"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/platform/": {
         parameters: {
             query?: never;
@@ -4077,6 +4111,60 @@ export interface paths {
         };
         /** @description Sonde de disponibilité : l'API répond et la base de données est joignable. */
         get: operations["health_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/{app}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Articles d'aide de la Gestion ou du Portail ; avec `search`, ceux qui contiennent tous les
+         *     mots (20 au plus, titre d'abord).
+         */
+        get: operations["help_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/{app}/{key}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Un article d'aide (clé commune aux deux langues), son texte et ceux de sa rubrique. */
+        get: operations["help_article"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/whats-new/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description La dernière mise en ligne qui a des nouveautés pour cette application ; aucune : 404. */
+        get: operations["help_whats_new_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -11075,6 +11163,37 @@ export interface components {
          * @enum {string}
          */
         HealthStatusEnum: "ok" | "warning" | "error" | "off";
+        HelpArticle: {
+            key: string;
+            title: string;
+            summary: string;
+            group: string;
+            group_label: string;
+            roles: string[];
+            minutes: number;
+            /** Format: date */
+            updated: string | null;
+            /** @description Texte de l'article, rendu par le serveur. */
+            html: string;
+            url: string;
+            related: components["schemas"]["HelpItem"][];
+        };
+        HelpItem: {
+            key: string;
+            title: string;
+            summary: string;
+            group: string;
+            group_label: string;
+            /** @description Titre échappé, mots cherchés dans <mark>. */
+            title_html: string;
+            /** @description Résumé ou passage du texte, échappé. */
+            excerpt_html: string;
+            /** @description Adresse sur le site ; vide pour la console. */
+            url: string;
+        };
+        HelpList: {
+            articles: components["schemas"]["HelpItem"][];
+        };
         HistoryEntry: {
             /** @description `grades.changed`, `grades.submitted`… */
             action: string;
@@ -16722,6 +16841,15 @@ export interface components {
             readonly published_by: string | null;
             /** @description Heures placées. */
             hours: number;
+        };
+        WhatsNew: {
+            /** Format: date */
+            day: string;
+            summary: string;
+            /** @description Liste des nouveautés de cette application. */
+            html: string;
+            /** @description Page « Quoi de neuf » du centre d'aide. */
+            url: string;
         };
         Year: {
             /** Format: uuid */
@@ -22886,6 +23014,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_help_list: {
+        parameters: {
+            query?: {
+                lang?: "en" | "fr";
+                /** @description Deux lettres au moins. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpList"];
+                };
+            };
+        };
+    };
+    console_help_article: {
+        parameters: {
+            query?: {
+                lang?: "en" | "fr";
+            };
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpArticle"];
                 };
             };
         };
@@ -29192,6 +29366,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Health"];
+                };
+            };
+        };
+    };
+    help_list: {
+        parameters: {
+            query?: {
+                lang?: "en" | "fr";
+                /** @description Deux lettres au moins. */
+                search?: string;
+            };
+            header?: never;
+            path: {
+                app: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpList"];
+                };
+            };
+        };
+    };
+    help_article: {
+        parameters: {
+            query?: {
+                lang?: "en" | "fr";
+            };
+            header?: never;
+            path: {
+                app: string;
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HelpArticle"];
+                };
+            };
+        };
+    };
+    help_whats_new_retrieve: {
+        parameters: {
+            query: {
+                app: "gestion" | "portail";
+                lang?: "en" | "fr";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WhatsNew"];
                 };
             };
         };

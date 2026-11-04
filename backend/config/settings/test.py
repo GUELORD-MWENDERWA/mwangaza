@@ -8,6 +8,7 @@ SECRET_KEY = "tests-uniquement"
 ALLOWED_HOSTS = [".localhost", "localhost", "testserver"]
 SCHOOL_BASE_DOMAINS = ["localhost"]
 SCHOOL_URL = "http://{code}.localhost:5173"
+SITE_URL = "http://localhost:8000"
 # Modèles d'école réservés aux tests du socle multi-écoles.
 INSTALLED_APPS = [*INSTALLED_APPS, "tests.sample"]
 CELERY_TASK_ALWAYS_EAGER = True

@@ -588,3 +588,50 @@ label.f .req{color:var(--due)}
 .sc,.ref,.photo,.vcard,.card,.win,.steps4 li,.steps3 li,.newslist a{border-radius:var(--leaf)}
 .sc .thumb{border-radius:0 28px 0 0}
 .newslist img,.art .body figure img,.arthead img{border-radius:var(--leaf-s)}
+
+/* Centre d'aide (lot 6, AIDE.1 ; maquettes/site/aide*.html) : recherche en tête, entrées par rubrique en
+   listes à filets, article court avec le sommaire de sa rubrique, nouveautés datées. */
+.hhero{padding:64px 0 48px;border-bottom:1px solid var(--line-soft)}
+.hhero .lead{max-width:36em}
+.hhero-s{padding-bottom:32px}.hhero-s .display{font-size:clamp(1.7rem,1.3rem + 1.4vw,2.4rem)}
+.hsearch{display:flex;align-items:center;gap:10px;max-width:640px;margin-top:28px;background:#fff;border:1px solid var(--lake);border-radius:var(--r-input);box-shadow:0 0 0 4px var(--lake-100);padding:4px 4px 4px 16px}
+.hsearch input{flex:1;min-width:0;border:0;font:inherit;font-size:1.1rem;padding:10px 0;outline:none;color:var(--ink);background:transparent}
+.hsearch>.ic{color:var(--ink-3);flex:none;width:20px;height:20px}
+.hpop{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:.92rem;color:var(--ink-3)}
+.hpop a{color:var(--lake-700)}
+.hgroup{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:16px 56px;border-top:1px solid var(--line);padding:36px 0;scroll-margin-top:var(--head)}
+.hgroup:first-child{border-top:0;padding-top:0}
+.hgroup h2{font-family:"Poppins",system-ui,sans-serif;font-weight:600;font-size:1.35rem}
+.hgroup>div>p{color:var(--ink-2);margin-top:6px;font-size:.95rem}
+.hlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+.hlist li{border-bottom:1px solid var(--line-soft)}
+.hlist a{display:block;padding:12px 0;text-decoration:none;color:var(--ink);font-weight:600}
+.hlist a:hover{color:var(--lake)}
+.hlist small{display:block;font-weight:400;color:var(--ink-3);font-size:.88rem;margin-top:2px}
+.hres-sec{padding-top:40px}
+.hres{list-style:none;margin:0;padding:0;border-top:1px solid var(--line);max-width:760px}
+.hres li{padding:18px 0;border-bottom:1px solid var(--line)}
+.hres a{font-weight:700;font-size:1.1rem;color:var(--lake-700);text-underline-offset:3px}
+.hres .path{display:block;font-size:.85rem;color:var(--ink-3);margin-top:2px}
+.hres p{color:var(--ink-2);margin-top:6px}
+.hres mark{background:var(--lamp-soft);color:inherit;border-radius:3px;padding:0 2px}
+.hart-sec{padding-top:40px;padding-bottom:var(--sec)}
+.hart{display:grid;grid-template-columns:240px minmax(0,720px);gap:56px;align-items:start}
+.hart .toc small{display:block;padding:14px 14px 4px;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.hfor{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.hfor span{font-size:.85rem;font-weight:600;color:var(--lake-700);background:var(--lake-50);border-radius:var(--r-pill);padding:3px 10px}
+.art .body ol{padding-left:22px}
+.hshot{margin:24px 0 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.art .body .hshot{margin:24px 0 0}.art .body .hshot img{border-radius:0;width:100%;height:auto}
+.hshot figcaption,.art .body .hshot figcaption{font-size:.88rem;color:var(--ink-3);padding:8px 14px;margin:0;border-top:1px solid var(--line-soft);background:#fff}
+.tip{border-left:4px solid var(--lake);background:var(--lake-50);padding:14px 18px;border-radius:0 12px 12px 0;margin-top:24px;color:var(--ink-2)}
+.hrel{display:none;margin-top:40px}.hrel h2{font-size:1.2rem;margin-bottom:8px}.hrel .hlist{grid-template-columns:minmax(0,1fr)}
+.hmore{margin-top:40px;padding-top:24px;border-top:1px solid var(--line)}
+.hnew{display:grid;grid-template-columns:200px minmax(0,720px);gap:16px 56px;padding:36px 0;border-top:1px solid var(--line)}
+.hnew:first-child{border-top:0;padding-top:0}
+.hnew time{font-family:"Poppins",system-ui,sans-serif;font-weight:600;color:var(--lake-700)}
+.hnew h3{font-size:1.05rem;margin-top:20px}
+.hnew h3:first-child{margin-top:0}
+.hnew ul{padding-left:20px;display:grid;gap:6px;margin-top:8px;color:var(--ink-2)}
+@media (max-width:1023px){.hgroup,.hart,.hnew{grid-template-columns:minmax(0,1fr)}.hart .toc{display:none}.hrel{display:block}}
+@media (max-width:599px){.hlist{grid-template-columns:minmax(0,1fr)}.hhero{padding:40px 0 32px}}
