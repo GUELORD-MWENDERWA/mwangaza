@@ -664,6 +664,7 @@ class ConsoleDashboardView(APIView):
         rights, demo = request.user.platform_permissions, console_mode.is_demo(request)
         data["todo"] = console.todo(rights, environments, demo=demo, day=data["day"])
         data["recent"] = console.recent_activity(rights, demo=demo)
+        data["security"] = console.security_alerts(rights, demo=demo)
         return Response(ConsoleDashboardSerializer(data).data)
 
 

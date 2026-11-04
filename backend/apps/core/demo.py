@@ -14,6 +14,7 @@ from apps.accounts.demo import create_demo_accounts
 from apps.accounts.models import User
 from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.ai.demo import create_demo_ai
+from apps.audit.demo import create_demo_security
 from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools
 from apps.finance.demo import (
@@ -219,6 +220,7 @@ def ensure_demo_console() -> None:
     mode démonstration montre alors une console vivante. Ne touche à rien de réel."""
     if not DemoRequest.objects.filter(is_demo=True).exists():
         create_demo_requests()
+    create_demo_security()
 
 
 def create_demo_platform() -> PlatformSettings:

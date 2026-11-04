@@ -8817,6 +8817,8 @@ export interface components {
             todo: components["schemas"]["ConsoleTodo"];
             /** @description Dernières entrées du journal de ce mode ; sans le droit journal : null. */
             recent: components["schemas"]["PlatformLog"][] | null;
+            /** @description Alertes de sécurité (S.8) ; sans le droit journal : null. */
+            security: components["schemas"]["ConsoleSecurity"] | null;
         };
         /**
          * @description Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
@@ -9395,6 +9397,14 @@ export interface components {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
             name: string;
+        };
+        ConsoleSecurity: {
+            /** @description Alertes de sécurité de ces derniers jours. */
+            count: number;
+            /** @description Nombre de jours regardés. */
+            days: number;
+            /** @description Les dernières, la plus récente d'abord. */
+            alerts: components["schemas"]["PlatformLog"][];
         };
         /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
         ConsoleSiteBanner: {
@@ -13745,9 +13755,13 @@ export interface components {
          *     * `site.photo_added` - Photo added to the photo library
          *     * `site.photo_updated` - Photo details changed
          *     * `site.photo_deleted` - Photo deleted from the photo library
+         *     * `security.login_burst` - Burst of failed logins
+         *     * `security.unusual_export` - Unusual export
+         *     * `security.cancellations` - Unusual number of payment cancellations
+         *     * `security.revoked_device` - Disconnected device keeps trying
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "billing.module_request_handled" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "billing.module_request_handled" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted" | "security.login_burst" | "security.unusual_export" | "security.cancellations" | "security.revoked_device";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -21878,10 +21892,11 @@ export interface operations {
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
+                 *     * `security` - security
                  *     * `site` - site
                  *     * `team` - team
                  */
-                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "site" | "team";
+                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "security" | "site" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */

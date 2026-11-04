@@ -12,6 +12,7 @@ from apps.accounts.models import User
 from apps.accounts.permissions import HasPlatformPermission
 from apps.accounts.roles import AUDIT_VIEW
 from apps.accounts.views import CONSOLE_ERRORS, ERRORS, SchoolViewSet
+from apps.audit import security
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog, PlatformAuditLog
@@ -120,6 +121,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
             widths=[18, 26, 34, 34, 40, 40, 16, 26, 18],
         )
         since, until = params.validated_data["since"], params.validated_data["until"]
+        security.exported(request.user, logs.count())
         audit.record(
             Action.AUDIT_EXPORTED,
             actor=request.user,

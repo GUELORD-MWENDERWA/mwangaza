@@ -7,6 +7,7 @@ import {
   formatDate,
   formatDateTime,
   formatDay,
+  formatPhone,
   formatTime,
   type TFunction,
   useTranslation,
@@ -189,6 +190,7 @@ export function DashboardPage() {
               ))}
             </ul>
           </Card>
+          {data.security && <SecurityCard security={data.security} />}
           {data.recent && <RecentCard entries={data.recent} />}
         </div>
       </div>
@@ -304,6 +306,102 @@ function TodoCard({ data }: { data: Dashboard }) {
           ))}
         </ul>
       )}
+    </Card>
+  );
+}
+
+const BURST_SCOPES = {
+  ip: "console.dashboard.security.ip",
+  phone: "console.dashboard.security.phone",
+  platform: "console.dashboard.security.platform",
+} as const;
+
+// Alertes de sécurité des derniers jours (S.8, droit journal ; sans lui, la carte n'est pas là).
+// Le détail se lit dans ce que le serveur a noté (`after`) : sujet, puis chiffres.
+function SecurityCard({ security }: { security: NonNullable<Dashboard["security"]> }) {
+  const { t, i18n } = useTranslation();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const today = formatDate(new Date(), i18n.language, timeZone);
+  const number = new Intl.NumberFormat(i18n.language);
+  const days = security.days;
+  const detail = (entry: (typeof security.alerts)[number]) => {
+    const after = (entry.after ?? {}) as Record<string, string | number>;
+    const count = (key: string) => number.format(Number(after[key] ?? 0));
+    switch (entry.action) {
+      case "security.login_burst":
+        return t(BURST_SCOPES[after.scope as keyof typeof BURST_SCOPES] ?? BURST_SCOPES.ip, {
+          failures: count("failures"),
+        });
+      case "security.unusual_export":
+        return t("console.dashboard.security.export", {
+          exports: count("exports"),
+          rows: count("rows"),
+        });
+      case "security.cancellations":
+        return t("console.dashboard.security.cancellations", {
+          today: count("today"),
+          previous: count("previous_30_days"),
+        });
+      default:
+        return t("console.dashboard.security.device", {
+          attempts: count("attempts"),
+          user: after.user,
+        });
+    }
+  };
+  const label = (entry: (typeof security.alerts)[number]) =>
+    entry.action === "security.login_burst" && entry.entity_label.startsWith("+")
+      ? formatPhone(entry.entity_label)
+      : entry.entity_label;
+  return (
+    <Card>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+        <CardTitle>{t("console.dashboard.security.title")}</CardTitle>
+        {security.count > 0 && (
+          <StatusPill tone="due">
+            {t("console.dashboard.security.count", { count: security.count, days })}
+          </StatusPill>
+        )}
+      </CardHeader>
+      {security.alerts.length === 0 ? (
+        <p className="flex items-center gap-2 px-4 py-5 text-ink-3">
+          <i className="inline-block size-2.5 rounded-full bg-ok" aria-hidden="true" />
+          {t("console.dashboard.security.none", { days })}
+        </p>
+      ) : (
+        <ul>
+          {security.alerts.map((entry) => {
+            const day = formatDate(entry.created_at, i18n.language, timeZone);
+            return (
+              <li
+                key={entry.id}
+                className="flex items-start gap-3 border-t border-line px-4 py-2.5 text-md first:border-t-0"
+              >
+                <span className="grid size-8 flex-none place-items-center rounded-lg bg-due-50 text-due">
+                  <Icon name="shield" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <b className="block">{t(`console.actions.${entry.action}`)}</b>
+                  <span className="block text-sm text-ink-3">
+                    {[label(entry), detail(entry)].filter(Boolean).join(" · ")}
+                  </span>
+                </span>
+                <time
+                  dateTime={entry.created_at}
+                  className="flex-none text-sm whitespace-nowrap text-ink-3 tabular-nums"
+                >
+                  {day === today ? formatTime(entry.created_at, i18n.language, timeZone) : day}
+                </time>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <p className="border-t border-line px-4 py-2.5 text-sm">
+        <Link to="/journal?domain=security" className="font-bold text-brand underline">
+          {t("console.dashboard.security.all")}
+        </Link>
+      </p>
     </Card>
   );
 }

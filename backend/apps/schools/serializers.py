@@ -755,6 +755,12 @@ class ConsoleTodoSerializer(serializers.Serializer):
     )
 
 
+class ConsoleSecuritySerializer(serializers.Serializer):
+    count = serializers.IntegerField(help_text="Alertes de sécurité de ces derniers jours.")
+    days = serializers.IntegerField(help_text="Nombre de jours regardés.")
+    alerts = PlatformLogSerializer(many=True, help_text="Les dernières, la plus récente d'abord.")
+
+
 class ConsoleDashboardSerializer(serializers.Serializer):
     day = serializers.DateField()
     schools = ConsoleSchoolCountsSerializer()
@@ -769,6 +775,9 @@ class ConsoleDashboardSerializer(serializers.Serializer):
         many=True,
         allow_null=True,
         help_text="Dernières entrées du journal de ce mode ; sans le droit journal : null.",
+    )
+    security = ConsoleSecuritySerializer(
+        allow_null=True, help_text="Alertes de sécurité (S.8) ; sans le droit journal : null."
     )
 
 

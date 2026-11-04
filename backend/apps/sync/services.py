@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
 from apps.accounts.roles import FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS, STUDENTS_VIEW
+from apps.audit import security
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
 from apps.core.errors import ApiError, BusinessError
@@ -95,6 +96,7 @@ def register_device(school: School, user: User, session, *, label: str, public_k
 def resume_device(device: Device, school: School, session) -> Device:
     """Connexion depuis un appareil déjà enregistré : il reprend la nouvelle session."""
     if device.revoked_at is not None:
+        security.revoked_device_refused(device)
         raise BusinessError(DEVICE_REVOKED)
     _attach(device, school, session)
     device.save(update_fields=["session_key", "last_seen_at", "updated_at"])
@@ -189,6 +191,7 @@ def sync_device(session, school: School, user: User) -> Device:
     if device is None:
         raise BusinessError(DEVICE_REQUIRED)
     if device.revoked_at is not None:
+        security.revoked_device_refused(device)
         raise BusinessError(DEVICE_REVOKED)
     now = timezone.now()
     if device.last_seen_at is None or now - device.last_seen_at >= SEEN_EVERY:

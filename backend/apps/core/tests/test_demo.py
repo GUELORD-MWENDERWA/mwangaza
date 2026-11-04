@@ -28,7 +28,7 @@ from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
 from apps.ai.models import AiAllowance, AiBalance, AiCall, AiUsageMonth
-from apps.audit.models import AuditLog
+from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.billing.models import Invoice, InvoicePayment, LegalDocument, Plan
 from apps.core import site_content
 from apps.core.crypto import decrypt
@@ -348,6 +348,14 @@ def rerun_puts_everything_back(demo, settings) -> None:
     # Demandes de démonstration fictives pour la console (WEB.1d).
     assert DemoRequest.objects.filter(status=DemoRequest.Status.NEW).count() == 3
     assert DemoRequest.objects.filter(source="chat").count() == 1
+    # Alertes de sécurité fictives (S.8) : une de chaque sorte, pas de double, rien de réel.
+    alerts = PlatformAuditLog.objects.filter(action__startswith="security.")
+    assert sorted(alerts.filter(is_demo=True).values_list("action", flat=True)) == [
+        "security.cancellations",
+        "security.login_burst",
+        "security.revoked_device",
+    ]
+    assert not alerts.filter(is_demo=False).exists()
     # Actualités du site (SITE.2) : six parues, une programmée, un brouillon anglais.
     assert len(site_content.news("fr")) == 6 and site_content.news("en") == []
     assert Article.objects.count() == 8

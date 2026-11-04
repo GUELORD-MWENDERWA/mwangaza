@@ -88,6 +88,23 @@ const DASHBOARD = {
       { currency: "CDF", amount_minor: 300000 },
     ],
   },
+  security: {
+    count: 1,
+    days: 7,
+    alerts: [
+      {
+        id: "l2",
+        created_at: "2026-10-01T09:05:00Z",
+        action: "security.cancellations",
+        entity_type: "schools.school",
+        entity_id: "s1",
+        entity_label: "Les Volcans",
+        actor: null,
+        before: null,
+        after: { today: 7, previous_30_days: 12 },
+      },
+    ],
+  },
   recent: [
     {
       id: "l1",
@@ -125,6 +142,11 @@ describe("console : tableau de bord", () => {
     expect(within(todo).getByText("1 250,00 $ · + 300 000 FC")).toBeTruthy();
     expect(within(todo).getByText("Redis (file des tâches)")).toBeTruthy();
     expect(within(todo).queryByText("Base de données")).toBeNull();
+    // Sécurité (S.8) : le détail se lit dans ce que le serveur a noté.
+    const security = screen.getByText("Sécurité").closest("section")!;
+    expect(
+      within(security).getByText("Les Volcans · 7 aujourd'hui (12 sur les 30 jours d'avant)"),
+    ).toBeTruthy();
     const recent = screen.getByText("Dernières activités").closest("section")!;
     expect(within(recent).getByText("Institut Bahati")).toBeTruthy();
     const health = document.getElementById("health")!;

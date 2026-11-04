@@ -147,10 +147,11 @@ def record_platform(
     before: dict | None = None,
     after: dict | None = None,
     label: str | None = None,
+    demo: bool | None = None,
 ) -> PlatformAuditLog:
     """Une entrée dans le journal de la plateforme (console du super-admin, sans école) ; mêmes
     règles que `record` : dans la transaction de l'action, seulement ce qui a changé, aucun
-    secret."""
+    secret. `demo` : fictive ou non, quand l'objet ne le dit pas (un numéro sans compte)."""
     if action not in PlatformAction.values:
         raise ValueError(f"Action inconnue du journal de la plateforme : {action!r}")
     _refuse_secrets(before)
@@ -159,7 +160,7 @@ def record_platform(
         label = str(entity) if entity is not None else ""
     info = current_request_info()
     return PlatformAuditLog.objects.create(
-        is_demo=_concerns_demo(entity),
+        is_demo=_concerns_demo(entity) if demo is None else demo,
         action=action,
         actor=actor,
         created_by=actor,

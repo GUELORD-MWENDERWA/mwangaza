@@ -24,6 +24,7 @@ from apps.accounts.roles import (
     STUDENTS_VIEW,
 )
 from apps.accounts.views import SchoolViewSet
+from apps.audit import security
 from apps.audit.models import AuditLog
 from apps.core.documents import (
     PRINT_RESPONSE,
@@ -558,6 +559,8 @@ class EnrollmentViewSet(StudentsViewSet):
             order=data["order"],
         )
         name = f"liste-{slugify(group.name)}"
+        if data["output"] != "html":
+            security.exported(request.user, len(context["rows"]))
         if data["output"] == "xlsx":
             return file_response(documents.class_list_workbook(context), XLSX, f"{name}.xlsx")
         return render(

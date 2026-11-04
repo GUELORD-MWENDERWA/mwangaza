@@ -5653,6 +5653,7 @@ paths:
           - device
           - platform
           - school
+          - security
           - site
           - team
           type: string
@@ -5666,6 +5667,7 @@ paths:
           * `device` - device
           * `platform` - platform
           * `school` - school
+          * `security` - security
           * `site` - site
           * `team` - team
       - name: page
@@ -25518,6 +25520,11 @@ components:
           nullable: true
           description: 'Dernières entrées du journal de ce mode ; sans le droit journal
             : null.'
+        security:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleSecurity'
+          nullable: true
+          description: 'Alertes de sécurité (S.8) ; sans le droit journal : null.'
       required:
       - day
       - schools
@@ -25529,6 +25536,7 @@ components:
       - platform
       - todo
       - recent
+      - security
     ConsoleDemoRequest:
       type: object
       description: |-
@@ -26838,6 +26846,24 @@ components:
       required:
       - code
       - name
+    ConsoleSecurity:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Alertes de sécurité de ces derniers jours.
+        days:
+          type: integer
+          description: Nombre de jours regardés.
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformLog'
+          description: Les dernières, la plus récente d'abord.
+      required:
+      - count
+      - days
+      - alerts
     ConsoleSiteBanner:
       type: object
       description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
@@ -35899,6 +35925,10 @@ components:
       - site.photo_added
       - site.photo_updated
       - site.photo_deleted
+      - security.login_burst
+      - security.unusual_export
+      - security.cancellations
+      - security.revoked_device
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -35968,6 +35998,10 @@ components:
         * `site.photo_added` - Photo added to the photo library
         * `site.photo_updated` - Photo details changed
         * `site.photo_deleted` - Photo deleted from the photo library
+        * `security.login_burst` - Burst of failed logins
+        * `security.unusual_export` - Unusual export
+        * `security.cancellations` - Unusual number of payment cancellations
+        * `security.revoked_device` - Disconnected device keeps trying
     PlatformAudienceEnum:
       enum:
       - all_schools

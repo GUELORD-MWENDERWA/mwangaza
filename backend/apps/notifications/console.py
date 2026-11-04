@@ -35,6 +35,14 @@ PAGES = {
 # IA (IA.1.1) : la dépense du mois atteint 80 % puis 100 % du plafond de la plateforme.
 PAGES[PlatformAction.AI_CAP_80] = "/ia"
 PAGES[PlatformAction.AI_CAP_100] = "/ia"
+# Détection (S.8) : le journal, ouvert sur les alertes de sécurité.
+SECURITY = (
+    PlatformAction.SECURITY_LOGIN_BURST,
+    PlatformAction.SECURITY_UNUSUAL_EXPORT,
+    PlatformAction.SECURITY_CANCELLATIONS,
+    PlatformAction.SECURITY_REVOKED_DEVICE,
+)
+PAGES.update(dict.fromkeys(SECURITY, "/journal?domain=security"))
 TITLES = {action.value: action.label for action in PAGES}
 # Demande de démonstration (WEB.1d) : pas une entrée du journal, sa propre page.
 DEMO_REQUEST = "demo_request"

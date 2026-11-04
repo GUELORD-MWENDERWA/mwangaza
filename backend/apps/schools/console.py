@@ -16,6 +16,7 @@ from django.db.models.functions import Coalesce
 from django.utils import timezone
 
 from apps.accounts import platform_roles as team
+from apps.audit import security
 from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.core import health
 from apps.core.models import DemoRequest
@@ -183,6 +184,14 @@ def todo(rights, environments, *, demo: bool, day=None) -> dict:
             if row["overdue"]
         ]
     return {"trials_ending": list(trials), "follow_ups": follow_ups, "overdue": overdue}
+
+
+def security_alerts(rights, *, demo: bool):
+    """Carte « Sécurité » (S.8) : alertes des 7 derniers jours de ce mode (droit journal), sinon
+    `None`."""
+    if team.AUDIT_VIEW not in rights:
+        return None
+    return security.recent(demo=demo)
 
 
 def recent_activity(rights, *, demo: bool):

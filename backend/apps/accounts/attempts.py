@@ -18,6 +18,7 @@ from rest_framework.exceptions import APIException
 
 from apps.accounts.models import LoginFailure
 from apps.accounts.phone import InvalidPhoneError, normalize_phone
+from apps.audit import security
 
 MAX_FAILURES = 5
 MAX_FAILURES_PER_IP = 30
@@ -77,6 +78,7 @@ def ensure_allowed(phone: str, ip: str | None) -> None:
 def record_failure(phone: str, ip: str | None) -> None:
     LoginFailure.objects.create(phone=phone, ip=ip)
     LoginFailure.objects.filter(created_at__lt=timezone.now() - KEEP_DURATION).delete()
+    security.login_failed(phone, ip)
 
 
 def clear_failures(phone: str) -> None:

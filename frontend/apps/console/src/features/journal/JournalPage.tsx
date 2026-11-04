@@ -7,7 +7,7 @@ import { errorMessage, formatDateTime, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Card, Input, PageHeader, Select, Skeleton, Table } from "@mwangaza/ui";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useDeferredValue, useState, type ReactNode } from "react";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useSearchParams } from "react-router";
 
 import { keys } from "../../lib/queries";
 import { RIGHTS, useCan } from "../../lib/rights";
@@ -15,8 +15,7 @@ import { Pager } from "../shell/Pager";
 import { AlertsCard } from "./AlertsCard";
 
 type Entry = Schemas["PlatformLog"];
-type Domain = "platform" | "school" | "account" | "device" | "announcement" | "access" | "team";
-const DOMAINS: Domain[] = [
+const DOMAINS = [
   "platform",
   "school",
   "account",
@@ -24,7 +23,12 @@ const DOMAINS: Domain[] = [
   "announcement",
   "access",
   "team",
-];
+  "security",
+] as const;
+type Domain = (typeof DOMAINS)[number];
+// `?domain=security` : ouvert depuis la carte « Sécurité » ou une alerte sur l'écran (S.8).
+const asDomain = (value: string | null): Domain | "" =>
+  DOMAINS.find((domain) => domain === value) ?? "";
 
 /** Page de l'objet d'une entrée dans la console ; un appareil n'en a pas. */
 function objectPage(entry: Entry): string | null {
@@ -64,7 +68,8 @@ export function JournalLayout({ children }: { children: ReactNode }) {
 
 export function JournalPage() {
   const { t, i18n } = useTranslation();
-  const [domain, setDomain] = useState<Domain | "">("");
+  const [params] = useSearchParams();
+  const [domain, setDomain] = useState<Domain | "">(() => asDomain(params.get("domain")));
   const [since, setSince] = useState("");
   const [until, setUntil] = useState("");
   const [search, setSearch] = useState("");

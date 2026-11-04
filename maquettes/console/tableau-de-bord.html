@@ -33,6 +33,11 @@
 .recent time{color:var(--ink-3);font-size:.85rem}
 .recent span{display:block;color:var(--ink-3);font-size:.85rem}
 .cardfoot{padding:10px 16px;border-top:1px solid var(--line);font-size:.85rem}
+.sec li{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.sec li:first-child{border-top:0}
+.sec .ti{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;flex:none;background:var(--due-50);color:var(--due)}
+.sec .tx{flex:1;min-width:0}.sec .tx span{display:block;color:var(--ink-3);font-size:.85rem}
+.sec time{flex:none;color:var(--ink-3);font-size:.85rem;white-space:nowrap}
 .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
 .dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
 ul.l{list-style:none;margin:0;padding:0}
@@ -101,6 +106,13 @@ ul.l{list-style:none;margin:0;padding:0}
           <li><div class="row"><span><i class="dot ok"></i>Tâches en arrière-plan</span><span class="muted">2 travailleurs</span></div></li>
           <li><div class="row"><span><i class="dot warn"></i>Disque des fichiers</span><span class="muted">18 % libre</span></div></li>
         </ul></div>
+      <div class="card" id="securite"><div class="hd"><h2>Sécurité</h2><span class="pill due">3 alertes · 7 jours</span></div>
+        <ul class="l sec">
+          <li><span class="ti"><svg class="ic" data-ic="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></span><span class="tx"><b>Annulations de paiements hors norme</b><span>Complexe scolaire Les Volcans · 7 aujourd'hui (12 sur les 30 jours d'avant)</span></span><time>10:05</time></li>
+          <li><span class="ti"><svg class="ic" data-ic="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></span><span class="tx"><b>Rafale de connexions ratées</b><span>+243 97 123 4567 · 20 essais en 24 h, de plusieurs adresses</span></span><time>03/11/2026</time></li>
+          <li><span class="ti"><svg class="ic" data-ic="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg></span><span class="tx"><b>Appareil déconnecté qui insiste</b><span>K3 · Caisse 2 · Les Volcans · 5 contacts refusés (Bahati Esther)</span></span><time>02/11/2026</time></li>
+        </ul>
+        <div class="cardfoot"><a href="journal.html"><b>Toutes les alertes</b></a></div></div>
       <div class="card"><div class="hd"><h2>Dernières activités</h2></div>
         <ul class="l recent">
           <li><time>10:42</time><div><b>Institut Bahati</b> passée en essai<span>Esther Kavira</span></div></li>
@@ -118,6 +130,7 @@ ul.l{list-style:none;margin:0;padding:0}
     </ul></div>
   <div class="note"><b>Coquille (lot 5, ②bis) :</b> la même que la Gestion : menu latéral bleu nuit de 256 px (marque, étiquette « Console », interrupteur, puis quatre titres : Pilotage, Clients, Contenu du site, Plateforme), barre du haut blanche (recherche d'écoles et de comptes, Ctrl K ; état des services ; journal et alertes ; compte avec l'administration de dépannage et la déconnexion). Sous 900 px : menu tiroir (<code>menu.html</code>). Le menu ne montre que les pages des rôles du membre ; un titre sans page disparaît.</div>
   <div class="note"><b>Interrupteur Réel / Démonstration :</b> « Réel » par défaut, jamais de fictif sans le demander ; le choix est gardé sur cet appareil. En démonstration : bouton orange, bandeau orange en haut de chaque page (« Mode démonstration »), et seules les pages qui ont un sens restent (Affaires, Facturation, Contenu du site, Identité et Équipe disparaissent). Changer de mode recharge les données et revient à la liste de la page ouverte, ou au tableau de bord si elle n'existe pas dans l'autre mode.</div>
+  <div class="note"><b>Sécurité (S.8) :</b> droit journal seulement ; alertes des 7 derniers jours du mode (réel ou démonstration), les 5 dernières, la plus récente d'abord ; le nombre en pastille rouge. Rien : point vert « Aucune alerte depuis 7 jours. » « Toutes les alertes » ouvre le journal sur le type « Sécurité ». Quatre signes, vérifiés quand l'événement arrive : une adresse bloquée (30 essais ratés en 15 min), un numéro visé (20 en 24 h), toute la plateforme (200 en 15 min) ; un compte qui exporte plus de 10 fichiers ou 10 000 lignes en une heure ; une école qui valide 5 annulations ou plus dans la journée et plus de 3 fois sa moyenne des 30 jours d'avant ; un appareil déconnecté refusé 5 fois en 24 h. Une alerte par sujet et par jour, au journal (sans auteur) et sur l'écran des membres abonnés qui ont le droit journal.</div>
   <div class="note"><b>À faire aujourd'hui :</b> prospects à relancer (droit commercial), essais qui finissent dans les 30 jours (5 au plus, le plus proche d'abord), factures échues par devise, jamais additionnées (droit facturation, réel seulement), services en orange ou en rouge. Chaque ligne mène à sa page. Rien : « Rien à faire aujourd'hui. » <b>Dernières activités :</b> les 5 dernières entrées du journal du mode (droit journal).</div>
 </main></div></div>
 </body></html>

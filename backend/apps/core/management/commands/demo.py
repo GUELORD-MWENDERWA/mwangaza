@@ -17,6 +17,7 @@ from apps.accounts.demo import (
     demo_password,
 )
 from apps.accounts.models import User
+from apps.audit.demo import create_demo_security
 from apps.billing.demo import create_demo_billing, create_demo_legal
 from apps.core.demo import (
     create_demo_platform,
@@ -104,6 +105,7 @@ class Command(BaseCommand):
             if admin is not None:
                 create_demo_platform_announcements(spaces)
                 create_demo_requests()
+                create_demo_security()
                 create_demo_billing(spaces, admin)
         for space in spaces:
             school = space.school
