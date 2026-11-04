@@ -465,6 +465,7 @@ label.f .req{color:var(--due)}
 .newslist a:not(:has(img)){grid-template-columns:minmax(0,1fr)}
 .newslist img{width:140px;height:92px;object-fit:cover;border-radius:10px}
 .newslist .date,.byline{color:var(--ink-3);font-size:.9rem}
+.byline>*+*:before{content:"·";margin:0 8px}
 .newslist h2,.newslist h3{font-size:1.2rem;margin:4px 0}
 .newslist p{color:var(--ink-2)}
 .pager{display:flex;justify-content:space-between;gap:16px;margin-top:32px;font-weight:600}.pager .off{color:var(--ink-3)}
@@ -473,7 +474,6 @@ label.f .req{color:var(--due)}
 @media (min-width:900px){.arthead{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:48px}}
 .art .body{font-size:1.06rem;line-height:1.75}.art .body h2{font-size:1.5rem;margin:44px 0 10px}.art .body h3{font-size:1.2rem;margin:28px 0 6px}.art .body p,.art .body li{color:var(--ink-2);margin-top:12px}.art .body ul{padding-left:22px}
 .art .body figure{margin:36px 0}.art .body figure img{width:100%;height:auto;display:block}.art .body figcaption{margin-top:8px;font-size:.88rem;color:var(--ink-3)}
-@media (min-width:900px){.art .body figure{margin-left:-80px;margin-right:-80px}}
 .crumbs{display:flex;gap:8px;font-size:.9rem;color:var(--ink-3);margin-bottom:12px}
 .share{margin-top:40px;padding:16px 0;border-top:1px solid var(--line);display:flex;gap:16px;align-items:center}.share button{font:inherit;font-weight:600;color:var(--lake);background:none;border:0;cursor:pointer}
 @media (max-width:599px){.newslist a{grid-template-columns:minmax(0,1fr)}.newslist img{width:100%;height:auto;aspect-ratio:16/9}}
