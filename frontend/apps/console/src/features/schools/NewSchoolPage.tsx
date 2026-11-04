@@ -111,7 +111,8 @@ export function NewSchoolPage() {
       paid_until: "",
       enabled_currencies: [...CURRENCIES],
       default_currency: CURRENCIES[0],
-      modules: [...MODULES],
+      // L'IA se donne école par école, avec ses usages et ses crédits (carte « IA » de la fiche).
+      modules: MODULES.filter((code) => code !== "ai"),
       head: {
         phone: prospect ? (params.get("phone") ?? "") : "",
         last_name: "",

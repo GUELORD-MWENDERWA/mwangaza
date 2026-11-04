@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 15:56+0200\n"
+"POT-Creation-Date: 2026-11-04 17:31+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -2352,81 +2352,88 @@ msgstr ""
 "Saisissez un numéro de téléphone valide, par exemple 0971234567 ou "
 "+243971234567."
 
-#: apps/accounts/platform_roles.py:29
+#: apps/accounts/platform_roles.py:30
 msgid "View the schools and the dashboard"
 msgstr "Voir les écoles et le tableau de bord"
 
-#: apps/accounts/platform_roles.py:30
+#: apps/accounts/platform_roles.py:31
 msgid "Create, change, suspend and reopen a live school"
 msgstr "Créer, modifier, suspendre et rouvrir un espace réel"
 
-#: apps/accounts/platform_roles.py:31
+#: apps/accounts/platform_roles.py:32
 msgid "Stop a live school"
 msgstr "Arrêter un espace réel"
 
-#: apps/accounts/platform_roles.py:32
+#: apps/accounts/platform_roles.py:33
 msgid "Help accounts (names, temporary password, two-factor) and open support"
 msgstr ""
 "Dépanner les comptes (noms, mot de passe provisoire, double "
 "authentification) et ouvrir une session support"
 
-#: apps/accounts/platform_roles.py:33
+#: apps/accounts/platform_roles.py:34
 msgid "Manage sandbox and demonstration spaces"
 msgstr "Gérer les espaces d'essai et de démonstration"
 
-#: apps/accounts/platform_roles.py:34
+#: apps/accounts/platform_roles.py:35
 msgid "Handle the demo requests of the website"
 msgstr "Traiter les demandes de démonstration du site"
 
-#: apps/accounts/platform_roles.py:35
+#: apps/accounts/platform_roles.py:36
 msgid "Edit the contents of the website"
 msgstr "Modifier les contenus du site"
 
-#: apps/accounts/platform_roles.py:36
+#: apps/accounts/platform_roles.py:37
 msgid "Publish announcements to schools"
 msgstr "Publier les annonces aux écoles"
 
-#: apps/accounts/platform_roles.py:37
+#: apps/accounts/platform_roles.py:38
 msgid "View the server health and the devices, disconnect a device"
 msgstr "Voir la santé du serveur et les appareils, déconnecter un appareil"
 
-#: apps/accounts/platform_roles.py:38
+#: apps/accounts/platform_roles.py:39
 msgid "View the platform log and receive its alerts"
 msgstr "Voir le journal de la plateforme et recevoir ses alertes"
 
-#: apps/accounts/platform_roles.py:39
+#: apps/accounts/platform_roles.py:40
 msgid "Manage subscriptions and invoices"
 msgstr "Gérer les abonnements et les factures"
 
-#: apps/accounts/platform_roles.py:40
+#: apps/accounts/platform_roles.py:41
 msgid "Change the identity of the platform"
 msgstr "Modifier l'identité de la plateforme"
 
-#: apps/accounts/platform_roles.py:41
+#: apps/accounts/platform_roles.py:42
 msgid "Manage the platform team"
 msgstr "Gérer l'équipe de la plateforme"
 
-#: apps/accounts/platform_roles.py:49
+#: apps/accounts/platform_roles.py:43
+msgid ""
+"Manage the AI assistance: switch, cap, prices, uses and credits of schools"
+msgstr ""
+"Gérer l'assistance par l'IA : interrupteur, plafond, prix, usages et crédits "
+"des écoles"
+
+#: apps/accounts/platform_roles.py:51
 msgid "Lead administrator"
 msgstr "Administrateur principal"
 
-#: apps/accounts/platform_roles.py:50
+#: apps/accounts/platform_roles.py:52
 msgid "Technical"
 msgstr "Technique"
 
-#: apps/accounts/platform_roles.py:52
+#: apps/accounts/platform_roles.py:54
 msgid "Support"
 msgstr "Support"
 
-#: apps/accounts/platform_roles.py:56
+#: apps/accounts/platform_roles.py:58
 msgid "Sales"
 msgstr "Commercial"
 
-#: apps/accounts/platform_roles.py:57
+#: apps/accounts/platform_roles.py:59
 msgid "Communication"
 msgstr "Communication"
 
-#: apps/accounts/platform_roles.py:59 apps/finance/apps.py:10
+#: apps/accounts/platform_roles.py:61 apps/finance/apps.py:10
 msgid "Finance"
 msgstr "Finances"
 
@@ -2910,6 +2917,14 @@ msgstr "Ce champ est obligatoire."
 #: apps/accounts/views.py:122
 msgid "Only the staff of the school can sign its documents."
 msgstr "Seul le personnel de l'école peut signer ses documents."
+
+#: apps/ai/console.py:39
+msgid "This model or these limits are not allowed."
+msgstr "Ce modèle ou ces limites ne sont pas permis."
+
+#: apps/ai/console.py:42
+msgid "This school does not have the module of this AI use."
+msgstr "L'école n'a pas le module de cet usage de l'IA."
 
 #: apps/ai/models.py:17
 msgid "AI switched on"
@@ -4790,7 +4805,7 @@ msgstr "Signée"
 
 #: apps/core/models.py:301
 msgid "Lost"
-msgstr ""
+msgstr "Perdue"
 
 #: apps/core/models.py:304
 msgid "received at"
@@ -8803,7 +8818,7 @@ msgstr "Nouvelle demande de démonstration"
 
 #: apps/notifications/console.py:46
 msgid "Prospect to follow up today"
-msgstr ""
+msgstr "Prospect à relancer aujourd'hui"
 
 #: apps/notifications/events.py:85
 #, python-format
@@ -10320,7 +10335,7 @@ msgstr "niveau"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:539 apps/schools/serializers.py:529
+#: apps/schools/models.py:539 apps/schools/serializers.py:530
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -10488,17 +10503,17 @@ msgstr "Donnez chaque niveau de l'école une seule fois."
 msgid "The co-homeroom teacher is someone other than the homeroom teacher."
 msgstr "Le cotitulaire est une autre personne que le titulaire."
 
-#: apps/schools/serializers.py:77
+#: apps/schools/serializers.py:78
 #, python-format
 msgid "At most %(count)d header lines."
 msgstr "Au plus %(count)d lignes d'en-tête."
 
-#: apps/schools/serializers.py:105
+#: apps/schools/serializers.py:106
 #, python-format
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:448
+#: apps/schools/serializers.py:449
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 
@@ -10600,15 +10615,15 @@ msgstr ""
 "Fiche du %(date)s. Une remise à zéro de l'espace donne un nouveau mot de "
 "passe : demandez la nouvelle fiche."
 
-#: apps/schools/views.py:99
+#: apps/schools/views.py:101
 msgid "This school has no logo."
 msgstr "Cette école n'a pas de logo."
 
-#: apps/schools/views.py:206
+#: apps/schools/views.py:208
 msgid "No image."
 msgstr "Aucune image."
 
-#: apps/schools/views.py:791
+#: apps/schools/views.py:807
 msgid "Not available in this console mode."
 msgstr "Indisponible dans ce mode de la console."
 

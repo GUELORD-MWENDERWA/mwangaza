@@ -312,6 +312,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/ai/credits/:
+    get:
+      operationId: ai_credits_retrieve
+      description: |-
+        « Crédits IA » de l'école (Gestion), en lecture seule : crédits du mois, usages donnés et,
+        pour chacun, la raison d'un refus certain (bouton grisé). Droits `school.configure` ou
+        `ai.use`.
+      tags:
+      - ai
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiCredits'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/announcements/:
     get:
       operationId: announcements_list
@@ -5043,6 +5067,320 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/:
+    get:
+      operationId: console_ai_retrieve
+      description: |-
+        Page « IA » de la console (droit `platform.ai.manage`) : dépense du mois, par école et par
+        usage, part des résultats gardés, alertes ; en mode réel, réglages de la plateforme. En
+        démonstration : les espaces de démonstration, sans plafond ni réglages.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: console_ai_partial_update
+      description: |-
+        Interrupteur, plafond du mois (micro-dollars) et appels par personne et par heure ;
+        mode réel seulement.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAiSettingsChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAiSettingsChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAiSettingsChangeRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/prices/{model}/:
+    put:
+      operationId: console_ai_prices_update
+      description: Prix d'un modèle connu, en micro-dollars par million de jetons
+        ; mode réel seulement.
+      parameters:
+      - in: path
+        name: model
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiPriceChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiPriceChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiPriceChangeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/schools/{id}/:
+    get:
+      operationId: console_ai_schools_retrieve
+      description: |-
+        Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+        du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSchoolCard'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: console_ai_schools_update
+      description: |-
+        Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+        du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiAllowanceChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiAllowanceChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiAllowanceChangeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSchoolCard'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/schools/{id}/top-up/:
+    post:
+      operationId: console_ai_schools_top_up_create
+      description: 'Recharge : des crédits en plus pour le mois en cours de cette
+        école.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiTopUpRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiTopUpRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiTopUpRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSchoolCard'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/uses/{code}/:
+    put:
+      operationId: console_ai_uses_update
+      description: 'Modèle et limites d''un usage du catalogue ; tout vide : réglage
+        d''origine. Réel seulement.'
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiUseChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiUseChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiUseChangeRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
           description: ''
         '400':
           content:
@@ -22105,6 +22443,450 @@ components:
         number:
           type: string
           maxLength: 20
+    AiAlert:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/AiAlertKindEnum'
+        percent:
+          type: integer
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - kind
+      - percent
+      - id
+      - name
+    AiAlertKindEnum:
+      enum:
+      - platform_cap
+      - school_credits
+      type: string
+      description: |-
+        * `platform_cap` - platform_cap
+        * `school_credits` - school_credits
+    AiAllowanceChangeRequest:
+      type: object
+      properties:
+        uses:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+          maxItems: 50
+        monthly_credits:
+          type: integer
+          maximum: 10000000
+          minimum: 0
+        paused:
+          type: boolean
+      required:
+      - monthly_credits
+      - paused
+      - uses
+    AiCreditUse:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        blocked:
+          type: string
+      required:
+      - code
+      - label
+      - blocked
+    AiCredits:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        has_module:
+          type: boolean
+        granted_credits:
+          type: integer
+        spent_credits:
+          type: integer
+        remaining_credits:
+          type: integer
+        blocked:
+          type: string
+        uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiCreditUse'
+      required:
+      - month
+      - has_module
+      - granted_credits
+      - spent_credits
+      - remaining_credits
+      - blocked
+      - uses
+    AiLastCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        use:
+          type: string
+        use_label:
+          type: string
+        user:
+          type: string
+        state:
+          $ref: '#/components/schemas/AiLastCallStateEnum'
+        refusal:
+          type: string
+        credits:
+          type: integer
+        on_platform:
+          type: boolean
+      required:
+      - id
+      - created_at
+      - use
+      - use_label
+      - user
+      - state
+      - refusal
+      - credits
+      - on_platform
+    AiLastCallStateEnum:
+      enum:
+      - queued
+      - running
+      - done
+      - refused
+      - error
+      - kept
+      - abandoned
+      type: string
+      description: |-
+        * `queued` - Waiting
+        * `running` - Running
+        * `done` - Done
+        * `refused` - Refused
+        * `error` - Failed
+        * `kept` - Kept
+        * `abandoned` - Abandoned
+    AiOverview:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        live:
+          type: boolean
+        spent_micro:
+          type: integer
+        cap_micro:
+          type: integer
+          nullable: true
+        calls:
+          type: integer
+        refused:
+          type: integer
+        errors:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+        schools_with_ai:
+          type: integer
+        schools_paused:
+          type: integer
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiAlert'
+        schools:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiSchoolRow'
+        uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiUseRow'
+        settings:
+          allOf:
+          - $ref: '#/components/schemas/AiSettings'
+          nullable: true
+      required:
+      - month
+      - live
+      - spent_micro
+      - cap_micro
+      - calls
+      - refused
+      - errors
+      - kept_percent
+      - schools_with_ai
+      - schools_paused
+      - alerts
+      - schools
+      - uses
+      - settings
+    AiPrice:
+      type: object
+      properties:
+        model:
+          type: string
+        input:
+          type: integer
+          minimum: 0
+        output:
+          type: integer
+          minimum: 0
+        cache_read:
+          type: integer
+          minimum: 0
+        changed:
+          type: boolean
+          readOnly: true
+      required:
+      - model
+      - input
+      - output
+      - cache_read
+      - changed
+    AiPriceChangeRequest:
+      type: object
+      properties:
+        input:
+          type: integer
+          maximum: 1000000000
+          minimum: 0
+        output:
+          type: integer
+          maximum: 1000000000
+          minimum: 0
+        cache_read:
+          type: integer
+          maximum: 1000000000
+          minimum: 0
+      required:
+      - cache_read
+      - input
+      - output
+    AiSchoolCard:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        has_module:
+          type: boolean
+        uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiSchoolUse'
+        monthly_credits:
+          type: integer
+        paused:
+          type: boolean
+        granted_credits:
+          type: integer
+        spent_credits:
+          type: integer
+        remaining_credits:
+          type: integer
+        last_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiLastCall'
+      required:
+      - month
+      - has_module
+      - uses
+      - monthly_credits
+      - paused
+      - granted_credits
+      - spent_credits
+      - remaining_credits
+      - last_calls
+    AiSchoolRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        uses:
+          type: integer
+        paused:
+          type: boolean
+        granted_credits:
+          type: integer
+        spent_credits:
+          type: integer
+        remaining_credits:
+          type: integer
+        calls:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - code
+      - name
+      - uses
+      - paused
+      - granted_credits
+      - spent_credits
+      - remaining_credits
+      - calls
+      - kept_percent
+    AiSchoolUse:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        module:
+          type: string
+        module_label:
+          type: string
+        model:
+          type: string
+        max_input_tokens:
+          type: integer
+        max_output_tokens:
+          type: integer
+        changed:
+          type: boolean
+        calls:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+        abandoned:
+          type: integer
+        cost_micro:
+          type: integer
+        granted:
+          type: boolean
+        available:
+          type: boolean
+      required:
+      - code
+      - label
+      - module
+      - module_label
+      - model
+      - max_input_tokens
+      - max_output_tokens
+      - changed
+      - calls
+      - kept_percent
+      - abandoned
+      - cost_micro
+      - granted
+      - available
+    AiSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        monthly_cap_micro:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+        hourly_limit:
+          type: integer
+          maximum: 500
+          minimum: 1
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiPrice'
+          readOnly: true
+      required:
+      - enabled
+      - monthly_cap_micro
+      - hourly_limit
+      - prices
+    AiTopUpRequest:
+      type: object
+      properties:
+        credits:
+          type: integer
+          maximum: 10000000
+          minimum: 1
+      required:
+      - credits
+    AiUseChangeRequest:
+      type: object
+      description: 'Tout absent : retour au réglage du catalogue.'
+      properties:
+        model:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 60
+        max_input_tokens:
+          type: integer
+          nullable: true
+        max_output_tokens:
+          type: integer
+          nullable: true
+    AiUseRow:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        module:
+          type: string
+        module_label:
+          type: string
+        model:
+          type: string
+        max_input_tokens:
+          type: integer
+        max_output_tokens:
+          type: integer
+        changed:
+          type: boolean
+        calls:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+        abandoned:
+          type: integer
+        cost_micro:
+          type: integer
+      required:
+      - code
+      - label
+      - module
+      - module_label
+      - model
+      - max_input_tokens
+      - max_output_tokens
+      - changed
+      - calls
+      - kept_percent
+      - abandoned
+      - cost_micro
     AlertSettings:
       type: object
       description: 'Seuils d''alerte au directeur (M5, `alerts.py`). Écriture partielle
@@ -33119,6 +33901,20 @@ components:
         ends_on:
           type: string
           format: date
+    PatchedAiSettingsChangeRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        monthly_cap_micro:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+        hourly_limit:
+          type: integer
+          maximum: 500
+          minimum: 1
     PatchedCashRegisterUpdateRequest:
       type: object
       properties:

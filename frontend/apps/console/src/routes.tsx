@@ -4,6 +4,7 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/accounts/AccountPage";
 import { AccountsPage } from "./features/accounts/AccountsPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { AiPage } from "./features/ai/AiPage";
 import { BusinessPage } from "./features/business/BusinessPage";
 import { BillingPage } from "./features/billing/BillingPage";
 import { CodePage } from "./features/auth/CodePage";
@@ -81,6 +82,7 @@ export const routes: RouteObject[] = [
           { path: "photos", element: only([RIGHTS.siteEdit], <PhotosPage />, true) },
           { path: "identity", element: only([RIGHTS.identityEdit], <IdentityPage />, true) },
           { path: "devices", element: only([RIGHTS.healthView], <DevicesPage />) },
+          { path: "ai", element: only([RIGHTS.aiManage], <AiPage />) },
           { path: "journal", element: only([auditView], <JournalPage />) },
           {
             path: "journal/support",

@@ -14,6 +14,7 @@ export const keys = {
   me: ["me"],
   loginStep: ["login-step"],
   settings: ["school-settings"],
+  aiCredits: ["ai-credits"],
   years: ["academic-years"],
   levels: ["levels"],
   tracks: ["tracks"],

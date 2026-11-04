@@ -32,6 +32,7 @@ import { applyServerErrors, errorMessage, fieldMessage } from "../../lib/errors"
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
+import { AiCreditsCard } from "./AiCreditsCard";
 import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
@@ -236,6 +237,7 @@ export function SchoolSettingsPage() {
 }
 
 function SettingsForm({ settings }: { settings: Settings }) {
+  const hasAi = useCurrentMe().school?.modules.includes("ai");
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const schema = useSchema();
@@ -324,6 +326,7 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <AlertsCard form={form} />
           <RemindersCard form={form} />
           <PortalCard form={form} />
+          {hasAi && <AiCreditsCard />}
           <GradingCard form={form} />
           <PassRulesCard form={form} presets={settings.pass_rule_presets} />
           <LevelRulesCard />

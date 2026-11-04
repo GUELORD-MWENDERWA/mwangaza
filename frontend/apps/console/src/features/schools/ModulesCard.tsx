@@ -24,6 +24,7 @@ export const MODULES: Module[] = [
   "communication",
   "academics",
   "timetable",
+  "ai",
   "portal",
   "notifications",
   "offline",

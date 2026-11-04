@@ -348,6 +348,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "billing",
       "site",
       "devices",
+      "ai",
       "identity",
       "journal",
       "team",
@@ -362,6 +363,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Mode démonstration (lot 5, ②bis) : bandeau orange, menu sans les pages du réel.
     await admin.evaluate(() => localStorage.setItem("mwangaza-console-mode", "demo"));
     await visit(admin, CONSOLE, "console", "tableau-de-bord-demo");
+    // Page « IA » sur la consommation fictive des démonstrations (IA.1.2).
+    await visit(admin, `${CONSOLE}ai`, "console", "ai-demo");
     await admin.evaluate(() => localStorage.removeItem("mwangaza-console-mode"));
     // Onglets de la facturation (les boutons des cartes ne doivent pas déborder).
     for (const [slug, label] of [

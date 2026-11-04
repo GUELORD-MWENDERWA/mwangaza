@@ -19,6 +19,7 @@ export const RIGHTS = {
   billingManage: "platform.billing.manage",
   identityEdit: "platform.identity.edit",
   teamManage: "platform.team.manage",
+  aiManage: "platform.ai.manage",
 } as const;
 
 export type Right = (typeof RIGHTS)[keyof typeof RIGHTS];
@@ -149,6 +150,15 @@ export const MENU = [
     end: true,
     live: false,
     rights: [RIGHTS.healthView],
+  },
+  {
+    to: "/ai",
+    key: "ai",
+    group: "platform",
+    icon: "sparkle",
+    end: true,
+    live: false,
+    rights: [RIGHTS.aiManage],
   },
   {
     to: "/journal",

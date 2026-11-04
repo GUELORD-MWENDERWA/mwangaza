@@ -78,6 +78,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/credits/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description « Crédits IA » de l'école (Gestion), en lecture seule : crédits du mois, usages donnés et,
+         *     pour chacun, la raison d'un refus certain (bouton grisé). Droits `school.configure` ou
+         *     `ai.use`.
+         */
+        get: operations["ai_credits_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/announcements/": {
         parameters: {
             query?: never;
@@ -1382,6 +1403,106 @@ export interface paths {
          *     un rôle de la personne l'exige.
          */
         post: operations["console_accounts_reset_totp_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Page « IA » de la console (droit `platform.ai.manage`) : dépense du mois, par école et par
+         *     usage, part des résultats gardés, alertes ; en mode réel, réglages de la plateforme. En
+         *     démonstration : les espaces de démonstration, sans plafond ni réglages.
+         */
+        get: operations["console_ai_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Interrupteur, plafond du mois (micro-dollars) et appels par personne et par heure ;
+         *     mode réel seulement.
+         */
+        patch: operations["console_ai_partial_update"];
+        trace?: never;
+    };
+    "/api/console/ai/prices/{model}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Prix d'un modèle connu, en micro-dollars par million de jetons ; mode réel seulement. */
+        put: operations["console_ai_prices_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/schools/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+         *     du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+         */
+        get: operations["console_ai_schools_retrieve"];
+        /**
+         * @description Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+         *     du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+         */
+        put: operations["console_ai_schools_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/schools/{id}/top-up/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Recharge : des crédits en plus pour le mois en cours de cette école. */
+        post: operations["console_ai_schools_top_up_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/uses/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Modèle et limites d'un usage du catalogue ; tout vide : réglage d'origine. Réel seulement. */
+        put: operations["console_ai_uses_update"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7376,6 +7497,163 @@ export interface components {
             avenue?: string;
             number?: string;
         };
+        AiAlert: {
+            kind: components["schemas"]["AiAlertKindEnum"];
+            percent: number;
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        /**
+         * @description * `platform_cap` - platform_cap
+         *     * `school_credits` - school_credits
+         * @enum {string}
+         */
+        AiAlertKindEnum: "platform_cap" | "school_credits";
+        AiAllowanceChangeRequest: {
+            uses: string[];
+            monthly_credits: number;
+            paused: boolean;
+        };
+        AiCreditUse: {
+            code: string;
+            label: string;
+            blocked: string;
+        };
+        AiCredits: {
+            /** Format: date */
+            month: string;
+            has_module: boolean;
+            granted_credits: number;
+            spent_credits: number;
+            remaining_credits: number;
+            blocked: string;
+            uses: components["schemas"]["AiCreditUse"][];
+        };
+        AiLastCall: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            created_at: string;
+            use: string;
+            use_label: string;
+            user: string;
+            state: components["schemas"]["AiLastCallStateEnum"];
+            refusal: string;
+            credits: number;
+            on_platform: boolean;
+        };
+        /**
+         * @description * `queued` - Waiting
+         *     * `running` - Running
+         *     * `done` - Done
+         *     * `refused` - Refused
+         *     * `error` - Failed
+         *     * `kept` - Kept
+         *     * `abandoned` - Abandoned
+         * @enum {string}
+         */
+        AiLastCallStateEnum: "queued" | "running" | "done" | "refused" | "error" | "kept" | "abandoned";
+        AiOverview: {
+            /** Format: date */
+            month: string;
+            live: boolean;
+            spent_micro: number;
+            cap_micro: number | null;
+            calls: number;
+            refused: number;
+            errors: number;
+            kept_percent: number | null;
+            schools_with_ai: number;
+            schools_paused: number;
+            alerts: components["schemas"]["AiAlert"][];
+            schools: components["schemas"]["AiSchoolRow"][];
+            uses: components["schemas"]["AiUseRow"][];
+            settings: components["schemas"]["AiSettings"] | null;
+        };
+        AiPrice: {
+            model: string;
+            input: number;
+            output: number;
+            cache_read: number;
+            readonly changed: boolean;
+        };
+        AiPriceChangeRequest: {
+            input: number;
+            output: number;
+            cache_read: number;
+        };
+        AiSchoolCard: {
+            /** Format: date */
+            month: string;
+            has_module: boolean;
+            uses: components["schemas"]["AiSchoolUse"][];
+            monthly_credits: number;
+            paused: boolean;
+            granted_credits: number;
+            spent_credits: number;
+            remaining_credits: number;
+            last_calls: components["schemas"]["AiLastCall"][];
+        };
+        AiSchoolRow: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            uses: number;
+            paused: boolean;
+            granted_credits: number;
+            spent_credits: number;
+            remaining_credits: number;
+            calls: number;
+            kept_percent: number | null;
+        };
+        AiSchoolUse: {
+            code: string;
+            label: string;
+            module: string;
+            module_label: string;
+            model: string;
+            max_input_tokens: number;
+            max_output_tokens: number;
+            changed: boolean;
+            calls: number;
+            kept_percent: number | null;
+            abandoned: number;
+            cost_micro: number;
+            granted: boolean;
+            available: boolean;
+        };
+        AiSettings: {
+            enabled: boolean;
+            /** Format: int64 */
+            monthly_cap_micro: number;
+            hourly_limit: number;
+            readonly prices: components["schemas"]["AiPrice"][];
+        };
+        AiTopUpRequest: {
+            credits: number;
+        };
+        /** @description Tout absent : retour au réglage du catalogue. */
+        AiUseChangeRequest: {
+            model?: string | null;
+            max_input_tokens?: number | null;
+            max_output_tokens?: number | null;
+        };
+        AiUseRow: {
+            code: string;
+            label: string;
+            module: string;
+            module_label: string;
+            model: string;
+            max_input_tokens: number;
+            max_output_tokens: number;
+            changed: boolean;
+            calls: number;
+            kept_percent: number | null;
+            abandoned: number;
+            cost_micro: number;
+        };
         /** @description Seuils d'alerte au directeur (M5, `alerts.py`). Écriture partielle : les autres restent. */
         AlertSettings: {
             /** @description Écart de caisse au-delà duquel une clôture est signalée, par devise (plus petite unité : centimes, francs). */
@@ -12451,6 +12729,12 @@ export interface components {
             /** Format: date */
             ends_on?: string;
         };
+        PatchedAiSettingsChangeRequest: {
+            enabled?: boolean;
+            /** Format: int64 */
+            monthly_cap_micro?: number;
+            hourly_limit?: number;
+        };
         PatchedCashRegisterUpdateRequest: {
             name?: string;
             /** Active */
@@ -16778,6 +17062,33 @@ export interface operations {
             };
         };
     };
+    ai_credits_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiCredits"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     announcements_list: {
         parameters: {
             query?: {
@@ -20965,6 +21276,323 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAiSettingsChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAiSettingsChangeRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAiSettingsChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_prices_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                model: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiPriceChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiPriceChangeRequest"];
+                "multipart/form-data": components["schemas"]["AiPriceChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_schools_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiSchoolCard"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_schools_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiAllowanceChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiAllowanceChangeRequest"];
+                "multipart/form-data": components["schemas"]["AiAllowanceChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiSchoolCard"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_schools_top_up_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiTopUpRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiTopUpRequest"];
+                "multipart/form-data": components["schemas"]["AiTopUpRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiSchoolCard"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_uses_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AiUseChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiUseChangeRequest"];
+                "multipart/form-data": components["schemas"]["AiUseChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

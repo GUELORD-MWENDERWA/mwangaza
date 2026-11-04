@@ -11,6 +11,7 @@ from io import StringIO
 import pytest
 from django.contrib.auth import authenticate
 from django.core.management import CommandError, call_command
+from django.db.models import Sum
 
 from apps.academics import board
 from apps.academics.models import (
@@ -26,7 +27,7 @@ from apps.accounts.demo import DEMO_PASSWORD, DEMO_TOTP_SECRET, POOL_SIZE
 from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
-from apps.ai.models import AiAllowance
+from apps.ai.models import AiAllowance, AiBalance, AiCall, AiUsageMonth
 from apps.audit.models import AuditLog
 from apps.billing.models import Invoice, InvoicePayment, LegalDocument, Plan
 from apps.core import site_content
@@ -108,6 +109,11 @@ def created(demo) -> None:
         assert AiAllowance.objects.get().monthly_credits == 5_000
     with use_school(volcans):
         assert AiAllowance.objects.get().uses == ["timetable_constraints"]
+        # IA.1.2 : consommation fictive du mois, cumuls justes au micro-dollar (alerte à 84 %).
+        balance = AiBalance.objects.get()
+        assert balance.spent_micro * 100 == balance.granted_micro * 84
+        usage = AiUsageMonth.objects.aggregate(total=Sum("cost_micro"))["total"]
+        assert usage == balance.spent_micro and AiCall.objects.count() == 3
     # EDT.1b : ateliers en longs blocs (4 h au plus, proposés) dans un atelier, disponibilités ;
     # EDT.3a : les classes techniques ramenées à leur grille, plus rien de rouge avant le calcul.
     with use_school(itig):
