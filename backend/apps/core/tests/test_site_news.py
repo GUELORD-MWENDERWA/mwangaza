@@ -252,3 +252,24 @@ def test_seed_site_fills_an_empty_site_once_and_never_overwrites():
     call_command("seed_site")
     assert Article.objects.count() == first
     assert Article.objects.filter(title="Titre changé par l'équipe").exists()
+
+
+def test_old_demo_photos_are_retired_unless_an_article_still_shows_them():
+    from apps.core import demo_articles
+
+    def old(source: str) -> SitePhoto:
+        return SitePhoto.objects.create(
+            large="a.webp", small="b.webp", width=1600, height=1000, alt_fr="x", alt_en="x",
+            credit="X", license="cc0", source_url=source,
+        )  # fmt: skip
+
+    free, shown = old(demo_articles.RETIRED_SOURCES[0]), old(demo_articles.RETIRED_SOURCES[1])
+    kept = old("https://commons.wikimedia.org/wiki/File:Autre.jpg")
+    Article.objects.create(
+        title="T", summary="S", body="B", language="fr", photo=shown, slug="t",
+        status=Article.Status.PUBLISHED, published_at=timezone.now(),
+    )  # fmt: skip
+
+    assert demo_articles.retire_photos() == 1
+    assert set(SitePhoto.objects.values_list("pk", flat=True)) == {shown.pk, kept.pk}
+    assert not SitePhoto.objects.filter(pk=free.pk).exists()
