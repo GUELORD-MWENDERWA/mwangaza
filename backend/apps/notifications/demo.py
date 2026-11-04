@@ -32,6 +32,7 @@ from apps.notifications.models import (
     ScheduledRun,
     SchoolEvent,
     Summons,
+    SupportReply,
     SupportRequest,
     Thread,
 )
@@ -515,5 +516,8 @@ def create_demo_support(spaces: list[DemoSpace]) -> None:
                     support.close_as_school(request)
                 stamp = now - timedelta(hours=hours)
                 SupportRequest.objects.filter(pk=request.pk).update(
-                    created_at=stamp, last_activity_at=stamp
+                    created_at=stamp, last_activity_at=stamp if not answer else now
+                )
+                SupportReply.objects.filter(request=request, from_platform=False).update(
+                    created_at=stamp
                 )

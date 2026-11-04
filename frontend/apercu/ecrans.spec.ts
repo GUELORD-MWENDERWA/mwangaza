@@ -367,14 +367,15 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
         path.replace(/\//g, "-") || "tableau-de-bord",
       );
     }
-    // Fiche d'une demande d'aide (SUP.1) : la première à traiter.
+    // Mode démonstration (lot 5, ②bis) : bandeau orange, menu sans les pages du réel.
+    await admin.evaluate(() => localStorage.setItem("mwangaza-console-mode", "demo"));
+    await visit(admin, CONSOLE, "console", "tableau-de-bord-demo");
+    // Fiche d'une demande d'aide (SUP.1) : la première à traiter (demandes fictives : mode démonstration).
+    await visit(admin, `${CONSOLE}support`, "console", "support-demo");
     await visit(admin, `${CONSOLE}support`, "console", "support-fiche", async (page) => {
       await page.locator('a[href^="/support/"]').first().click();
       await page.waitForLoadState("networkidle").catch(() => undefined);
     });
-    // Mode démonstration (lot 5, ②bis) : bandeau orange, menu sans les pages du réel.
-    await admin.evaluate(() => localStorage.setItem("mwangaza-console-mode", "demo"));
-    await visit(admin, CONSOLE, "console", "tableau-de-bord-demo");
     // Page « IA » sur la consommation fictive des démonstrations (IA.1.2).
     await visit(admin, `${CONSOLE}ai`, "console", "ai-demo");
     await admin.evaluate(() => localStorage.removeItem("mwangaza-console-mode"));
