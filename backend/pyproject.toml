@@ -55,3 +55,7 @@ select = ["E", "W", "F", "I", "UP", "B", "DJ", "SIM", "RUF"]
 # RUF012 : les listes de configuration de Django (Meta, admin, serializers) sont des attributs de
 # classe par conception ; la règle les signale à tort.
 ignore = ["RUF012"]
+
+[tool.ruff.lint.per-file-ignores]
+# Articles de démonstration : de la prose en paragraphes, une ligne par paragraphe.
+"apps/core/demo_articles.py" = ["E501"]
