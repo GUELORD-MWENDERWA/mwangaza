@@ -27,6 +27,7 @@ from apps.accounts.roles import (
     FINANCE_VIEW_REPORTS,
 )
 from apps.accounts.views import SchoolViewSet
+from apps.audit import security
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.documents import (
@@ -649,6 +650,8 @@ class CashClosingViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, Schoo
         """Export Excel du mois (une ligne par session, montants en nombres)."""
         filters = self._filters()
         content = documents.closings_workbook(**filters)
+        # Une ligne par session du mois, quelques dizaines : compté comme un fichier (S.8).
+        security.exported(request.user, 0)
         return file_response(content, XLSX, f"clotures-{filters['month']:%Y-%m}.xlsx")
 
 
@@ -998,6 +1001,7 @@ class UnpaidViewSet(mixins.ListModelMixin, SchoolViewSet):
                     **{key: str(value) for key, value in request.query_params.items()},
                 },
             )
+            security.exported(request.user, len(rows))
         name = f"impayes-{slugify(str(filters.class_group or filters.academic_year))}"
         if output == "xlsx":
             return file_response(documents.unpaid_workbook(rows), XLSX, f"{name}.xlsx")
@@ -1060,6 +1064,7 @@ class ReceiptRegisterView(APIView):
                     **{key: str(value) for key, value in request.query_params.items()},
                 },
             )
+            security.exported(request.user, len(rows))
         name = f"registre-des-recus-{filters.start:%Y%m%d}-{filters.end:%Y%m%d}"
         if output == "xlsx":
             return file_response(documents.receipt_register_workbook(found), XLSX, f"{name}.xlsx")

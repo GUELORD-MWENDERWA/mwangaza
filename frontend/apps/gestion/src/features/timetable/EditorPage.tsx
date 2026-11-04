@@ -73,6 +73,7 @@ import { DayList, IssueText, type Pick, WeekGrid, capitalized } from "./EditorPa
 import { EntryDialog, PlaceDialog } from "./EntryDialog";
 import { GeneralView } from "./GeneralView";
 import { PublishDialog } from "./PublishDialog";
+import { AiButton } from "../ai/AiButton";
 import { ReviewDialog } from "./ReviewDialog";
 
 /** Textes propres à chaque vue (sélecteur, précédent, suivant, rien à placer). */
@@ -498,9 +499,9 @@ export function EditorPage() {
             </div>
           )}
           {canAdvise && state?.status === "draft" && (
-            <Button variant="outline" size="sm" onClick={() => setAdvising(true)}>
+            <AiButton use="timetable_review" onClick={() => setAdvising(true)}>
               {t("timetable.review.open")}
-            </Button>
+            </AiButton>
           )}
           {loadText && <StatusPill tone={over ? "due" : "info"}>{loadText}</StatusPill>}
           <StatusPill tone={errors ? "due" : "ok"}>

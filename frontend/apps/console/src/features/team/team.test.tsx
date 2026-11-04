@@ -40,7 +40,7 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe("Menu de la console selon les rôles", () => {
   it("un commercial ne voit que ses pages ; l'accueil et l'équipe ne lui sont pas ouverts", async () => {
-    mockApi({
+    const requests = mockApi({
       "GET /api/me/": {
         ...ME,
         platform_roles: ["commercial"],
@@ -51,20 +51,34 @@ describe("Menu de la console selon les rôles", () => {
     const { router, user } = renderApp("/");
 
     // Sans « voir les écoles », l'accueil mène à sa première page.
-    const nav = await screen.findByRole("navigation");
-    expect(
+    const nav = await screen.findByRole("navigation", { name: "Menu de la console" });
+    const links = () =>
       within(nav)
         .getAllByRole("link")
-        .map((link) => link.textContent),
-    ).toEqual(["Écoles", "Demandes"]);
-    expect(router.state.location.pathname).toBe("/schools");
+        .map((link) => link.textContent);
+    expect(links()).toEqual(["Affaires", "Écoles", "Prospects"]);
+    expect(router.state.location.pathname).toBe("/business");
+    await router.navigate("/schools");
     // Pas d'onglet « Réels », pas d'administration de dépannage.
     expect(screen.queryByRole("tab", { name: "Réels" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Menu du compte" }));
+    await user.click(screen.getByRole("button", { name: /Menu du compte/ }));
     expect(screen.queryByText("Administration de dépannage")).toBeNull();
+    await user.keyboard("{Escape}");
 
     await router.navigate("/team");
     expect(await screen.findByText("Cette page n'est pas dans vos rôles")).toBeTruthy();
+
+    // Mode démonstration : bandeau, menu sans les pages du réel, en-tête envoyé au serveur.
+    await router.navigate("/schools");
+    await user.click(screen.getAllByRole("radio", { name: "Démonstration" })[0]!);
+    expect(await screen.findByText("Mode démonstration")).toBeTruthy();
+    expect(links()).toEqual(["Écoles", "Prospects"]);
+    await vi.waitFor(() =>
+      expect(requests.filter((r) => r.path === "/api/console/schools/").at(-1)?.mode).toBe("demo"),
+    );
+    expect(requests.find((r) => r.path === "/api/console/schools/")?.mode).toBe("live");
+    await router.navigate("/business");
+    expect(await screen.findByText("Cette page n'existe qu'en mode réel")).toBeTruthy();
   });
 });
 

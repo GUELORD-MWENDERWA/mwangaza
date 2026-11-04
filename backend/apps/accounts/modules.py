@@ -62,6 +62,73 @@ DEPENDENCIES: dict[str, tuple[str, ...]] = {
 MODULE_CHOICES = [(code, label) for code, (label, _permissions) in MODULES.items()]
 ALL_MODULES = list(MODULES)
 
+# Tout suit les modules (MOD.1, `docs/specs/equipements.md` § 1 bis) : ce qu'une école ne voit,
+# ne remplit et ne règle que si elle a **un** de ces modules. Les permissions suivent déjà les
+# modules (`permissions_of`) ; ce registre couvre le reste : champs, sections de paramètres,
+# étapes de mise en route, rôles du modèle de départ. Sans entrée : socle, toujours là. Le
+# serveur n'exige jamais et n'écrit jamais ce qui ne s'applique pas ; `/me` envoie la liste
+# (`features`) pour que l'interface masque la même chose.
+FEATURES: dict[str, tuple[str, ...]] = {
+    # Fiche de l'élève : en-tête du bulletin (N° ID de l'EPST, N° permanent, naissance, origine).
+    "student.national_id": ("academics",),
+    "student.permanent_number": ("academics",),
+    "student.birth_place": ("academics",),
+    "student.nationality": ("academics",),
+    "student.origin": ("academics",),
+    # Paramètres de l'école.
+    "settings.currencies": ("finance",),
+    "settings.receipt": ("finance",),
+    "settings.alerts": ("finance",),
+    "settings.reminders": ("finance",),
+    "settings.portal": ("portal",),
+    "settings.grading": ("academics",),
+    "settings.pass_rules": ("academics",),
+    "settings.ai": ("ai",),
+    # Mise en route (`schools/setup.py`) : années et classes pour tout module qui touche des
+    # élèves (plus tard : pas la sonnerie seule).
+    "setup.year": ("students",),
+    "setup.classes": ("students",),
+    "setup.fees": ("finance",),
+    "setup.staff": ("finance",),
+    "setup.cash": ("finance",),
+    "setup.students": ("students",),
+    "setup.prior": ("finance",),
+    "setup.invitations": ("portal",),
+    # Rôles du modèle de départ (`roles.STARTER_ROLES`) donnés à l'école.
+    "role.study_director": ("academics",),
+    "role.discipline_master": ("academics",),
+    "role.accountant": ("finance",),
+    "role.cashier": ("finance",),
+    "role.teacher": ("academics",),
+}
+# Champ de l'élève → ce qui le porte (`FEATURES`).
+STUDENT_FIELD_FEATURES = {
+    "national_id": "student.national_id",
+    "permanent_number": "student.permanent_number",
+    "birth_place": "student.birth_place",
+    "nationality": "student.nationality",
+    "origin_province": "student.origin",
+    "origin_territory": "student.origin",
+}
+
+
+def applies(feature: str, modules) -> bool:
+    """`feature` s'applique à une école qui a ces modules (socle : toujours)."""
+    needed = FEATURES.get(feature)
+    return needed is None or any(code in modules for code in needed)
+
+
+def features_of(modules) -> list[str]:
+    """Ce qui, dans le registre, s'applique à ces modules (pour `/me`)."""
+    return [feature for feature in FEATURES if applies(feature, modules)]
+
+
+def hidden_student_fields(modules) -> set[str]:
+    """Champs de la fiche élève qui ne s'appliquent pas à ces modules."""
+    return {
+        field for field, feature in STUDENT_FIELD_FEATURES.items() if not applies(feature, modules)
+    }
+
 
 def permissions_of(modules) -> frozenset[str]:
     """Permissions que donnent ces modules, socle compris."""

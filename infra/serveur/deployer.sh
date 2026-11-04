@@ -166,6 +166,10 @@ case "${1:-}" in
     # Espaces de `make demo` effacés puis recréés à neuf (refusé dès qu'un espace réel existe).
     "${SSH[@]}" "cd mwangaza/code && $COMPOSE exec -T django python manage.py demo --fresh"
     ;;
+  site)
+    # Actualités d'exemple si le site n'en a aucune (rien n'est écrasé).
+    "${SSH[@]}" "cd mwangaza/code && $COMPOSE exec -T django python manage.py seed_site"
+    ;;
   superuser)
     ssh -t "${SSH_OPTS[@]}" "$SERVEUR" "cd mwangaza/code && $COMPOSE exec django python manage.py createsuperuser"
     ;;

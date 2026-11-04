@@ -35,13 +35,25 @@ PAGES = {
 # IA (IA.1.1) : la dépense du mois atteint 80 % puis 100 % du plafond de la plateforme.
 PAGES[PlatformAction.AI_CAP_80] = "/ia"
 PAGES[PlatformAction.AI_CAP_100] = "/ia"
+# Détection (S.8) : le journal, ouvert sur les alertes de sécurité.
+SECURITY = (
+    PlatformAction.SECURITY_LOGIN_BURST,
+    PlatformAction.SECURITY_UNUSUAL_EXPORT,
+    PlatformAction.SECURITY_CANCELLATIONS,
+    PlatformAction.SECURITY_REVOKED_DEVICE,
+)
+PAGES.update(dict.fromkeys(SECURITY, "/journal?domain=security"))
 TITLES = {action.value: action.label for action in PAGES}
 # Demande de démonstration (WEB.1d) : pas une entrée du journal, sa propre page.
 DEMO_REQUEST = "demo_request"
 PAGES[DEMO_REQUEST] = "/demo-requests"
 TITLES[DEMO_REQUEST] = _("New demo request")
-# Droit qui reçoit chaque alerte ; les autres : le journal.
-RIGHTS = {DEMO_REQUEST: platform_roles.LEADS_MANAGE}
+# Relance d'un prospect (CON.3) : seulement son responsable.
+FOLLOW_UP = "follow_up"
+PAGES[FOLLOW_UP] = "/demo-requests"
+TITLES[FOLLOW_UP] = _("Prospect to follow up today")
+# Droit qui reçoit chaque alerte ; les autres : le journal. `None` : seulement le compte concerné.
+RIGHTS = {DEMO_REQUEST: platform_roles.LEADS_MANAGE, FOLLOW_UP: None}
 
 
 def alert(action: str, entry_id, detail: str, *, concerned=None) -> None:
@@ -74,7 +86,9 @@ def subscriptions(action: str | None = None, concerned=None) -> QuerySet[PushSub
     if action is None:
         return subscriptions
     right = RIGHTS.get(action, platform_roles.AUDIT_VIEW)
-    receives = Q(user__platform_roles__overlap=platform_roles.roles_with(right))
+    receives = Q(pk__in=[])
+    if right is not None:
+        receives = Q(user__platform_roles__overlap=platform_roles.roles_with(right))
     if concerned is not None:
         receives |= Q(user_id=concerned)
     return subscriptions.filter(receives)

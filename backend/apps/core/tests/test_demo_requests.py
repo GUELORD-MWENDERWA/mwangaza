@@ -12,6 +12,7 @@ from apps.core import demo_requests
 from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tests.test_site import structured_data
 from apps.notifications import console
+from tests.factories import UserFactory
 
 pytestmark = pytest.mark.django_db
 
@@ -129,7 +130,7 @@ def test_only_the_platform_admin_follows_requests_at_the_console(api, platform_a
         school_name="Kivu Lumière",
         town="Gisenyi",
         phone="+243971234561",
-        status="called",
+        status="contacted",
     )
     item = f"{REQUESTS}{new.pk}/"
     assert api(None, host=CONSOLE).get(REQUESTS).status_code == 403
@@ -190,3 +191,104 @@ def test_address_and_networks_of_the_identity_reach_the_site(api, platform_admin
     platform.city = platform.region = platform.address = ""
     platform.save()
     assert "Nord-Kivu, RDC" not in client.get("/").content.decode()
+
+
+# --- Suivi commercial (CON.3) ---
+
+
+def prospect(**fields) -> DemoRequest:
+    fields = {"name": "A", "role": "head", "school_name": "Kivu", "town": "Goma", **fields}
+    return DemoRequest.objects.create(phone="+243971234570", **fields)
+
+
+def sales_member(role="commercial"):
+    return UserFactory(is_platform_admin=True, platform_roles=[role])
+
+
+def test_sales_follow_prospects_but_other_roles_cannot(api):
+    item = f"{REQUESTS}{prospect().pk}/"
+    sales = api(sales_member(), host=CONSOLE)
+    assert sales.patch(item, {"status": "contacted"}).status_code == 200
+    for role in ("support", "communication", "finance", "technical"):
+        other = api(sales_member(role), host=CONSOLE)
+        assert other.get(REQUESTS).status_code == 403
+        assert other.patch(item, {"status": "signed"}).status_code == 403
+
+
+def test_a_lost_prospect_needs_a_reason_and_the_reason_goes_with_the_step(api):
+    item = f"{REQUESTS}{prospect().pk}/"
+    sales = api(sales_member(), host=CONSOLE)
+    assert sales.patch(item, {"status": "lost"}).status_code == 400
+    assert sales.patch(item, {"status": "lost", "lost_reason": " "}).status_code == 400
+    lost = sales.patch(item, {"status": "lost", "lost_reason": "Trop cher"}).json()
+    assert (lost["status"], lost["lost_reason"]) == ("lost", "Trop cher")
+    # Elle revient dans le suivi : le motif ne reste pas.
+    back = sales.patch(item, {"status": "contacted"}).json()
+    assert back["lost_reason"] == ""
+
+
+def test_only_a_sales_member_can_be_responsible_and_late_follow_ups_are_flagged(api):
+    seller, support = sales_member(), sales_member("support")
+    request = prospect(follow_up_on=timezone.localdate() - timedelta(days=1))
+    item = f"{REQUESTS}{request.pk}/"
+    admin = api(sales_member("owner"), host=CONSOLE)
+    assert admin.patch(item, {"assignee": str(support.pk)}).status_code == 400
+    data = admin.patch(item, {"assignee": str(seller.pk)}).json()
+    assert (data["assignee"], data["overdue"]) == (str(seller.pk), True)
+    assert {row["id"] for row in admin.get(f"{REQUESTS}assignees/").json()} >= {str(seller.pk)}
+    assert str(support.pk) not in {r["id"] for r in admin.get(f"{REQUESTS}assignees/").json()}
+    signed = admin.patch(item, {"status": "signed"}).json()
+    assert signed["overdue"] is False  # signée : plus à relancer
+
+
+def test_the_reminder_goes_to_the_assignee_on_the_day_only(monkeypatch):
+    seller = sales_member()
+    today = timezone.localdate()
+    due = prospect(assignee=seller, follow_up_on=today, school_name="Aujourd'hui")
+    prospect(assignee=seller, follow_up_on=today + timedelta(days=1), school_name="Demain")
+    prospect(assignee=seller, follow_up_on=today, status="lost", school_name="Perdue")
+    prospect(follow_up_on=today, school_name="Sans responsable")
+    sent = []
+    monkeypatch.setattr(console, "alert", lambda *args, **kw: sent.append((args, kw)))
+
+    assert demo_requests.remind_follow_ups() == 1
+    assert sent == [((console.FOLLOW_UP, due.pk, "Aujourd'hui"), {"concerned": seller.pk})]
+
+
+def test_a_follow_up_alert_reaches_only_its_assignee():
+    from apps.notifications.models import PushSubscription
+
+    seller, other = sales_member(), sales_member()
+    for user in (seller, other, sales_member("owner")):
+        PushSubscription.objects.create(
+            user=user,
+            app=PushSubscription.CONSOLE,
+            endpoint=f"https://push.example/{user.pk}",
+            p256dh="k",
+            auth="a",
+        )
+    reached = console.subscriptions(console.FOLLOW_UP, seller.pk)
+    assert [s.user_id for s in reached] == [seller.pk]
+
+
+def test_creating_a_trial_from_a_prospect_links_it_and_moves_it_to_trial(api):
+    request = prospect()
+    body = {
+        "code": "kivu-essai",
+        "name": "Institut Kivu",
+        "official_name": "Institut Kivu",
+        "environment": "test",
+        "enabled_currencies": ["USD"],
+        "default_currency": "USD",
+        "status": "trial",
+        "head": {"phone": "0100004001", "last_name": "Kasereka", "first_name": "Dieudonné"},
+        "prospect": str(request.pk),
+    }
+    # Le support peut ouvrir un essai mais ne gère pas les prospects : pas de lien.
+    schools = "/api/console/schools/"
+    assert api(sales_member("support"), host=CONSOLE).post(schools, body).status_code == 403
+    assert api(sales_member(), host=CONSOLE).post(schools, body).status_code == 201
+    request.refresh_from_db()
+    assert (request.status, request.school_code) == ("trial", "kivu-essai")
+    listed = api(sales_member(), host=CONSOLE).get(REQUESTS).json()["results"][0]
+    assert listed["school_code"] == "kivu-essai"

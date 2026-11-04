@@ -7,6 +7,8 @@ export const keys = {
   me: ["me"],
   loginStep: ["login-step"],
   dashboard: ["console", "dashboard"],
+  business: ["console", "business"],
+  ai: ["console", "ai"],
   identity: ["console", "platform"],
   schools: ["console", "schools"],
   accounts: ["console", "accounts"],
@@ -28,6 +30,8 @@ export const keys = {
   siteArticles: ["console", "site", "articles"],
   sitePhotos: ["console", "site", "photos"],
   platform: ["platform"],
+  // Hors de « console » : le même dans les deux modes, gardé quand on change de mode.
+  health: ["health"],
 };
 
 export function hasCode(error: unknown, ...codes: string[]): error is ApiError {

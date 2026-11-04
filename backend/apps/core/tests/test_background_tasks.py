@@ -36,6 +36,7 @@ def test_heavy_work_never_shares_the_fast_queue():
         "apps.students.tasks.run_student_import",
         "apps.schools.tasks.delete_space",
         "apps.schools.tasks.fill_demonstration",
+        "apps.schools.tasks.build_export",
         "apps.timetable.tasks.run_timetable",
     }
     # Le travailleur lourd ne reprend jamais un message deux fois en route, sauf le PDF et le

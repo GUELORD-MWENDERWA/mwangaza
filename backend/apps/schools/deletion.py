@@ -22,7 +22,7 @@ from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.core.models import TenantModel
 from apps.core.tenancy import use_all_schools
 from apps.notifications.models import PushSubscription
-from apps.schools.models import Demonstration, School
+from apps.schools.models import Demonstration, School, SchoolExport
 from apps.students.models import Family
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 # Lignes effacées par requête : des transactions courtes, la base reste disponible pour les écoles.
 BATCH = 2000
 # Modèles globaux [G] dont chaque ligne appartient pourtant à une seule école.
-GLOBAL_MODELS_OF_A_SCHOOL = (Membership, PushSubscription)
+GLOBAL_MODELS_OF_A_SCHOOL = (Membership, PushSubscription, SchoolExport)
 # Ceux-là partent à la toute fin, avec la ligne de l'école (`CASCADE`) : une suppression
 # interrompue doit encore savoir qu'une remise à zéro était demandée (4.17.2).
 GONE_WITH_THE_SCHOOL_ROW = (Demonstration,)

@@ -14,11 +14,12 @@ import { z } from "zod";
 
 import { applyServerErrors } from "../../lib/errors";
 import { studentName } from "../../lib/people";
-import { keys } from "../../lib/queries";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
 import {
   IDENTITY_PATHS,
   IdentitySections,
+  birthDateRequired,
   PhotoSection,
   Section,
   TextField,
@@ -26,8 +27,8 @@ import {
 } from "./StudentFields";
 import { type Student, useStudent } from "./data";
 
-function editSchema(t: TFunction) {
-  return z.object({ ...identityShape(t), matricule: z.string().trim().max(40) });
+function editSchema(t: TFunction, birthDate: boolean) {
+  return z.object({ ...identityShape(t, birthDate), matricule: z.string().trim().max(40) });
 }
 
 type Schema = ReturnType<typeof editSchema>;
@@ -75,7 +76,8 @@ function EditForm({ student }: { student: Student }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [general, setGeneral] = useState<string | null>(null);
-  const schema = useMemo(() => editSchema(t), [t]);
+  const me = useCurrentMe();
+  const schema = useMemo(() => editSchema(t, birthDateRequired(me)), [t, me]);
   const form: Form = useForm({ resolver: zodResolver(schema), defaultValues: valuesOf(student) });
   const back = `/students/${student.id}`;
 

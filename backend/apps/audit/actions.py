@@ -354,6 +354,15 @@ class PlatformAction(models.TextChoices):
     SITE_PHOTO_ADDED = "site.photo_added", _("Photo added to the photo library")
     SITE_PHOTO_UPDATED = "site.photo_updated", _("Photo details changed")
     SITE_PHOTO_DELETED = "site.photo_deleted", _("Photo deleted from the photo library")
+    # Détection (S.8) : alertes de sécurité écrites par le serveur, sans auteur
+    # (`audit/security.py`).
+    SECURITY_LOGIN_BURST = "security.login_burst", _("Burst of failed logins")
+    SECURITY_UNUSUAL_EXPORT = "security.unusual_export", _("Unusual export")
+    SECURITY_CANCELLATIONS = (
+        "security.cancellations",
+        _("Unusual number of payment cancellations"),
+    )
+    SECURITY_REVOKED_DEVICE = "security.revoked_device", _("Disconnected device keeps trying")
 
 
 PLATFORM_DOMAINS = sorted({domain_of(action) for action in PlatformAction.values})

@@ -23,14 +23,16 @@ import {
   Select,
   buttonVariants,
 } from "@mwangaza/ui";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
+import { useConsoleMode } from "../../lib/mode";
 import { RIGHTS, spaceRight, useCan } from "../../lib/rights";
+import { PLANS_KEY } from "../billing/PlansTab";
 import { NewDemoSpace } from "./Demonstration";
 import { MODULES, ModuleChoices } from "./ModulesCard";
 import {
@@ -60,9 +62,7 @@ function useSchema() {
   return school
     .extend({
       environment: z.enum(KINDS),
-      enabled_currencies: z
-        .array(z.enum(CURRENCIES))
-        .min(1, t("console.schools.fields.noCurrency")),
+      enabled_currencies: z.array(z.enum(CURRENCIES)),
       default_currency: z.enum(CURRENCIES),
       modules: z.array(z.enum(MODULES)),
       head: z.object({
@@ -72,11 +72,21 @@ function useSchema() {
         first_name: z.string().trim().max(100),
       }),
     })
-    .refine((values) => values.enabled_currencies.includes(values.default_currency), {
-      path: ["default_currency"],
-      message: t("fieldErrors.default_currency_disabled"),
+    .superRefine((values, context) => {
+      // Devises : seulement avec la caisse (MOD.1) ; sinon le serveur garde celles par défaut.
+      if (!values.modules.includes("finance")) return;
+      if (values.enabled_currencies.length === 0) {
+        const message = t("console.schools.fields.noCurrency");
+        context.addIssue({ code: "custom", path: ["enabled_currencies"], message });
+      } else if (!values.enabled_currencies.includes(values.default_currency)) {
+        const message = t("fieldErrors.default_currency_disabled");
+        context.addIssue({ code: "custom", path: ["default_currency"], message });
+      }
     });
 }
+
+type Plan = Schemas["Plan"];
+const CUSTOM = "custom";
 
 type Values = z.infer<ReturnType<typeof useSchema>>;
 
@@ -86,14 +96,22 @@ export function NewSchoolPage() {
   const [general, setGeneral] = useState<string | null>(null);
   // Type de l'onglet d'où l'on vient (`?type=`) ; sinon un espace réel. Seulement les types que
   // les rôles du membre permettent de créer (EQ.2).
-  const asked = useSearchParams()[0].get("type");
+  const params = useSearchParams()[0];
+  const asked = params.get("type");
+  // « Créer l'espace d'essai » depuis un prospect (CON.3) : nom et téléphone préremplis, le
+  // serveur lie l'essai au prospect.
+  const prospect = params.get("prospect") ?? undefined;
   const can = useCan();
-  const kinds = KINDS.filter((value) => can(spaceRight(value, RIGHTS.schoolsManage)));
+  // « Créer une démonstration » en mode démonstration seulement (le serveur le refuse ailleurs).
+  const demo = useConsoleMode() === "demo";
+  const kinds = KINDS.filter(
+    (value) => (value === "demo") === demo && can(spaceRight(value, RIGHTS.schoolsManage)),
+  );
   const form = useForm<Values>({
     resolver: zodResolver(useSchema()),
     defaultValues: {
       environment: kinds.find((kind) => kind === asked) ?? kinds[0],
-      name: "",
+      name: prospect ? (params.get("name") ?? "") : "",
       official_name: "",
       code: "",
       status: "trial",
@@ -102,17 +120,47 @@ export function NewSchoolPage() {
       paid_until: "",
       enabled_currencies: [...CURRENCIES],
       default_currency: CURRENCIES[0],
-      modules: [...MODULES],
-      head: { phone: "", last_name: "", middle_name: "", first_name: "" },
+      // L'IA se donne école par école, avec ses usages et ses crédits (carte « IA » de la fiche).
+      modules: MODULES.filter((code) => code !== "ai"),
+      head: {
+        phone: prospect ? (params.get("phone") ?? "") : "",
+        last_name: "",
+        middle_name: "",
+        first_name: "",
+      },
     },
   });
   const kind = useWatch({ control: form.control, name: "environment" });
+  const chosen = useWatch({ control: form.control, name: "modules" });
+  // Forfait de départ (MOD.1) : une offre de la facturation coche ses fonctions ; « Sur mesure »,
+  // une à une.
+  const [forfait, setForfait] = useState<string>(CUSTOM);
+  const plans = useQuery({
+    queryKey: PLANS_KEY,
+    queryFn: () => call(api.GET("/api/console/billing/plans/")),
+    select: (page) => page.results.filter((plan) => plan.active),
+  });
+  const pick = (choice: string, plan?: Plan) => {
+    setForfait(choice);
+    if (!plan) return;
+    form.setValue(
+      "modules",
+      MODULES.filter((code) => plan.modules.includes(code)),
+    );
+    form.setValue("plan", plan.name.slice(0, 50));
+  };
   const create = useMutation({
-    mutationFn: ({ environment, ...values }: Values) =>
+    mutationFn: ({ environment, enabled_currencies, default_currency, ...values }: Values) =>
       call(
         api.POST("/api/console/schools/", {
           // Un espace de démonstration passe par son propre formulaire.
-          body: { ...values, ...schoolBody(values), environment: environment as "live" | "test" },
+          body: {
+            ...values,
+            ...schoolBody(values),
+            ...(values.modules.includes("finance") ? { enabled_currencies, default_currency } : {}),
+            environment: environment as "live" | "test",
+            prospect,
+          },
         }),
       ),
     onSuccess: () => {
@@ -205,62 +253,61 @@ export function NewSchoolPage() {
       />
       {general && <Banner tone="due">{general}</Banner>}
       <div className="grid items-start gap-4 min-[1100px]:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("console.schools.identityTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-4">
-            {kindField}
-            <IdentityFields form={form} codeHelp={t("console.schools.fields.codeHelp")} />
-            <Field
-              id="school-currencies"
-              label={t("console.schools.fields.currencies")}
-              help={t("console.schools.fields.currenciesHelp")}
-              error={errors.enabled_currencies?.message}
-            >
-              {() => (
-                <Controller
-                  control={form.control}
-                  name="enabled_currencies"
-                  render={({ field }) => (
-                    <div className="flex flex-wrap gap-4">
-                      {CURRENCIES.map((currency) => (
-                        <CheckboxField
-                          key={currency}
-                          id={`currency-${currency}`}
-                          label={t(`fees.currencies.${currency}`)}
-                          checked={field.value.includes(currency)}
-                          onCheckedChange={(checked) =>
-                            field.onChange(
-                              CURRENCIES.filter((c) =>
-                                c === currency ? checked === true : field.value.includes(c),
-                              ),
-                            )
-                          }
-                        />
-                      ))}
-                    </div>
-                  )}
+        <div className="flex flex-col gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("console.schools.identityTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {kindField}
+              <IdentityFields form={form} codeHelp={t("console.schools.fields.codeHelp")} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("console.schools.forfait.title")}</CardTitle>
+              <span className="text-sm text-ink-3">{t("console.schools.forfait.help")}</span>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <div
+                role="radiogroup"
+                aria-label={t("console.schools.forfait.title")}
+                className="grid gap-2 min-[560px]:grid-cols-2"
+              >
+                {(plans.data ?? []).map((plan) => (
+                  <ForfaitChoice
+                    key={plan.id}
+                    checked={forfait === plan.id}
+                    onChange={() => pick(plan.id, plan)}
+                    title={plan.name}
+                    help={
+                      plan.description ||
+                      plan.modules.map((code) => t(`console.schools.modules.${code}`)).join(" · ")
+                    }
+                  />
+                ))}
+                <ForfaitChoice
+                  checked={forfait === CUSTOM}
+                  onChange={() => pick(CUSTOM)}
+                  title={t("console.schools.forfait.custom")}
+                  help={t("console.schools.forfait.customHelp")}
                 />
+              </div>
+              {forfait === CUSTOM && (
+                <>
+                  <p className="text-md text-ink-3">{t("console.schools.modulesCreateHelp")}</p>
+                  <Controller
+                    control={form.control}
+                    name="modules"
+                    render={({ field }) => (
+                      <ModuleChoices chosen={field.value} onChange={field.onChange} />
+                    )}
+                  />
+                </>
               )}
-            </Field>
-            <Field
-              id="school-default_currency"
-              label={t("console.schools.fields.default_currency")}
-              error={errors.default_currency?.message}
-            >
-              {(control) => (
-                <Select {...control} {...form.register("default_currency")}>
-                  {CURRENCIES.map((currency: Currency) => (
-                    <option key={currency} value={currency}>
-                      {t(`fees.currencies.${currency}`)}
-                    </option>
-                  ))}
-                </Select>
-              )}
-            </Field>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
         <div className="flex flex-col gap-4">
           <Card>
             <CardHeader>
@@ -273,21 +320,64 @@ export function NewSchoolPage() {
               {head("first_name")}
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("console.schools.modulesTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-3">
-              <p className="text-md text-ink-3">{t("console.schools.modulesCreateHelp")}</p>
-              <Controller
-                control={form.control}
-                name="modules"
-                render={({ field }) => (
-                  <ModuleChoices chosen={field.value} onChange={field.onChange} />
-                )}
-              />
-            </CardContent>
-          </Card>
+          {/* Réglages des seules fonctions choisies (MOD.1) : la caisse a ses devises. */}
+          {chosen.includes("finance") && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("console.schools.forfait.settingsTitle")}</CardTitle>
+                <span className="text-sm text-ink-3">{t("console.schools.modules.finance")}</span>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <Field
+                  id="school-currencies"
+                  label={t("console.schools.fields.currencies")}
+                  help={t("console.schools.fields.currenciesHelp")}
+                  error={errors.enabled_currencies?.message}
+                >
+                  {() => (
+                    <Controller
+                      control={form.control}
+                      name="enabled_currencies"
+                      render={({ field }) => (
+                        <div className="flex flex-wrap gap-4">
+                          {CURRENCIES.map((currency) => (
+                            <CheckboxField
+                              key={currency}
+                              id={`currency-${currency}`}
+                              label={t(`fees.currencies.${currency}`)}
+                              checked={field.value.includes(currency)}
+                              onCheckedChange={(checked) =>
+                                field.onChange(
+                                  CURRENCIES.filter((c) =>
+                                    c === currency ? checked === true : field.value.includes(c),
+                                  ),
+                                )
+                              }
+                            />
+                          ))}
+                        </div>
+                      )}
+                    />
+                  )}
+                </Field>
+                <Field
+                  id="school-default_currency"
+                  label={t("console.schools.fields.default_currency")}
+                  error={errors.default_currency?.message}
+                >
+                  {(control) => (
+                    <Select {...control} {...form.register("default_currency")}>
+                      {CURRENCIES.map((currency: Currency) => (
+                        <option key={currency} value={currency}>
+                          {t(`fees.currencies.${currency}`)}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>{t("console.schools.subscriptionTitle")}</CardTitle>
@@ -299,6 +389,29 @@ export function NewSchoolPage() {
         </div>
       </div>
     </form>
+  );
+}
+
+/** Un forfait de départ : une offre de la facturation, ou « Sur mesure ». */
+function ForfaitChoice({
+  checked,
+  onChange,
+  title,
+  help,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  title: string;
+  help: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 rounded-md border border-line p-3 has-[:checked]:border-brand">
+      <input type="radio" name="forfait" className="mt-1" checked={checked} onChange={onChange} />
+      <span>
+        <b>{title}</b>
+        <span className="block text-sm text-ink-3">{help}</span>
+      </span>
+    </label>
   );
 }
 

@@ -169,6 +169,9 @@ deploy: ## Mettre en ligne main sur le vrai serveur ; make deploy ref=origin/<br
 deploy-demo: ## Serveur où DJANGO_DEMO_DATA est activé (essai) : espaces de make demo effacés puis recréés ; refusé sur le vrai serveur (console : « Remettre à zéro »)
 	$(DEPLOYER) demo
 
+deploy-site: ## Vrai serveur : ajoute les actualités d'exemple du site si elles manquent (rien n'est écrasé ; à modifier ensuite dans la console)
+	$(DEPLOYER) site
+
 deploy-superuser: ## Créer un compte super-admin sur le vrai serveur
 	$(DEPLOYER) superuser
 

@@ -37,6 +37,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
+from apps.audit import security
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
@@ -1962,6 +1963,7 @@ def approve_cancellation(
                 **({"note": request.decision_note} if request.decision_note else {}),
             },
         )
+        security.payment_cancelled()
         surplus = StudentCredit.objects.filter(source_payment=payment, voided_at__isnull=True)
         for credit in surplus.select_for_update():
             _void_credit(credit, enrollment, actor=actor, at=now)

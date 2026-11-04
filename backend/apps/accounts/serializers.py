@@ -210,6 +210,11 @@ class CurrentSchoolAccessSerializer(serializers.Serializer):
         child=serializers.ChoiceField(choices=MODULE_CHOICES),
         help_text="Fonctions que la plateforme a données à l'école (M.1) ; vide : aucune.",
     )
+    features = serializers.ListField(
+        child=serializers.CharField(),
+        help_text="Champs, réglages, étapes et rôles du registre des modules (MOD.1) qui "
+        "s'appliquent à l'école : l'interface masque les autres.",
+    )
     documents = DocumentSignersSerializer(
         help_text="Cachet et signatures posés sur les documents que la Gestion imprime (DOC.1)."
     )

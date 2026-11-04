@@ -181,6 +181,8 @@ class PlatformAnnouncement(BaseModel):
         related_name="+",
         verbose_name=_("archived by"),
     )
+    # Fictive (console en mode démonstration) : lue seulement par les espaces de démonstration.
+    is_demo = models.BooleanField(_("fictional"), default=False, db_index=True)
 
     class Meta:
         ordering = ["-published_at", "-id"]

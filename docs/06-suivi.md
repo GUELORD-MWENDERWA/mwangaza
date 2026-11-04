@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Lot 4 — Bulletins aux parents, parties ① à ④ faites (4/4), reste : mesure PERF.6 |
-| Prochain lot | Lot 5 (après le lot 4) |
+| Lot en cours | Aucun : lot 5 — Console finie, PR ouverte (à fusionner) |
+| Prochain lot | Lot 6 — Aide, guide et support ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #420 (une par lot, jalon « V1 complète ») |
-| Branche | `lot/4-bulletins-parents` |
-| Dernière mise à jour | 2026-11-03 (lot 4, partie ④ faite) |
+| Issue GitHub | #423 (lot 5 ; une par lot, jalon « V1 complète ») |
+| Branche | `lot/5-console` (PR ouverte) |
+| Dernière mise à jour | 2026-11-04 (lot 5 fini, PR ouverte) |
 
 ## Avancement
 
@@ -24,7 +24,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 2 — Site public refait | 9 ✓ | 9 |
 | 3 — Vendre : contrats, abonnements, factures | 5 ✓ | 5 |
 | 4 — Bulletins aux parents | 4 ✓ | 4 |
-| 5 — Console finie | 0 | 4 |
+| 5 — Console finie | 7 ✓ | 7 |
 | 6 — Aide, guide et support | 0 | 2 |
 | 7 — Finances et caisse complètes | 0 | 3 |
 | 8 — Cours communs et notes | 0 | 2 |
@@ -65,6 +65,11 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-11-04 — Lot 5 : Console finie
+Fait : tableau de bord des affaires et fiche d'école avec cycle de vie et export complet (CON.1, CON.2), prospects (CON.3), console réelle / démonstration refaite comme la Gestion, console de l'IA et crédits (IA.1.2), alertes de sécurité (S.8), et MOD.1 : registre `FEATURES` des champs, réglages, étapes et rôles par module, forfaits de départ = offres de la facturation + « Sur mesure ».
+Tests : droits par rôle, isolation, matrice par forfait (élèves seuls, élèves et caisse, complet), rôles ajoutés avec un module (journal) ; deux tests du lot rendus justes (démonstration : en-tête du mode ; journal : alertes fictives mises à part) et plus d'alerte d'annulations sur un espace de démonstration.
+Décisions : `03` (MOD.1, S.8, IA.1.2, console réelle / démonstration). Suite : lot 6 (aide) ; le lot 16 ajoute `bell` et `attendance` au registre et les offres « Sonnerie seule » et « Présences ».
 
 ### 2026-11-03 — Lot 4 : Bulletins aux parents (presque fini)
 - Fait : bulletin retenu pour frais échus + dérogations ; notes, décision et bulletin PDF contrôlé sur le Portail ; fil parent ↔ école ; Portail lisible sans réseau (notes, conduite, fil, bandeau « vu le ») ; journal des consultations de bulletins ; alertes « notes corrigées par un autre » et « cours confié / retiré ».

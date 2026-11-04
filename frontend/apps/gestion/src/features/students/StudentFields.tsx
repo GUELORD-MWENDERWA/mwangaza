@@ -17,16 +17,38 @@ import { type ReactNode, useEffect, useMemo } from "react";
 import { Controller, type FieldValues, type Path, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 
+import { type Feature, applies } from "../../lib/permissions";
+import { type Me, useCurrentMe } from "../../lib/queries";
 import { shrinkPhoto } from "./photo";
 
-export function identityShape(t: TFunction) {
+// Champ de la fiche (ou colonne de l'import) qui n'existe qu'avec certains modules (MOD.1) : en
+// tête du bulletin. Les autres sont demandés à toute école qui a des élèves.
+const FIELD_FEATURES: Record<string, Feature> = {
+  national_id: "student.national_id",
+  permanent_number: "student.permanent_number",
+  birth_place: "student.birth_place",
+  nationality: "student.nationality",
+  origin_province: "student.origin",
+  origin_territory: "student.origin",
+};
+
+/** Le champ `name` de l'élève s'applique-t-il à l'école ? */
+export function studentFieldShown(me: Me, name: string): boolean {
+  const feature = FIELD_FEATURES[name];
+  return feature === undefined || applies(me, feature);
+}
+
+/** Date de naissance obligatoire seulement pour le bulletin ; sinon facultative. */
+export const birthDateRequired = (me: Me) => me.school?.modules.includes("academics") ?? false;
+
+export function identityShape(t: TFunction, birthDate = true) {
   const text = (max: number) => z.string().trim().max(max);
   return {
     last_name: text(80).min(1, t("validation.nameRequired")),
     middle_name: text(80).min(1, t("students.validation.middleNameRequired")),
     first_name: text(80),
     sex: z.string().min(1, t("students.validation.sexRequired")),
-    birth_date: z.string().min(1, t("validation.dateRequired")),
+    birth_date: birthDate ? z.string().min(1, t("validation.dateRequired")) : z.string(),
     birth_place: text(120),
     national_id: text(30),
     permanent_number: text(30),
@@ -152,11 +174,13 @@ export function IdentitySections<T extends IdentityValues>({
   form: UseFormReturn<T, unknown, unknown>;
 }) {
   const { t } = useTranslation();
+  const me = useCurrentMe();
   const identity = form as unknown as IdentityForm;
   const sexError = identity.formState.errors.sex?.message;
-  const field = (name: Path<IdentityValues>, label: string, required = false, type = "text") => (
-    <TextField form={identity} name={name} label={label} required={required} type={type} />
-  );
+  const field = (name: Path<IdentityValues>, label: string, required = false, type = "text") =>
+    studentFieldShown(me, name) && (
+      <TextField form={identity} name={name} label={label} required={required} type={type} />
+    );
   return (
     <>
       <Section title={t("students.new.identity")}>
@@ -194,7 +218,7 @@ export function IdentitySections<T extends IdentityValues>({
               </p>
             )}
           </div>
-          {field("birth_date", t("students.new.birthDate"), true, "date")}
+          {field("birth_date", t("students.new.birthDate"), birthDateRequired(me), "date")}
           {field("birth_place", t("students.new.birthPlace"))}
           {field("national_id", t("students.new.nationalId"))}
           {field("permanent_number", t("students.new.permanentNumber"))}

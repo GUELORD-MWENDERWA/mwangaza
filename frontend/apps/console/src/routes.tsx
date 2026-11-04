@@ -4,6 +4,8 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/accounts/AccountPage";
 import { AccountsPage } from "./features/accounts/AccountsPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { AiPage } from "./features/ai/AiPage";
+import { BusinessPage } from "./features/business/BusinessPage";
 import { BillingPage } from "./features/billing/BillingPage";
 import { CodePage } from "./features/auth/CodePage";
 import { FinishInAdminPage } from "./features/auth/FinishInAdminPage";
@@ -29,9 +31,12 @@ import { TeamPage } from "./features/team/TeamPage";
 
 const { schoolsView, schoolsManage, demosManage, accountsSupport, auditView } = RIGHTS;
 
-/** Page gardée : un des droits demandés (EQ.2), sinon un message. */
-const only = (rights: readonly Right[], page: ReactNode) => (
-  <Allowed rights={rights}>{page}</Allowed>
+/** Page gardée : un des droits demandés (EQ.2), sinon un message ; `live` : en mode réel
+ *  seulement (lot 5, ②bis). */
+const only = (rights: readonly Right[], page: ReactNode, live = false) => (
+  <Allowed rights={rights} live={live}>
+    {page}
+  </Allowed>
 );
 
 /** Écrans de la console ; les entrées du menu arrivent avec leur tâche. */
@@ -52,6 +57,14 @@ export const routes: RouteObject[] = [
         element: <ConsoleShell />,
         children: [
           { index: true, element: <Home /> },
+          {
+            path: "business",
+            element: only(
+              [schoolsView, RIGHTS.billingManage, RIGHTS.leadsManage],
+              <BusinessPage />,
+              true,
+            ),
+          },
           { path: "schools", element: only([schoolsView, demosManage], <SchoolsPage />) },
           { path: "schools/new", element: only([schoolsManage, demosManage], <NewSchoolPage />) },
           { path: "schools/:id", element: only([schoolsView, demosManage], <SchoolPage />) },
@@ -60,18 +73,22 @@ export const routes: RouteObject[] = [
           { path: "accounts", element: only([accountsSupport], <AccountsPage />) },
           { path: "accounts/:id", element: only([accountsSupport], <AccountPage />) },
           { path: "announcements", element: only([RIGHTS.newsPublish], <AnnouncementsPage />) },
-          { path: "billing", element: only([RIGHTS.billingManage, schoolsView], <BillingPage />) },
-          { path: "site", element: only([RIGHTS.siteEdit], <SitePage />) },
-          { path: "news", element: only([RIGHTS.siteEdit], <NewsPage />) },
-          { path: "photos", element: only([RIGHTS.siteEdit], <PhotosPage />) },
-          { path: "identity", element: only([RIGHTS.identityEdit], <IdentityPage />) },
+          {
+            path: "billing",
+            element: only([RIGHTS.billingManage, schoolsView], <BillingPage />, true),
+          },
+          { path: "site", element: only([RIGHTS.siteEdit], <SitePage />, true) },
+          { path: "news", element: only([RIGHTS.siteEdit], <NewsPage />, true) },
+          { path: "photos", element: only([RIGHTS.siteEdit], <PhotosPage />, true) },
+          { path: "identity", element: only([RIGHTS.identityEdit], <IdentityPage />, true) },
           { path: "devices", element: only([RIGHTS.healthView], <DevicesPage />) },
+          { path: "ai", element: only([RIGHTS.aiManage], <AiPage />) },
           { path: "journal", element: only([auditView], <JournalPage />) },
           {
             path: "journal/support",
             element: only([auditView, accountsSupport], <SupportSessionsPage />),
           },
-          { path: "team", element: only([RIGHTS.teamManage], <TeamPage />) },
+          { path: "team", element: only([RIGHTS.teamManage], <TeamPage />, true) },
         ],
       },
     ],

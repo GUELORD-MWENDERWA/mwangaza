@@ -7,7 +7,7 @@ PER = 1_000_000
 CREDIT = 1_000  # 1 crédit = un millième de dollar = 1 000 micro-dollars
 
 
-def _price(input_, output, cache_read):
+def entry(input_, output, cache_read):
     return {
         INPUT: input_,
         OUTPUT: output,
@@ -17,9 +17,9 @@ def _price(input_, output, cache_read):
 
 
 DEFAULT_PRICES = {
-    "claude-opus-5-5": _price(4_000_000, 20_000_000, 200_000),
-    "claude-sonnet-5-5": _price(2_000_000, 10_000_000, 200_000),
-    "claude-haiku-5-5": _price(100_000, 500_000, 10_000),
+    "claude-opus-5-5": entry(4_000_000, 20_000_000, 200_000),
+    "claude-sonnet-5-5": entry(2_000_000, 10_000_000, 200_000),
+    "claude-haiku-5-5": entry(100_000, 500_000, 10_000),
 }
 
 

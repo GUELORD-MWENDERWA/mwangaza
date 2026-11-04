@@ -6,11 +6,13 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.models import User
 from apps.accounts.permissions import HasPlatformPermission
 from apps.accounts.roles import AUDIT_VIEW
 from apps.accounts.views import CONSOLE_ERRORS, ERRORS, SchoolViewSet
+from apps.audit import security
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog, PlatformAuditLog
@@ -119,6 +121,7 @@ class AuditLogViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVi
             widths=[18, 26, 34, 34, 40, 40, 16, 26, 18],
         )
         since, until = params.validated_data["since"], params.validated_data["until"]
+        security.exported(request.user, logs.count())
         audit.record(
             Action.AUDIT_EXPORTED,
             actor=request.user,
@@ -170,7 +173,9 @@ class ConsolePlatformLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = PlatformLogSerializer
 
     def get_queryset(self):
-        logs = PlatformAuditLog.objects.select_related("actor")
+        logs = PlatformAuditLog.objects.select_related("actor").filter(
+            is_demo=console_mode.is_demo(self.request)
+        )
         if self.action != "list":
             return logs
         params = PlatformLogFilterSerializer(data=self.request.query_params)

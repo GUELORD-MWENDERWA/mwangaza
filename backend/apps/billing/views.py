@@ -8,6 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission, HasSchoolPermission
 from apps.billing import documents, invoicing, services, subscription
@@ -53,6 +54,7 @@ class ConsolePlanViewSet(
     """Offres de la plateforme (ABO.1) : prix par élève inscrit et par période, modules compris."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = {
         "list": READ,
         "retrieve": READ,
@@ -84,6 +86,7 @@ class ConsoleContractViewSet(
     """Contrats des écoles (CTR.1) : brouillon, signature (scan ou en ligne), avenant."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = {
         "list": READ,
         "retrieve": READ,
@@ -96,7 +99,9 @@ class ConsoleContractViewSet(
     http_method_names = ["get", "post", "head", "options"]
 
     def get_queryset(self):
-        contracts = Contract.all_schools.select_related("school", "plan", "replaces")
+        contracts = Contract.all_schools.filter(
+            school__environment__in=console_mode.list_environments(self.request)
+        ).select_related("school", "plan", "replaces")
         if code := self.request.query_params.get("school"):
             contracts = contracts.filter(school__code=code)
         return contracts
@@ -106,7 +111,11 @@ class ConsoleContractViewSet(
         form = ContractCreateSerializer(data=request.data)
         form.is_valid(raise_exception=True)
         data = dict(form.validated_data)
-        school = get_object_or_404(School, code=data.pop("school"))
+        school = get_object_or_404(
+            School,
+            code=data.pop("school"),
+            environment__in=console_mode.list_environments(request),
+        )
         plan = get_object_or_404(Plan, code=data.pop("plan"))
         contract = services.draft_contract(actor=request.user, school=school, plan=plan, **data)
         return Response(ContractSerializer(contract).data, status=status.HTTP_201_CREATED)
@@ -161,6 +170,7 @@ class ConsoleInvoiceViewSet(
     annuler un paiement, PDF. Une facture ne se modifie ni ne se supprime."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = {
         "list": FINANCE,
         "retrieve": FINANCE,
@@ -175,7 +185,10 @@ class ConsoleInvoiceViewSet(
 
     def get_queryset(self):
         invoices = invoicing.with_balance(
-            Invoice.all_schools.select_related("school", "contract", "credit_for", "credit_note")
+            Invoice.all_schools.filter(
+                school__environment__in=console_mode.list_environments(self.request)
+            )
+            .select_related("school", "contract", "credit_for", "credit_note")
             .prefetch_related(
                 Prefetch("lines", queryset=InvoiceLine.all_schools.all()),
                 Prefetch("payments", queryset=InvoicePayment.all_schools.all()),
@@ -191,7 +204,11 @@ class ConsoleInvoiceViewSet(
         form = InvoiceCreateSerializer(data=request.data)
         form.is_valid(raise_exception=True)
         data = dict(form.validated_data)
-        contract = get_object_or_404(Contract.all_schools, number=data.pop("contract"))
+        contract = get_object_or_404(
+            Contract.all_schools,
+            number=data.pop("contract"),
+            school__environment__in=console_mode.list_environments(request),
+        )
         extra = [(x["description"], x["quantity"], x["unit_amount"]) for x in data.pop("lines", [])]
         invoice = invoicing.issue_invoice(contract, actor=request.user, extra_lines=extra, **data)
         return Response(self._one(invoice), status=status.HTTP_201_CREATED)
@@ -250,11 +267,14 @@ class ConsoleStatementView(APIView):
     """Relevé d'une école (ABO.2) : factures, avoirs et paiements par devise, solde courant."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = {"get": FINANCE}
 
     @extend_schema(responses={200: dict})
     def get(self, request, code):
-        school = get_object_or_404(School, code=code)
+        school = get_object_or_404(
+            School, code=code, environment__in=console_mode.list_environments(request)
+        )
         return Response(invoicing.statement(school))
 
 
@@ -263,6 +283,7 @@ class ConsoleLegalViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewse
     publier une version ; une version publiée ne change plus."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = {"list": READ, "create": team.BILLING_MANAGE}
     serializer_class = LegalDocumentSerializer
     queryset = LegalDocument.objects.all()
@@ -389,6 +410,7 @@ class ConsoleModuleRequestViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
     """Demandes de modules de toutes les écoles, ouvertes d'abord ; `handled` la clôt."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = {"list": READ, "handled": team.BILLING_MANAGE}
     serializer_class = ModuleRequestSerializer
 
@@ -399,4 +421,10 @@ class ConsoleModuleRequestViewSet(mixins.ListModelMixin, viewsets.GenericViewSet
         return Response(ModuleRequestSerializer(done).data)
 
     def get_queryset(self):
-        return ModuleRequest.all_schools.select_related("school").order_by("status", "-created_at")
+        return (
+            ModuleRequest.all_schools.filter(
+                school__environment__in=console_mode.list_environments(self.request)
+            )
+            .select_related("school")
+            .order_by("status", "-created_at")
+        )

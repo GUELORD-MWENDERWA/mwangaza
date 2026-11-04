@@ -29,11 +29,17 @@ const REQUEST = {
   language: "fr",
   status: "new",
   notes: "",
+  assignee: null,
+  assignee_name: "",
+  follow_up_on: null,
+  lost_reason: "",
+  school_code: "",
+  overdue: false,
 };
 
 afterEach(() => vi.unstubAllGlobals());
 
-describe("Demandes de démonstration de la console", () => {
+describe("Prospects de la console", () => {
   it("montre les nouvelles d'abord, enregistre le suivi et n'efface qu'après confirmation", async () => {
     const requests = mockApi({
       "GET /api/me/": ADMIN,
@@ -43,7 +49,8 @@ describe("Demandes de démonstration de la console", () => {
         previous: null,
         results: [REQUEST],
       },
-      "PATCH /api/console/demo-requests/r1/": { ...REQUEST, status: "called", notes: "Jeudi" },
+      "GET /api/console/demo-requests/assignees/": [{ id: "u1", name: "Commercial" }],
+      "PATCH /api/console/demo-requests/r1/": { ...REQUEST, status: "lost", notes: "Jeudi" },
       "DELETE /api/console/demo-requests/r1/": () => new Response(null, { status: 204 }),
     });
     const { user } = renderApp("/demo-requests");
@@ -57,11 +64,19 @@ describe("Demandes de démonstration de la console", () => {
       "status=new",
     );
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Suivi" }), "called");
+    await user.selectOptions(screen.getByRole("combobox", { name: "Étape" }), "lost");
+    await user.type(screen.getByLabelText(/Motif de perte/), "Trop cher");
+    await user.selectOptions(await screen.findByRole("combobox", { name: "Responsable" }), "u1");
     await user.type(screen.getByLabelText("Note interne"), "Jeudi");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     const patch = requests.find((r) => r.method === "PATCH");
-    expect(patch?.body).toEqual({ status: "called", notes: "Jeudi" });
+    expect(patch?.body).toEqual({
+      status: "lost",
+      notes: "Jeudi",
+      assignee: "u1",
+      follow_up_on: null,
+      lost_reason: "Trop cher",
+    });
 
     await user.click(screen.getByRole("button", { name: "Effacer" }));
     const dialog = await screen.findByRole("dialog");

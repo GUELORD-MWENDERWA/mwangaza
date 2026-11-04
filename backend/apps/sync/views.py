@@ -9,6 +9,7 @@ from rest_framework.permissions import BasePermission
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import (
     HasPlatformPermission,
@@ -164,8 +165,12 @@ class ConsoleDeviceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ConsoleDeviceSerializer
 
     def get_queryset(self):
-        devices = Device.all_schools.select_related("school", "user").order_by(
-            F("last_seen_at").desc(nulls_last=True), "-created_at"
+        devices = (
+            Device.all_schools.filter(
+                school__environment__in=console_mode.list_environments(self.request)
+            )
+            .select_related("school", "user")
+            .order_by(F("last_seen_at").desc(nulls_last=True), "-created_at")
         )
         if self.action != "list":
             return devices

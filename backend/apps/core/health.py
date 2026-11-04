@@ -13,6 +13,7 @@ from pathlib import Path
 
 import redis
 from django.conf import settings
+from django.core.cache import cache
 from django.db import connection
 
 # Sous ces pourcentages de place libre : avertissement, puis panne (plus de reçus ni de logos).
@@ -31,6 +32,8 @@ BACKUP_ERROR_AFTER = timedelta(hours=54)
 # Écrits dans Redis (volume persistant) : le passage du planificateur par `heartbeat`, la
 # sauvegarde et sa copie hors du serveur par `infra/backup/sauvegarde.sh` (heure UNIX).
 TICK_KEY = "mwangaza:scheduler:tick"
+REPORT_KEY = "mwangaza:health:report"
+REPORT_SECONDS = 60
 BACKUP_KEYS = {"done_at": "mwangaza:backup:done", "copied_at": "mwangaza:backup:copied"}
 QUEUE_KEY = "celery"
 # Mémoire de chaque conteneur (PERF.4) : un conteneur ne voit pas les autres, donc
@@ -157,6 +160,12 @@ def report() -> dict:
     statuses = {check["status"] for check in checks}
     status = next((s for s in ("error", "warning") if s in statuses), "ok")
     return {"status": status, "checks": checks}
+
+
+def cached_report() -> dict:
+    """`report()` gardé une minute : la barre du haut de chaque membre de l'équipe le demande, et
+    le ping des travailleurs peut prendre une seconde."""
+    return cache.get_or_set(REPORT_KEY, report, REPORT_SECONDS)
 
 
 def _redis():

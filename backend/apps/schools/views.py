@@ -1,8 +1,11 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction
 from django.db.models import Count, Q
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse, JsonResponse
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_GET
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import (
@@ -11,13 +14,14 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.models import Membership
 from apps.accounts.permissions import (
@@ -37,10 +41,22 @@ from apps.accounts.roles import (
     STUDENTS_VIEW,
 )
 from apps.accounts.views import SchoolViewSet
+from apps.core import health
 from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
-from apps.schools import console, demonstrations, organisation, services, setup
+from apps.core.models import DemoRequest
+from apps.schools import (
+    business,
+    console,
+    demonstrations,
+    exports,
+    lifecycle,
+    organisation,
+    services,
+    setup,
+    tasks,
+)
 from apps.schools.console_serializers import (
     AccessSheetQuerySerializer,
     ConsoleSchoolCreatedSerializer,
@@ -61,6 +77,7 @@ from apps.schools.serializers import (
     ClassGroupFilterSerializer,
     ClassGroupSerializer,
     ClassGroupUpdateSerializer,
+    ConsoleBusinessSerializer,
     ConsoleDashboardSerializer,
     CurrentSchoolSerializer,
     LevelReorderSerializer,
@@ -73,6 +90,7 @@ from apps.schools.serializers import (
     MatriculeSettingsSerializer,
     PersonSerializer,
     SchoolSettingsSerializer,
+    ServerHealthSerializer,
     SetupSerializer,
     SignatureUploadSerializer,
     TermsUpdateSerializer,
@@ -641,7 +659,68 @@ class ConsoleDashboardView(APIView):
         responses={200: ConsoleDashboardSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
     )
     def get(self, request: Request) -> Response:
-        return Response(ConsoleDashboardSerializer(console.dashboard()).data)
+        environments = console_mode.stats_environments(request)
+        data = console.dashboard(environments)
+        rights, demo = request.user.platform_permissions, console_mode.is_demo(request)
+        data["todo"] = console.todo(rights, environments, demo=demo, day=data["day"])
+        data["recent"] = console.recent_activity(rights, demo=demo)
+        data["security"] = console.security_alerts(rights, demo=demo)
+        return Response(ConsoleDashboardSerializer(data).data)
+
+
+@extend_schema(tags=["console"])
+class ConsoleHealthView(APIView):
+    """État des services pour la barre du haut de la console (lot 5, ②bis) : le même calcul que
+    le tableau de bord, gardé une minute pour toute l'équipe."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.HEALTH_VIEW)
+
+    @extend_schema(responses={200: ServerHealthSerializer, 403: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        return Response(ServerHealthSerializer(health.cached_report()).data)
+
+
+XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+
+@extend_schema(tags=["console"])
+class ConsoleBusinessView(APIView):
+    """Affaires de la plateforme (CON.1) : écoles par état, élèves facturés, facturé / encaissé /
+    dû par devise, contrats à renouveler, prospects ouverts. Calculé en SQL et gardé 5 minutes ;
+    chaque section demande son droit (`schools.view`, `billing.manage`, `leads.manage`) et
+    manque sinon. Il faut au moins un de ces droits."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.BILLING_MANAGE, team.LEADS_MANAGE)
+    live_only = True
+
+    @extend_schema(responses={200: ConsoleBusinessSerializer, 403: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        data = business.for_rights(request.user.platform_permissions)
+        return Response(ConsoleBusinessSerializer(data).data)
+
+
+@extend_schema(tags=["console"])
+class ConsoleBusinessExportView(APIView):
+    """Export Excel des écoles, des factures ou des paiements de la plateforme (espaces réels
+    seulement) : `schools` demande `schools.view`, les deux autres `billing.manage`."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.BILLING_MANAGE)
+    live_only = True
+
+    @extend_schema(
+        responses={(200, XLSX): OpenApiTypes.BINARY, 403: ErrorSerializer, 404: ErrorSerializer}
+    )
+    def get(self, request: Request, kind: str) -> HttpResponse:
+        if kind not in business.EXPORTS:
+            raise Http404
+        ensure_platform_permission(request, business.EXPORTS[kind])
+        response = HttpResponse(business.export_workbook(kind), content_type=XLSX)
+        day = timezone.localdate()
+        response["Content-Disposition"] = f'attachment; filename="mwangaza-{kind}-{day}.xlsx"'
+        return response
 
 
 CONSOLE_ERRORS = {400: ErrorSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
@@ -679,6 +758,7 @@ class ConsoleSchoolViewSet(
         schools = console.schools()
         if getattr(self, "swagger_fake_view", False):
             return schools
+        schools = schools.filter(environment__in=console_mode.list_environments(self.request))
         if team.SCHOOLS_VIEW not in self.request.user.platform_permissions:
             schools = schools.exclude(environment=School.Environment.LIVE)
         if self.action != "list":
@@ -722,12 +802,22 @@ class ConsoleSchoolViewSet(
         """Nouvelle école avec son premier directeur. Nouveau numéro : mot de passe provisoire
         renvoyé une seule fois (pas de SMS en V1) ; numéro connu : ajouté sans nouveau mot de
         passe."""
-        environment = request.data.get("environment") or School.Environment.LIVE
+        environments = console_mode.list_environments(request)
+        environment = request.data.get("environment") or environments[0]
+        if environment not in environments:
+            raise ValidationError({"environment": _("Not available in this console mode.")})
         self._allowed(environment, team.SCHOOLS_MANAGE)
         serializer = ConsoleSchoolCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = dict(serializer.validated_data)
         head = data.pop("head")
+        prospect = data.pop("prospect", None)
+        if prospect is not None:
+            ensure_platform_permission(request, team.LEADS_MANAGE)
+            if not DemoRequest.objects.filter(
+                pk=prospect, is_demo=console_mode.is_demo(request)
+            ).exists():
+                raise NotFound
         director = services.Director(
             phone=head["phone"],
             **{
@@ -736,7 +826,7 @@ class ConsoleSchoolViewSet(
             },
         )
         membership, password = services.create_school(
-            School(**data), actor=request.user, director=director
+            School(**data), actor=request.user, director=director, prospect_id=prospect
         )
         created = {
             "school": console.schools().get(pk=membership.school_id),
@@ -784,6 +874,17 @@ class ConsoleSchoolViewSet(
         active."""
         return self._detail(services.reactivate(self._object(), actor=request.user))
 
+    @extend_schema(request=None, responses={200: ConsoleSchoolDetailSerializer, **CONSOLE_ERRORS})
+    @action(detail=True, methods=["post"], url_path="export")
+    def export_data(self, request: Request, pk=None) -> Response:
+        """Export complet des données de l'école (Excel), fait en tâche de fond ; un lien valable
+        7 jours est envoyé par e-mail à son contact (CON.2). Demandé à l'arrêt, ou ici à la main
+        (école qui part, ou qui veut ses données)."""
+        school = self._object()
+        export = exports.request_export(school, actor=request.user)
+        transaction.on_commit(lambda: tasks.build_export.delay(str(export.pk), lifecycle.EXPORT))
+        return self._detail(school)
+
     @extend_schema(
         request=SchoolDeleteSerializer,
         responses={204: None, 409: ErrorSerializer, **CONSOLE_ERRORS},
@@ -807,8 +908,11 @@ class ConsoleSchoolViewSet(
     def demo(self, request: Request) -> Response:
         """Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
         en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
-        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface."""
+        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface. Console en mode
+        démonstration seulement."""
         ensure_platform_permission(request, team.DEMOS_MANAGE)
+        if not console_mode.is_demo(request):
+            raise NotFound
         serializer = DemonstrationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         school = demonstrations.create(actor=request.user, **serializer.validated_data)
@@ -844,3 +948,17 @@ class ConsoleSchoolViewSet(
         context = demonstrations.access_sheet(school)
         name = f"fiche-acces-{school.code}.pdf"
         return render("schools/access_sheet.html", context, params.validated_data["output"], name)
+
+
+@require_GET
+def school_export_download(request: HttpRequest, token: str) -> HttpResponse:
+    """Lien de l'export complet d'une école (CON.2), ouvert par son contact sans compte : signé,
+    valable 7 jours, sur l'adresse de la plateforme (l'école arrêtée n'a plus la sienne). Un lien
+    faux, périmé ou déjà effacé répond 404 sans rien dire de plus."""
+    export = exports.resolve(token)
+    if export is None:
+        raise Http404
+    response = FileResponse(export.file.open("rb"), as_attachment=True)
+    response["Cache-Control"] = "private, no-store"
+    response["X-Robots-Tag"] = "noindex"
+    return response

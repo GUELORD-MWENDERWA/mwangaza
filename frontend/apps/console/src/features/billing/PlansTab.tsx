@@ -28,7 +28,7 @@ import { money } from "./shared";
 type Plan = Schemas["Plan"];
 type PlanModule = Plan["modules"][number];
 export const PLANS_KEY = ["console", "billing", "plans"];
-const PLAN_MODULES: PlanModule[] = [...MODULES, "ai"];
+const PLAN_MODULES: PlanModule[] = MODULES;
 
 export function PlansTab({ manage }: { manage: boolean }) {
   const { t } = useTranslation();

@@ -312,6 +312,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/ai/credits/:
+    get:
+      operationId: ai_credits_retrieve
+      description: |-
+        « Crédits IA » de l'école (Gestion), en lecture seule : crédits du mois, usages donnés et,
+        pour chacun, la raison d'un refus certain (bouton grisé). Droits `school.configure` ou
+        `ai.use`.
+      tags:
+      - ai
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiCredits'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/announcements/:
     get:
       operationId: announcements_list
@@ -5062,6 +5086,320 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/ai/:
+    get:
+      operationId: console_ai_retrieve
+      description: |-
+        Page « IA » de la console (droit `platform.ai.manage`) : dépense du mois, par école et par
+        usage, part des résultats gardés, alertes ; en mode réel, réglages de la plateforme. En
+        démonstration : les espaces de démonstration, sans plafond ni réglages.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: console_ai_partial_update
+      description: |-
+        Interrupteur, plafond du mois (micro-dollars) et appels par personne et par heure ;
+        mode réel seulement.
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAiSettingsChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAiSettingsChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAiSettingsChangeRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/prices/{model}/:
+    put:
+      operationId: console_ai_prices_update
+      description: Prix d'un modèle connu, en micro-dollars par million de jetons
+        ; mode réel seulement.
+      parameters:
+      - in: path
+        name: model
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiPriceChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiPriceChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiPriceChangeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/schools/{id}/:
+    get:
+      operationId: console_ai_schools_retrieve
+      description: |-
+        Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+        du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSchoolCard'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: console_ai_schools_update
+      description: |-
+        Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+        du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiAllowanceChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiAllowanceChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiAllowanceChangeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSchoolCard'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/schools/{id}/top-up/:
+    post:
+      operationId: console_ai_schools_top_up_create
+      description: 'Recharge : des crédits en plus pour le mois en cours de cette
+        école.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiTopUpRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiTopUpRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiTopUpRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiSchoolCard'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/ai/uses/{code}/:
+    put:
+      operationId: console_ai_uses_update
+      description: 'Modèle et limites d''un usage du catalogue ; tout vide : réglage
+        d''origine. Réel seulement.'
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiUseChangeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AiUseChangeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AiUseChangeRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiOverview'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/alerts/:
     get:
       operationId: console_alerts_list
@@ -5315,6 +5653,7 @@ paths:
           - device
           - platform
           - school
+          - security
           - site
           - team
           type: string
@@ -5328,6 +5667,7 @@ paths:
           * `device` - device
           * `platform` - platform
           * `school` - school
+          * `security` - security
           * `site` - site
           * `team` - team
       - name: page
@@ -6000,6 +6340,67 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/console/business/:
+    get:
+      operationId: console_business_retrieve
+      description: |-
+        Affaires de la plateforme (CON.1) : écoles par état, élèves facturés, facturé / encaissé /
+        dû par devise, contrats à renouveler, prospects ouverts. Calculé en SQL et gardé 5 minutes ;
+        chaque section demande son droit (`schools.view`, `billing.manage`, `leads.manage`) et
+        manque sinon. Il faut au moins un de ces droits.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleBusiness'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/business/export/{kind}/:
+    get:
+      operationId: console_business_export_retrieve
+      description: |-
+        Export Excel des écoles, des factures ou des paiements de la plateforme (espaces réels
+        seulement) : `schools` demande `schools.view`, les deux autres `billing.manage`.
+      parameters:
+      - in: path
+        name: kind
+        schema:
+          type: string
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/dashboard/:
     get:
       operationId: console_dashboard_retrieve
@@ -6033,9 +6434,10 @@ paths:
     get:
       operationId: console_demo_requests_list
       description: |-
-        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+        Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+        récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+        console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+        on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - name: page
         required: false
@@ -6048,9 +6450,11 @@ paths:
         schema:
           type: string
           enum:
-          - called
-          - dropped
+          - contacted
+          - demo_done
+          - lost
           - new
+          - signed
           - trial
       tags:
       - console
@@ -6085,9 +6489,10 @@ paths:
     patch:
       operationId: console_demo_requests_partial_update
       description: |-
-        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+        Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+        récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+        console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+        on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - in: path
         name: id
@@ -6139,9 +6544,10 @@ paths:
     delete:
       operationId: console_demo_requests_destroy
       description: |-
-        Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-        d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-        interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+        Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+        récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+        console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+        on efface une demande quand la personne le demande (sinon : seule après un an).
       parameters:
       - in: path
         name: id
@@ -6157,6 +6563,41 @@ paths:
       responses:
         '204':
           description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/demo-requests/assignees/:
+    get:
+      operationId: console_demo_requests_assignees_list
+      description: Membres de l'équipe à qui confier un prospect.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProspectAssignee'
+          description: ''
         '400':
           content:
             application/json:
@@ -6267,6 +6708,29 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/health/:
+    get:
+      operationId: console_health_retrieve
+      description: |-
+        État des services pour la barre du haut de la console (lot 5, ②bis) : le même calcul que
+        le tableau de bord, gardé une minute pour toute l'équipe.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerHealth'
+          description: ''
+        '403':
           content:
             application/json:
               schema:
@@ -6846,6 +7310,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/schools/{id}/export/:
+    post:
+      operationId: console_schools_export_create
+      description: |-
+        Export complet des données de l'école (Excel), fait en tâche de fond ; un lien valable
+        7 jours est envoyé par e-mail à son contact (CON.2). Demandé à l'arrêt, ou ici à la main
+        (école qui part, ou qui veut ses données).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this school.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSchoolDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/schools/{id}/reactivate/:
     post:
       operationId: console_schools_reactivate_create
@@ -7053,7 +7561,8 @@ paths:
       description: |-
         Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
         en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
-        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface.
+        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface. Console en mode
+        démonstration seulement.
       tags:
       - console
       requestBody:
@@ -21936,6 +22445,450 @@ components:
         number:
           type: string
           maxLength: 20
+    AiAlert:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/AiAlertKindEnum'
+        percent:
+          type: integer
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - kind
+      - percent
+      - id
+      - name
+    AiAlertKindEnum:
+      enum:
+      - platform_cap
+      - school_credits
+      type: string
+      description: |-
+        * `platform_cap` - platform_cap
+        * `school_credits` - school_credits
+    AiAllowanceChangeRequest:
+      type: object
+      properties:
+        uses:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 40
+          maxItems: 50
+        monthly_credits:
+          type: integer
+          maximum: 10000000
+          minimum: 0
+        paused:
+          type: boolean
+      required:
+      - monthly_credits
+      - paused
+      - uses
+    AiCreditUse:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        blocked:
+          type: string
+      required:
+      - code
+      - label
+      - blocked
+    AiCredits:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        has_module:
+          type: boolean
+        granted_credits:
+          type: integer
+        spent_credits:
+          type: integer
+        remaining_credits:
+          type: integer
+        blocked:
+          type: string
+        uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiCreditUse'
+      required:
+      - month
+      - has_module
+      - granted_credits
+      - spent_credits
+      - remaining_credits
+      - blocked
+      - uses
+    AiLastCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        use:
+          type: string
+        use_label:
+          type: string
+        user:
+          type: string
+        state:
+          $ref: '#/components/schemas/AiLastCallStateEnum'
+        refusal:
+          type: string
+        credits:
+          type: integer
+        on_platform:
+          type: boolean
+      required:
+      - id
+      - created_at
+      - use
+      - use_label
+      - user
+      - state
+      - refusal
+      - credits
+      - on_platform
+    AiLastCallStateEnum:
+      enum:
+      - queued
+      - running
+      - done
+      - refused
+      - error
+      - kept
+      - abandoned
+      type: string
+      description: |-
+        * `queued` - Waiting
+        * `running` - Running
+        * `done` - Done
+        * `refused` - Refused
+        * `error` - Failed
+        * `kept` - Kept
+        * `abandoned` - Abandoned
+    AiOverview:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        live:
+          type: boolean
+        spent_micro:
+          type: integer
+        cap_micro:
+          type: integer
+          nullable: true
+        calls:
+          type: integer
+        refused:
+          type: integer
+        errors:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+        schools_with_ai:
+          type: integer
+        schools_paused:
+          type: integer
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiAlert'
+        schools:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiSchoolRow'
+        uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiUseRow'
+        settings:
+          allOf:
+          - $ref: '#/components/schemas/AiSettings'
+          nullable: true
+      required:
+      - month
+      - live
+      - spent_micro
+      - cap_micro
+      - calls
+      - refused
+      - errors
+      - kept_percent
+      - schools_with_ai
+      - schools_paused
+      - alerts
+      - schools
+      - uses
+      - settings
+    AiPrice:
+      type: object
+      properties:
+        model:
+          type: string
+        input:
+          type: integer
+          minimum: 0
+        output:
+          type: integer
+          minimum: 0
+        cache_read:
+          type: integer
+          minimum: 0
+        changed:
+          type: boolean
+          readOnly: true
+      required:
+      - model
+      - input
+      - output
+      - cache_read
+      - changed
+    AiPriceChangeRequest:
+      type: object
+      properties:
+        input:
+          type: integer
+          maximum: 1000000000
+          minimum: 0
+        output:
+          type: integer
+          maximum: 1000000000
+          minimum: 0
+        cache_read:
+          type: integer
+          maximum: 1000000000
+          minimum: 0
+      required:
+      - cache_read
+      - input
+      - output
+    AiSchoolCard:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        has_module:
+          type: boolean
+        uses:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiSchoolUse'
+        monthly_credits:
+          type: integer
+        paused:
+          type: boolean
+        granted_credits:
+          type: integer
+        spent_credits:
+          type: integer
+        remaining_credits:
+          type: integer
+        last_calls:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiLastCall'
+      required:
+      - month
+      - has_module
+      - uses
+      - monthly_credits
+      - paused
+      - granted_credits
+      - spent_credits
+      - remaining_credits
+      - last_calls
+    AiSchoolRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        uses:
+          type: integer
+        paused:
+          type: boolean
+        granted_credits:
+          type: integer
+        spent_credits:
+          type: integer
+        remaining_credits:
+          type: integer
+        calls:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - code
+      - name
+      - uses
+      - paused
+      - granted_credits
+      - spent_credits
+      - remaining_credits
+      - calls
+      - kept_percent
+    AiSchoolUse:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        module:
+          type: string
+        module_label:
+          type: string
+        model:
+          type: string
+        max_input_tokens:
+          type: integer
+        max_output_tokens:
+          type: integer
+        changed:
+          type: boolean
+        calls:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+        abandoned:
+          type: integer
+        cost_micro:
+          type: integer
+        granted:
+          type: boolean
+        available:
+          type: boolean
+      required:
+      - code
+      - label
+      - module
+      - module_label
+      - model
+      - max_input_tokens
+      - max_output_tokens
+      - changed
+      - calls
+      - kept_percent
+      - abandoned
+      - cost_micro
+      - granted
+      - available
+    AiSettings:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        monthly_cap_micro:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+        hourly_limit:
+          type: integer
+          maximum: 500
+          minimum: 1
+        prices:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiPrice'
+          readOnly: true
+      required:
+      - enabled
+      - monthly_cap_micro
+      - hourly_limit
+      - prices
+    AiTopUpRequest:
+      type: object
+      properties:
+        credits:
+          type: integer
+          maximum: 10000000
+          minimum: 1
+      required:
+      - credits
+    AiUseChangeRequest:
+      type: object
+      description: 'Tout absent : retour au réglage du catalogue.'
+      properties:
+        model:
+          type: string
+          nullable: true
+          minLength: 1
+          maxLength: 60
+        max_input_tokens:
+          type: integer
+          nullable: true
+        max_output_tokens:
+          type: integer
+          nullable: true
+    AiUseRow:
+      type: object
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        module:
+          type: string
+        module_label:
+          type: string
+        model:
+          type: string
+        max_input_tokens:
+          type: integer
+        max_output_tokens:
+          type: integer
+        changed:
+          type: boolean
+        calls:
+          type: integer
+        kept_percent:
+          type: integer
+          nullable: true
+        abandoned:
+          type: integer
+        cost_micro:
+          type: integer
+      required:
+      - code
+      - label
+      - module
+      - module_label
+      - model
+      - max_input_tokens
+      - max_output_tokens
+      - changed
+      - calls
+      - kept_percent
+      - abandoned
+      - cost_micro
     AlertSettings:
       type: object
       description: 'Seuils d''alerte au directeur (M5, `alerts.py`). Écriture partielle
@@ -22501,6 +23454,81 @@ components:
         * `submitted` - submitted
         * `validated` - validated
         * `returned` - returned
+    BusinessMoney:
+      type: object
+      properties:
+        currency:
+          type: string
+        invoiced:
+          type: integer
+          description: Facturé ce mois-ci (unités entières).
+        collected:
+          type: integer
+          description: Encaissé ce mois-ci, net des annulations.
+        outstanding:
+          type: integer
+          description: Reste dû sur toutes les factures.
+        overdue:
+          type: integer
+          description: Dont échu.
+      required:
+      - currency
+      - invoiced
+      - collected
+      - outstanding
+      - overdue
+    BusinessRenewal:
+      type: object
+      properties:
+        school_id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        end_date:
+          type: string
+          format: date
+        auto_renew:
+          type: boolean
+      required:
+      - school_id
+      - code
+      - name
+      - end_date
+      - auto_renew
+    BusinessRenewals:
+      type: object
+      properties:
+        count:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessRenewal'
+      required:
+      - count
+      - items
+    BusinessSchools:
+      type: object
+      properties:
+        trial:
+          type: integer
+        active:
+          type: integer
+        readonly:
+          type: integer
+        suspended:
+          type: integer
+        stopped:
+          type: integer
+      required:
+      - trial
+      - active
+      - readonly
+      - suspended
+      - stopped
     CancelRequest:
       type: object
       properties:
@@ -24407,6 +25435,45 @@ components:
         * `draft` - draft
         * `scheduled` - scheduled
         * `published` - published
+    ConsoleBusiness:
+      type: object
+      description: |-
+        Affaires de la plateforme (CON.1), espaces réels seulement. Une section est `null` quand
+        les droits de l'équipier ne la couvrent pas (le serveur ne l'envoie pas).
+      properties:
+        day:
+          type: string
+          format: date
+        schools:
+          allOf:
+          - $ref: '#/components/schemas/BusinessSchools'
+          nullable: true
+        trials_ending:
+          type: integer
+          nullable: true
+        billed_students:
+          type: integer
+          nullable: true
+        money:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessMoney'
+          nullable: true
+        renewals:
+          allOf:
+          - $ref: '#/components/schemas/BusinessRenewals'
+          nullable: true
+        prospects_open:
+          type: integer
+          nullable: true
+      required:
+      - day
+      - schools
+      - trials_ending
+      - billed_students
+      - money
+      - renewals
+      - prospects_open
     ConsoleCollected:
       type: object
       properties:
@@ -24444,6 +25511,20 @@ components:
           $ref: '#/components/schemas/ServerHealth'
         platform:
           $ref: '#/components/schemas/PlatformHealth'
+        todo:
+          $ref: '#/components/schemas/ConsoleTodo'
+        recent:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformLog'
+          nullable: true
+          description: 'Dernières entrées du journal de ce mode ; sans le droit journal
+            : null.'
+        security:
+          allOf:
+          - $ref: '#/components/schemas/ConsoleSecurity'
+          nullable: true
+          description: 'Alertes de sécurité (S.8) ; sans le droit journal : null.'
       required:
       - day
       - schools
@@ -24453,11 +25534,15 @@ components:
       - active_schools
       - health
       - platform
+      - todo
+      - recent
+      - security
     ConsoleDemoRequest:
       type: object
       description: |-
-        Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-        interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+        Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+        se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+        interne. Fonction, taille et langue : codes, traduits par la console.
       properties:
         id:
           type: string
@@ -24513,19 +25598,47 @@ components:
           type: string
           title: Internal note
           maxLength: 2000
+        assignee:
+          type: string
+          format: uuid
+          nullable: true
+        assignee_name:
+          type: string
+          readOnly: true
+          description: Nom du responsable, ou vide.
+        follow_up_on:
+          type: string
+          format: date
+          nullable: true
+          title: Next follow-up
+        lost_reason:
+          type: string
+          title: Reason lost
+          maxLength: 200
+        school_code:
+          type: string
+          readOnly: true
+          title: Trial space
+        overdue:
+          type: boolean
+          readOnly: true
+          description: Vrai si la relance est dépassée et le prospect encore ouvert.
         updated_at:
           type: string
           format: date-time
           readOnly: true
       required:
+      - assignee_name
       - created_at
       - email
       - id
       - language
       - message
       - name
+      - overdue
       - phone
       - role
+      - school_code
       - school_name
       - size
       - source
@@ -25327,6 +26440,23 @@ components:
           readOnly: true
           nullable: true
           description: Dernière entrée de son journal, hors support et super-admin.
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
         created_at:
           type: string
           format: date-time
@@ -25348,6 +26478,10 @@ components:
       - default_currency
       - student_count
       - last_activity_at
+      - contact_name
+      - contact_phone
+      - contact_email
+      - internal_notes
       - created_at
     ConsoleSchoolCounts:
       type: object
@@ -25445,17 +26579,39 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CurrencyEnum'
-          description: Devises de l'école (au moins une).
+          description: Devises de l'école (au moins une) ; avec le module « finance
+            ».
         default_currency:
           $ref: '#/components/schemas/CurrencyEnum'
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
         head:
           allOf:
           - $ref: '#/components/schemas/SchoolHeadRequest'
           writeOnly: true
+        prospect:
+          type: string
+          format: uuid
+          writeOnly: true
+          description: 'Prospect (demande de démonstration) d''où vient l''essai :
+            il passe à « essai » et garde le lien vers l''école.'
       required:
       - code
-      - default_currency
-      - enabled_currencies
       - head
       - name
     ConsoleSchoolCreated:
@@ -25568,6 +26724,23 @@ components:
           readOnly: true
           nullable: true
           description: Dernière entrée de son journal, hors support et super-admin.
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
         created_at:
           type: string
           format: date-time
@@ -25585,6 +26758,28 @@ components:
           readOnly: true
           nullable: true
           description: 'Vide : pas un espace de démonstration créé depuis la console.'
+        contract:
+          allOf:
+          - $ref: '#/components/schemas/SchoolContract'
+          nullable: true
+          readOnly: true
+          description: Contrat en cours, vide sans contrat (espaces d'essai compris).
+        invoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolInvoice'
+          readOnly: true
+          description: Les 5 dernières factures et avoirs.
+        usage:
+          allOf:
+          - $ref: '#/components/schemas/SchoolUsage'
+          readOnly: true
+        exports:
+          type: array
+          items:
+            $ref: '#/components/schemas/SchoolExport'
+          readOnly: true
+          description: Les 3 derniers exports complets.
       required:
       - id
       - code
@@ -25602,9 +26797,17 @@ components:
       - default_currency
       - student_count
       - last_activity_at
+      - contact_name
+      - contact_phone
+      - contact_email
+      - internal_notes
       - created_at
       - history
       - demonstration
+      - contract
+      - invoices
+      - usage
+      - exports
     ConsoleSchoolRef:
       type: object
       properties:
@@ -25642,6 +26845,24 @@ components:
       required:
       - code
       - name
+    ConsoleSecurity:
+      type: object
+      properties:
+        count:
+          type: integer
+          description: Alertes de sécurité de ces derniers jours.
+        days:
+          type: integer
+          description: Nombre de jours regardés.
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformLog'
+          description: Les dernières, la plus récente d'abord.
+      required:
+      - count
+      - days
+      - alerts
     ConsoleSiteBanner:
       type: object
       description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
@@ -26216,6 +27437,49 @@ components:
       - role
       - school_name
       - town
+    ConsoleTodo:
+      type: object
+      properties:
+        trials_ending:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleTrialEnding'
+          description: Essais qui finissent dans les 30 jours, le plus proche d'abord
+            (5).
+        follow_ups:
+          type: integer
+          nullable: true
+          description: 'Prospects ouverts dont la relance est aujourd''hui ou passée
+            ; sans le droit commercial : null.'
+        overdue:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleAmount'
+          nullable: true
+          description: 'Factures échues par devise ; sans le droit facturation, ou
+            en démonstration : null.'
+      required:
+      - trials_ending
+      - follow_ups
+      - overdue
+    ConsoleTrialEnding:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        trial_ends_on:
+          type: string
+          format: date
+      required:
+      - id
+      - code
+      - name
+      - trial_ends_on
     ContactAddress:
       type: object
       properties:
@@ -27126,6 +28390,12 @@ components:
             $ref: '#/components/schemas/ModulesEnum'
           description: 'Fonctions que la plateforme a données à l''école (M.1) ; vide
             : aucune.'
+        features:
+          type: array
+          items:
+            type: string
+          description: 'Champs, réglages, étapes et rôles du registre des modules
+            (MOD.1) qui s''appliquent à l''école : l''interface masque les autres.'
         documents:
           allOf:
           - $ref: '#/components/schemas/DocumentSigners'
@@ -27141,6 +28411,7 @@ components:
       - roles
       - permissions
       - modules
+      - features
       - documents
       - homeroom
     CycleEnum:
@@ -27440,15 +28711,19 @@ components:
     DemoRequestStatusEnum:
       enum:
       - new
-      - called
+      - contacted
+      - demo_done
       - trial
-      - dropped
+      - signed
+      - lost
       type: string
       description: |-
         * `new` - New
-        * `called` - Called back
-        * `trial` - Trial space opened
-        * `dropped` - No follow-up
+        * `contacted` - Contacted
+        * `demo_done` - Demonstration done
+        * `trial` - Trial
+        * `signed` - Signed
+        * `lost` - Lost
     Demonstration:
       type: object
       description: 'Espace de démonstration créé depuis la console (4.17.2) : où en
@@ -32658,6 +33933,20 @@ components:
         ends_on:
           type: string
           format: date
+    PatchedAiSettingsChangeRequest:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        monthly_cap_micro:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+        hourly_limit:
+          type: integer
+          maximum: 500
+          minimum: 1
     PatchedCashRegisterUpdateRequest:
       type: object
       properties:
@@ -32762,8 +34051,9 @@ components:
     PatchedConsoleDemoRequestRequest:
       type: object
       description: |-
-        Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-        interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+        Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+        se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+        interne. Fonction, taille et langue : codes, traduits par la console.
       properties:
         status:
           allOf:
@@ -32773,6 +34063,19 @@ components:
           type: string
           title: Internal note
           maxLength: 2000
+        assignee:
+          type: string
+          format: uuid
+          nullable: true
+        follow_up_on:
+          type: string
+          format: date
+          nullable: true
+          title: Next follow-up
+        lost_reason:
+          type: string
+          title: Reason lost
+          maxLength: 200
     PatchedConsolePartnerRequest:
       type: object
       description: |-
@@ -33075,6 +34378,23 @@ components:
           maximum: 180
           minimum: 10
           title: Longest timetable calculation (seconds)
+        contact_name:
+          type: string
+          title: Contact person
+          maxLength: 120
+        contact_phone:
+          type: string
+          maxLength: 30
+        contact_email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        internal_notes:
+          type: string
+          maxLength: 4000
     PatchedConsoleSiteBannerRequest:
       type: object
       description: 'Bandeau d''annonce du site (SITE.1a). `state` : affiché, programmé,
@@ -34611,6 +35931,10 @@ components:
       - site.photo_added
       - site.photo_updated
       - site.photo_deleted
+      - security.login_burst
+      - security.unusual_export
+      - security.cancellations
+      - security.revoked_device
       type: string
       description: |-
         * `platform.updated` - Platform identity changed
@@ -34680,6 +36004,10 @@ components:
         * `site.photo_added` - Photo added to the photo library
         * `site.photo_updated` - Photo details changed
         * `site.photo_deleted` - Photo deleted from the photo library
+        * `security.login_burst` - Burst of failed logins
+        * `security.unusual_export` - Unusual export
+        * `security.cancellations` - Unusual number of payment cancellations
+        * `security.revoked_device` - Disconnected device keeps trying
     PlatformAudienceEnum:
       enum:
       - all_schools
@@ -35690,6 +37018,19 @@ components:
         * `waiting` - waiting
         * `no_place` - no_place
         * `undecided` - undecided
+    ProspectAssignee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - name
     PublishRequest:
       type: object
       properties:
@@ -37043,6 +38384,33 @@ components:
       - class_group
       - teacher
       - room
+    SchoolContract:
+      type: object
+      properties:
+        number:
+          type: string
+        plan:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        price_per_student:
+          type: integer
+        currency:
+          type: string
+        auto_renew:
+          type: boolean
+      required:
+      - number
+      - plan
+      - start_date
+      - end_date
+      - price_per_student
+      - currency
+      - auto_renew
     SchoolDeleteRequest:
       type: object
       properties:
@@ -37185,6 +38553,40 @@ components:
       required:
       - starts_on
       - title
+    SchoolExport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        state:
+          $ref: '#/components/schemas/SchoolExportStateEnum'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - state
+      - created_at
+      - expires_at
+    SchoolExportStateEnum:
+      enum:
+      - pending
+      - ready
+      - failed
+      - expired
+      type: string
+      description: |-
+        * `pending` - Being prepared
+        * `ready` - Ready
+        * `failed` - Failed
+        * `expired` - Expired
     SchoolHeadRequest:
       type: object
       description: 'Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu
@@ -37205,6 +38607,34 @@ components:
           maxLength: 100
       required:
       - phone
+    SchoolInvoice:
+      type: object
+      properties:
+        number:
+          type: string
+        kind:
+          type: string
+        issued_on:
+          type: string
+          format: date
+        due_on:
+          type: string
+          format: date
+        currency:
+          type: string
+        total:
+          type: integer
+        balance:
+          type: integer
+          description: Reste dû, 0 pour un avoir ou une facture soldée.
+      required:
+      - number
+      - kind
+      - issued_on
+      - due_on
+      - currency
+      - total
+      - balance
     SchoolSettings:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
@@ -37385,6 +38815,27 @@ components:
       required:
       - confirm
       - reason
+    SchoolUsage:
+      type: object
+      properties:
+        students:
+          type: integer
+        accounts:
+          type: integer
+          description: Comptes ayant accès à l'école.
+        last_activity_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_sync_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - students
+      - accounts
+      - last_activity_at
+      - last_sync_at
     ScopeEnum:
       enum:
       - all

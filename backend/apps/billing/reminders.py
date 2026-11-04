@@ -39,7 +39,8 @@ def sync_status(school: School, invoices: list[Invoice], day: date, *, actor=Non
     """Passe l'école en lecture seule si une facture est impayée au-delà du délai de grâce, et la
     rouvre quand plus aucune ne l'est. Rend le nouvel état, ou `None` si rien ne change. Ne touche
     ni un essai, ni une école suspendue ou arrêtée."""
-    from apps.schools.services import update_school
+    from apps.schools import lifecycle
+    from apps.schools.services import tell_school, update_school
 
     if school.status not in SWITCHABLE:
         return None
@@ -48,6 +49,9 @@ def sync_status(school: School, invoices: list[Invoice], day: date, *, actor=Non
     if wanted == school.status:
         return None
     update_school(school, actor=actor, status=wanted)
+    tell_school(
+        school, lifecycle.READ_ONLY if wanted == School.Status.READ_ONLY else lifecycle.REOPENED
+    )
     return wanted
 
 

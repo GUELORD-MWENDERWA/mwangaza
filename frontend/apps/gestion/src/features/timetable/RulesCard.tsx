@@ -7,6 +7,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle, StatusPill, cn } from
 import { Link } from "react-router";
 
 import type { Rule, Rules } from "./data";
+import { AiButton } from "../ai/AiButton";
 import { type Lookup, describe } from "./rules";
 
 type Props = {
@@ -36,9 +37,9 @@ export function RulesCard({ rules, lookup, general, onAdd, onAssist, onEdit }: P
         <CardTitle>{t("timetable.constraints.title", { number: rules.length })}</CardTitle>
         <span className="flex flex-wrap gap-2">
           {onAssist && (
-            <Button variant="outline" size="sm" onClick={onAssist}>
+            <AiButton use="timetable_constraints" onClick={onAssist}>
               {t("timetable.assistant.open")}
-            </Button>
+            </AiButton>
           )}
           <Button size="sm" onClick={onAdd}>
             {t("timetable.constraints.add")}

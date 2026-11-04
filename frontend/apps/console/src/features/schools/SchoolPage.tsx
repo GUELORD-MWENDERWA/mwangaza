@@ -37,6 +37,8 @@ import { Differences, History } from "../shell/History";
 import { DeleteSpace, DeletingSpace } from "./DeleteSpace";
 import { DemoCard, DemoProgress, isWorking } from "./Demonstration";
 import { ModulesCard } from "./ModulesCard";
+import { AiSchoolCard } from "../ai/AiSchoolCard";
+import { ContactCard, ContractCard, ExportsCard, UsageCard } from "./SchoolFile";
 import { SupportLink } from "./SchoolsPage";
 import {
   IdentityFields,
@@ -261,6 +263,13 @@ function SchoolForm({ school }: { school: Detail }) {
             <DemoCard school={{ ...school, demonstration: school.demonstration }} />
           )}
           <ModulesCard school={school} onSaved={saved} readOnly={!canManage} />
+          {can(RIGHTS.aiManage) && <AiSchoolCard schoolId={school.id} />}
+          <ContactCard school={school} onSaved={saved} readOnly={!canManage} />
+          {school.environment === "live" && can(RIGHTS.billingManage, RIGHTS.schoolsView) && (
+            <ContractCard school={school} />
+          )}
+          <UsageCard school={school} />
+          <ExportsCard school={school} canManage={canManage} onRequested={saved} />
           <Card>
             <CardHeader>
               <CardTitle>{t("console.schools.summaryTitle")}</CardTitle>

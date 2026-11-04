@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — menu et mode démonstration — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console sous 900 px, en mode démonstration : menu tiroir ouvert à gauche, page à droite. */
+body{background:var(--surface);padding:24px;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.phone{width:390px;max-width:100%;height:780px;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:var(--surface);position:relative;box-shadow:0 8px 24px rgba(10,30,70,.12)}
+.drawer{position:absolute;inset:0 64px 0 0;background:var(--night);color:var(--night-ink);padding:16px 12px;display:flex;flex-direction:column;gap:4px;overflow:auto}
+.veil{position:absolute;inset:0;background:rgba(10,20,40,.45)}
+.drawer .brand{display:flex;align-items:center;gap:10px;padding:2px 6px 12px}
+.top .ic,.todo .ic,.demob .ic,.drawer .brand .ic{width:18px;height:18px;flex:none}
+.top .search span,.kbd{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side .brand,.drawer .brand{flex-wrap:wrap;row-gap:8px}
+.chip{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 8px}
+.cmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:10px;background:var(--night-2);box-shadow:inset 0 0 0 1px var(--night-3)}
+.cmode span{text-align:center;padding:9px 6px;border-radius:7px;font-size:.85rem;font-weight:600;color:var(--night-soft)}
+.cmode span.on{background:var(--warn);color:#2B1A00}
+.cmodehint{font-size:.8rem;color:var(--night-muted);padding:6px 4px 0}
+.drawer .nav a{min-height:44px}
+.dfoot{margin-top:auto;border-top:1px solid var(--night-3);padding:10px 6px 0;display:flex;align-items:center;gap:10px;font-size:.85rem}
+.top{height:56px;padding:0 12px;gap:10px}
+.top .mbtn{display:grid;place-items:center;width:44px;height:44px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.top .state{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:var(--r-pill);padding:5px 10px;font-size:.8rem}
+.top .state i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.demob{display:flex;align-items:center;gap:10px;background:var(--warn-50);color:#683D00;border-bottom:1px solid var(--warn-200);padding:10px 12px;font-size:.85rem}
+.demob .btn{margin-left:auto;flex:none}
+.pc{padding:16px;display:flex;flex-direction:column;gap:14px}
+.g2{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.notes{flex:1;min-width:300px;max-width:520px;display:flex;flex-direction:column;gap:12px}
+</style></head>
+<body>
+<div class="phone">
+  <div class="demob" role="note"><span><b>Mode démonstration</b> : données fictives seulement.</span></div>
+  <header class="top"><span class="mbtn"><svg class="ic" data-ic="menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span style="flex:1"></span><span class="state"><i></i>Services</span><span class="avatar">GM</span></header>
+  <div class="veil"></div>
+  <aside class="drawer">
+    <div class="brand"><span class="mark"></span><b>Mwangaza</b><span class="chip">Console</span><span style="flex:1"></span><svg class="ic" data-ic="x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></div>
+    <div class="cmode" role="radiogroup" aria-label="Données affichées"><span>Réel</span><span class="on">Démonstration</span></div>
+    <div class="cmodehint">Espaces de démonstration. Rien de réel.</div>
+    <nav class="nav">
+      <div class="navlabel">Pilotage</div>
+      <a class="on" href="#"><svg class="ic" data-ic="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span>Tableau de bord</span></a>
+      <div class="navlabel">Clients</div>
+      <a href="ecoles.html"><svg class="ic" data-ic="school" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9 12 4l10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>Écoles</span></a>
+      <a href="demandes.html"><svg class="ic" data-ic="inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13L20 13v6H4v-6z"/></svg><span>Prospects</span></a>
+      <a href="comptes.html"><svg class="ic" data-ic="users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.7 2.8 2.4 3.2 5.2"/></svg><span>Comptes</span></a>
+      <a href="annonces.html"><svg class="ic" data-ic="megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10v4l12 5V5z"/><path d="M15 9a3 3 0 0 1 0 6M6 14.5 7.5 20h3l-1.3-4.5"/></svg><span>Annonces aux écoles</span></a>
+      <div class="navlabel">Plateforme</div>
+      <a href="appareils.html"><svg class="ic" data-ic="phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Appareils</span></a>
+      <a href="journal.html"><svg class="ic" data-ic="journal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 3.5V6h6V3.5M9 11h6M9 15h4"/></svg><span>Journal</span></a>
+    </nav>
+    <div class="dfoot"><span class="avatar">GM</span><span style="flex:1"><b>Guelord Mwenderwa</b><br><span style="color:var(--night-muted)">Propriétaire</span></span><svg class="ic" data-ic="logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4"/><path d="M10 8l-4 4 4 4M6 12h10"/></svg></div>
+  </aside>
+</div>
+<div class="phone">
+  <div class="demob" role="note"><span><b>Mode démonstration</b> : données fictives seulement.</span><a class="btn sm" href="#">Revenir au réel</a></div>
+  <header class="top"><span class="mbtn"><svg class="ic" data-ic="menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span style="flex:1"></span><span class="state"><i></i>Services</span><svg class="ic" data-ic="bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="avatar">GM</span></header>
+  <div class="pc">
+    <div class="pagehead"><div><div class="crumbs">Mercredi 4 novembre 2026</div><h1>Tableau de bord</h1><p>Espaces de démonstration.</p></div></div>
+    <div class="g2">
+      <div class="card kpi"><div class="lbl">Écoles actives</div><div class="val">2</div></div>
+      <div class="card kpi"><div class="lbl">Élèves inscrits</div><div class="val">950</div></div>
+    </div>
+    <div class="card"><div class="hd"><h2>À faire aujourd'hui</h2></div><p class="muted" style="padding:14px 16px;margin:0">Rien à faire aujourd'hui.</p></div>
+  </div>
+</div>
+<div class="notes">
+  <div class="note"><b>Sous 900 px :</b> le bouton menu ouvre le tiroir (il se ferme en touchant à côté, avec Échap ou après un choix) ; la recherche passe dans une fenêtre (Ctrl K ou la loupe) ; l'état des services se réduit à « Services » avec sa couleur ; le nom du membre passe dans le pied du tiroir.</div>
+  <div class="note"><b>Mode démonstration :</b> bandeau orange sur toute la largeur, au-dessus de la barre du haut, sur chaque page ; « Revenir au réel » en un geste. Menu réduit aux pages qui existent en démonstration : Tableau de bord, Écoles, Prospects, Comptes, Annonces aux écoles, Appareils, Journal (et seulement celles des rôles du membre). « Créer une démonstration » n'est offert qu'ici ; en réel, une école se crée réelle ou en essai.</div>
+</div>
+</body></html>

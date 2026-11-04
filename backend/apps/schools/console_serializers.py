@@ -9,14 +9,17 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
-from apps.accounts.models import User
+from apps.accounts.models import Membership, User
 from apps.accounts.modules import MODULE_CHOICES
 from apps.accounts.modules import resolve as resolve_modules
 from apps.accounts.serializers import PhoneField
 from apps.audit.models import PlatformAuditLog
+from apps.billing import invoicing
+from apps.billing.models import Contract, Invoice
 from apps.core.money import Currency
 from apps.core.serializers import PlatformChangeSerializer
-from apps.schools.models import Demonstration, School
+from apps.schools.models import Demonstration, School, SchoolExport
+from apps.sync.models import Device
 
 
 class HeadAccountSerializer(serializers.ModelSerializer):
@@ -72,6 +75,10 @@ class ConsoleSchoolSerializer(serializers.ModelSerializer):
             "default_currency",
             "student_count",
             "last_activity_at",
+            "contact_name",
+            "contact_phone",
+            "contact_email",
+            "internal_notes",
             "created_at",
         ]
         read_only_fields = ["enabled_currencies", "default_currency", "created_at"]
@@ -126,6 +133,39 @@ class DemonstrationSerializer(serializers.ModelSerializer):
         return "resetting" if demonstration.reset_requested else demonstration.state
 
 
+class SchoolContractSerializer(serializers.Serializer):
+    number = serializers.CharField()
+    plan = serializers.CharField(source="plan.name")
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    price_per_student = serializers.IntegerField()
+    currency = serializers.CharField()
+    auto_renew = serializers.BooleanField()
+
+
+class SchoolInvoiceSerializer(serializers.Serializer):
+    number = serializers.CharField()
+    kind = serializers.CharField()
+    issued_on = serializers.DateField()
+    due_on = serializers.DateField()
+    currency = serializers.CharField()
+    total = serializers.IntegerField()
+    balance = serializers.IntegerField(help_text="Reste dû, 0 pour un avoir ou une facture soldée.")
+
+
+class SchoolUsageSerializer(serializers.Serializer):
+    students = serializers.IntegerField()
+    accounts = serializers.IntegerField(help_text="Comptes ayant accès à l'école.")
+    last_activity_at = serializers.DateTimeField(allow_null=True)
+    last_sync_at = serializers.DateTimeField(allow_null=True)
+
+
+class SchoolExportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SchoolExport
+        fields = ["id", "state", "created_at", "expires_at"]
+
+
 class ConsoleSchoolDetailSerializer(ConsoleSchoolSerializer):
     HISTORY = 10
 
@@ -138,8 +178,62 @@ class ConsoleSchoolDetailSerializer(ConsoleSchoolSerializer):
         help_text="Vide : pas un espace de démonstration créé depuis la console.",
     )
 
+    contract = serializers.SerializerMethodField(
+        help_text="Contrat en cours, vide sans contrat (espaces d'essai compris)."
+    )
+    invoices = serializers.SerializerMethodField(help_text="Les 5 dernières factures et avoirs.")
+    usage = serializers.SerializerMethodField()
+    exports = serializers.SerializerMethodField(help_text="Les 3 derniers exports complets.")
+
     class Meta(ConsoleSchoolSerializer.Meta):
-        fields = [*ConsoleSchoolSerializer.Meta.fields, "history", "demonstration"]
+        fields = [
+            *ConsoleSchoolSerializer.Meta.fields,
+            "history",
+            "demonstration",
+            "contract",
+            "invoices",
+            "usage",
+            "exports",
+        ]
+
+    @extend_schema_field(SchoolExportSerializer(many=True))
+    def get_exports(self, school: School) -> list[dict]:
+        return SchoolExportSerializer(school.exports.all()[:3], many=True).data
+
+    @extend_schema_field(SchoolContractSerializer(allow_null=True))
+    def get_contract(self, school: School):
+        contract = (
+            Contract.all_schools.filter(school=school, status=Contract.Status.ACTIVE)
+            .select_related("plan")
+            .first()
+        )
+        return SchoolContractSerializer(contract).data if contract else None
+
+    @extend_schema_field(SchoolInvoiceSerializer(many=True))
+    def get_invoices(self, school: School) -> list[dict]:
+        rows = invoicing.with_balance(
+            Invoice.all_schools.filter(school=school).order_by("-issued_on", "-number")
+        )[:5]
+        for invoice in rows:
+            invoice.balance = invoicing.balance(invoice)
+        return SchoolInvoiceSerializer(rows, many=True).data
+
+    @extend_schema_field(SchoolUsageSerializer)
+    def get_usage(self, school: School) -> dict:
+        seen = (
+            Device.all_schools.filter(school=school, revoked_at__isnull=True)
+            .order_by("-last_seen_at")
+            .values_list("last_seen_at", flat=True)
+            .first()
+        )
+        return SchoolUsageSerializer(
+            {
+                "students": school.student_count,
+                "accounts": Membership.objects.filter(school=school, is_active=True).count(),
+                "last_activity_at": school.last_activity_at,
+                "last_sync_at": seen,
+            }
+        ).data
 
     @extend_schema_field(PlatformChangeSerializer(many=True))
     def get_history(self, school: School) -> list[dict]:
@@ -166,21 +260,30 @@ class SchoolHeadSerializer(serializers.Serializer):
 
 
 class ConsoleSchoolCreateSerializer(ConsoleSchoolSerializer):
+    # Réglages de la caisse : demandés seulement avec le module « finance » (MOD.1) ; sinon,
+    # ceux par défaut, que l'école change si elle prend la caisse plus tard.
     enabled_currencies = serializers.ListField(
         child=serializers.ChoiceField(choices=Currency.choices),
         allow_empty=False,
-        help_text="Devises de l'école (au moins une).",
+        required=False,
+        help_text="Devises de l'école (au moins une) ; avec le module « finance ».",
     )
-    default_currency = serializers.ChoiceField(choices=Currency.choices)
+    default_currency = serializers.ChoiceField(choices=Currency.choices, required=False)
     environment = serializers.ChoiceField(
         choices=[School.Environment.LIVE, School.Environment.TEST],
         default=School.Environment.LIVE,
         help_text="Réel ou essai, jamais changé ensuite. Démonstration : `schools/demo/`.",
     )
     head = SchoolHeadSerializer(write_only=True)
+    prospect = serializers.UUIDField(
+        write_only=True,
+        required=False,
+        help_text="Prospect (demande de démonstration) d'où vient l'essai : il passe à « essai » "
+        "et garde le lien vers l'école.",
+    )
 
     class Meta(ConsoleSchoolSerializer.Meta):
-        fields = [*ConsoleSchoolSerializer.Meta.fields, "head"]
+        fields = [*ConsoleSchoolSerializer.Meta.fields, "head", "prospect"]
         read_only_fields = ["created_at"]
 
 

@@ -135,6 +135,8 @@ class PlatformAuditLog(BaseModel):
     after = models.JSONField(_("after"), null=True, blank=True, encoder=DjangoJSONEncoder)
     ip = models.GenericIPAddressField(_("IP address"), null=True, blank=True)
     user_agent = models.CharField(_("browser"), max_length=255, blank=True)
+    # Fictif (console en mode démonstration, lot 5 ②bis) : jamais montré en mode réel.
+    is_demo = models.BooleanField(_("fictional"), default=False, db_index=True)
 
     objects = models.Manager.from_queryset(ImmutableQuerySet)()
 

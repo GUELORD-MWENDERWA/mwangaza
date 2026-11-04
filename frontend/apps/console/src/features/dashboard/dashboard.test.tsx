@@ -78,23 +78,81 @@ const DASHBOARD = {
     },
     syncs: [{ id: "s1", code: "itig", name: "ITIG Don Bosco Goma", last_sync_at: null }],
   },
+  todo: {
+    follow_ups: 2,
+    trials_ending: [
+      { id: "s1", code: "itig", name: "ITIG Don Bosco Goma", trial_ends_on: "2026-10-20" },
+    ],
+    overdue: [
+      { currency: "USD", amount_minor: 125000 },
+      { currency: "CDF", amount_minor: 300000 },
+    ],
+  },
+  security: {
+    count: 1,
+    days: 7,
+    alerts: [
+      {
+        id: "l2",
+        created_at: "2026-10-01T09:05:00Z",
+        action: "security.cancellations",
+        entity_type: "schools.school",
+        entity_id: "s1",
+        entity_label: "Les Volcans",
+        actor: null,
+        before: null,
+        after: { today: 7, previous_30_days: 12 },
+      },
+    ],
+  },
+  recent: [
+    {
+      id: "l1",
+      created_at: "2026-10-02T08:42:00Z",
+      action: "school.suspended",
+      entity_type: "schools.school",
+      entity_id: "s9",
+      entity_label: "Institut Bahati",
+      actor: { id: "a1", first_name: "Guelord", last_name: "Mwenderwa" },
+    },
+  ],
 };
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("console : tableau de bord", () => {
   it("montre chaque devise à part et le service en panne", async () => {
-    mockApi({ "GET /api/me/": ADMIN, "GET /api/console/dashboard/": DASHBOARD });
+    mockApi({
+      "GET /api/me/": ADMIN,
+      "GET /api/console/dashboard/": DASHBOARD,
+      "GET /api/console/health/": DASHBOARD.health,
+    });
     renderApp("/");
 
     const collected = (await screen.findByText("Encaissé aujourd'hui")).closest("section")!;
     // Dollars et francs jamais additionnés : les francs à part, sous les dollars.
     expect(within(collected).getByText(/170,00/)).toBeTruthy();
     expect(within(collected).getByText(/10 000 FC/)).toBeTruthy();
-    expect(screen.getByText("Un service est en panne")).toBeTruthy();
-    const redis = screen.getByText("Redis (file des tâches)").closest("li")!;
+    // Barre du haut : l'état des services.
+    expect(await screen.findByText("Un service est en panne")).toBeTruthy();
+    // À faire : relances, essai qui finit, factures échues par devise, services pas verts.
+    const todo = screen.getByText("À faire aujourd'hui").closest("section")!;
+    expect(within(todo).getByText("2 prospects à relancer")).toBeTruthy();
+    expect(within(todo).getByText(/essai jusqu'au/)).toBeTruthy();
+    expect(within(todo).getByText("1 250,00 $ · + 300 000 FC")).toBeTruthy();
+    expect(within(todo).getByText("Redis (file des tâches)")).toBeTruthy();
+    expect(within(todo).queryByText("Base de données")).toBeNull();
+    // Sécurité (S.8) : le détail se lit dans ce que le serveur a noté.
+    const security = screen.getByText("Sécurité").closest("section")!;
+    expect(
+      within(security).getByText("Les Volcans · 7 aujourd'hui (12 sur les 30 jours d'avant)"),
+    ).toBeTruthy();
+    const recent = screen.getByText("Dernières activités").closest("section")!;
+    expect(within(recent).getByText("Institut Bahati")).toBeTruthy();
+    const health = document.getElementById("health")!;
+    const redis = within(health).getByText("Redis (file des tâches)").closest("li")!;
     expect(within(redis).getByText("en panne")).toBeTruthy();
-    expect(screen.getByText("18 % libre")).toBeTruthy();
+    expect(within(health).getByText("18 % libre")).toBeTruthy();
     // Nom clair, rôle en une phrase, nom technique en petit, redémarrage récent.
     const django = screen.getByText("Application web").closest("li")!;
     expect(within(django).getByText("django")).toBeTruthy();
@@ -110,7 +168,7 @@ describe("console : tableau de bord", () => {
     expect(
       screen.getByText(/1 en cours · 2 en attente · attente la plus longue 12 min/),
     ).toBeTruthy();
-    expect(screen.getByText("62 % utilisé")).toBeTruthy();
+    expect(within(health).getByText("62 % utilisé")).toBeTruthy();
     // Une sauvegarde jamais notée se voit : jamais « bonne » sans preuve.
     const backup = screen.getByText("Dernière sauvegarde").closest("li")!;
     expect(within(backup).getByText("jamais notée")).toBeTruthy();

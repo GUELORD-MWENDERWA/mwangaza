@@ -21,9 +21,22 @@ from apps.accounts import services as accounts
 from apps.accounts.models import Membership
 from apps.audit import services as audit
 from apps.audit.actions import Action, PlatformAction
+from apps.core import demo_requests
 from apps.core.errors import ApiError, BusinessError
+from apps.core.models import DemoRequest
 from apps.core.tenancy import use_school
-from apps.schools import alerts, deletion, grading, pass_rules, portal, receipts, reminders, tasks
+from apps.schools import (
+    alerts,
+    deletion,
+    exports,
+    grading,
+    lifecycle,
+    pass_rules,
+    portal,
+    receipts,
+    reminders,
+    tasks,
+)
 from apps.schools.models import Demonstration, School
 
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
@@ -97,12 +110,19 @@ def _record_platform(action: str, school: School, *, actor, before: dict | None 
     audit.record_platform(action, school, actor=actor, before=before, after=after)
 
 
-def create_school(school: School, *, actor, director: Director) -> tuple[Membership, str | None]:
+def create_school(
+    school: School, *, actor, director: Director, prospect_id=None
+) -> tuple[Membership, str | None]:
     """Nouvelle école (`school`, pas encore enregistrée) : rôles de départ copiés, premier
     directeur avec celui qui gère les comptes. Nouveau numéro : mot de passe provisoire renvoyé une
-    seule fois, à transmettre au directeur (pas de SMS en V1)."""
+    seule fois, à transmettre au directeur (pas de SMS en V1). `prospect_id` : la demande de
+    démonstration d'où vient l'essai, qui garde le lien (CON.3)."""
     with transaction.atomic():
         open_space(school, actor=actor)
+        if prospect_id is not None:
+            prospect = DemoRequest.objects.filter(pk=prospect_id).first()
+            if prospect is not None:
+                demo_requests.link_trial(prospect, school)
         with use_school(school):
             return accounts.add_staff_member(
                 actor=actor,
@@ -126,6 +146,11 @@ def open_space(school: School, *, actor) -> School:
         _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
         with use_school(school):
             audit.record(Action.SCHOOL_CREATED, school, actor=actor, after=_identity(school))
+        if school.is_demo:
+            # Console en mode démonstration : prospects fictifs s'il n'y en a pas encore.
+            from apps.core.demo import ensure_demo_console
+
+            ensure_demo_console()
     return school
 
 
@@ -151,6 +176,9 @@ def save_school(school: School, *, actor) -> School:
         school.save()
         with use_school(school):
             _record_changes(old, school, actor=actor)
+        if school.modules != old.modules:
+            # Module ajouté : ses rôles du modèle de départ (MOD.1) ; retiré : rien ne part.
+            accounts.add_module_roles(school, old.modules, actor=actor)
         for field in FILE_FIELDS:
             file = getattr(old, field)
             if file and file.name != getattr(school, field).name:
@@ -237,6 +265,12 @@ def change_school(school: School, *, actor, **fields) -> School:
     return school
 
 
+def tell_school(school: School, event: str, *, reason: str = "") -> None:
+    """Prévient l'école par e-mail, en tâche de fond une fois la transaction validée (CON.2)."""
+    if school.environment == School.Environment.LIVE and school.contact_email:
+        transaction.on_commit(partial(tasks.email_school.delay, str(school.pk), event, reason))
+
+
 def suspend(school: School, *, actor) -> School:
     """Plus personne ne se connecte à l'école ; rien n'est supprimé (A1)."""
     if school.is_closed:
@@ -245,6 +279,7 @@ def suspend(school: School, *, actor) -> School:
     with transaction.atomic():
         update_school(school, actor=actor, status=School.Status.SUSPENDED)
         _record_platform(PlatformAction.SCHOOL_SUSPENDED, school, actor=actor, before=before)
+        tell_school(school, lifecycle.SUSPENDED)
     return school
 
 
@@ -273,6 +308,11 @@ def stop(school: School, *, actor, reason: str, confirm: str) -> School:
             before=before,
             after={**after, "reason": reason},
         )
+        if school.environment == School.Environment.LIVE:
+            export = exports.request_export(school, actor=actor)
+            transaction.on_commit(
+                partial(tasks.build_export.delay, str(export.pk), lifecycle.STOPPED, reason)
+            )
     return school
 
 
@@ -287,6 +327,7 @@ def reactivate(school: School, *, actor) -> School:
     with transaction.atomic():
         update_school(school, actor=actor, status=status)
         _record_platform(PlatformAction.SCHOOL_REACTIVATED, school, actor=actor, before=before)
+        tell_school(school, lifecycle.REOPENED)
     return school
 
 

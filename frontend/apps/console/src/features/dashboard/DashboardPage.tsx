@@ -4,8 +4,11 @@
 import { api, call, type Schemas } from "@mwangaza/api";
 import {
   errorMessage,
+  formatDate,
   formatDateTime,
   formatDay,
+  formatPhone,
+  formatTime,
   type TFunction,
   useTranslation,
 } from "@mwangaza/i18n";
@@ -13,6 +16,7 @@ import { type Currency, formatAmount } from "@mwangaza/money";
 import {
   Banner,
   Button,
+  buttonVariants,
   Card,
   CardHeader,
   CardTitle,
@@ -22,11 +26,16 @@ import {
   StatusPill,
   Table,
   cn,
+  Icon,
+  type IconName,
 } from "@mwangaza/ui";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router";
 
+import { useConsoleMode } from "../../lib/mode";
 import { keys } from "../../lib/queries";
 
+type Dashboard = Schemas["ConsoleDashboard"];
 type HealthCheck = Schemas["HealthCheck"];
 type Platform = Schemas["PlatformHealth"];
 // Guide pour l'administrateur du serveur, dans le dépôt du projet (PERF.5b).
@@ -36,7 +45,6 @@ type Amount = { currency: string; amount_minor: number };
 
 const money = (amount: Amount) => formatAmount(amount.amount_minor, amount.currency as Currency);
 
-const HEALTH_TONES = { ok: "ok", warning: "warn", error: "due", off: "gray" } as const;
 const DOTS = { ok: "bg-ok", warning: "bg-warn", error: "bg-due", off: "bg-ink-3" } as const;
 const SCHOOL_TONES = {
   active: "ok",
@@ -49,6 +57,7 @@ const SCHOOL_TONES = {
 
 export function DashboardPage() {
   const { t, i18n } = useTranslation();
+  const mode = useConsoleMode();
   const dashboard = useQuery({
     queryKey: keys.dashboard,
     queryFn: () => call(api.GET("/api/console/dashboard/")),
@@ -73,18 +82,10 @@ export function DashboardPage() {
     <>
       <PageHeader
         title={t("console.dashboard.title")}
-        subtitle={t("console.dashboard.subtitle", { day: formatDay(data.day, i18n.language) })}
-        actions={
-          <StatusPill tone={HEALTH_TONES[data.health.status]}>
-            {t(
-              data.health.status === "ok"
-                ? "console.health.allGood"
-                : data.health.status === "warning"
-                  ? "console.health.warning"
-                  : "console.health.error",
-            )}
-          </StatusPill>
-        }
+        subtitle={t(
+          mode === "demo" ? "console.dashboard.subtitleDemo" : "console.dashboard.subtitle",
+          { day: formatDay(data.day, i18n.language) },
+        )}
       />
       <div className="grid grid-cols-2 gap-3.5 min-[820px]:grid-cols-4">
         <Kpi
@@ -118,76 +119,332 @@ export function DashboardPage() {
             .join(" · ")}
         />
       </div>
-      <div className="grid gap-4 min-[820px]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("console.dashboard.busiest")}</CardTitle>
-          </CardHeader>
-          {data.active_schools.length === 0 ? (
-            <p className="px-4 py-5 text-ink-3">{t("console.dashboard.noPayment")}</p>
-          ) : (
-            <Table>
-              <thead>
-                <tr>
-                  <th>{t("console.dashboard.school")}</th>
-                  <th>{t("console.dashboard.status")}</th>
-                  <th className="text-right">{t("console.dashboard.count")}</th>
-                  <th className="text-right">{t("console.dashboard.amount")}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.active_schools.map((school) => (
-                  <tr key={school.id}>
-                    <td>
-                      <b>{school.name}</b>
-                      <br />
-                      <span className="text-sm text-ink-3">{school.code}</span>
-                    </td>
-                    <td>
-                      <StatusPill tone={SCHOOL_TONES[school.status]}>
-                        {t(`console.dashboard.schoolStatus.${school.status}`)}
-                      </StatusPill>
-                    </td>
-                    <td className="text-right tabular-nums">{school.payments}</td>
-                    <td className="text-right tabular-nums">
-                      {school.today.map((amount, index) => (
-                        <span
-                          key={amount.currency}
-                          className={cn(
-                            "block whitespace-nowrap",
-                            index > 0 && "text-sm text-ink-3",
-                          )}
-                        >
-                          {index > 0 && "+ "}
-                          {money(amount)}
-                        </span>
-                      ))}
-                    </td>
+      <div className="grid items-start gap-4 min-[1100px]:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-4">
+          <TodoCard data={data} />
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("console.dashboard.busiest")}</CardTitle>
+            </CardHeader>
+            {data.active_schools.length === 0 ? (
+              <p className="px-4 py-5 text-ink-3">{t("console.dashboard.noPayment")}</p>
+            ) : (
+              <Table>
+                <thead>
+                  <tr>
+                    <th>{t("console.dashboard.school")}</th>
+                    <th>{t("console.dashboard.status")}</th>
+                    <th className="text-right">{t("console.dashboard.count")}</th>
+                    <th className="text-right">{t("console.dashboard.amount")}</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          )}
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("console.health.title")}</CardTitle>
-          </CardHeader>
-          <ul>
-            {data.health.checks.map((check) => (
-              <HealthRow
-                key={check.name}
-                status={check.status}
-                label={t(`console.health.checks.${check.name}`)}
-                value={healthValue(check, t)}
-                help={check.name}
-              />
-            ))}
-          </ul>
-        </Card>
+                </thead>
+                <tbody>
+                  {data.active_schools.map((school) => (
+                    <tr key={school.id}>
+                      <td>
+                        <b>{school.name}</b>
+                        <br />
+                        <span className="text-sm text-ink-3">{school.code}</span>
+                      </td>
+                      <td>
+                        <StatusPill tone={SCHOOL_TONES[school.status]}>
+                          {t(`console.dashboard.schoolStatus.${school.status}`)}
+                        </StatusPill>
+                      </td>
+                      <td className="text-right tabular-nums">{school.payments}</td>
+                      <td className="text-right tabular-nums">
+                        {school.today.map((amount, index) => (
+                          <span
+                            key={amount.currency}
+                            className={cn(
+                              "block whitespace-nowrap",
+                              index > 0 && "text-sm text-ink-3",
+                            )}
+                          >
+                            {index > 0 && "+ "}
+                            {money(amount)}
+                          </span>
+                        ))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Card>
+        </div>
+        <div className="flex min-w-0 flex-col gap-4">
+          <Card id="health">
+            <CardHeader>
+              <CardTitle>{t("console.health.title")}</CardTitle>
+            </CardHeader>
+            <ul>
+              {data.health.checks.map((check) => (
+                <HealthRow
+                  key={check.name}
+                  status={check.status}
+                  label={t(`console.health.checks.${check.name}`)}
+                  value={healthValue(check, t)}
+                  help={check.name}
+                />
+              ))}
+            </ul>
+          </Card>
+          {data.security && <SecurityCard security={data.security} />}
+          {data.recent && <RecentCard entries={data.recent} />}
+        </div>
       </div>
       <PlatformCard platform={data.platform} />
     </>
+  );
+}
+
+const TODO_TONES = { due: "bg-due-50 text-due", warn: "bg-warn-50 text-warn" } as const;
+
+type Todo = {
+  key: string;
+  tone: keyof typeof TODO_TONES;
+  icon: IconName;
+  title: string;
+  sub: string;
+  to: string;
+  action: string;
+};
+
+// « À faire aujourd'hui » (lot 5, ②bis) : relances, essais qui finissent, factures échues (par
+// devise, jamais additionnées), services en orange ou en rouge. Une section que le membre n'a pas
+// le droit de voir arrive vide du serveur.
+function TodoCard({ data }: { data: Dashboard }) {
+  const { t, i18n } = useTranslation();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const { todo } = data;
+  const see = t("console.dashboard.todo.see");
+  const rows: Todo[] = [];
+  if (todo.follow_ups) {
+    rows.push({
+      key: "follow-ups",
+      tone: "due",
+      icon: "inbox",
+      title: t("console.dashboard.todo.followUps", { count: todo.follow_ups }),
+      sub: t("console.dashboard.todo.followUpsSub"),
+      to: "/demo-requests",
+      action: see,
+    });
+  }
+  for (const school of todo.trials_ending) {
+    rows.push({
+      key: school.id,
+      tone: "warn",
+      icon: "clock",
+      title: school.name,
+      sub: t("console.dashboard.todo.trialUntil", {
+        day: formatDate(school.trial_ends_on, i18n.language, timeZone),
+      }),
+      to: `/schools/${school.id}`,
+      action: t("console.dashboard.todo.open"),
+    });
+  }
+  if (todo.overdue?.length) {
+    rows.push({
+      key: "overdue",
+      tone: "due",
+      icon: "card",
+      title: t("console.dashboard.todo.overdue"),
+      sub: todo.overdue.map((amount, index) => `${index ? "+ " : ""}${money(amount)}`).join(" · "),
+      to: "/billing",
+      action: see,
+    });
+  }
+  for (const check of data.health.checks) {
+    if (check.status !== "warning" && check.status !== "error") continue;
+    rows.push({
+      key: check.name,
+      tone: check.status === "error" ? "due" : "warn",
+      icon: "alert",
+      title: t(`console.health.checks.${check.name}`),
+      sub: healthValue(check, t),
+      to: "#health",
+      action: see,
+    });
+  }
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("console.dashboard.todo.title")}</CardTitle>
+      </CardHeader>
+      {rows.length === 0 ? (
+        <p className="px-4 py-5 text-ink-3">{t("console.dashboard.todo.none")}</p>
+      ) : (
+        <ul>
+          {rows.map((row) => (
+            <li
+              key={row.key}
+              className="flex items-center gap-3 border-t border-line px-4 py-3 text-md first:border-t-0"
+            >
+              <span
+                className={cn(
+                  "grid size-9 shrink-0 place-items-center rounded-field",
+                  TODO_TONES[row.tone],
+                )}
+              >
+                <Icon name={row.icon} size={18} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <b className="block">{row.title}</b>
+                <span className="block text-sm text-ink-3">{row.sub}</span>
+              </span>
+              {row.to.startsWith("#") ? (
+                <a href={row.to} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                  {row.action}
+                </a>
+              ) : (
+                <Link to={row.to} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                  {row.action}
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
+const BURST_SCOPES = {
+  ip: "console.dashboard.security.ip",
+  phone: "console.dashboard.security.phone",
+  platform: "console.dashboard.security.platform",
+} as const;
+
+// Alertes de sécurité des derniers jours (S.8, droit journal ; sans lui, la carte n'est pas là).
+// Le détail se lit dans ce que le serveur a noté (`after`) : sujet, puis chiffres.
+function SecurityCard({ security }: { security: NonNullable<Dashboard["security"]> }) {
+  const { t, i18n } = useTranslation();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const today = formatDate(new Date(), i18n.language, timeZone);
+  const number = new Intl.NumberFormat(i18n.language);
+  const days = security.days;
+  const detail = (entry: (typeof security.alerts)[number]) => {
+    const after = (entry.after ?? {}) as Record<string, string | number>;
+    const count = (key: string) => number.format(Number(after[key] ?? 0));
+    switch (entry.action) {
+      case "security.login_burst":
+        return t(BURST_SCOPES[after.scope as keyof typeof BURST_SCOPES] ?? BURST_SCOPES.ip, {
+          failures: count("failures"),
+        });
+      case "security.unusual_export":
+        return t("console.dashboard.security.export", {
+          exports: count("exports"),
+          rows: count("rows"),
+        });
+      case "security.cancellations":
+        return t("console.dashboard.security.cancellations", {
+          today: count("today"),
+          previous: count("previous_30_days"),
+        });
+      default:
+        return t("console.dashboard.security.device", {
+          attempts: count("attempts"),
+          user: after.user,
+        });
+    }
+  };
+  const label = (entry: (typeof security.alerts)[number]) =>
+    entry.action === "security.login_burst" && entry.entity_label.startsWith("+")
+      ? formatPhone(entry.entity_label)
+      : entry.entity_label;
+  return (
+    <Card>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-3">
+        <CardTitle>{t("console.dashboard.security.title")}</CardTitle>
+        {security.count > 0 && (
+          <StatusPill tone="due">
+            {t("console.dashboard.security.count", { count: security.count, days })}
+          </StatusPill>
+        )}
+      </CardHeader>
+      {security.alerts.length === 0 ? (
+        <p className="flex items-center gap-2 px-4 py-5 text-ink-3">
+          <i className="inline-block size-2.5 rounded-full bg-ok" aria-hidden="true" />
+          {t("console.dashboard.security.none", { days })}
+        </p>
+      ) : (
+        <ul>
+          {security.alerts.map((entry) => {
+            const day = formatDate(entry.created_at, i18n.language, timeZone);
+            return (
+              <li
+                key={entry.id}
+                className="flex items-start gap-3 border-t border-line px-4 py-2.5 text-md first:border-t-0"
+              >
+                <span className="grid size-8 flex-none place-items-center rounded-lg bg-due-50 text-due">
+                  <Icon name="shield" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <b className="block">{t(`console.actions.${entry.action}`)}</b>
+                  <span className="block text-sm text-ink-3">
+                    {[label(entry), detail(entry)].filter(Boolean).join(" · ")}
+                  </span>
+                </span>
+                <time
+                  dateTime={entry.created_at}
+                  className="flex-none text-sm whitespace-nowrap text-ink-3 tabular-nums"
+                >
+                  {day === today ? formatTime(entry.created_at, i18n.language, timeZone) : day}
+                </time>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <p className="border-t border-line px-4 py-2.5 text-sm">
+        <Link to="/journal?domain=security" className="font-bold text-brand underline">
+          {t("console.dashboard.security.all")}
+        </Link>
+      </p>
+    </Card>
+  );
+}
+
+// Dernières entrées du journal de ce mode (droit journal ; sans lui, la carte n'est pas là).
+function RecentCard({ entries }: { entries: NonNullable<Dashboard["recent"]> }) {
+  const { t, i18n } = useTranslation();
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("console.dashboard.recent.title")}</CardTitle>
+      </CardHeader>
+      {entries.length === 0 ? (
+        <p className="px-4 py-5 text-ink-3">{t("console.dashboard.recent.none")}</p>
+      ) : (
+        <ul>
+          {entries.map((entry) => (
+            <li
+              key={entry.id}
+              className="grid grid-cols-[48px_minmax(0,1fr)] gap-2 border-t border-line px-4 py-2.5 text-md first:border-t-0"
+            >
+              <time dateTime={entry.created_at} className="text-sm text-ink-3 tabular-nums">
+                {formatTime(entry.created_at, i18n.language, timeZone)}
+              </time>
+              <span className="min-w-0">
+                <b>{t(`console.actions.${entry.action}`)}</b> {entry.entity_label}
+                {entry.actor && (
+                  <span className="block text-sm text-ink-3">
+                    {[entry.actor.first_name, entry.actor.last_name].join(" ")}
+                  </span>
+                )}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="border-t border-line px-4 py-2.5 text-sm">
+        <Link to="/journal" className="font-bold text-brand underline">
+          {t("console.dashboard.recent.all")}
+        </Link>
+      </p>
+    </Card>
   );
 }
 

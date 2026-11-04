@@ -13,11 +13,13 @@ from drf_spectacular.utils import (
 )
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.permissions import SAFE_METHODS
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission, HasSchoolAccess, school_access
 from apps.accounts.roles import ANNOUNCEMENTS_PUBLISH
@@ -340,7 +342,8 @@ class ConsolePlatformAnnouncementViewSet(
     def get_queryset(self):
         schools = Prefetch("schools", queryset=School.objects.order_by("name"))
         return (
-            PlatformAnnouncement.objects.select_related("created_by")
+            PlatformAnnouncement.objects.filter(is_demo=console_mode.is_demo(self.request))
+            .select_related("created_by")
             .prefetch_related(schools)
             .annotate(read_by=Count("reads"))
             .order_by("-published_at", "-id")  # GROUP BY : l'ordre du modèle ne compte plus
@@ -353,7 +356,13 @@ class ConsolePlatformAnnouncementViewSet(
     def create(self, request: Request) -> Response:
         serializer = ConsolePlatformAnnouncementCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        announcement = platform.publish(actor=request.user, **serializer.validated_data)
+        demo = console_mode.is_demo(request)
+        for school in serializer.validated_data.get("schools") or []:
+            if school.is_demo != demo:
+                raise NotFound
+        announcement = platform.publish(
+            actor=request.user, is_demo=demo, **serializer.validated_data
+        )
         return self._announcement(announcement, status.HTTP_201_CREATED)
 
     @extend_schema(request=None, responses={200: ConsolePlatformAnnouncementSerializer, **ERRORS})

@@ -26,6 +26,7 @@ import { Link, useSearchParams } from "react-router";
 
 import { keys } from "../../lib/queries";
 import { RIGHTS, spaceRight, useCan } from "../../lib/rights";
+import { useConsoleMode } from "../../lib/mode";
 import { KINDS, type School, type SchoolKind, SubscriptionPill, isClosed } from "./schoolForm";
 
 const FILTERS = ["all", "active", "trial", "suspended", "stopped"] as const;
@@ -53,7 +54,11 @@ export function SchoolsPage() {
   const [params] = useSearchParams();
   const can = useCan();
   // Sans « voir les écoles » (commercial), pas d'onglet « Réels » : le serveur les cache (EQ.1).
-  const kinds = KINDS.filter((item) => item !== "live" || can(RIGHTS.schoolsView));
+  // Mode réel : écoles réelles et essais ; démonstration : les démonstrations seulement.
+  const demo = useConsoleMode() === "demo";
+  const kinds = KINDS.filter(
+    (item) => (item === "demo") === demo && (item !== "live" || can(RIGHTS.schoolsView)),
+  );
   // `?type=` : onglet d'arrivée (retour d'une fiche d'essai ou de démonstration supprimée).
   const [kind, setKind] = useState<SchoolKind>(
     kinds.find((item) => item === params.get("type")) ?? kinds[0] ?? "test",
@@ -239,27 +244,31 @@ export function SchoolsPage() {
         actions={
           can(spaceRight(kind, RIGHTS.schoolsManage)) && (
             <Link to={`/schools/new?type=${kind}`} className={buttonVariants({ size: "lg" })}>
-              {t("console.schools.new")}
+              {t(demo ? "console.schools.newDemo" : "console.schools.new")}
             </Link>
           )
         }
       />
-      <Tabs
-        value={kind}
-        onValueChange={(value) => {
-          setKind(value as SchoolKind);
-          setPage(1);
-        }}
-      >
-        <TabsList aria-label={t("console.schools.kindLabel")}>
-          {kinds.map((value) => (
-            <TabsTrigger key={value} value={value}>
-              {t(`console.schools.kinds.${value}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-        <TabsContent value={kind}>{list}</TabsContent>
-      </Tabs>
+      {kinds.length < 2 ? (
+        list
+      ) : (
+        <Tabs
+          value={kind}
+          onValueChange={(value) => {
+            setKind(value as SchoolKind);
+            setPage(1);
+          }}
+        >
+          <TabsList aria-label={t("console.schools.kindLabel")}>
+            {kinds.map((value) => (
+              <TabsTrigger key={value} value={value}>
+                {t(`console.schools.kinds.${value}`)}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          <TabsContent value={kind}>{list}</TabsContent>
+        </Tabs>
+      )}
     </>
   );
 }

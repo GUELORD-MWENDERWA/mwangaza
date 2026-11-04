@@ -24,6 +24,7 @@ AUDIT_VIEW = "platform.audit.view"
 BILLING_MANAGE = "platform.billing.manage"
 IDENTITY_EDIT = "platform.identity.edit"
 TEAM_MANAGE = "platform.team.manage"
+AI_MANAGE = "platform.ai.manage"
 
 PLATFORM_PERMISSIONS: dict[str, Promise] = {
     SCHOOLS_VIEW: _("View the schools and the dashboard"),
@@ -39,6 +40,7 @@ PLATFORM_PERMISSIONS: dict[str, Promise] = {
     BILLING_MANAGE: _("Manage subscriptions and invoices"),
     IDENTITY_EDIT: _("Change the identity of the platform"),
     TEAM_MANAGE: _("Manage the platform team"),
+    AI_MANAGE: _("Manage the AI assistance: switch, cap, prices, uses and credits of schools"),
 }
 
 OWNER = "owner"
@@ -47,7 +49,7 @@ OWNER = "owner"
 # restent au seul propriétaire.
 PLATFORM_ROLES: dict[str, tuple[Promise, frozenset[str]]] = {
     OWNER: (_("Lead administrator"), frozenset(PLATFORM_PERMISSIONS)),
-    "technical": (_("Technical"), frozenset({HEALTH_VIEW, AUDIT_VIEW, SCHOOLS_VIEW})),
+    "technical": (_("Technical"), frozenset({HEALTH_VIEW, AUDIT_VIEW, SCHOOLS_VIEW, AI_MANAGE})),
     "support": (
         _("Support"),
         frozenset({SCHOOLS_VIEW, ACCOUNTS_SUPPORT, DEMOS_MANAGE}),
@@ -56,7 +58,7 @@ PLATFORM_ROLES: dict[str, tuple[Promise, frozenset[str]]] = {
     "commercial": (_("Sales"), frozenset({LEADS_MANAGE, DEMOS_MANAGE})),
     "communication": (_("Communication"), frozenset({SITE_EDIT, NEWS_PUBLISH})),
     # Abonnements et factures (ABO, V1.3) : le droit ne garde encore aucun point d'API.
-    "finance": (_("Finance"), frozenset({BILLING_MANAGE, SCHOOLS_VIEW})),
+    "finance": (_("Finance"), frozenset({BILLING_MANAGE, SCHOOLS_VIEW, AI_MANAGE})),
 }
 
 ROLE_CHOICES = [(code, label) for code, (label, _rights) in PLATFORM_ROLES.items()]

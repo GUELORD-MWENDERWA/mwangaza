@@ -15,16 +15,22 @@ from django.db.models import Count, F, OuterRef, QuerySet, Subquery, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from apps.audit.models import AuditLog
+from apps.accounts import platform_roles as team
+from apps.audit import security
+from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.core import health
+from apps.core.models import DemoRequest
 from apps.core.money import Currency
 from apps.finance.models import Payment
+from apps.schools import business
 from apps.schools.models import School
 from apps.students.models import Enrollment
 from apps.sync.models import Device
 
 # Un essai qui finit dans ces jours est signalé.
 TRIAL_ENDING_DAYS = 30
+TRIALS_SHOWN = 5
+RECENT_SHOWN = 5
 ACTIVE_SCHOOLS = 10
 LIVE = School.Environment.LIVE
 
@@ -53,8 +59,8 @@ def schools() -> QuerySet[School]:
     )
 
 
-def _schools(day) -> dict:
-    live = School.objects.filter(environment=LIVE)
+def _schools(day, environments) -> dict:
+    live = School.objects.filter(environment__in=environments)
     counts = dict(live.values_list("status").annotate(count=Count("id")).order_by())
     ending = live.filter(
         status=School.Status.TRIAL, trial_ends_on__lte=day + timedelta(days=TRIAL_ENDING_DAYS)
@@ -67,11 +73,11 @@ def _schools(day) -> dict:
     }
 
 
-def _today_payments(day) -> tuple[list[dict], list[dict]]:
+def _today_payments(day, environments) -> tuple[list[dict], list[dict]]:
     start = timezone.make_aware(datetime.combine(day, time()))
     rows = (
         Payment.all_schools.filter(
-            school__environment=LIVE,
+            school__environment__in=environments,
             cancellation__isnull=True,
             paid_at__gte=start,
             paid_at__lt=start + timedelta(days=1),
@@ -114,7 +120,7 @@ def _today_payments(day) -> tuple[list[dict], list[dict]]:
 SYNC_SCHOOLS = 10
 
 
-def _last_syncs() -> list[dict]:
+def _last_syncs(environments) -> list[dict]:
     """Dernière activité d'un appareil non révoqué, par école réelle ouverte : les dix plus
     anciennes d'abord (une école muette depuis des jours est celle qu'on appelle). Une requête."""
     seen = (
@@ -123,7 +129,7 @@ def _last_syncs() -> list[dict]:
         .values("last_seen_at")[:1]
     )
     rows = (
-        School.objects.filter(environment=LIVE)
+        School.objects.filter(environment__in=environments)
         .exclude(status__in=School.CLOSED_STATUSES)
         .annotate(last_sync_at=Subquery(seen))
         .order_by(F("last_sync_at").asc(nulls_first=True), "name")[:SYNC_SCHOOLS]
@@ -133,18 +139,65 @@ def _last_syncs() -> list[dict]:
     ]
 
 
-def dashboard() -> dict:
+def dashboard(environments=(LIVE,)) -> dict:
+    """Chiffres des espaces de ces types (réels, ou démonstrations en mode démonstration)."""
     day = timezone.localdate()
-    today, active = _today_payments(day)
+    today, active = _today_payments(day, environments)
     return {
         "day": day,
-        "schools": _schools(day),
+        "schools": _schools(day, environments),
         "students": Enrollment.all_schools.filter(
-            school__environment=LIVE, status="active", academic_year__is_current=True
+            school__environment__in=environments, status="active", academic_year__is_current=True
         ).count(),
         "today": today,
         "payments_today": sum(row["count"] for row in today),
         "active_schools": active,
         "health": health.report(),
-        "platform": {**health.platform(), "syncs": _last_syncs()},
+        "platform": {**health.platform(), "syncs": _last_syncs(environments)},
     }
+
+
+def todo(rights, environments, *, demo: bool, day=None) -> dict:
+    """« À faire aujourd'hui » du tableau de bord (lot 5, ②bis) : essais qui finissent bientôt,
+    prospects à relancer (droit commercial) et factures échues par devise (droit facturation, réel
+    seulement). Une section sans le droit vaut `None` : le serveur ne l'envoie pas."""
+    day = day or timezone.localdate()
+    trials = (
+        School.objects.filter(
+            environment__in=environments,
+            status=School.Status.TRIAL,
+            trial_ends_on__lte=day + timedelta(days=TRIAL_ENDING_DAYS),
+        )
+        .order_by("trial_ends_on", "name")
+        .values("id", "code", "name", "trial_ends_on")[:TRIALS_SHOWN]
+    )
+    follow_ups = None
+    if team.LEADS_MANAGE in rights:
+        follow_ups = DemoRequest.objects.filter(
+            is_demo=demo, status__in=business.OPEN_PROSPECTS, follow_up_on__lte=day
+        ).count()
+    overdue = None
+    if team.BILLING_MANAGE in rights and not demo:
+        overdue = [
+            {"currency": row["currency"], "amount_minor": row["overdue"]}
+            for row in business.for_rights(rights)["money"]
+            if row["overdue"]
+        ]
+    return {"trials_ending": list(trials), "follow_ups": follow_ups, "overdue": overdue}
+
+
+def security_alerts(rights, *, demo: bool):
+    """Carte « Sécurité » (S.8) : alertes des 7 derniers jours de ce mode (droit journal), sinon
+    `None`."""
+    if team.AUDIT_VIEW not in rights:
+        return None
+    return security.recent(demo=demo)
+
+
+def recent_activity(rights, *, demo: bool):
+    """« Dernières activités » : les dernières entrées du journal de la plateforme de ce mode
+    (droit journal), sinon `None`."""
+    if team.AUDIT_VIEW not in rights:
+        return None
+    logs = PlatformAuditLog.objects.select_related("actor").filter(is_demo=demo)
+    return list(logs.order_by("-created_at")[:RECENT_SHOWN])

@@ -1,7 +1,7 @@
 // Données fictives des tests d'écrans (jamais de vraie personne ni de vraie école).
 import type { Schemas } from "@mwangaza/api";
 
-import type { Permission } from "../lib/permissions";
+import type { Feature, Permission } from "../lib/permissions";
 
 const ALL_MODULES: Schemas["ModulesEnum"][] = [
   "students",
@@ -129,6 +129,23 @@ export const NO_SIGNATURES: Schemas["DocumentSigners"] = {
   signature: null,
 };
 
+// Tout le registre des modules (MOD.1) : l'école a tous les modules.
+const ALL_FEATURES: Feature[] = [
+  "student.national_id",
+  "student.permanent_number",
+  "student.birth_place",
+  "student.nationality",
+  "student.origin",
+  "settings.currencies",
+  "settings.receipt",
+  "settings.alerts",
+  "settings.reminders",
+  "settings.portal",
+  "settings.grading",
+  "settings.pass_rules",
+  "settings.ai",
+];
+
 export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}): Schemas["Me"] {
   return {
     id: "00000000-0000-7000-8000-000000000100",
@@ -151,6 +168,7 @@ export function me(code: Role = "head", overrides: Partial<Schemas["Me"]> = {}):
       roles: [role(code)],
       permissions: PERMISSIONS[code],
       modules: ALL_MODULES,
+      features: ALL_FEATURES,
       documents: NO_SIGNATURES,
       homeroom: false,
     },

@@ -109,6 +109,7 @@ describe("menu selon les permissions (04 § 8)", () => {
         roles: [],
         permissions: support,
         modules: [],
+        features: [],
         documents: NO_SIGNATURES,
         homeroom: false,
       },

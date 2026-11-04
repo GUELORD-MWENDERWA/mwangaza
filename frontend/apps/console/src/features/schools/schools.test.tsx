@@ -32,6 +32,14 @@ const GAMMA = {
   student_count: 0,
   last_activity_at: null,
   created_at: "2026-10-03T08:00:00Z",
+  contact_name: "",
+  contact_phone: "",
+  contact_email: "",
+  internal_notes: "",
+  contract: null,
+  invoices: [],
+  usage: { students: 0, accounts: 1, last_activity_at: null, last_sync_at: null },
+  exports: [],
   history: [],
 };
 
@@ -42,6 +50,26 @@ describe("Écoles de la console", () => {
     let refuse = true;
     const requests = mockApi({
       "GET /api/me/": ADMIN,
+      "GET /api/console/billing/plans/": {
+        count: 1,
+        next: null,
+        previous: null,
+        results: [
+          {
+            id: "p1",
+            code: "essentiel",
+            name: "Essentiel",
+            description: "",
+            modules: ["students", "finance"],
+            price_per_student: 15000,
+            currency: "USD",
+            period: "year",
+            ai_uses: [],
+            ai_monthly_credits: 0,
+            active: true,
+          },
+        ],
+      },
       "POST /api/console/schools/": () =>
         refuse
           ? apiError("invalid", 400, { code: [{ code: "reserved", message: "x" }] })
@@ -64,8 +92,10 @@ describe("Écoles de la console", () => {
     await user.type(screen.getByLabelText("Code (adresse)"), "admin");
     await user.type(screen.getByLabelText("Téléphone"), "0000003001");
     await user.type(headName!, "Kasereka");
-    // Les six modules sont cochés d'office ; retirer les élèves retire ce qui en dépend.
+    // « Sur mesure » d'office, modules cochés ; retirer les élèves retire ce qui en dépend.
     await user.click(screen.getByRole("checkbox", { name: "Élèves, familles et inscriptions" }));
+    // Sans la caisse, pas de devises demandées (MOD.1).
+    expect(screen.queryByText("Devises")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Créer l'école" }));
 
     // Refus du serveur placé sous le champ.
@@ -76,11 +106,16 @@ describe("Écoles de la console", () => {
       environment: "test",
       status: "trial",
       paid_until: null,
-      enabled_currencies: ["USD", "CDF"],
       modules: ["communication", "notifications", "offline"],
       head: { phone: "0000003001", last_name: "Kasereka" },
     });
+    expect(requests.find((r) => r.method === "POST")?.body).not.toHaveProperty(
+      "enabled_currencies",
+    );
 
+    // Forfait « Essentiel » : ses modules, son nom, et les devises de la caisse.
+    await user.click(screen.getByRole("radio", { name: /Essentiel/ }));
+    expect(screen.getByText("Devises")).toBeTruthy();
     refuse = false;
     const code = screen.getByLabelText("Code (adresse)");
     await user.clear(code);
@@ -88,6 +123,11 @@ describe("Écoles de la console", () => {
     await user.click(screen.getByRole("button", { name: "Créer l'école" }));
     expect(await screen.findByText("kivu-lac-42")).toBeTruthy();
     expect(screen.getByText(/Affiché une seule fois/)).toBeTruthy();
+    expect(requests.filter((r) => r.method === "POST").at(-1)?.body).toMatchObject({
+      modules: ["students", "finance"],
+      plan: "Essentiel",
+      enabled_currencies: ["USD", "CDF"],
+    });
   });
 
   it("donne un module à l'école et n'envoie que les modules", async () => {
@@ -247,7 +287,8 @@ describe("Écoles de la console", () => {
       "GET /api/console/schools/d1/": () => demo(reads++ ? "ready" : "filling"),
       "POST /api/console/schools/d1/reset/": () => demo("resetting", "deleting"),
     });
-    const { user } = renderApp("/schools/new?type=demo");
+    // « Créer une démonstration » : en mode démonstration seulement.
+    const { user } = renderApp("/schools/new?type=demo", "demo");
 
     // Ni directeur, ni devises, ni abonnement : le serveur écrit tout.
     await user.type(await screen.findByLabelText("Nom"), "Vitrine");

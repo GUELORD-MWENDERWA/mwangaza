@@ -59,20 +59,23 @@ ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border
 <header class="ctop"><div class="in">
   <div class="row1"><div class="brand"><span class="mark"></span><b>Mwangaza</b></div><span class="chip">Console</span><span class="grow"></span>
     <span class="me"><span class="avatar">GM</span><b>Guelord Mwenderwa</b></span></div>
-  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a class="on" href="#">Demandes</a><a href="#">Comptes</a><a href="#">Annonces</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a href="#">Journal</a></nav>
+  <nav><a href="#">Tableau de bord</a><a href="#">Écoles</a><a class="on" href="#">Prospects</a><a href="#">Comptes</a><a href="#">Annonces</a><a href="#">Identité de la plateforme</a><a href="#">Appareils</a><a href="#">Journal</a></nav>
 </div></header>
 <main class="cmain">
-  <div class="pagehead"><div><h1>Demandes de démonstration</h1><p>Envoyées par la page Démonstration du site. Rappelez chaque école, puis notez où elle en est.</p></div></div>
-  <div class="filters"><div class="seg"><span class="on">Nouvelles · 2</span><span>Rappelées</span><span>Espace d'essai ouvert</span><span>Sans suite</span><span>Toutes</span></div></div>
+  <div class="pagehead"><div><h1>Prospects</h1><p>Demandes de démonstration du site : suivez chaque école de la première prise de contact à la signature.</p></div></div>
+  <div class="filters"><div class="seg"><span class="on">Nouvelles · 2</span><span>Contactées</span><span>Démo faite</span><span>Essai</span><span>Signées</span><span>Perdues</span><span>Toutes</span></div></div>
   <div class="reqs">
     <article class="card"><div class="req">
       <div class="col" style="gap:12px">
-        <div class="hdline"><div><h2 style="margin:0;font-size:1.1rem">Institut Les Volcans</h2><span class="muted small">Goma · 300 à 800 élèves · reçue le 18/10/2026 à 09:42 · en français</span></div><span class="pill info">Nouvelle</span></div>
-        <dl class="brief"><dt>Contact</dt><dd><b>MUHINDO KAKULE Jean-Paul, préfet des études</b></dd><dt>Téléphone</dt><dd class="row wrap" style="gap:8px"><span class="mono">+243 97 123 45 67</span><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>Appeler</a><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg>WhatsApp</a></dd><dt>E-mail</dt><dd>—</dd></dl>
+        <div class="hdline"><div><h2 style="margin:0;font-size:1.1rem">Institut Les Volcans</h2><span class="muted small">Goma · 300 à 800 élèves · reçue le 18/10/2026 à 09:42 · en français</span></div><span class="row" style="gap:6px"><span class="pill due">Relance en retard</span><span class="pill info">Nouvelle</span></span></div>
+        <dl class="brief"><dt>Contact</dt><dd><b>MUHINDO KAKULE Jean-Paul, préfet des études</b></dd><dt>Téléphone</dt><dd class="row wrap" style="gap:8px"><span class="mono">+243 97 123 45 67</span><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>Appeler</a><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg>WhatsApp</a></dd><dt>E-mail</dt><dd>—</dd><dt>Espace d'essai</dt><dd>Pas encore ouvert</dd></dl>
         <p class="msg">Nous voulons voir la caisse et les impayés, avec notre comptable.</p>
       </div>
       <div class="follow">
-        <label class="f">Suivi<select class="inp"><option selected>Nouvelle</option><option>Rappelée</option><option>Espace d'essai ouvert</option><option>Sans suite</option></select></label>
+        <div class="form" style="padding:0"><label class="f">Étape<select class="inp"><option selected>Nouvelle</option><option>Contactée</option><option>Démonstration faite</option><option>Essai</option><option>Signée</option><option>Perdue</option></select></label>
+        <label class="f">Responsable<select class="inp"><option>—</option><option selected>Commercial (Goma)</option></select></label>
+        <label class="f">Prochaine relance<span class="inp">22/11/2026</span></label>
+        <label class="f">Motif de perte <span class="help">(étape « Perdue » seulement)</span><span class="inp"></span></label></div>
         <label class="f">Note interne <span class="help">(vue seulement dans la console)</span><span class="inp" style="min-height:72px;align-items:flex-start"></span></label>
         <div class="acts2"><a class="btn primary sm" href="#">Enregistrer</a><a class="btn sm ghost" href="#">Créer l'espace d'essai</a><a class="btn sm ghost danger" href="#" style="margin-left:auto">Effacer</a></div>
       </div>
@@ -80,11 +83,14 @@ ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border
     <article class="card"><div class="req">
       <div class="col" style="gap:12px">
         <div class="hdline"><div><h2 style="margin:0;font-size:1.1rem">Complexe scolaire Mont Goma</h2><span class="muted small">Goma · moins de 300 élèves · reçue le 17/10/2026 à 16:05 · en français</span></div><span class="pill info">Nouvelle</span></div>
-        <dl class="brief"><dt>Contact</dt><dd><b>KAVIRA MASIKA Esther, promotrice</b></dd><dt>Téléphone</dt><dd class="row wrap" style="gap:8px"><span class="mono">+243 81 555 20 14</span><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>Appeler</a><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg>WhatsApp</a></dd><dt>E-mail</dt><dd>esther.kavira@example.com</dd></dl>
+        <dl class="brief"><dt>Contact</dt><dd><b>KAVIRA MASIKA Esther, promotrice</b></dd><dt>Téléphone</dt><dd class="row wrap" style="gap:8px"><span class="mono">+243 81 555 20 14</span><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg>Appeler</a><a class="btn sm" href="#"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/></svg>WhatsApp</a></dd><dt>E-mail</dt><dd>esther.kavira@example.com</dd><dt>Espace d'essai</dt><dd><a href="#">kivu-essai</a> · ouvert le 02/11/2026</dd></dl>
         <span class="muted small">Pas de message.</span>
       </div>
       <div class="follow">
-        <label class="f">Suivi<select class="inp"><option selected>Nouvelle</option><option>Rappelée</option><option>Espace d'essai ouvert</option><option>Sans suite</option></select></label>
+        <div class="form" style="padding:0"><label class="f">Étape<select class="inp"><option selected>Nouvelle</option><option>Contactée</option><option>Démonstration faite</option><option>Essai</option><option>Signée</option><option>Perdue</option></select></label>
+        <label class="f">Responsable<select class="inp"><option>—</option><option selected>Commercial (Goma)</option></select></label>
+        <label class="f">Prochaine relance<span class="inp">22/11/2026</span></label>
+        <label class="f">Motif de perte <span class="help">(étape « Perdue » seulement)</span><span class="inp"></span></label></div>
         <label class="f">Note interne <span class="help">(vue seulement dans la console)</span><span class="inp" style="min-height:72px;align-items:flex-start"></span></label>
         <div class="acts2"><a class="btn primary sm" href="#">Enregistrer</a><a class="btn sm ghost" href="#">Créer l'espace d'essai</a><a class="btn sm ghost danger" href="#" style="margin-left:auto">Effacer</a></div>
       </div>
@@ -92,6 +98,6 @@ ul.plain{list-style:none;margin:0;padding:0}ul.plain li{padding:10px 16px;border
   </div>
   <div class="card"><div class="ft"><span class="small muted">2 demandes</span><span><a class="btn sm" href="#">Précédent</a> <a class="btn sm" href="#">Suivant</a></span></div></div>
   <div class="card"><div class="bd" style="padding:24px;text-align:center"><b>Aucune demande dans ce suivi.</b><p class="muted small" style="margin:4px 0 0">Les demandes envoyées par le site arrivent ici, et sur l'écran si les alertes sont activées (Journal).</p></div></div>
-  <div class="note"><b>WEB.1d :</b> super-admin seulement (le serveur vérifie). Plus récentes d'abord, 20 par page ; « Nouvelles » s'ouvre par défaut, avec leur nombre. Chaque nouvelle demande prévient les super-admin abonnés (alerte sur l'écran, comme les connexions du Journal) et l'adresse d'alerte du serveur par e-mail, si elle est réglée. Suivi : nouvelle → rappelée → espace d'essai ouvert ou sans suite ; note interne libre, jamais montrée à l'école. « Créer l'espace d'essai » ouvre Nouvelle école. « Effacer » (la personne le demande) supprime la demande, après confirmation. Toute demande est effacée seule un an après son envoi (confidentialité). Rien n'est envoyé à un service tiers. Carte « Aucune demande » : état vide, montré à la place de la liste. Données fictives.</div>
+  <div class="note"><b>CON.3 :</b> super-admin et rôle « commercial » (droit « demandes du site », le serveur vérifie). Étapes : nouvelle → contactée → démonstration faite → essai → signée, ou perdue (motif obligatoire). Responsable : un membre de l'équipe ; la prochaine relance prévient le responsable (alerte sur l'écran, le matin du jour dit), et une relance dépassée affiche « Relance en retard ». « Créer l'espace d'essai » ouvre Nouvelle école préremplie (nom, ville, téléphone du contact) ; une fois l'espace créé, la demande passe à « Essai » et garde le lien vers l'école. Les prospects ouverts comptent dans Affaires. Une demande est effacée seule un an après son envoi. Carte « Aucune demande » : état vide. Données fictives.</div>
 </main>
 </body></html>

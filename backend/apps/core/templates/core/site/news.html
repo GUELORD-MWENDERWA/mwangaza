@@ -5,7 +5,7 @@
   <div class="wrap">
     <span class="eyebrow">{% translate "News" %}</span>
     <h1 class="display">{% blocktranslate trimmed with name=platform.name %}What is changing in {{ name }}{% endblocktranslate %}</h1>
-    <p class="lead">{% translate "New features, tips for the new school year, life of the schools." %}</p>
+    <p class="lead">{% blocktranslate trimmed with name=platform.name %}New features, tips for the new school year and life of the schools using {{ name }}.{% endblocktranslate %}</p>
   </div>
 </section>
 <section class="sec">

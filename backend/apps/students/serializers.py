@@ -2,10 +2,12 @@ from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.accounts.modules import hidden_student_fields
 from apps.accounts.serializers import PhoneField
 from apps.audit.serializers import AuditLogSerializer
 from apps.core.documents import PrintOptionsSerializer
 from apps.core.images import CleanedFileField
+from apps.core.tenancy import get_current_school
 from apps.finance import services as finance
 from apps.finance.serializers import BalanceSerializer
 from apps.schools.models import AcademicYear, ClassGroup, Track
@@ -325,6 +327,15 @@ class StudentWriteSerializer(serializers.ModelSerializer):
         ]
         # Le matricule est donné à l'inscription ; seulement corrigé à la main ensuite.
         extra_kwargs = {"matricule": {"required": False}}
+
+    def get_fields(self):
+        # Champ d'un module que l'école n'a pas (MOD.1, ex. N° permanent sans les bulletins) :
+        # jamais exigé ni écrit ; ce qui est déjà saisi reste.
+        fields = super().get_fields()
+        school = get_current_school()
+        for name in hidden_student_fields(school.modules) if school is not None else ():
+            fields[name].read_only = True
+        return fields
 
     def validate(self, attrs):
         if attrs.get("family") and attrs.get("guardians"):

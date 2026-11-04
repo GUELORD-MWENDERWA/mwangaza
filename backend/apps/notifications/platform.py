@@ -17,9 +17,17 @@ from apps.schools.models import School
 
 @transaction.atomic
 def publish(
-    *, actor: User, title: str, body: str, audience: str, schools: list[School] | None = None
+    *,
+    actor: User,
+    title: str,
+    body: str,
+    audience: str,
+    schools: list[School] | None = None,
+    is_demo: bool = False,
 ) -> PlatformAnnouncement:
-    """Publie tout de suite, à toutes les écoles ou à celles choisies."""
+    """Publie tout de suite, à toutes les écoles ou à celles choisies. `is_demo` : annonce
+    fictive de la console en mode démonstration, lue par les espaces de démonstration seulement
+    (et une annonce réelle ne l'est jamais par eux)."""
     schools = [] if audience == PlatformAnnouncement.Audience.ALL_SCHOOLS else schools or []
     if audience == PlatformAnnouncement.Audience.SCHOOLS and not schools:
         message = _("Choose at least one school.")
@@ -30,6 +38,7 @@ def publish(
         audience=audience,
         published_at=timezone.now(),
         created_by=actor,
+        is_demo=is_demo,
     )
     announcement.schools.set(schools)
     after = {
@@ -69,7 +78,10 @@ def for_school(school: School, user: User) -> QuerySet[PlatformAnnouncement]:
     read = PlatformAnnouncementRead.objects.filter(announcement=OuterRef("pk"), user=user)
     return (
         PlatformAnnouncement.objects.filter(
-            targeted, archived_at__isnull=True, published_at__gte=school.created_at
+            targeted,
+            archived_at__isnull=True,
+            published_at__gte=school.created_at,
+            is_demo=school.is_demo,
         )
         .annotate(is_read=Exists(read))
         .order_by("-published_at", "-id")

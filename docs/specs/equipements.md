@@ -19,6 +19,7 @@ Décidé le 2026-11-03. Mwangaza englobe désormais deux projets existants : la 
 
 **Règle générale** : une école ne voit, ne remplit et ne configure que ce qui concerne ses modules **et les modules dont ils dépendent**. Ce qui n'en dépend pas n'apparaît ni dans les menus, ni dans les formulaires, ni dans les paramètres, ni dans les imports et exports, ni dans l'aide, ni dans les documents.
 
+- **Fait au lot 5 (MOD.1)** : registre `FEATURES` et `School.applies()`, `features` dans `/me`, forfaits de départ = **offres de « Facturation »** (`Plan`) + « Sur mesure » à la création d'une école (le lot 16 crée les offres « Sonnerie seule » et « Présences » et ajoute `bell` / `attendance` au registre, dont « années et classes » : `setup.year` / `setup.classes`).
 - **Registre unique** (`accounts/modules.py`) : chaque **champ**, **section de paramètres**, **règle**, **rôle**, **widget du tableau de bord**, **document** et **étape de première configuration** déclare le ou les modules qui en ont besoin. Un seul test (`school.applies(feature)`) décide partout : serveur (sérialiseurs, validations, imports, exports), `/me` (menus) et interface. Le front ne fait que masquer ; le serveur **n'exige jamais** un champ qui ne s'applique pas à l'école et refuse d'écrire ceux qui ne s'y appliquent pas.
 - **Exemples** :
 

@@ -6,12 +6,13 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
+from apps.accounts.models import User
 from apps.accounts.serializers import PhoneField
 from apps.audit.actions import PlatformAction
 from apps.audit.models import PlatformAuditLog
 from apps.audit.serializers import AuditActorSerializer
 from apps.billing.models import Plan
-from apps.core import site_content
+from apps.core import demo_requests, site_content
 from apps.core.images import CleanedFileField, clean_site_photo, consent_extension
 from apps.core.models import (
     Article,
@@ -138,8 +139,17 @@ class PlatformIconUploadSerializer(serializers.Serializer):
 
 
 class ConsoleDemoRequestSerializer(serializers.ModelSerializer):
-    """Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-    interne se modifient. Fonction, taille et langue : codes, traduits par la console."""
+    """Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+    se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+    interne. Fonction, taille et langue : codes, traduits par la console."""
+
+    assignee = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.none(), allow_null=True, required=False
+    )
+    assignee_name = serializers.SerializerMethodField(help_text="Nom du responsable, ou vide.")
+    overdue = serializers.SerializerMethodField(
+        help_text="Vrai si la relance est dépassée et le prospect encore ouvert."
+    )
 
     class Meta:
         model = DemoRequest
@@ -158,9 +168,60 @@ class ConsoleDemoRequestSerializer(serializers.ModelSerializer):
             "language",
             "status",
             "notes",
+            "assignee",
+            "assignee_name",
+            "follow_up_on",
+            "lost_reason",
+            "school_code",
+            "overdue",
             "updated_at",
         ]
-        read_only_fields = [f for f in fields if f not in ("status", "notes")]
+        read_only_fields = [
+            f
+            for f in fields
+            if f not in ("status", "notes", "assignee", "follow_up_on", "lost_reason")
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "assignee" in self.fields:
+            self.fields["assignee"].queryset = demo_requests.assignees()
+
+    @extend_schema_field(str)
+    def get_assignee_name(self, request: DemoRequest) -> str:
+        return str(request.assignee) if request.assignee_id else ""
+
+    @extend_schema_field(bool)
+    def get_overdue(self, request: DemoRequest) -> bool:
+        return bool(
+            request.follow_up_on
+            and request.status in demo_requests.OPEN
+            and request.follow_up_on < timezone.localdate()
+        )
+
+    def validate(self, attrs: dict) -> dict:
+        status = attrs.get("status", self.instance.status if self.instance else "new")
+        reason = attrs.get("lost_reason", self.instance.lost_reason if self.instance else "")
+        if status == DemoRequest.Status.LOST:
+            if not reason.strip():
+                raise serializers.ValidationError(
+                    {"lost_reason": _("Say why this prospect was lost.")}, code="required"
+                )
+        else:
+            attrs["lost_reason"] = ""  # le motif n'a de sens qu'à l'étape « perdue »
+        return attrs
+
+
+class ProspectAssigneeSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ["id", "name"]
+
+    @extend_schema_field(str)
+    def get_name(self, user: User) -> str:
+        return str(user)
 
 
 class ConsoleSiteEntrySerializer(serializers.ModelSerializer):

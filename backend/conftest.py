@@ -118,30 +118,32 @@ def _no_current_school_left_behind():
 class Api:
     """Client de test sur l'adresse d'une école (`alpha.localhost` par défaut)."""
 
-    def __init__(self, client: Client, host: str):
+    def __init__(self, client: Client, host: str, headers: dict | None = None):
         self.client = client
         self.host = host
+        # `{"HTTP_X_CONSOLE_MODE": "demo"}` : console en mode démonstration.
+        self.headers = headers or {}
 
     def get(self, path, **params):
-        return self.client.get(path, params, HTTP_HOST=self.host)
+        return self.client.get(path, params, HTTP_HOST=self.host, **self.headers)
 
     def post(self, path, data=None):
         return self.client.post(
-            path, data or {}, content_type="application/json", HTTP_HOST=self.host
+            path, data or {}, content_type="application/json", HTTP_HOST=self.host, **self.headers
         )
 
     def patch(self, path, data=None):
         return self.client.patch(
-            path, data or {}, content_type="application/json", HTTP_HOST=self.host
+            path, data or {}, content_type="application/json", HTTP_HOST=self.host, **self.headers
         )
 
     def put(self, path, data=None):
         return self.client.put(
-            path, data or {}, content_type="application/json", HTTP_HOST=self.host
+            path, data or {}, content_type="application/json", HTTP_HOST=self.host, **self.headers
         )
 
     def delete(self, path):
-        return self.client.delete(path, HTTP_HOST=self.host)
+        return self.client.delete(path, HTTP_HOST=self.host, **self.headers)
 
 
 def _open_session(client: Client, user, *, mfa: bool) -> None:
@@ -160,11 +162,11 @@ def api():
     """`api(user)` : session connectée comme après toutes les étapes de la connexion, double
     authentification comprise (`mfa=False` : sans elle)."""
 
-    def make(user=None, host="alpha.localhost", *, mfa=True) -> Api:
+    def make(user=None, host="alpha.localhost", *, mfa=True, headers=None) -> Api:
         client = Client()
         if user is not None:
             _open_session(client, user, mfa=mfa)
-        return Api(client, host)
+        return Api(client, host, headers)
 
     return make
 

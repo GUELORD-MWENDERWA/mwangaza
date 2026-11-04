@@ -1,11 +1,21 @@
 """Modules d'une école (M.1) : seul le super-admin les donne, un module absent ferme ses droits
 (403 côté serveur, même pour le directeur) sans rien supprimer ; l'école voisine reste intacte."""
 
-import pytest
+from io import BytesIO
 
-from apps.audit.models import PlatformAuditLog
-from apps.core.tenancy import use_all_schools
+import pytest
+from openpyxl import load_workbook
+
+from apps.accounts.models import Role
+from apps.accounts.modules import ALL_MODULES
+from apps.audit.actions import Action
+from apps.audit.models import AuditLog, PlatformAuditLog
+from apps.core.ids import uuid7
+from apps.core.tenancy import use_all_schools, use_school
 from apps.schools.models import School
+from apps.students import imports
+from apps.students.models import Student
+from apps.students.tests.conftest import GUARDIAN
 from tests.factories import SchoolFactory
 
 pytestmark = pytest.mark.django_db
@@ -14,6 +24,16 @@ CONSOLE = "admin.localhost"
 STUDENTS = "/api/students/"
 FEES = "/api/fee-types/"
 ME = "/api/me/"
+LOADS = "/api/teaching-loads/"
+SETTINGS = "/api/school/settings/"
+TEMPLATE = "/api/student-imports/template/"
+# Forfaits de départ (MOD.1), une matrice et non une pile de tests. « Élèves seuls » tient la
+# place de « Présences seules » jusqu'au lot 16, qui ajoute `attendance` et « Sonnerie seule ».
+FORFAITS = {
+    "students_only": ["students"],
+    "students_and_cash": ["students", "finance"],
+    "complete": ALL_MODULES,
+}
 
 
 def permissions(api, user) -> set[str]:
@@ -134,10 +154,69 @@ def test_me_gives_the_modules_and_the_setup_list_follows_them(api, school, head)
     steps = api(head).get("/api/school/setup/").json()["steps"]
     # Sans `finance` ni `portal` : ni frais, ni caisse, ni reprise, ni invitations.
     assert [step["key"] for step in steps] == ["year", "classes", "students"]
-    # Sans module, seul le socle reste ; la fin de la liste n'attend plus ni caisse ni élève.
+    # Sans module, rien à mettre en route : années et classes ne servent qu'aux élèves (MOD.1).
     school.modules = []
     school.save()
-    assert [s["key"] for s in api(head).get("/api/school/setup/").json()["steps"]] == [
-        "year",
-        "classes",
-    ]
+    assert api(head).get("/api/school/setup/").json()["steps"] == []
+
+
+@pytest.mark.parametrize("forfait", FORFAITS)
+def test_each_forfait_asks_and_writes_only_what_its_modules_need(
+    api, school, other_school, head, other_head, forfait
+):
+    school.modules = FORFAITS[forfait]
+    school.save()
+    client = api(head)
+    academics, finance = "academics" in school.modules, "finance" in school.modules
+
+    me = client.get(ME).json()["school"]
+    assert me["modules"] == FORFAITS[forfait]
+    assert ("student.permanent_number" in me["features"]) is academics
+    assert ("settings.currencies" in me["features"]) is finance
+    # Élève avec le minimum : le N° permanent n'est ni exigé, ni écrit sans les bulletins.
+    body = {"id": str(uuid7()), "last_name": "Kasereka", "sex": "M", "guardians": [GUARDIAN]}
+    created = client.post(STUDENTS, {**body, "permanent_number": "2-1234567890"})
+    assert created.status_code == 201, created.json()
+    with use_school(school):
+        written = Student.objects.get(pk=body["id"]).permanent_number
+    assert written == ("2-1234567890" if academics else "")
+    # Points d'API des autres modules fermés.
+    assert client.get(FEES).status_code == (200 if finance else 403)
+    assert client.get(LOADS).status_code == (200 if academics else 403)
+    # Modèle d'import sans les colonnes du bulletin (N° ID, N° permanent, lieu de naissance).
+    titles = next(load_workbook(BytesIO(client.get(TEMPLATE).content)).active.values)
+    assert len(titles) == len(imports.FIELDS) - (0 if academics else 3)
+    # Réglages du reçu jamais écrits sans la caisse ; rien de perdu, ils restent lisibles.
+    assert client.patch(SETTINGS, {"receipt": {"printer": "sheet"}}).status_code == 200
+    assert (client.get(SETTINGS).json()["receipt"]["printer"] == "sheet") is finance
+    # L'école voisine (Gestion complète) garde tout.
+    beta = api(other_head, host="beta.localhost").get(ME).json()["school"]
+    assert "student.permanent_number" in beta["features"]
+
+
+def test_a_school_created_with_a_forfait_gets_its_roles_then_those_of_a_new_module(
+    api, platform_admin
+):
+    console = api(platform_admin, host=CONSOLE)
+    head = {"phone": "0100003001", "last_name": "Kasereka", "first_name": "Dieudonné"}
+    # « Élèves seuls » : ni devises demandées (pas de caisse), ni caissier ni enseignant.
+    response = console.post(
+        "/api/console/schools/",
+        {"code": "gamma", "name": "Gamma", "modules": ["students"], "head": head},
+    )
+    assert response.status_code == 201, response.json()
+    gamma = School.objects.get(code="gamma")
+    with use_school(gamma):
+        names = set(Role.objects.values_list("name", flat=True))
+    assert "Directeur" in names and not names & {"Caissier", "Comptable", "Enseignant"}
+
+    console.patch(f"/api/console/schools/{gamma.pk}/", {"modules": ["students", "finance"]})
+
+    with use_school(gamma):
+        added = AuditLog.objects.filter(action=Action.ROLES_CREATED)
+        assert set(added.values_list("entity_label", flat=True)) == {"Caissier", "Comptable"}
+    # Retiré puis rendu : un rôle que l'école a gardé n'est pas recopié.
+    console.patch(f"/api/console/schools/{gamma.pk}/", {"modules": ["students"]})
+    console.patch(f"/api/console/schools/{gamma.pk}/", {"modules": ["students", "finance"]})
+    with use_school(gamma):
+        assert Role.objects.filter(name="Caissier").count() == 1

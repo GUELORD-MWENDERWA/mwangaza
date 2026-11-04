@@ -29,13 +29,14 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import User
+from apps.accounts.modules import hidden_student_fields
 from apps.accounts.phone import InvalidPhoneError, normalize_phone
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.audit.context import current_request_info
 from apps.core.documents import workbook
 from apps.core.errors import ApiError, BusinessError
-from apps.core.tenancy import require_current_school, use_all_schools
+from apps.core.tenancy import get_current_school, require_current_school, use_all_schools
 from apps.finance import services as finance
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
@@ -75,6 +76,16 @@ FIELDS = (
     "guardian_phone",
 )
 REQUIRED_FIELDS = ("last_name", "sex", "class_name")
+
+
+def school_fields() -> tuple[str, ...]:
+    """Colonnes que l'école courante importe : sans celles de modules qu'elle n'a pas (MOD.1 :
+    aucun numéro permanent sans les bulletins)."""
+    school = get_current_school()
+    hidden = hidden_student_fields(school.modules) if school is not None else set()
+    return tuple(name for name in FIELDS if name not in hidden)
+
+
 FIELD_LABELS = {
     "last_name": _("Last name"),
     "middle_name": _("Middle name"),
@@ -296,8 +307,8 @@ def read_file(file, known: set[str] | None = None) -> tuple[str, list[str], list
 
 def guess_mapping(headers: list[str]) -> dict:
     """Champ de l'élève → numéro de la colonne dont le titre est reconnu (ou `None`)."""
-    mapping, used = {}, set()
-    for name in FIELDS:
+    mapping, used = {name: None for name in FIELDS}, set()
+    for name in school_fields():
         column = next(
             (
                 index
@@ -555,7 +566,12 @@ def update_import(
             raise ValidationError({"mapping": ValidationError(_("Invalid column mapping."))})
         if any(column not in range(len(imp.headers)) for column in columns):
             raise ValidationError({"mapping": ValidationError(_("Unknown column."))})
-        imp.mapping = {name: mapping.get(name, imp.mapping.get(name)) for name in FIELDS}
+        # Colonne d'un champ hors des modules de l'école : jamais lue.
+        kept = school_fields()
+        imp.mapping = {
+            name: mapping.get(name, imp.mapping.get(name)) if name in kept else None
+            for name in FIELDS
+        }
     if class_mapping is not None:
         chosen = {label: value for label, value in class_mapping.items() if value}
         known = {
@@ -742,7 +758,7 @@ def template_workbook() -> bytes:
     ignoré à la lecture comme toute parenthèse, sur les colonnes qu'on peut vider ou retirer sans
     rien bloquer (la date de naissance manquante donne un avertissement : pas marquée)."""
     titles = []
-    for name in FIELDS:
+    for name in school_fields():
         title = str(FIELD_LABELS[name]).upper()
         if name not in REQUIRED_FIELDS and name != "birth_date":
             title = gettext("%(title)s (optional)") % {"title": title}

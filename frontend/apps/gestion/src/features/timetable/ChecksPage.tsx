@@ -38,6 +38,7 @@ import {
   useTimetableRules,
 } from "./data";
 import { AssistantDialog } from "./AssistantDialog";
+import { AiButton } from "../ai/AiButton";
 import { ReviewDialog } from "./ReviewDialog";
 import { RuleDialog } from "./RuleDialog";
 import { RulesCard } from "./RulesCard";
@@ -191,9 +192,9 @@ export function ChecksPage() {
           <CardHeader className="flex-wrap">
             <CardTitle>{t("timetable.checks.listTitle")}</CardTitle>
             {hasAssistant && report.issues.length > 0 && (
-              <Button variant="outline" size="sm" onClick={() => setAdvising(true)}>
+              <AiButton use="timetable_review" onClick={() => setAdvising(true)}>
                 {t("timetable.review.open")}
-              </Button>
+              </AiButton>
             )}
             {report.issues.length > 0 && (
               <Segmented<Filter>

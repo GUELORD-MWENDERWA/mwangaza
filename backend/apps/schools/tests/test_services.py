@@ -52,7 +52,8 @@ def test_create_a_school_with_a_new_director(platform_admin, school):
     assert membership.user.must_change_password
     assert membership.user.check_password(password)
     with use_school(gamma):
-        assert Role.objects.count() == 9
+        # Sans module : seulement les rôles du socle (MOD.1), pas de caissier ni d'enseignant.
+        assert Role.objects.count() == 4
         assert list(membership.roles.values_list("name", flat=True)) == ["Directeur"]
     created, added = journal(gamma)
     assert created.action == Action.SCHOOL_CREATED

@@ -29,9 +29,10 @@ import { z } from "zod";
 
 import { nearbyReadable, normalizeColor, textColor } from "../../lib/colors";
 import { applyServerErrors, errorMessage, fieldMessage } from "../../lib/errors";
-import { can } from "../../lib/permissions";
+import { type Feature, applies, can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { LoadError } from "../status/StatusPages";
+import { AiCreditsCard } from "./AiCreditsCard";
 import { AlertsCard } from "./AlertsCard";
 import { CashRegistersCard } from "./CashRegistersCard";
 import { HEADER_MAX_LINES, headerLines, ReceiptCard } from "./ReceiptCard";
@@ -236,6 +237,9 @@ export function SchoolSettingsPage() {
 }
 
 function SettingsForm({ settings }: { settings: Settings }) {
+  // Sections des modules de l'école seulement (MOD.1) ; le serveur n'écrit jamais les autres.
+  const me = useCurrentMe();
+  const has = (feature: Feature) => applies(me, feature);
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const schema = useSchema();
@@ -319,14 +323,19 @@ function SettingsForm({ settings }: { settings: Settings }) {
           <SigningCard form={form} settings={settings} />
         </div>
         <div className="flex flex-col gap-4">
-          <ReceiptCard form={form} />
-          <CurrenciesCard form={form} />
-          <AlertsCard form={form} />
-          <RemindersCard form={form} />
-          <PortalCard form={form} />
-          <GradingCard form={form} />
-          <PassRulesCard form={form} presets={settings.pass_rule_presets} />
-          <LevelRulesCard />
+          {has("settings.receipt") && <ReceiptCard form={form} />}
+          {has("settings.currencies") && <CurrenciesCard form={form} />}
+          {has("settings.alerts") && <AlertsCard form={form} />}
+          {has("settings.reminders") && <RemindersCard form={form} />}
+          {has("settings.portal") && <PortalCard form={form} />}
+          {has("settings.ai") && <AiCreditsCard />}
+          {has("settings.grading") && <GradingCard form={form} />}
+          {has("settings.pass_rules") && (
+            <>
+              <PassRulesCard form={form} presets={settings.pass_rule_presets} />
+              <LevelRulesCard />
+            </>
+          )}
         </div>
       </div>
     </form>

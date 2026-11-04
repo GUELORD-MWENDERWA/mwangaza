@@ -68,6 +68,7 @@ def test_each_role_gets_403_outside_its_rights_on_every_console_endpoint(api, sc
     other = member("support").pk
     calls = [
         ("get", "/api/console/dashboard/", None, {team.SCHOOLS_VIEW}),
+        ("get", "/api/console/health/", None, {team.SCHOOLS_VIEW, team.HEALTH_VIEW}),
         ("get", "/api/console/schools/", None, {team.SCHOOLS_VIEW, team.DEMOS_MANAGE}),
         ("get", f"/api/console/schools/{live}/", None, {team.SCHOOLS_VIEW}),
         ("post", "/api/console/schools/", {"environment": "live"}, {team.SCHOOLS_MANAGE}),

@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
+from apps.audit.serializers import PlatformLogSerializer
 from apps.core import health
 from apps.core.images import CleanedFileField, clean_signature
 from apps.core.money import Currency
@@ -325,6 +326,27 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_head_signature(self, school: School) -> str | None:
         return signatures.school_image_url(school, "head_signature")
+
+    # Section de paramètres → ce qui la porte au registre (MOD.1).
+    MODULE_SECTIONS = {
+        "enabled_currencies": "settings.currencies",
+        "default_currency": "settings.currencies",
+        "receipt": "settings.receipt",
+        "alerts": "settings.alerts",
+        "reminders": "settings.reminders",
+        "portal": "settings.portal",
+        "grading": "settings.grading",
+        "pass_rules": "settings.pass_rules",
+    }
+
+    def get_fields(self):
+        # Section d'un module que l'école n'a pas : lue (rien n'est perdu), jamais écrite.
+        fields = super().get_fields()
+        school = self.instance if isinstance(self.instance, School) else None
+        for name, feature in self.MODULE_SECTIONS.items():
+            if school is not None and not school.applies(feature):
+                fields[name].read_only = True
+        return fields
 
     def validate(self, data):
         # Mêmes règles que l'administration (`School.clean`) : devise principale parmi celles de
@@ -730,6 +752,36 @@ class PlatformHealthSerializer(serializers.Serializer):
     syncs = PlatformSyncSerializer(many=True)
 
 
+class ConsoleTrialEndingSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    trial_ends_on = serializers.DateField()
+
+
+class ConsoleTodoSerializer(serializers.Serializer):
+    trials_ending = ConsoleTrialEndingSerializer(
+        many=True, help_text="Essais qui finissent dans les 30 jours, le plus proche d'abord (5)."
+    )
+    follow_ups = serializers.IntegerField(
+        allow_null=True,
+        help_text="Prospects ouverts dont la relance est aujourd'hui ou passée ; sans le droit "
+        "commercial : null.",
+    )
+    overdue = ConsoleAmountSerializer(
+        many=True,
+        allow_null=True,
+        help_text="Factures échues par devise ; sans le droit facturation, ou en démonstration : "
+        "null.",
+    )
+
+
+class ConsoleSecuritySerializer(serializers.Serializer):
+    count = serializers.IntegerField(help_text="Alertes de sécurité de ces derniers jours.")
+    days = serializers.IntegerField(help_text="Nombre de jours regardés.")
+    alerts = PlatformLogSerializer(many=True, help_text="Les dernières, la plus récente d'abord.")
+
+
 class ConsoleDashboardSerializer(serializers.Serializer):
     day = serializers.DateField()
     schools = ConsoleSchoolCountsSerializer()
@@ -739,6 +791,57 @@ class ConsoleDashboardSerializer(serializers.Serializer):
     active_schools = ConsoleActiveSchoolSerializer(many=True)
     health = ServerHealthSerializer()
     platform = PlatformHealthSerializer()
+    todo = ConsoleTodoSerializer()
+    recent = PlatformLogSerializer(
+        many=True,
+        allow_null=True,
+        help_text="Dernières entrées du journal de ce mode ; sans le droit journal : null.",
+    )
+    security = ConsoleSecuritySerializer(
+        allow_null=True, help_text="Alertes de sécurité (S.8) ; sans le droit journal : null."
+    )
+
+
+class BusinessMoneySerializer(serializers.Serializer):
+    currency = serializers.CharField()
+    invoiced = serializers.IntegerField(help_text="Facturé ce mois-ci (unités entières).")
+    collected = serializers.IntegerField(help_text="Encaissé ce mois-ci, net des annulations.")
+    outstanding = serializers.IntegerField(help_text="Reste dû sur toutes les factures.")
+    overdue = serializers.IntegerField(help_text="Dont échu.")
+
+
+class BusinessRenewalSerializer(serializers.Serializer):
+    school_id = serializers.UUIDField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    end_date = serializers.DateField()
+    auto_renew = serializers.BooleanField()
+
+
+class BusinessRenewalsSerializer(serializers.Serializer):
+    count = serializers.IntegerField()
+    items = BusinessRenewalSerializer(many=True)
+
+
+class BusinessSchoolsSerializer(serializers.Serializer):
+    trial = serializers.IntegerField()
+    active = serializers.IntegerField()
+    readonly = serializers.IntegerField()
+    suspended = serializers.IntegerField()
+    stopped = serializers.IntegerField()
+
+
+class ConsoleBusinessSerializer(serializers.Serializer):
+    """Affaires de la plateforme (CON.1), espaces réels seulement. Une section est `null` quand
+    les droits de l'équipier ne la couvrent pas (le serveur ne l'envoie pas)."""
+
+    day = serializers.DateField()
+    schools = BusinessSchoolsSerializer(allow_null=True)
+    trials_ending = serializers.IntegerField(allow_null=True)
+    billed_students = serializers.IntegerField(allow_null=True)
+    money = BusinessMoneySerializer(many=True, allow_null=True)
+    renewals = BusinessRenewalsSerializer(allow_null=True)
+    prospects_open = serializers.IntegerField(allow_null=True)
 
 
 class SetupStepSerializer(serializers.Serializer):

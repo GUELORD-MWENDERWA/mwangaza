@@ -6,6 +6,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { vi } from "vitest";
 
+import { type ConsoleMode, setConsoleMode, startConsoleMode } from "../lib/mode";
 import { createQueryClient } from "../lib/queryClient";
 import { ALL_RIGHTS } from "../lib/rights";
 import { routes } from "../routes";
@@ -25,7 +26,13 @@ export const apiError = (code: string, status: number, fields?: object) =>
 
 /** Remplace `fetch` ; renvoie les requêtes reçues, avec leur corps JSON. */
 export function mockApi(routes: Record<string, Response | object | (() => Response | object)>) {
-  const requests: { method: string; path: string; search: string; body: unknown }[] = [];
+  const requests: {
+    method: string;
+    path: string;
+    search: string;
+    body: unknown;
+    mode: string | null;
+  }[] = [];
   vi.stubGlobal(
     "fetch",
     vi.fn(async (request: Request) => {
@@ -36,6 +43,7 @@ export function mockApi(routes: Record<string, Response | object | (() => Respon
         path: pathname,
         search,
         body: text ? JSON.parse(text) : null,
+        mode: request.headers.get("X-Console-Mode"),
       });
       const reply = routes[`${request.method} ${pathname}`];
       if (reply === undefined) return apiError("not_found", 404);
@@ -46,7 +54,11 @@ export function mockApi(routes: Record<string, Response | object | (() => Respon
   return requests;
 }
 
-export function renderApp(path = "/") {
+startConsoleMode();
+
+/** `mode` : le mode gardé sur l'appareil ; chaque test part du réel sauf demande. */
+export function renderApp(path = "/", mode: ConsoleMode = "live") {
+  setConsoleMode(mode);
   const queryClient = createQueryClient();
   queryClient.setDefaultOptions({ queries: { retry: false } });
   const router = createMemoryRouter(routes, { initialEntries: [path] });

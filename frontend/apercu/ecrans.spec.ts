@@ -339,6 +339,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await admin.waitForURL((url) => !url.pathname.includes("login"));
     for (const path of [
       "",
+      "business",
       "schools",
       "schools/new",
       "demo-requests",
@@ -347,6 +348,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "billing",
       "site",
       "devices",
+      "ai",
       "identity",
       "journal",
       "team",
@@ -358,6 +360,12 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
         path.replace(/\//g, "-") || "tableau-de-bord",
       );
     }
+    // Mode démonstration (lot 5, ②bis) : bandeau orange, menu sans les pages du réel.
+    await admin.evaluate(() => localStorage.setItem("mwangaza-console-mode", "demo"));
+    await visit(admin, CONSOLE, "console", "tableau-de-bord-demo");
+    // Page « IA » sur la consommation fictive des démonstrations (IA.1.2).
+    await visit(admin, `${CONSOLE}ai`, "console", "ai-demo");
+    await admin.evaluate(() => localStorage.removeItem("mwangaza-console-mode"));
     // Onglets de la facturation (les boutons des cartes ne doivent pas déborder).
     for (const [slug, label] of [
       ["plans", "Offres"],
@@ -368,11 +376,16 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
         await page.waitForTimeout(400);
       });
     }
-    const schools = await json<{ results: { id: string }[] }>(
-      admin,
-      "/api/console/schools/?page_size=1",
-    );
-    await visit(admin, `${CONSOLE}schools/${schools.results[0]!.id}`, "console", "ecole");
+    // Les écoles de `make demo` sont des démonstrations : leur fiche s'ouvre dans ce mode.
+    const school = await admin.evaluate(async () => {
+      const response = await fetch("/api/console/schools/?page_size=1", {
+        headers: { "X-Console-Mode": "demo" },
+      });
+      return ((await response.json()) as { results: { id: string }[] }).results[0]!.id;
+    });
+    await admin.evaluate(() => localStorage.setItem("mwangaza-console-mode", "demo"));
+    await visit(admin, `${CONSOLE}schools/${school}`, "console", "ecole");
+    await admin.evaluate(() => localStorage.removeItem("mwangaza-console-mode"));
   }
 
   mkdirSync(OUT, { recursive: true });

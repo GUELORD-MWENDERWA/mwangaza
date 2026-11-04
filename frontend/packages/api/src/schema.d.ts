@@ -78,6 +78,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/credits/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description « Crédits IA » de l'école (Gestion), en lecture seule : crédits du mois, usages donnés et,
+         *     pour chacun, la raison d'un refus certain (bouton grisé). Droits `school.configure` ou
+         *     `ai.use`.
+         */
+        get: operations["ai_credits_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/announcements/": {
         parameters: {
             query?: never;
@@ -1388,6 +1409,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/ai/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Page « IA » de la console (droit `platform.ai.manage`) : dépense du mois, par école et par
+         *     usage, part des résultats gardés, alertes ; en mode réel, réglages de la plateforme. En
+         *     démonstration : les espaces de démonstration, sans plafond ni réglages.
+         */
+        get: operations["console_ai_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Interrupteur, plafond du mois (micro-dollars) et appels par personne et par heure ;
+         *     mode réel seulement.
+         */
+        patch: operations["console_ai_partial_update"];
+        trace?: never;
+    };
+    "/api/console/ai/prices/{model}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Prix d'un modèle connu, en micro-dollars par million de jetons ; mode réel seulement. */
+        put: operations["console_ai_prices_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/schools/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+         *     du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+         */
+        get: operations["console_ai_schools_retrieve"];
+        /**
+         * @description Carte « IA » de la fiche d'une école du mode de la console : usages par module, crédits
+         *     du mois, derniers appels (jamais leur texte) ; `PUT` : usages, crédits par mois, pause.
+         */
+        put: operations["console_ai_schools_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/schools/{id}/top-up/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Recharge : des crédits en plus pour le mois en cours de cette école. */
+        post: operations["console_ai_schools_top_up_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/ai/uses/{code}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Modèle et limites d'un usage du catalogue ; tout vide : réglage d'origine. Réel seulement. */
+        put: operations["console_ai_uses_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/alerts/": {
         parameters: {
             query?: never;
@@ -1817,6 +1938,48 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/business/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Affaires de la plateforme (CON.1) : écoles par état, élèves facturés, facturé / encaissé /
+         *     dû par devise, contrats à renouveler, prospects ouverts. Calculé en SQL et gardé 5 minutes ;
+         *     chaque section demande son droit (`schools.view`, `billing.manage`, `leads.manage`) et
+         *     manque sinon. Il faut au moins un de ces droits.
+         */
+        get: operations["console_business_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/business/export/{kind}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Export Excel des écoles, des factures ou des paiements de la plateforme (espaces réels
+         *     seulement) : `schools` demande `schools.view`, les deux autres `billing.manage`.
+         */
+        get: operations["console_business_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/dashboard/": {
         parameters: {
             query?: never;
@@ -1845,9 +2008,10 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         * @description Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+         *     récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+         *     console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+         *     on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         get: operations["console_demo_requests_list"];
         put?: never;
@@ -1869,19 +2033,38 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         * @description Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+         *     récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+         *     console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+         *     on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         delete: operations["console_demo_requests_destroy"];
         options?: never;
         head?: never;
         /**
-         * @description Demandes de démonstration envoyées par le site public (WEB.1d), les plus récentes
-         *     d'abord : équipe selon ses droits, à la console. On change le suivi et la note
-         *     interne ; on efface une demande quand la personne le demande (sinon : seule après un an).
+         * @description Prospects : demandes de démonstration envoyées par le site public (WEB.1d), les plus
+         *     récentes d'abord, suivies jusqu'à la signature (CON.3) : équipe selon ses droits, à la
+         *     console. On change l'étape, le responsable, la relance, le motif de perte et la note interne ;
+         *     on efface une demande quand la personne le demande (sinon : seule après un an).
          */
         patch: operations["console_demo_requests_partial_update"];
+        trace?: never;
+    };
+    "/api/console/demo-requests/assignees/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Membres de l'équipe à qui confier un prospect. */
+        get: operations["console_demo_requests_assignees_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/console/devices/": {
@@ -1918,6 +2101,26 @@ export interface paths {
          *     dans le journal de son école et dans celui de la plateforme.
          */
         post: operations["console_devices_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/health/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description État des services pour la barre du haut de la console (lot 5, ②bis) : le même calcul que
+         *     le tableau de bord, gardé une minute pour toute l'équipe.
+         */
+        get: operations["console_health_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2095,6 +2298,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/schools/{id}/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Export complet des données de l'école (Excel), fait en tâche de fond ; un lien valable
+         *     7 jours est envoyé par e-mail à son contact (CON.2). Demandé à l'arrêt, ou ici à la main
+         *     (école qui part, ou qui veut ses données).
+         */
+        post: operations["console_schools_export_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/schools/{id}/reactivate/": {
         parameters: {
             query?: never;
@@ -2185,7 +2409,8 @@ export interface paths {
         /**
          * @description Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
          *     en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
-         *     déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface.
+         *     déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface. Console en mode
+         *     démonstration seulement.
          */
         post: operations["console_schools_demo_create"];
         delete?: never;
@@ -7272,6 +7497,163 @@ export interface components {
             avenue?: string;
             number?: string;
         };
+        AiAlert: {
+            kind: components["schemas"]["AiAlertKindEnum"];
+            percent: number;
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        /**
+         * @description * `platform_cap` - platform_cap
+         *     * `school_credits` - school_credits
+         * @enum {string}
+         */
+        AiAlertKindEnum: "platform_cap" | "school_credits";
+        AiAllowanceChangeRequest: {
+            uses: string[];
+            monthly_credits: number;
+            paused: boolean;
+        };
+        AiCreditUse: {
+            code: string;
+            label: string;
+            blocked: string;
+        };
+        AiCredits: {
+            /** Format: date */
+            month: string;
+            has_module: boolean;
+            granted_credits: number;
+            spent_credits: number;
+            remaining_credits: number;
+            blocked: string;
+            uses: components["schemas"]["AiCreditUse"][];
+        };
+        AiLastCall: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            created_at: string;
+            use: string;
+            use_label: string;
+            user: string;
+            state: components["schemas"]["AiLastCallStateEnum"];
+            refusal: string;
+            credits: number;
+            on_platform: boolean;
+        };
+        /**
+         * @description * `queued` - Waiting
+         *     * `running` - Running
+         *     * `done` - Done
+         *     * `refused` - Refused
+         *     * `error` - Failed
+         *     * `kept` - Kept
+         *     * `abandoned` - Abandoned
+         * @enum {string}
+         */
+        AiLastCallStateEnum: "queued" | "running" | "done" | "refused" | "error" | "kept" | "abandoned";
+        AiOverview: {
+            /** Format: date */
+            month: string;
+            live: boolean;
+            spent_micro: number;
+            cap_micro: number | null;
+            calls: number;
+            refused: number;
+            errors: number;
+            kept_percent: number | null;
+            schools_with_ai: number;
+            schools_paused: number;
+            alerts: components["schemas"]["AiAlert"][];
+            schools: components["schemas"]["AiSchoolRow"][];
+            uses: components["schemas"]["AiUseRow"][];
+            settings: components["schemas"]["AiSettings"] | null;
+        };
+        AiPrice: {
+            model: string;
+            input: number;
+            output: number;
+            cache_read: number;
+            readonly changed: boolean;
+        };
+        AiPriceChangeRequest: {
+            input: number;
+            output: number;
+            cache_read: number;
+        };
+        AiSchoolCard: {
+            /** Format: date */
+            month: string;
+            has_module: boolean;
+            uses: components["schemas"]["AiSchoolUse"][];
+            monthly_credits: number;
+            paused: boolean;
+            granted_credits: number;
+            spent_credits: number;
+            remaining_credits: number;
+            last_calls: components["schemas"]["AiLastCall"][];
+        };
+        AiSchoolRow: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            uses: number;
+            paused: boolean;
+            granted_credits: number;
+            spent_credits: number;
+            remaining_credits: number;
+            calls: number;
+            kept_percent: number | null;
+        };
+        AiSchoolUse: {
+            code: string;
+            label: string;
+            module: string;
+            module_label: string;
+            model: string;
+            max_input_tokens: number;
+            max_output_tokens: number;
+            changed: boolean;
+            calls: number;
+            kept_percent: number | null;
+            abandoned: number;
+            cost_micro: number;
+            granted: boolean;
+            available: boolean;
+        };
+        AiSettings: {
+            enabled: boolean;
+            /** Format: int64 */
+            monthly_cap_micro: number;
+            hourly_limit: number;
+            readonly prices: components["schemas"]["AiPrice"][];
+        };
+        AiTopUpRequest: {
+            credits: number;
+        };
+        /** @description Tout absent : retour au réglage du catalogue. */
+        AiUseChangeRequest: {
+            model?: string | null;
+            max_input_tokens?: number | null;
+            max_output_tokens?: number | null;
+        };
+        AiUseRow: {
+            code: string;
+            label: string;
+            module: string;
+            module_label: string;
+            model: string;
+            max_input_tokens: number;
+            max_output_tokens: number;
+            changed: boolean;
+            calls: number;
+            kept_percent: number | null;
+            abandoned: number;
+            cost_micro: number;
+        };
         /** @description Seuils d'alerte au directeur (M5, `alerts.py`). Écriture partielle : les autres restent. */
         AlertSettings: {
             /** @description Écart de caisse au-delà duquel une clôture est signalée, par devise (plus petite unité : centimes, francs). */
@@ -7530,6 +7912,37 @@ export interface components {
          * @enum {string}
          */
         BoardCourseStatusEnum: "not_started" | "in_progress" | "submitted" | "validated" | "returned";
+        BusinessMoney: {
+            currency: string;
+            /** @description Facturé ce mois-ci (unités entières). */
+            invoiced: number;
+            /** @description Encaissé ce mois-ci, net des annulations. */
+            collected: number;
+            /** @description Reste dû sur toutes les factures. */
+            outstanding: number;
+            /** @description Dont échu. */
+            overdue: number;
+        };
+        BusinessRenewal: {
+            /** Format: uuid */
+            school_id: string;
+            code: string;
+            name: string;
+            /** Format: date */
+            end_date: string;
+            auto_renew: boolean;
+        };
+        BusinessRenewals: {
+            count: number;
+            items: components["schemas"]["BusinessRenewal"][];
+        };
+        BusinessSchools: {
+            trial: number;
+            active: number;
+            readonly: number;
+            suspended: number;
+            stopped: number;
+        };
         CancelRequest: {
             reason: string;
         };
@@ -8372,6 +8785,20 @@ export interface components {
          * @enum {string}
          */
         ConsoleArticleStateEnum: "draft" | "scheduled" | "published";
+        /**
+         * @description Affaires de la plateforme (CON.1), espaces réels seulement. Une section est `null` quand
+         *     les droits de l'équipier ne la couvrent pas (le serveur ne l'envoie pas).
+         */
+        ConsoleBusiness: {
+            /** Format: date */
+            day: string;
+            schools: components["schemas"]["BusinessSchools"] | null;
+            trials_ending: number | null;
+            billed_students: number | null;
+            money: components["schemas"]["BusinessMoney"][] | null;
+            renewals: components["schemas"]["BusinessRenewals"] | null;
+            prospects_open: number | null;
+        };
         ConsoleCollected: {
             currency: components["schemas"]["CurrencyEnum"];
             amount_minor: number;
@@ -8387,10 +8814,16 @@ export interface components {
             active_schools: components["schemas"]["ConsoleActiveSchool"][];
             health: components["schemas"]["ServerHealth"];
             platform: components["schemas"]["PlatformHealth"];
+            todo: components["schemas"]["ConsoleTodo"];
+            /** @description Dernières entrées du journal de ce mode ; sans le droit journal : null. */
+            recent: components["schemas"]["PlatformLog"][] | null;
+            /** @description Alertes de sécurité (S.8) ; sans le droit journal : null. */
+            security: components["schemas"]["ConsoleSecurity"] | null;
         };
         /**
-         * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-         *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+         * @description Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+         *     se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+         *     interne. Fonction, taille et langue : codes, traduits par la console.
          */
         ConsoleDemoRequest: {
             /** Format: uuid */
@@ -8418,6 +8851,21 @@ export interface components {
             status?: components["schemas"]["DemoRequestStatusEnum"];
             /** Internal note */
             notes?: string;
+            /** Format: uuid */
+            assignee?: string | null;
+            /** @description Nom du responsable, ou vide. */
+            readonly assignee_name: string;
+            /**
+             * Next follow-up
+             * Format: date
+             */
+            follow_up_on?: string | null;
+            /** Reason lost */
+            lost_reason?: string;
+            /** Trial space */
+            readonly school_code: string;
+            /** @description Vrai si la relance est dépassée et le prospect encore ouvert. */
+            readonly overdue: boolean;
             /** Format: date-time */
             readonly updated_at: string;
         };
@@ -8777,6 +9225,11 @@ export interface components {
              * @description Dernière entrée de son journal, hors support et super-admin.
              */
             readonly last_activity_at: string | null;
+            /** Contact person */
+            contact_name: string;
+            contact_phone: string;
+            contact_email: string;
+            internal_notes: string;
             /** Format: date-time */
             readonly created_at: string;
         };
@@ -8836,10 +9289,20 @@ export interface components {
             paid_until?: string | null;
             /** Longest timetable calculation (seconds) */
             timetable_max_seconds?: number;
-            /** @description Devises de l'école (au moins une). */
-            enabled_currencies: components["schemas"]["CurrencyEnum"][];
-            default_currency: components["schemas"]["CurrencyEnum"];
+            /** @description Devises de l'école (au moins une) ; avec le module « finance ». */
+            enabled_currencies?: components["schemas"]["CurrencyEnum"][];
+            default_currency?: components["schemas"]["CurrencyEnum"];
+            /** Contact person */
+            contact_name?: string;
+            contact_phone?: string;
+            contact_email?: string;
+            internal_notes?: string;
             head: components["schemas"]["SchoolHeadRequest"];
+            /**
+             * Format: uuid
+             * @description Prospect (demande de démonstration) d'où vient l'essai : il passe à « essai » et garde le lien vers l'école.
+             */
+            prospect?: string;
         };
         ConsoleSchoolCreated: {
             school: components["schemas"]["ConsoleSchool"];
@@ -8904,12 +9367,24 @@ export interface components {
              * @description Dernière entrée de son journal, hors support et super-admin.
              */
             readonly last_activity_at: string | null;
+            /** Contact person */
+            contact_name: string;
+            contact_phone: string;
+            contact_email: string;
+            internal_notes: string;
             /** Format: date-time */
             readonly created_at: string;
             /** @description Les derniers changements faits dans la console, du plus récent au plus ancien. */
             readonly history: components["schemas"]["PlatformChange"][];
             /** @description Vide : pas un espace de démonstration créé depuis la console. */
             readonly demonstration: components["schemas"]["Demonstration"] | null;
+            /** @description Contrat en cours, vide sans contrat (espaces d'essai compris). */
+            readonly contract: components["schemas"]["SchoolContract"] | null;
+            /** @description Les 5 dernières factures et avoirs. */
+            readonly invoices: components["schemas"]["SchoolInvoice"][];
+            readonly usage: components["schemas"]["SchoolUsage"];
+            /** @description Les 3 derniers exports complets. */
+            readonly exports: components["schemas"]["SchoolExport"][];
         };
         ConsoleSchoolRef: {
             /** Format: uuid */
@@ -8922,6 +9397,14 @@ export interface components {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
             name: string;
+        };
+        ConsoleSecurity: {
+            /** @description Alertes de sécurité de ces derniers jours. */
+            count: number;
+            /** @description Nombre de jours regardés. */
+            days: number;
+            /** @description Les dernières, la plus récente d'abord. */
+            alerts: components["schemas"]["PlatformLog"][];
         };
         /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
         ConsoleSiteBanner: {
@@ -9191,6 +9674,22 @@ export interface components {
             /** Example */
             is_example?: boolean;
             published?: boolean;
+        };
+        ConsoleTodo: {
+            /** @description Essais qui finissent dans les 30 jours, le plus proche d'abord (5). */
+            trials_ending: components["schemas"]["ConsoleTrialEnding"][];
+            /** @description Prospects ouverts dont la relance est aujourd'hui ou passée ; sans le droit commercial : null. */
+            follow_ups: number | null;
+            /** @description Factures échues par devise ; sans le droit facturation, ou en démonstration : null. */
+            overdue: components["schemas"]["ConsoleAmount"][] | null;
+        };
+        ConsoleTrialEnding: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            /** Format: date */
+            trial_ends_on: string;
         };
         ContactAddress: {
             /** @default  */
@@ -9623,6 +10122,8 @@ export interface components {
             permissions: components["schemas"]["PermissionsEnum"][];
             /** @description Fonctions que la plateforme a données à l'école (M.1) ; vide : aucune. */
             modules: components["schemas"]["ModulesEnum"][];
+            /** @description Champs, réglages, étapes et rôles du registre des modules (MOD.1) qui s'appliquent à l'école : l'interface masque les autres. */
+            features: string[];
             /** @description Cachet et signatures posés sur les documents que la Gestion imprime (DOC.1). */
             documents: components["schemas"]["DocumentSigners"];
             /** @description Titulaire ou cotitulaire d'une classe de l'année en cours : menu « Ma classe » (NB.3, NB.7). */
@@ -9766,12 +10267,14 @@ export interface components {
         DeliberationStatusEnum: "draft" | "proclaimed";
         /**
          * @description * `new` - New
-         *     * `called` - Called back
-         *     * `trial` - Trial space opened
-         *     * `dropped` - No follow-up
+         *     * `contacted` - Contacted
+         *     * `demo_done` - Demonstration done
+         *     * `trial` - Trial
+         *     * `signed` - Signed
+         *     * `lost` - Lost
          * @enum {string}
          */
-        DemoRequestStatusEnum: "new" | "called" | "trial" | "dropped";
+        DemoRequestStatusEnum: "new" | "contacted" | "demo_done" | "trial" | "signed" | "lost";
         /** @description Espace de démonstration créé depuis la console (4.17.2) : où en est son remplissage. */
         Demonstration: {
             profile: components["schemas"]["ProfileEnum"];
@@ -12238,6 +12741,12 @@ export interface components {
             /** Format: date */
             ends_on?: string;
         };
+        PatchedAiSettingsChangeRequest: {
+            enabled?: boolean;
+            /** Format: int64 */
+            monthly_cap_micro?: number;
+            hourly_limit?: number;
+        };
         PatchedCashRegisterUpdateRequest: {
             name?: string;
             /** Active */
@@ -12301,14 +12810,24 @@ export interface components {
             published_at?: string | null;
         };
         /**
-         * @description Demande de démonstration du site (WEB.1d), dans la console : seuls le suivi et la note
-         *     interne se modifient. Fonction, taille et langue : codes, traduits par la console.
+         * @description Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
+         *     se modifient l'étape, le responsable, la prochaine relance, le motif de perte et la note
+         *     interne. Fonction, taille et langue : codes, traduits par la console.
          */
         PatchedConsoleDemoRequestRequest: {
             /** Follow-up */
             status?: components["schemas"]["DemoRequestStatusEnum"];
             /** Internal note */
             notes?: string;
+            /** Format: uuid */
+            assignee?: string | null;
+            /**
+             * Next follow-up
+             * Format: date
+             */
+            follow_up_on?: string | null;
+            /** Reason lost */
+            lost_reason?: string;
         };
         /**
          * @description Partenaire de la bande du site : nom, logo de la photothèque (sans logo : le nom en
@@ -12466,6 +12985,11 @@ export interface components {
             paid_until?: string | null;
             /** Longest timetable calculation (seconds) */
             timetable_max_seconds?: number;
+            /** Contact person */
+            contact_name?: string;
+            contact_phone?: string;
+            contact_email?: string;
+            internal_notes?: string;
         };
         /** @description Bandeau d'annonce du site (SITE.1a). `state` : affiché, programmé, terminé ou caché. */
         PatchedConsoleSiteBannerRequest: {
@@ -13233,9 +13757,13 @@ export interface components {
          *     * `site.photo_added` - Photo added to the photo library
          *     * `site.photo_updated` - Photo details changed
          *     * `site.photo_deleted` - Photo deleted from the photo library
+         *     * `security.login_burst` - Burst of failed logins
+         *     * `security.unusual_export` - Unusual export
+         *     * `security.cancellations` - Unusual number of payment cancellations
+         *     * `security.revoked_device` - Disconnected device keeps trying
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "billing.module_request_handled" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "billing.module_request_handled" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted" | "security.login_burst" | "security.unusual_export" | "security.cancellations" | "security.revoked_device";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -13687,6 +14215,11 @@ export interface components {
          * @enum {string}
          */
         ProposalEnum: "next_level" | "same_level" | "choose" | "finished" | "waiting" | "no_place" | "undecided";
+        ProspectAssignee: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly name: string;
+        };
         PublishRequest: {
             /**
              * Format: date
@@ -14362,6 +14895,17 @@ export interface components {
             /** @description Vide : sans salle. */
             room: string;
         };
+        SchoolContract: {
+            number: string;
+            plan: string;
+            /** Format: date */
+            start_date: string;
+            /** Format: date */
+            end_date: string;
+            price_per_student: number;
+            currency: string;
+            auto_renew: boolean;
+        };
         SchoolDeleteRequest: {
             /** @description Code de l'espace, retapé pour confirmer. */
             confirm: string;
@@ -14441,6 +14985,23 @@ export interface components {
              */
             start_time?: string | null;
         };
+        SchoolExport: {
+            /** Format: uuid */
+            readonly id: string;
+            state: components["schemas"]["SchoolExportStateEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            expires_at: string | null;
+        };
+        /**
+         * @description * `pending` - Being prepared
+         *     * `ready` - Ready
+         *     * `failed` - Failed
+         *     * `expired` - Expired
+         * @enum {string}
+         */
+        SchoolExportStateEnum: "pending" | "ready" | "failed" | "expired";
         /** @description Premier directeur. Nouveau numéro : nom obligatoire ; numéro connu : noms ignorés (B3). */
         SchoolHeadRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
@@ -14448,6 +15009,18 @@ export interface components {
             last_name?: string;
             middle_name?: string;
             first_name?: string;
+        };
+        SchoolInvoice: {
+            number: string;
+            kind: string;
+            /** Format: date */
+            issued_on: string;
+            /** Format: date */
+            due_on: string;
+            currency: string;
+            total: number;
+            /** @description Reste dû, 0 pour un avoir ou une facture soldée. */
+            balance: number;
         };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
@@ -14530,6 +15103,15 @@ export interface components {
             reason: string;
             /** @description Code de l'espace, retapé pour confirmer. */
             confirm: string;
+        };
+        SchoolUsage: {
+            students: number;
+            /** @description Comptes ayant accès à l'école. */
+            accounts: number;
+            /** Format: date-time */
+            last_activity_at: string | null;
+            /** Format: date-time */
+            last_sync_at: string | null;
         };
         /**
          * @description * `all` - Whole timetable
@@ -16487,6 +17069,33 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_credits_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiCredits"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -20692,6 +21301,323 @@ export interface operations {
             };
         };
     };
+    console_ai_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedAiSettingsChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedAiSettingsChangeRequest"];
+                "multipart/form-data": components["schemas"]["PatchedAiSettingsChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_prices_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                model: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiPriceChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiPriceChangeRequest"];
+                "multipart/form-data": components["schemas"]["AiPriceChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_schools_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiSchoolCard"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_schools_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiAllowanceChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiAllowanceChangeRequest"];
+                "multipart/form-data": components["schemas"]["AiAllowanceChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiSchoolCard"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_schools_top_up_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AiTopUpRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiTopUpRequest"];
+                "multipart/form-data": components["schemas"]["AiTopUpRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiSchoolCard"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_ai_uses_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AiUseChangeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AiUseChangeRequest"];
+                "multipart/form-data": components["schemas"]["AiUseChangeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AiOverview"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_alerts_list: {
         parameters: {
             query?: never;
@@ -20968,10 +21894,11 @@ export interface operations {
                  *     * `device` - device
                  *     * `platform` - platform
                  *     * `school` - school
+                 *     * `security` - security
                  *     * `site` - site
                  *     * `team` - team
                  */
-                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "site" | "team";
+                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "security" | "site" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
@@ -21555,6 +22482,70 @@ export interface operations {
             };
         };
     };
+    console_business_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleBusiness"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_business_export_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_dashboard_retrieve: {
         parameters: {
             query?: never;
@@ -21595,7 +22586,7 @@ export interface operations {
             query?: {
                 /** @description A page number within the paginated result set. */
                 page?: number;
-                status?: "called" | "dropped" | "new" | "trial";
+                status?: "contacted" | "demo_done" | "lost" | "new" | "signed" | "trial";
             };
             header?: never;
             path?: never;
@@ -21734,6 +22725,49 @@ export interface operations {
             };
         };
     };
+    console_demo_requests_assignees_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProspectAssignee"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_devices_list: {
         parameters: {
             query?: {
@@ -21820,6 +22854,33 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_health_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServerHealth"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -22412,6 +23473,52 @@ export interface operations {
                 };
             };
             409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_schools_export_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this school. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSchoolDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
