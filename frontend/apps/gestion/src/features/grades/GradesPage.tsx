@@ -244,6 +244,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const pickers = (
     <>
       <Select
+        data-guide="grades-class"
         aria-label={t("grades.classChoice")}
         value={groupId}
         onChange={(event) => choose({ classId: event.target.value })}

@@ -4,7 +4,7 @@
 import { can, type Permission } from "../../lib/permissions";
 import type { Me } from "../../lib/queries";
 
-export type GuideKey = "cashier" | "accountant";
+export type GuideKey = "cashier" | "accountant" | "teacher" | "secretary" | "direction";
 
 export interface GuideStep {
   /** Textes : `guide.<guide>.<key>.title` et `.text`. */
@@ -24,6 +24,45 @@ export const GUIDES: Record<GuideKey, readonly GuideStep[]> = {
     { key: "amount", path: "/cash", target: "cash-amount", permissions: COLLECT },
     { key: "collect", path: "/cash", target: "cash-collect", permissions: COLLECT },
     { key: "close", path: "/cash", target: "cash-close", permissions: ["finance.close_register"] },
+  ],
+  teacher: [
+    {
+      key: "timetable",
+      path: "/my-timetable",
+      target: "mytimetable-week",
+      permissions: ["grades.enter", "grades.enter_any"],
+    },
+    {
+      key: "grades",
+      path: "/grades",
+      target: "grades-class",
+      permissions: ["grades.enter", "grades.enter_any"],
+    },
+  ],
+  secretary: [
+    { key: "search", path: "/students", target: "students-search", permissions: ["students.view"] },
+    { key: "create", path: "/students", target: "students-new", permissions: ["students.edit"] },
+    {
+      key: "import",
+      path: "/students/import",
+      target: "import-upload",
+      permissions: ["students.import"],
+    },
+  ],
+  direction: [
+    {
+      key: "dashboard",
+      path: "/dashboard",
+      target: "dashboard-kpis",
+      permissions: ["finance.view_reports"],
+    },
+    {
+      key: "settings",
+      path: "/settings",
+      target: "settings-identity",
+      permissions: ["school.configure"],
+    },
+    { key: "roles", path: "/roles", target: "roles-list", permissions: ["roles.manage"] },
   ],
   accountant: [
     { key: "rate", path: "/fees", target: "fees-rate", permissions: ["finance.set_exchange_rate"] },
@@ -57,11 +96,16 @@ export const GUIDES: Record<GuideKey, readonly GuideStep[]> = {
 
 /** Guide du compte dans l'école, choisi par ses droits, jamais par le nom de son rôle : celui du
  *  comptable s'il règle les frais sans régler l'école (qui la règle a la liste « Mise en route »),
- *  sinon celui de la caisse s'il encaisse ; aucun pendant une session support. */
+ *  sinon celui de la caisse s'il encaisse, de la direction s'il règle l'école, du secrétariat s'il
+ *  importe des élèves, de l'enseignant s'il saisit ses notes ; aucun pendant une session support. */
 export function guideFor(me: Me): GuideKey | null {
   if (me.support) return null;
   if (can(me, ["finance.configure_fees"]) && !can(me, ["school.configure"])) return "accountant";
   if (can(me, ["finance.collect_payment"])) return "cashier";
+  if (can(me, ["school.configure"])) return "direction";
+  if (can(me, ["students.import"])) return "secretary";
+  // Enseignant : il saisit ses propres notes (la secrétaire, qui saisit celles de tous, a le sien).
+  if (can(me, ["grades.enter"]) && !can(me, ["grades.enter_any"])) return "teacher";
   return null;
 }
 

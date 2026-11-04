@@ -27,9 +27,13 @@ import {
   type GuideStep,
 } from "./guides";
 
-const GuideContext = createContext<{ restart: (() => void) | null }>({ restart: null });
+const GuideContext = createContext<{ restart: (() => void) | null; active: boolean }>({
+  restart: null,
+  active: false,
+});
 
-/** « Aide et guide » du menu : `restart` est nul si le compte n'a pas de guide. */
+/** « Aide et guide » du menu : `restart` est nul si le compte n'a pas de guide ; `active` : une
+ *  étape du guide est affichée. */
 export const useGuide = () => useContext(GuideContext);
 
 export function GuideProvider({ me, children }: { me: Me; children: ReactNode }) {
@@ -69,11 +73,12 @@ export function GuideProvider({ me, children }: { me: Me; children: ReactNode })
     setStep(null);
   };
 
-  const context = useMemo(
-    () => ({ restart: guide && steps.length > 0 ? () => go(0) : null }),
-    [go, guide, steps.length],
-  );
   const current = step === null ? undefined : steps[step];
+  const active = current !== undefined;
+  const context = useMemo(
+    () => ({ restart: guide && steps.length > 0 ? () => go(0) : null, active }),
+    [active, go, guide, steps.length],
+  );
 
   return (
     <GuideContext.Provider value={context}>

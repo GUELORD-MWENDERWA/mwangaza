@@ -26,6 +26,7 @@ export {
   DialogClose,
   DialogContent,
   DialogRoot,
+  PanelContent,
   Sheet,
   SheetClose,
   SheetContent,

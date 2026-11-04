@@ -3,6 +3,7 @@
 // haut (recherche, état des services, journal, compte), menu tiroir sous 900 px, bandeau orange
 // en démonstration. Le menu ne montre que les pages des rôles du membre (EQ.2) et du mode.
 import { api, call } from "@mwangaza/api";
+import { articleForPath, HelpButton } from "@mwangaza/help";
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Avatar,
@@ -23,11 +24,12 @@ import {
 } from "@mwangaza/ui";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Link, NavLink, Outlet } from "react-router";
+import { Link, NavLink, Outlet, useLocation } from "react-router";
 
 import { useConsoleMode } from "../../lib/mode";
 import { keys, useMe } from "../../lib/queries";
 import { RIGHTS, menuGroups, useCan } from "../../lib/rights";
+import { HELP_SCREENS } from "./helpScreens";
 import { useLogout } from "../auth/useGoToStep";
 import { useAlertMessages } from "../journal/AlertsCard";
 import { ConsoleSearch } from "./ConsoleSearch";
@@ -147,6 +149,7 @@ function useMember() {
 
 function TopBar() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
   const can = useCan();
   const member = useMember();
   const logout = useLogout();
@@ -165,6 +168,7 @@ function TopBar() {
           <Icon name="bell" />
         </Link>
       )}
+      <HelpButton app="console" screen={articleForPath(HELP_SCREENS, pathname)} />
       <DropdownMenu>
         <DropdownMenuTrigger
           aria-label={`${member.name} | ${t("console.menu.account")}`}

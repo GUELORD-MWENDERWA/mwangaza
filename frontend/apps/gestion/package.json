@@ -12,6 +12,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.9.2",
     "@mwangaza/api": "workspace:*",
+    "@mwangaza/help": "workspace:*",
     "@mwangaza/i18n": "workspace:*",
     "@mwangaza/money": "workspace:*",
     "@mwangaza/ui": "workspace:*",

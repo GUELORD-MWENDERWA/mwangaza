@@ -9,6 +9,7 @@ const ROOTS = [
   fileURLToPath(new URL("src", import.meta.url)),
   fileURLToPath(new URL("../console/src", import.meta.url)),
   fileURLToPath(new URL("../../packages/ui/src", import.meta.url)),
+  fileURLToPath(new URL("../../packages/help/src", import.meta.url)),
 ];
 // Nom de départ de la plateforme (`PlatformSettings`) : lu dans ses paramètres, jamais écrit.
 const PLATFORM = "Mwangaza";

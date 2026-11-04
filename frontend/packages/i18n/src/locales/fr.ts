@@ -225,10 +225,33 @@ export const fr = {
       later: "Plus tard",
     },
   },
+  help: {
+    button: "Aide",
+    title: "Aide",
+    close: "Fermer l'aide",
+    search: "Rechercher dans l'aide",
+    searchPlaceholder: "Ex. : annuler un paiement",
+    onScreen: "Sur cet écran · {{group}}",
+    readFull: "Lire l'article en entier",
+    related: "Articles liés",
+    backToScreen: "← Article de cet écran",
+    backToList: "← Tous les articles",
+    noResults: "Aucun article ne correspond. Essayez d'autres mots.",
+    unavailable: "Cet article n'a pas pu être chargé. Vérifiez votre connexion et réessayez.",
+    whatsNew: "Quoi de neuf · {{date}}",
+    readAll: "Tout lire",
+    understood: "Compris",
+  },
   guide: {
     help: "Aide et guide",
     progress: "{{guide}} · étape {{step}} sur {{total}}",
-    names: { cashier: "Guide du caissier", accountant: "Guide du comptable" },
+    names: {
+      cashier: "Guide du caissier",
+      accountant: "Guide du comptable",
+      teacher: "Guide de l'enseignant",
+      secretary: "Guide du secrétariat",
+      direction: "Guide de la direction",
+    },
     next: "Suivant",
     finish: "Terminer",
     skip: "Passer le guide",
@@ -253,6 +276,44 @@ export const fr = {
       close: {
         title: "Clôturez la caisse le soir",
         text: "En fin de journée, comptez l'argent et clôturez la caisse. Un écart avec le montant attendu est signalé au comptable.",
+      },
+    },
+    teacher: {
+      timetable: {
+        title: "Votre emploi du temps",
+        text: "Vos cours de la semaine, avec la classe et la salle. Il reste affiché même sans internet une fois ouvert.",
+      },
+      grades: {
+        title: "Saisissez vos notes",
+        text: "Choisissez la classe, le cours et la période, puis tapez les cotes. Chaque saisie est gardée tout de suite, même sans internet.",
+      },
+    },
+    secretary: {
+      search: {
+        title: "Cherchez un élève",
+        text: "Tapez quelques lettres du nom ou le matricule : la fiche s'ouvre, avec sa famille et son inscription. Raccourci : Ctrl K.",
+      },
+      create: {
+        title: "Inscrivez un nouvel élève",
+        text: "« Nouvel élève » ouvre la fiche d'inscription : identité, classe, famille. Les doublons sont signalés avant d'enregistrer.",
+      },
+      import: {
+        title: "Importez une liste",
+        text: "Pour reprendre toute une classe ou toute l'école depuis un fichier Excel : vous voyez le résultat avant de confirmer, et l'import peut être annulé.",
+      },
+    },
+    direction: {
+      dashboard: {
+        title: "Suivez l'école d'un coup d'œil",
+        text: "Argent encaissé, élèves inscrits, impayés : les chiffres du jour, avec les alertes à traiter en premier.",
+      },
+      settings: {
+        title: "Réglez l'identité de l'école",
+        text: "Nom, logo, couleurs, devises et formats des reçus : tout ce que les écrans et les documents de l'école affichent vient d'ici.",
+      },
+      roles: {
+        title: "Donnez les bons droits",
+        text: "Chaque membre du personnel a un rôle. Ici vous choisissez ce que chaque rôle peut faire, et vous créez les rôles propres à votre école.",
       },
     },
     accountant: {

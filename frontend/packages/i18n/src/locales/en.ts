@@ -226,10 +226,33 @@ export const en: Messages<typeof fr> = {
       later: "Later",
     },
   },
+  help: {
+    button: "Help",
+    title: "Help",
+    close: "Close help",
+    search: "Search the help",
+    searchPlaceholder: "E.g. cancel a payment",
+    onScreen: "On this screen · {{group}}",
+    readFull: "Read the whole article",
+    related: "Related articles",
+    backToScreen: "← Article for this screen",
+    backToList: "← All articles",
+    noResults: "No article matches. Try other words.",
+    unavailable: "This article could not be loaded. Check your connection and try again.",
+    whatsNew: "What's new · {{date}}",
+    readAll: "Read all",
+    understood: "Got it",
+  },
   guide: {
     help: "Help and guide",
     progress: "{{guide}} · step {{step}} of {{total}}",
-    names: { cashier: "Cashier guide", accountant: "Accountant guide" },
+    names: {
+      cashier: "Cashier guide",
+      accountant: "Accountant guide",
+      teacher: "Teacher guide",
+      secretary: "Secretary guide",
+      direction: "Management guide",
+    },
     next: "Next",
     finish: "Finish",
     skip: "Skip the guide",
@@ -254,6 +277,44 @@ export const en: Messages<typeof fr> = {
       close: {
         title: "Close the register in the evening",
         text: "At the end of the day, count the cash and close the register. Any difference from the expected amount is reported to the accountant.",
+      },
+    },
+    teacher: {
+      timetable: {
+        title: "Your timetable",
+        text: "Your classes for the week, with the class group and room. Once opened, it stays available without internet.",
+      },
+      grades: {
+        title: "Enter your grades",
+        text: "Pick the class, the course and the term, then type the marks. Each entry is saved at once, even without internet.",
+      },
+    },
+    secretary: {
+      search: {
+        title: "Find a student",
+        text: "Type a few letters of the name or the student number: the record opens with the family and the enrolment. Shortcut: Ctrl K.",
+      },
+      create: {
+        title: "Enrol a new student",
+        text: "“New student” opens the enrolment form: identity, class, family. Duplicates are flagged before you save.",
+      },
+      import: {
+        title: "Import a list",
+        text: "To bring in a whole class or the whole school from an Excel file: you see the result before confirming, and the import can be undone.",
+      },
+    },
+    direction: {
+      dashboard: {
+        title: "Follow the school at a glance",
+        text: "Money collected, students enrolled, unpaid fees: today's figures, with the alerts to handle first.",
+      },
+      settings: {
+        title: "Set the school's identity",
+        text: "Name, logo, colours, currencies and receipt formats: everything the school's screens and documents show comes from here.",
+      },
+      roles: {
+        title: "Give the right rights",
+        text: "Every staff member has a role. Here you choose what each role can do, and create roles specific to your school.",
       },
     },
     accountant: {

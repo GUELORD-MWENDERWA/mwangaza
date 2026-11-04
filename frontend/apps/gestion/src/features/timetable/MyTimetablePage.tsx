@@ -116,7 +116,7 @@ export function MyTimetablePage() {
               </>
             )}
           </div>
-          <Card>
+          <Card data-guide="mytimetable-week">
             <CardContent className="pt-5">
               <WeekSchedule
                 key={view}

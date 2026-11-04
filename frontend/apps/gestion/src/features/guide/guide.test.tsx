@@ -24,11 +24,11 @@ describe("guide de première connexion (M20)", () => {
 
     // Rôles de départ : le même guide qu'avec les codes de rôle.
     expect(Object.fromEntries(codes.map((code) => [code, guideFor(me(code))]))).toEqual({
-      head: null,
+      head: "direction",
       cashier: "cashier",
       promoter: null,
       study_director: null,
-      teacher: null,
+      teacher: "teacher",
       accountant: "accountant",
     });
     // Rôle créé par l'école : guidé comme quiconque a ces droits.
@@ -66,7 +66,7 @@ describe("guide de première connexion (M20)", () => {
     expect(later.router.state.location.pathname).toBe("/cash");
   });
 
-  it("comptable : seulement les étapes que ses droits ouvrent ; aucun guide pour le directeur", async () => {
+  it("comptable : seulement les étapes que ses droits ouvrent ; aucun guide pour le promoteur", async () => {
     const permissions = PERMISSIONS.accountant.filter(
       (permission) => permission !== "finance.approve_cancellation",
     );
@@ -83,6 +83,11 @@ describe("guide de première connexion (M20)", () => {
     accountant.unmount();
 
     mockApi(loggedIn(me("head")));
+    const head = renderApp("/", { guide: true });
+    expect((await coach()).getByText("Guide de la direction · étape 1 sur 3")).toBeTruthy();
+    head.unmount();
+
+    mockApi(loggedIn(me("promoter")));
     renderApp("/", { guide: true });
     await screen.findAllByRole("navigation", { name: "Menu principal" });
     expect(screen.queryByRole("dialog")).toBeNull();

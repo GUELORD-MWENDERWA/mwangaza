@@ -33,6 +33,26 @@ export function SheetContent({ title, className, children, ...props }: SheetCont
   );
 }
 
+/** Panneau à droite (`.hpanel` de la maquette `aide-panneau`) : 420 px, tout l'écran sous 600 px. */
+export function PanelContent({ title, className, children, ...props }: SheetContentProps) {
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 z-40 animate-fade-in bg-scrim" />
+      <Dialog.Content
+        aria-describedby={undefined}
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 flex w-[420px] max-w-full animate-panel-in flex-col border-l border-line bg-card shadow-float focus:outline-none",
+          className,
+        )}
+        {...props}
+      >
+        <Dialog.Title className="sr-only">{title}</Dialog.Title>
+        {children}
+      </Dialog.Content>
+    </Dialog.Portal>
+  );
+}
+
 // Fenêtre de dialogue (`.overlay` `.dialog` des maquettes).
 export const DialogRoot = Dialog.Root;
 export const DialogClose = Dialog.Close;
