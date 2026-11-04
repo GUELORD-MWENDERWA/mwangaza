@@ -287,6 +287,13 @@ class School(BaseModel):
         """L'école a ce module (`accounts/modules.py`) ; le socle est toujours actif."""
         return code in self.modules
 
+    def applies(self, feature: str) -> bool:
+        """Champ, réglage, étape ou rôle du registre (`accounts/modules.py`, MOD.1) à montrer à
+        cette école : elle a un des modules qui le portent."""
+        from apps.accounts.modules import applies
+
+        return applies(feature, self.modules)
+
     @staticmethod
     def portal_closed(prefix: str = "") -> Q:
         """Écoles que le portail ne sert pas : fermées, ou sans le module `portal`. `prefix` :

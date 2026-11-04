@@ -26579,7 +26579,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CurrencyEnum'
-          description: Devises de l'école (au moins une).
+          description: Devises de l'école (au moins une) ; avec le module « finance
+            ».
         default_currency:
           $ref: '#/components/schemas/CurrencyEnum'
         contact_name:
@@ -26611,8 +26612,6 @@ components:
             il passe à « essai » et garde le lien vers l''école.'
       required:
       - code
-      - default_currency
-      - enabled_currencies
       - head
       - name
     ConsoleSchoolCreated:
@@ -28391,6 +28390,12 @@ components:
             $ref: '#/components/schemas/ModulesEnum'
           description: 'Fonctions que la plateforme a données à l''école (M.1) ; vide
             : aucune.'
+        features:
+          type: array
+          items:
+            type: string
+          description: 'Champs, réglages, étapes et rôles du registre des modules
+            (MOD.1) qui s''appliquent à l''école : l''interface masque les autres.'
         documents:
           allOf:
           - $ref: '#/components/schemas/DocumentSigners'
@@ -28406,6 +28411,7 @@ components:
       - roles
       - permissions
       - modules
+      - features
       - documents
       - homeroom
     CycleEnum:

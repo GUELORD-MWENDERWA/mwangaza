@@ -5873,6 +5873,13 @@ export const en: Messages<typeof fr> = {
         timetable: "Timetable",
       },
       modulesNeeds: "Needs: {{modules}}.",
+      forfait: {
+        title: "Starting package",
+        help: "The offers in “Billing”: a package ticks its features; the price comes from the contract.",
+        custom: "Custom",
+        customHelp: "Tick the features one by one.",
+        settingsTitle: "Settings of the chosen features",
+      },
       modulesCreateHelp:
         "Choose what the school can use from day one; you can add or remove modules later on its page.",
       modulesNone: "No module: the school only has the core.",

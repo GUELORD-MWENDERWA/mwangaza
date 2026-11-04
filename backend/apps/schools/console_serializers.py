@@ -260,12 +260,15 @@ class SchoolHeadSerializer(serializers.Serializer):
 
 
 class ConsoleSchoolCreateSerializer(ConsoleSchoolSerializer):
+    # Réglages de la caisse : demandés seulement avec le module « finance » (MOD.1) ; sinon,
+    # ceux par défaut, que l'école change si elle prend la caisse plus tard.
     enabled_currencies = serializers.ListField(
         child=serializers.ChoiceField(choices=Currency.choices),
         allow_empty=False,
-        help_text="Devises de l'école (au moins une).",
+        required=False,
+        help_text="Devises de l'école (au moins une) ; avec le module « finance ».",
     )
-    default_currency = serializers.ChoiceField(choices=Currency.choices)
+    default_currency = serializers.ChoiceField(choices=Currency.choices, required=False)
     environment = serializers.ChoiceField(
         choices=[School.Environment.LIVE, School.Environment.TEST],
         default=School.Environment.LIVE,

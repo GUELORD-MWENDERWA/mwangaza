@@ -14,7 +14,16 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts import console, console_mode, login, services, staff_import, support, totp
+from apps.accounts import (
+    console,
+    console_mode,
+    login,
+    modules,
+    services,
+    staff_import,
+    support,
+    totp,
+)
 from apps.accounts import platform_roles as team
 from apps.accounts import team as team_services
 from apps.accounts.console_serializers import (
@@ -165,6 +174,7 @@ def me_data(request: Request) -> dict:
             "roles": access.roles,
             "permissions": sorted_permissions(access.permissions),
             "modules": request.school.modules,
+            "features": modules.features_of(request.school.modules),
             "documents": signatures.documents(request.school, here),
             # Menu « Ma classe » (NB.3) : titulaire ou cotitulaire (NB.7) d'une classe de l'année.
             "homeroom": "academics" in request.school.modules

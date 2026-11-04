@@ -5927,6 +5927,13 @@ export const fr = {
         timetable: "Emploi du temps",
       },
       modulesNeeds: "Nécessite : {{modules}}.",
+      forfait: {
+        title: "Forfait de départ",
+        help: "Les offres de « Facturation » : le forfait coche ses fonctions ; le prix vient du contrat.",
+        custom: "Sur mesure",
+        customHelp: "Cocher les fonctions une à une.",
+        settingsTitle: "Réglages des fonctions choisies",
+      },
       modulesCreateHelp:
         "Choisissez ce que l'école peut utiliser dès l'ouverture ; vous pourrez en ajouter ou en retirer ensuite sur sa fiche.",
       modulesNone: "Aucun module : l'école n'a que le socle.",

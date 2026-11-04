@@ -68,12 +68,20 @@ dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padd
         <label class="f">Nom<span class="inp"><span class="ph">Institut …</span></span></label>
         <label class="f">Nom officiel<span class="inp"><span class="ph">Institut technique …</span></span></label>
         <label class="f">Code (adresse)<span class="inp"><span class="ph">bahati</span></span></label>
-        <label class="f">Devises<span class="inp">☑ USD &nbsp; ☑ FC — principale : USD</span></label>
         <label class="f">Directeur : téléphone<span class="inp"><span class="ph">0971234567</span></span></label>
-        <label class="f">Directeur : nom, post-nom, prénom<span class="inp"><span class="ph">obligatoires pour un nouveau numéro</span></span></label>
+        <label class="f" style="grid-column:1/-1">Directeur : nom, post-nom, prénom<span class="inp"><span class="ph">obligatoires pour un nouveau numéro</span></span></label>
+        <div class="f" style="grid-column:1/-1"><b>Forfait de départ</b><span class="small muted">Les offres de « Facturation » ; le forfait coche ses fonctions. Le prix vient du contrat.</span>
+          <div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+            <label class="inp" style="display:flex;gap:10px;align-items:flex-start;border-color:var(--brand)"><span>◉</span><span><b>Essentiel</b><span class="small muted" style="display:block">Élèves, familles et inscriptions · Frais, caisse et paiements</span></span></label>
+            <label class="inp" style="display:flex;gap:10px;align-items:flex-start"><span>○</span><span><b>Complet</b><span class="small muted" style="display:block">Toutes les fonctions sauf l'IA</span></span></label>
+            <label class="inp" style="display:flex;gap:10px;align-items:flex-start"><span>○</span><span><b>Sur mesure</b><span class="small muted" style="display:block">Cocher les fonctions une à une</span></span></label>
+          </div></div>
+        <div class="f" style="grid-column:1/-1"><b>Réglages des fonctions choisies</b>
+          <label class="f">Frais, caisse et paiements — devises<span class="inp">☑ USD &nbsp; ☑ FC — principale : USD</span></label></div>
         <label class="f">État<span class="inp">Essai gratuit ▸ Active</span></label>
-        <label class="f">Offre · fin de l'essai gratuit · payé jusqu'au<span class="inp">Découverte · 01/01/2027 · —</span></label>
+        <label class="f">Offre · fin de l'essai gratuit · payé jusqu'au<span class="inp">Essentiel · 01/01/2027 · —</span></label>
       </div>
+      <div class="note">MOD.1 : seulement les réglages des fonctions choisies (sans « Frais, caisse », ni devises : celles par défaut). « Sur mesure » ouvre la liste des fonctions (même liste que la carte « Fonctions de l'école ») ; une fonction cochée ajoute celles dont elle dépend. Le nom de l'offre remplit « Offre ». Les rôles proposés à l'école suivent ses fonctions (pas de caissier sans la caisse) ; ajouter une fonction plus tard ajoute ses rôles.</div>
       <div class="ft"><span class="small muted">Après la création : mot de passe provisoire du directeur, affiché une seule fois <span class="pwd">kivu-lac-42</span></span><a class="btn primary" href="#">Créer l'école</a></div></div>
     <div class="card"><div class="hd"><h2>Fiche (<code>/schools/&lt;id&gt;</code>) — En bref</h2></div>
       <dl class="brief"><dt>Type d'espace</dt><dd>Réel</dd><dt>Abonnement</dt><dd><span class="pill ok">Standard · payé jusqu'au 31/12/2026</span></dd><dt>Élèves</dt><dd>864</dd><dt>Dernière activité</dt><dd>03/10/2026 09:42</dd><dt>Devises</dt><dd>USD, FC</dd><dt>Créée le</dt><dd>28/09/2026</dd></dl>

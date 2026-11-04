@@ -128,6 +128,9 @@ def payment_cancelled() -> None:
     from apps.finance.models import PaymentCancellation
 
     school = require_current_school()
+    if school.is_demo:
+        # Annulations fictives (remplissage d'une démonstration) : jamais une alerte.
+        return
     today = timezone.localdate()
     start = timezone.make_aware(datetime.combine(today, time.min))
     count = PaymentCancellation.objects.filter(approved_at__gte=start).count()

@@ -104,7 +104,9 @@ def test_a_demo_school_is_deleted_entirely_and_the_other_school_keeps_every_row(
     teacher, volcans_head = both.first(), only_volcans.first()
     monkeypatch.setattr(deletion, "BATCH", 50)  # plusieurs paquets par modèle
 
-    assert delete(api(platform_admin, host=CONSOLE), volcans).status_code == 204
+    # Un espace de démonstration n'existe que pour la console en mode démonstration (②bis).
+    demo = {"HTTP_X_CONSOLE_MODE": "demo"}
+    assert delete(api(platform_admin, host=CONSOLE, headers=demo), volcans).status_code == 204
 
     assert not School.objects.filter(pk=volcans.pk).exists()
     assert set(rows_per_model(volcans).values()) == {0}

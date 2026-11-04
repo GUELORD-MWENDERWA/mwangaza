@@ -119,7 +119,9 @@ def test_a_demonstration_space_is_filled_shown_on_its_sheet_and_reset_without_th
     assert authenticate(username="0004002001", password=password) is None
     # Comptes effacés avec l'espace puis recréés : même numéro, autre compte.
     assert authenticate(username="0004002001", password=new_password).phone == head.phone
-    journal = PlatformAuditLog.objects.filter(entity_id=school_id).order_by("created_at", "id")
+    # Les alertes fictives de la console en mode démonstration (`audit/demo.py`) mises à part.
+    journal = PlatformAuditLog.objects.filter(entity_id=school_id, action__startswith="school.")
+    journal = journal.order_by("created_at", "id")
     assert [log.action for log in journal] == ["school.created", "school.deleted", "school.created"]
 
 

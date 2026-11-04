@@ -327,6 +327,27 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     def get_head_signature(self, school: School) -> str | None:
         return signatures.school_image_url(school, "head_signature")
 
+    # Section de paramètres → ce qui la porte au registre (MOD.1).
+    MODULE_SECTIONS = {
+        "enabled_currencies": "settings.currencies",
+        "default_currency": "settings.currencies",
+        "receipt": "settings.receipt",
+        "alerts": "settings.alerts",
+        "reminders": "settings.reminders",
+        "portal": "settings.portal",
+        "grading": "settings.grading",
+        "pass_rules": "settings.pass_rules",
+    }
+
+    def get_fields(self):
+        # Section d'un module que l'école n'a pas : lue (rien n'est perdu), jamais écrite.
+        fields = super().get_fields()
+        school = self.instance if isinstance(self.instance, School) else None
+        for name, feature in self.MODULE_SECTIONS.items():
+            if school is not None and not school.applies(feature):
+                fields[name].read_only = True
+        return fields
+
     def validate(self, data):
         # Mêmes règles que l'administration (`School.clean`) : devise principale parmi celles de
         # l'école, couleur écrite `#RRGGBB`.

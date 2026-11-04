@@ -9289,9 +9289,9 @@ export interface components {
             paid_until?: string | null;
             /** Longest timetable calculation (seconds) */
             timetable_max_seconds?: number;
-            /** @description Devises de l'école (au moins une). */
-            enabled_currencies: components["schemas"]["CurrencyEnum"][];
-            default_currency: components["schemas"]["CurrencyEnum"];
+            /** @description Devises de l'école (au moins une) ; avec le module « finance ». */
+            enabled_currencies?: components["schemas"]["CurrencyEnum"][];
+            default_currency?: components["schemas"]["CurrencyEnum"];
             /** Contact person */
             contact_name?: string;
             contact_phone?: string;
@@ -10122,6 +10122,8 @@ export interface components {
             permissions: components["schemas"]["PermissionsEnum"][];
             /** @description Fonctions que la plateforme a données à l'école (M.1) ; vide : aucune. */
             modules: components["schemas"]["ModulesEnum"][];
+            /** @description Champs, réglages, étapes et rôles du registre des modules (MOD.1) qui s'appliquent à l'école : l'interface masque les autres. */
+            features: string[];
             /** @description Cachet et signatures posés sur les documents que la Gestion imprime (DOC.1). */
             documents: components["schemas"]["DocumentSigners"];
             /** @description Titulaire ou cotitulaire d'une classe de l'année en cours : menu « Ma classe » (NB.3, NB.7). */

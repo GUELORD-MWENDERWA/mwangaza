@@ -17,11 +17,12 @@ import { z } from "zod";
 import { applyServerErrors } from "../../lib/errors";
 import { uuidv7 } from "../../lib/ids";
 import { formatPhone, studentName } from "../../lib/people";
-import { hasCode, keys, useSchool } from "../../lib/queries";
+import { hasCode, keys, useCurrentMe, useSchool } from "../../lib/queries";
 import { useSettled } from "../../lib/settled";
 import { type ClassGroup, useClasses, useYears } from "../organisation/data";
 import type { Created } from "./StudentPage";
 import {
+  birthDateRequired,
   IDENTITY_EMPTY,
   IDENTITY_PATHS,
   IdentitySections,
@@ -49,12 +50,12 @@ type Duplicate = {
 
 const MAX_GUARDIANS = 10;
 
-function studentSchema(t: TFunction) {
+function studentSchema(t: TFunction, birthDate: boolean) {
   const text = (max: number) => z.string().trim().max(max);
   const guardian = z.object({ full_name: text(150), relationship: z.string(), phone: text(20) });
   return z
     .object({
-      ...identityShape(t),
+      ...identityShape(t, birthDate),
       class_group: z.string().min(1, t("students.validation.classRequired")),
       family_mode: z.enum(["existing", "new"]),
       family: z.string(),
@@ -122,7 +123,8 @@ export function NewStudentPage() {
   const [general, setGeneral] = useState<string | null>(null);
   const [duplicates, setDuplicates] = useState<Duplicate[] | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
-  const schema = useMemo(() => studentSchema(t), [t]);
+  const me = useCurrentMe();
+  const schema = useMemo(() => studentSchema(t, birthDateRequired(me)), [t, me]);
   const form: Form = useForm({ resolver: zodResolver(schema), defaultValues: EMPTY });
 
   const save = useMutation({

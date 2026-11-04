@@ -125,12 +125,38 @@ _PASSWORD_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"
 
 def create_starter_roles(school: School) -> list[Role]:
     """Copie le modèle de départ (`docs/04` § 8) dans une école neuve : des rôles ordinaires,
-    qu'elle renomme, modifie et supprime ensuite. Une seule fois, à sa création."""
+    qu'elle renomme, modifie et supprime ensuite. Une seule fois, à sa création ; seulement les
+    rôles de ses modules (MOD.1 : pas de caissier sans la caisse)."""
     with use_school(school):
         return Role.objects.bulk_create(
             Role(name=starter_role_name(key), permissions=list(role.permissions))
             for key, role in STARTER_ROLES.items()
+            if school.applies(f"role.{key}")
         )
+
+
+def add_module_roles(school: School, before, *, actor) -> list[Role]:
+    """Rôles du modèle de départ qu'apportent les modules ajoutés depuis `before` (ex. caissier
+    et comptable avec la caisse), sauf si l'école a déjà un rôle de ce nom. Écrits au journal."""
+    keys = [
+        key
+        for key in STARTER_ROLES
+        if school.applies(f"role.{key}") and not modules.applies(f"role.{key}", before)
+    ]
+    if not keys:
+        return []
+    with use_school(school), transaction.atomic():
+        taken = {name.lower() for name in Role.objects.values_list("name", flat=True)}
+        roles = Role.objects.bulk_create(
+            Role(name=name, permissions=list(STARTER_ROLES[key].permissions), created_by=actor)
+            for key in keys
+            if (name := str(starter_role_name(key))).lower() not in taken
+        )
+        for role in roles:
+            audit.record(
+                Action.ROLES_CREATED, role, actor=actor, after=_role_data(role), label=role.name
+            )
+    return roles
 
 
 def first_manager_role() -> Role:

@@ -29,11 +29,12 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
 import { errorMessage } from "../../lib/errors";
-import { keys } from "../../lib/queries";
+import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useClasses, useYears } from "../organisation/data";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
+import { studentFieldShown } from "./StudentFields";
 import {
   confirmImport,
   IMPORT_FIELDS,
@@ -293,6 +294,7 @@ function ColumnsCard({
   onChange: (body: Parameters<typeof updateImport>[1]) => void;
 }) {
   const { t } = useTranslation();
+  const me = useCurrentMe();
   const classes = useClasses(imp.academic_year);
   const toMatch = imp.classes.filter((item) => item.chosen || !item.class_group);
   return (
@@ -302,7 +304,7 @@ function ColumnsCard({
       </CardHeader>
       <Table>
         <tbody>
-          {IMPORT_FIELDS.map((name) => {
+          {IMPORT_FIELDS.filter((name) => studentFieldShown(me, name)).map((name) => {
             const column = imp.mapping[name];
             const mapped = column !== null && column !== undefined;
             return (

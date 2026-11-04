@@ -176,6 +176,9 @@ def save_school(school: School, *, actor) -> School:
         school.save()
         with use_school(school):
             _record_changes(old, school, actor=actor)
+        if school.modules != old.modules:
+            # Module ajouté : ses rôles du modèle de départ (MOD.1) ; retiré : rien ne part.
+            accounts.add_module_roles(school, old.modules, actor=actor)
         for field in FILE_FIELDS:
             file = getattr(old, field)
             if file and file.name != getattr(school, field).name:
