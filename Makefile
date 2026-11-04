@@ -24,7 +24,7 @@ MANAGE := cd backend && uv run python manage.py
 
 .DEFAULT_GOAL := help
 .PHONY: help install hooks dev services db-up stop reset-db dev-local migrate makemigrations demo demo-excel totp relances messages superuser shell \
-	test test-back test-front test-e2e apercu captures-site lint lint-back lint-front format api api-schema build \
+	test test-back test-front test-e2e apercu captures-site captures-aide lint lint-back lint-front format api api-schema build \
 	prod-local prod-local-stop perf \
 	deploy-init deploy-check deploy-setup deploy deploy-demo deploy-superuser deploy-logs deploy-memoire deploy-backup deploy-ssh backup restore
 
@@ -119,7 +119,12 @@ captures-site: db-up ## Captures du produit pour le site public (WebP dans backe
 	cd frontend && APERCU=produit pnpm exec playwright test -c apercu/playwright.config.ts produit.spec.ts
 	cd backend && uv run python ../frontend/apercu/webp.py
 
-guide: db-up ## Guide de la version en PDF (docs/guide/) : captures des écrans de chaque rôle sur make demo
+captures-aide: db-up ## Captures des articles d'aide, fr et en (WebP dans backend/apps/core/static/core/aide/), sur les données de make demo
+	cd frontend && APERCU=aide pnpm exec playwright test -c apercu/playwright.config.ts aide.spec.ts
+	cd backend && uv run python ../frontend/apercu/webp-aide.py
+
+guide: db-up ## Guides PDF (docs/guide/) : trois par langue tirés des articles d'aide (help_guides) + guide de présentation (captures sur make demo)
+	cd backend && uv run python manage.py help_guides
 	cd frontend && pnpm exec playwright test -c guide/playwright.config.ts
 
 lint: lint-back lint-front ## Vérifier le code sans rien modifier (ruff, ESLint, Prettier)

@@ -5,7 +5,7 @@
 ## Parties
 - [x] ① Maquettes : centre d'aide (accueil, article, quoi de neuf), panneau « Aide » des trois applications, dialogue « Quoi de neuf », demandes d'aide (Gestion : écrire, mes demandes ; Console : liste, fiche), guide PDF
 - [x] ② Moteur : format, lecture, rendu, recherche, site `/aide/` et `/en/help/` (+ sitemap, llms.txt), API `/api/help/`, commande des guides PDF, « Quoi de neuf »
-- [ ] ③ Articles fr + en des trois applications (un par écran ou tâche), captures (`make captures-aide`), `make guide` → trois PDF par langue
+- [x] ③ Articles fr + en des trois applications (un par écran ou tâche), captures (`make captures-aide`), `make guide` → trois PDF par langue
 - [ ] ④ Bouton « Aide » et panneau dans les trois applications, table écran → article + test, dialogue « Quoi de neuf », guides de première connexion enseignant, secrétaire, direction
 - [ ] ⑤ SUP.1 (modèle, API, Gestion, Console, e-mails, démo) puis fin du lot (docs, vérification, PR)
 
@@ -28,3 +28,5 @@ Isolation et propriété des demandes (autre école, collègue) ; console 403 sa
 
 ## Documents à mettre à jour
 `reference.md`, `A-FAIRE.md` § 11, `CLAUDE.md` (adresses), `03` (journal), `04` (`SupportRequest`), `07` § 1 et § 4, `maquettes/README.md`, skills `ecran` et `tache` (article par écran), `presentation.html`.
+
+- Partie ③ (2026-11-04) : 24 articles par langue (Gestion 15, Portail 5, Console 3 + `take-payment`) ; captures `make captures-aide` (fr + en, sauf caisse en fr ; pas de capture des notes) ; `make guide` écrit les 6 PDF, `guide.html` retiré.
