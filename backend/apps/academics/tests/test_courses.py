@@ -265,4 +265,5 @@ def test_a_teacher_is_told_when_a_course_is_given_or_taken_away(api, school, alp
             .order_by("created_at")
             .values_list("title", flat=True)
         )
-    assert titles == ["Course assigned to you", "Course taken from you"]
+    # Titres dans la langue de l'enseignant (français par défaut).
+    assert titles == ["Cours qui vous est confié", "Cours qui vous est retiré"]
