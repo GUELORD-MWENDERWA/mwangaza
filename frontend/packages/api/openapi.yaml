@@ -6373,6 +6373,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/health/:
+    get:
+      operationId: console_health_retrieve
+      description: |-
+        État des services pour la barre du haut de la console (lot 5, ②bis) : le même calcul que
+        le tableau de bord, gardé une minute pour toute l'équipe.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerHealth'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/platform/:
     get:
       operationId: console_platform_retrieve
@@ -24704,6 +24727,15 @@ components:
           $ref: '#/components/schemas/ServerHealth'
         platform:
           $ref: '#/components/schemas/PlatformHealth'
+        todo:
+          $ref: '#/components/schemas/ConsoleTodo'
+        recent:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlatformLog'
+          nullable: true
+          description: 'Dernières entrées du journal de ce mode ; sans le droit journal
+            : null.'
       required:
       - day
       - schools
@@ -24713,6 +24745,8 @@ components:
       - active_schools
       - health
       - platform
+      - todo
+      - recent
     ConsoleDemoRequest:
       type: object
       description: |-
@@ -26596,6 +26630,49 @@ components:
       - role
       - school_name
       - town
+    ConsoleTodo:
+      type: object
+      properties:
+        trials_ending:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleTrialEnding'
+          description: Essais qui finissent dans les 30 jours, le plus proche d'abord
+            (5).
+        follow_ups:
+          type: integer
+          nullable: true
+          description: 'Prospects ouverts dont la relance est aujourd''hui ou passée
+            ; sans le droit commercial : null.'
+        overdue:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleAmount'
+          nullable: true
+          description: 'Factures échues par devise ; sans le droit facturation, ou
+            en démonstration : null.'
+      required:
+      - trials_ending
+      - follow_ups
+      - overdue
+    ConsoleTrialEnding:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        code:
+          type: string
+        name:
+          type: string
+        trial_ends_on:
+          type: string
+          format: date
+      required:
+      - id
+      - code
+      - name
+      - trial_ends_on
     ContactAddress:
       type: object
       properties:

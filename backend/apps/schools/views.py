@@ -41,6 +41,7 @@ from apps.accounts.roles import (
     STUDENTS_VIEW,
 )
 from apps.accounts.views import SchoolViewSet
+from apps.core import health
 from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
@@ -89,6 +90,7 @@ from apps.schools.serializers import (
     MatriculeSettingsSerializer,
     PersonSerializer,
     SchoolSettingsSerializer,
+    ServerHealthSerializer,
     SetupSerializer,
     SignatureUploadSerializer,
     TermsUpdateSerializer,
@@ -657,11 +659,25 @@ class ConsoleDashboardView(APIView):
         responses={200: ConsoleDashboardSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
     )
     def get(self, request: Request) -> Response:
-        return Response(
-            ConsoleDashboardSerializer(
-                console.dashboard(console_mode.stats_environments(request))
-            ).data
-        )
+        environments = console_mode.stats_environments(request)
+        data = console.dashboard(environments)
+        rights, demo = request.user.platform_permissions, console_mode.is_demo(request)
+        data["todo"] = console.todo(rights, environments, demo=demo, day=data["day"])
+        data["recent"] = console.recent_activity(rights, demo=demo)
+        return Response(ConsoleDashboardSerializer(data).data)
+
+
+@extend_schema(tags=["console"])
+class ConsoleHealthView(APIView):
+    """État des services pour la barre du haut de la console (lot 5, ②bis) : le même calcul que
+    le tableau de bord, gardé une minute pour toute l'équipe."""
+
+    permission_classes = [HasPlatformPermission]
+    platform_permission = (team.SCHOOLS_VIEW, team.HEALTH_VIEW)
+
+    @extend_schema(responses={200: ServerHealthSerializer, 403: ErrorSerializer})
+    def get(self, request: Request) -> Response:
+        return Response(ServerHealthSerializer(health.cached_report()).data)
 
 
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"

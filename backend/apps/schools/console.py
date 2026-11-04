@@ -15,16 +15,21 @@ from django.db.models import Count, F, OuterRef, QuerySet, Subquery, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from apps.audit.models import AuditLog
+from apps.accounts import platform_roles as team
+from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.core import health
+from apps.core.models import DemoRequest
 from apps.core.money import Currency
 from apps.finance.models import Payment
+from apps.schools import business
 from apps.schools.models import School
 from apps.students.models import Enrollment
 from apps.sync.models import Device
 
 # Un essai qui finit dans ces jours est signalé.
 TRIAL_ENDING_DAYS = 30
+TRIALS_SHOWN = 5
+RECENT_SHOWN = 5
 ACTIVE_SCHOOLS = 10
 LIVE = School.Environment.LIVE
 
@@ -149,3 +154,41 @@ def dashboard(environments=(LIVE,)) -> dict:
         "health": health.report(),
         "platform": {**health.platform(), "syncs": _last_syncs(environments)},
     }
+
+
+def todo(rights, environments, *, demo: bool, day=None) -> dict:
+    """« À faire aujourd'hui » du tableau de bord (lot 5, ②bis) : essais qui finissent bientôt,
+    prospects à relancer (droit commercial) et factures échues par devise (droit facturation, réel
+    seulement). Une section sans le droit vaut `None` : le serveur ne l'envoie pas."""
+    day = day or timezone.localdate()
+    trials = (
+        School.objects.filter(
+            environment__in=environments,
+            status=School.Status.TRIAL,
+            trial_ends_on__lte=day + timedelta(days=TRIAL_ENDING_DAYS),
+        )
+        .order_by("trial_ends_on", "name")
+        .values("id", "code", "name", "trial_ends_on")[:TRIALS_SHOWN]
+    )
+    follow_ups = None
+    if team.LEADS_MANAGE in rights:
+        follow_ups = DemoRequest.objects.filter(
+            is_demo=demo, status__in=business.OPEN_PROSPECTS, follow_up_on__lte=day
+        ).count()
+    overdue = None
+    if team.BILLING_MANAGE in rights and not demo:
+        overdue = [
+            {"currency": row["currency"], "amount_minor": row["overdue"]}
+            for row in business.for_rights(rights)["money"]
+            if row["overdue"]
+        ]
+    return {"trials_ending": list(trials), "follow_ups": follow_ups, "overdue": overdue}
+
+
+def recent_activity(rights, *, demo: bool):
+    """« Dernières activités » : les dernières entrées du journal de la plateforme de ce mode
+    (droit journal), sinon `None`."""
+    if team.AUDIT_VIEW not in rights:
+        return None
+    logs = PlatformAuditLog.objects.select_related("actor").filter(is_demo=demo)
+    return list(logs.order_by("-created_at")[:RECENT_SHOWN])

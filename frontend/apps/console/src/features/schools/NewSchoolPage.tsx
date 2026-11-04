@@ -30,6 +30,7 @@ import { Link, useSearchParams } from "react-router";
 import { z } from "zod";
 
 import { keys } from "../../lib/queries";
+import { useConsoleMode } from "../../lib/mode";
 import { RIGHTS, spaceRight, useCan } from "../../lib/rights";
 import { NewDemoSpace } from "./Demonstration";
 import { MODULES, ModuleChoices } from "./ModulesCard";
@@ -92,7 +93,11 @@ export function NewSchoolPage() {
   // serveur lie l'essai au prospect.
   const prospect = params.get("prospect") ?? undefined;
   const can = useCan();
-  const kinds = KINDS.filter((value) => can(spaceRight(value, RIGHTS.schoolsManage)));
+  // « Créer une démonstration » en mode démonstration seulement (le serveur le refuse ailleurs).
+  const demo = useConsoleMode() === "demo";
+  const kinds = KINDS.filter(
+    (value) => (value === "demo") === demo && can(spaceRight(value, RIGHTS.schoolsManage)),
+  );
   const form = useForm<Values>({
     resolver: zodResolver(useSchema()),
     defaultValues: {

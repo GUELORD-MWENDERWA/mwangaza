@@ -1986,6 +1986,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/health/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description État des services pour la barre du haut de la console (lot 5, ②bis) : le même calcul que
+         *     le tableau de bord, gardé une minute pour toute l'équipe.
+         */
+        get: operations["console_health_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/platform/": {
         parameters: {
             query?: never;
@@ -8516,6 +8536,9 @@ export interface components {
             active_schools: components["schemas"]["ConsoleActiveSchool"][];
             health: components["schemas"]["ServerHealth"];
             platform: components["schemas"]["PlatformHealth"];
+            todo: components["schemas"]["ConsoleTodo"];
+            /** @description Dernières entrées du journal de ce mode ; sans le droit journal : null. */
+            recent: components["schemas"]["PlatformLog"][] | null;
         };
         /**
          * @description Prospect (demande de démonstration du site, WEB.1d, suivie par CON.3), dans la console :
@@ -9363,6 +9386,22 @@ export interface components {
             /** Example */
             is_example?: boolean;
             published?: boolean;
+        };
+        ConsoleTodo: {
+            /** @description Essais qui finissent dans les 30 jours, le plus proche d'abord (5). */
+            trials_ending: components["schemas"]["ConsoleTrialEnding"][];
+            /** @description Prospects ouverts dont la relance est aujourd'hui ou passée ; sans le droit commercial : null. */
+            follow_ups: number | null;
+            /** @description Factures échues par devise ; sans le droit facturation, ou en démonstration : null. */
+            overdue: components["schemas"]["ConsoleAmount"][] | null;
+        };
+        ConsoleTrialEnding: {
+            /** Format: uuid */
+            id: string;
+            code: string;
+            name: string;
+            /** Format: date */
+            trial_ends_on: string;
         };
         ContactAddress: {
             /** @default  */
@@ -22170,6 +22209,33 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_health_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ServerHealth"];
+                };
+            };
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

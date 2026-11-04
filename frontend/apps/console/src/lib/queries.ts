@@ -29,6 +29,8 @@ export const keys = {
   siteArticles: ["console", "site", "articles"],
   sitePhotos: ["console", "site", "photos"],
   platform: ["platform"],
+  // Hors de « console » : le même dans les deux modes, gardé quand on change de mode.
+  health: ["health"],
 };
 
 export function hasCode(error: unknown, ...codes: string[]): error is ApiError {

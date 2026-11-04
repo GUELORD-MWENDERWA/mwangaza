@@ -255,7 +255,8 @@ describe("Écoles de la console", () => {
       "GET /api/console/schools/d1/": () => demo(reads++ ? "ready" : "filling"),
       "POST /api/console/schools/d1/reset/": () => demo("resetting", "deleting"),
     });
-    const { user } = renderApp("/schools/new?type=demo");
+    // « Créer une démonstration » : en mode démonstration seulement.
+    const { user } = renderApp("/schools/new?type=demo", "demo");
 
     // Ni directeur, ni devises, ni abonnement : le serveur écrit tout.
     await user.type(await screen.findByLabelText("Nom"), "Vitrine");

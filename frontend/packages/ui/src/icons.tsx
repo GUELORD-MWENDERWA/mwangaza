@@ -138,6 +138,13 @@ const paths = {
       <path d="M9.5 21v-5h5v5" />
     </>
   ),
+  image: (
+    <>
+      <rect x="3" y="4.5" width="18" height="15" rx="2" />
+      <circle cx="9" cy="10" r="1.8" />
+      <path d="m4 18 5.5-5 4 3.5 3-2.5 3.5 3" />
+    </>
+  ),
   inbox: (
     <>
       <path d="M4 13h4l2 3h4l2-3h4" />

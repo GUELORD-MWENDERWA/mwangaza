@@ -1,7 +1,11 @@
 """Console réelle ou démonstration (lot 5, ②bis) : un mode ne voit ni ne touche les données de
 l'autre ; sans en-tête, c'est toujours le mode réel."""
 
+from datetime import timedelta
+
 import pytest
+from django.core.cache import cache
+from django.utils import timezone
 
 from apps.accounts.console_mode import HEADER
 from apps.audit import services as audit
@@ -97,3 +101,40 @@ def test_what_only_exists_for_real_answers_404_in_demonstration(get, spaces):
     ):
         assert get(path, mode="demo").status_code == 404, path
         assert get(path).status_code == 200, path
+
+
+def test_dashboard_todo_follows_the_mode_and_the_rights(api, get, spaces):
+    cache.clear()
+    today = timezone.localdate()
+    for key, days in (("live", 3), ("demo", 2)):
+        School.objects.filter(pk=spaces[key].pk).update(
+            status=School.Status.TRIAL, trial_ends_on=today + timedelta(days=days)
+        )
+    prospect = {"phone": "+243971234567", "school_name": "X"}
+    DemoRequest.objects.create(name="Due", follow_up_on=today, status="contacted", **prospect)
+    DemoRequest.objects.create(name="Tard", follow_up_on=today + timedelta(days=1), **prospect)
+    DemoRequest.objects.create(name="Perdu", follow_up_on=today, status="lost", **prospect)
+    DemoRequest.objects.create(name="Fictif", follow_up_on=today, is_demo=True, **prospect)
+
+    live = get("/api/console/dashboard/").json()["todo"]
+    assert [row["code"] for row in live["trials_ending"]] == ["reelle"]
+    assert live["follow_ups"] == 1 and live["overdue"] == []
+    demo = get("/api/console/dashboard/", mode="demo").json()["todo"]
+    assert [row["code"] for row in demo["trials_ending"]] == ["demo-x"]
+    assert demo["follow_ups"] == 1 and demo["overdue"] is None  # factures : réel seulement
+
+    technical = UserFactory(is_platform_admin=True, platform_roles=["technical"])
+    todo = api(technical, host=CONSOLE).get("/api/console/dashboard/").json()["todo"]
+    assert todo["follow_ups"] is None and todo["overdue"] is None
+
+
+def test_dashboard_recent_activity_stays_in_its_mode(api, get, platform_admin, spaces):
+    audit.record_platform(PlatformAction.SCHOOL_UPDATED, spaces["live"], actor=platform_admin)
+    audit.record_platform(PlatformAction.SCHOOL_UPDATED, spaces["demo"], actor=platform_admin)
+    labels = lambda mode=None: {  # noqa: E731
+        row["entity_label"] for row in get("/api/console/dashboard/", mode=mode).json()["recent"]
+    }
+    assert labels() == {str(spaces["live"])}
+    assert labels("demo") == {str(spaces["demo"])}
+    finance = UserFactory(is_platform_admin=True, platform_roles=["finance"])
+    assert api(finance, host=CONSOLE).get("/api/console/dashboard/").json()["recent"] is None

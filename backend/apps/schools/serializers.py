@@ -10,6 +10,7 @@ from rest_framework import serializers
 from rest_framework.fields import get_error_detail
 
 from apps.accounts.models import User
+from apps.audit.serializers import PlatformLogSerializer
 from apps.core import health
 from apps.core.images import CleanedFileField, clean_signature
 from apps.core.money import Currency
@@ -730,6 +731,30 @@ class PlatformHealthSerializer(serializers.Serializer):
     syncs = PlatformSyncSerializer(many=True)
 
 
+class ConsoleTrialEndingSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    code = serializers.CharField()
+    name = serializers.CharField()
+    trial_ends_on = serializers.DateField()
+
+
+class ConsoleTodoSerializer(serializers.Serializer):
+    trials_ending = ConsoleTrialEndingSerializer(
+        many=True, help_text="Essais qui finissent dans les 30 jours, le plus proche d'abord (5)."
+    )
+    follow_ups = serializers.IntegerField(
+        allow_null=True,
+        help_text="Prospects ouverts dont la relance est aujourd'hui ou passée ; sans le droit "
+        "commercial : null.",
+    )
+    overdue = ConsoleAmountSerializer(
+        many=True,
+        allow_null=True,
+        help_text="Factures échues par devise ; sans le droit facturation, ou en démonstration : "
+        "null.",
+    )
+
+
 class ConsoleDashboardSerializer(serializers.Serializer):
     day = serializers.DateField()
     schools = ConsoleSchoolCountsSerializer()
@@ -739,6 +764,12 @@ class ConsoleDashboardSerializer(serializers.Serializer):
     active_schools = ConsoleActiveSchoolSerializer(many=True)
     health = ServerHealthSerializer()
     platform = PlatformHealthSerializer()
+    todo = ConsoleTodoSerializer()
+    recent = PlatformLogSerializer(
+        many=True,
+        allow_null=True,
+        help_text="Dernières entrées du journal de ce mode ; sans le droit journal : null.",
+    )
 
 
 class BusinessMoneySerializer(serializers.Serializer):
