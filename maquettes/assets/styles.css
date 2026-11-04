@@ -389,3 +389,48 @@ label.f .req{color:var(--due)}
   .tbl.stack td[data-label]::before{content:attr(data-label);color:var(--ink-3);font-size:.85rem;text-align:left}
   .tbl.stack td.check{float:left;width:auto;margin-right:10px}
 }
+
+/* Aide dans les applications (lot 6 : AIDE.2, SUP.1) — bouton « Aide », panneau à droite,
+   article court, demandes d'aide (fil de messages). Plein écran sous 600 px. */
+.helpbtn{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink-2);font-weight:600;font-size:.9rem;text-decoration:none;white-space:nowrap}
+.helpbtn.on{border-color:var(--lake);color:var(--lake);background:var(--lake-50)}
+.hscrim{position:fixed;inset:0;background:rgba(11,28,53,.25);z-index:19}
+.hpanel{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100%;background:#fff;box-shadow:var(--shadow-float);border-left:1px solid var(--line);display:flex;flex-direction:column;z-index:20}
+.hpanel .hphd{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.hpanel .hphd b{font-size:1.05rem}
+.hpanel .hphd .x{margin-left:auto;display:grid;place-items:center;width:36px;height:36px;border-radius:8px;color:var(--ink-2)}
+.hpanel .hpsearch{padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+.hpanel .hpbody{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.hpanel .hpft{border-top:1px solid var(--line);padding:12px 16px;display:flex;flex-direction:column;gap:8px;background:var(--table-head)}
+.hpanel .hpft .row{justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hcap{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.hart h2{font-size:1.15rem}
+.hart>p,.hart li{font-size:.92rem;color:var(--ink-2)}
+.hart>p{margin-top:6px}
+.hart ol{padding-left:20px;display:grid;gap:6px;margin:12px 0 0}
+.hart figure{margin:12px 0 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.hart figure img{display:block;width:100%;height:150px;object-fit:cover;object-position:top left}
+.hart figcaption{font-size:.8rem;color:var(--ink-3);padding:6px 10px;border-top:1px solid var(--line-soft);background:#fff}
+.tipbox{border-left:3px solid var(--lake);background:var(--lake-50);padding:10px 12px;border-radius:0 8px 8px 0;font-size:.88rem;margin-top:12px;color:var(--ink)}
+.hlinks{list-style:none;margin:0;padding:0}
+.hlinks a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid var(--line-soft);text-decoration:none;color:var(--ink);font-size:.92rem;font-weight:600}
+.hlinks small{display:block;font-weight:400;color:var(--ink-3)}
+.hlinks mark{background:var(--lamp-soft);color:inherit;border-radius:3px;padding:0 2px}
+.attach{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;font-size:.85rem;color:var(--ink-2);display:grid;gap:4px}
+.reqcols{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px;align-items:start}
+.reqs{list-style:none;margin:0;padding:0}
+.reqs a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;padding:12px 16px;border-top:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.reqs li:first-child a{border-top:0}
+.reqs a.on{background:var(--lake-50);box-shadow:inset 3px 0 0 var(--lake)}
+.reqs a span{font-size:.85rem;color:var(--ink-3)}
+.thread{display:flex;flex-direction:column;gap:14px;padding:16px}
+.msg{max-width:82%;border-radius:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--line)}
+.msg.me{align-self:flex-end;background:var(--lake-50);border-color:var(--lake-100)}
+.msg .by{font-size:.8rem;color:var(--ink-3);margin-bottom:4px}
+.msg .by b{color:var(--ink)}
+.msg p{font-size:.92rem;white-space:pre-line;margin:0}
+.reply{border-top:1px solid var(--line);padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.reply textarea{width:100%;min-height:84px;resize:vertical;font:inherit;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.reply .row{justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media (max-width:900px){.reqcols{grid-template-columns:minmax(0,1fr)}.helpbtn span{display:none}.helpbtn{padding:0 10px}}
+@media (max-width:600px){.hpanel{width:100%;border-left:0}.msg{max-width:94%}}

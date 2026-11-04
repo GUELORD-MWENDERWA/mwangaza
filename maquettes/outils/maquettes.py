@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 ICONS = {
     # menu
+    "help": '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6"/><path d="M12 16.9v.1"/>',
     "home": '<path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/>',
     "students": '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.4.2 4.2 1.9 5 4.9"/>',
     "book": '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19V4.5"/>',
@@ -317,6 +318,11 @@ GESTION = [
     ("menu-mobile", "Menu sur téléphone et tablette", "V1.0", "Coquille · M7", True),
     ("pages-etat", "Pages d'état et d'erreur", "V1.0", "Coquille · M8", True),
     ("guide-premiere-connexion", "Guide de première connexion", "V1.0", "Transversal · I3 · M20", True),
+    ("aide-panneau", "Panneau « Aide » : article de l'écran, recherche", "Lot 6", "Aide · AIDE.2", True),
+    ("aide-demande", "Écrire au support", "Lot 6", "Aide · SUP.1", True),
+    ("aide-mes-demandes", "Mes demandes d'aide", "Lot 6", "Aide · SUP.1", True),
+    ("quoi-de-neuf", "Quoi de neuf (une fois après une mise en ligne)", "Lot 6", "Aide · AIDE.1", True),
+    ("guide-pdf", "Guide PDF d'une application", "Lot 6", "Impression · AIDE.1", True),
     ("eleves-liste", "Liste des élèves", "V1.0", "Élèves · D2", False),
     ("eleve-fiche-identite", "Fiche élève, onglet Identité", "V1.0", "Élèves · D2–D3 · M9", True),
     ("eleve-fiche-famille", "Fiche élève, onglet Famille", "V1.0", "Élèves · D4 · M9", True),
@@ -397,6 +403,7 @@ GESTION = [
 ]
 
 PORTAIL = [
+    ("aide", "Aide dans l'espace parents", "Lot 6", "AIDE.2", True),
     ("activation", "Activation du compte famille", "V1.0", "H1", False),
     ("connexion", "Se connecter", "V1.0", "H1 · M19", True),
     ("mot-de-passe-oublie", "Mot de passe oublié", "V1.0", "H1 · M19", True),
@@ -416,6 +423,8 @@ PORTAIL = [
 
 # Console de la plateforme (super-admin, admin.<domaine>), son propre design (5.2).
 CONSOLE = [
+    ("demandes-aide", "Demandes d'aide des écoles", "Lot 6", "SUP.1", True),
+    ("demande-aide", "Demande d'aide : fil et suivi", "Lot 6", "SUP.1", True),
     ("tableau-de-bord", "Tableau de bord", "V1.1", "5.2", True),
     ("identite-plateforme", "Identité de la plateforme", "V1.1", "5.2.2", True),
     ("ecoles", "Écoles", "V1.1", "5.3", True),
@@ -442,6 +451,10 @@ SITE = [
     ("demonstration", "Demande de démonstration et contact", "Lancement", "WEB.1a", True),
     ("trouver-mon-ecole", "Trouver mon école", "Lancement", "WEB.1a", True),
     ("mentions", "Mentions légales et confidentialité", "Lancement", "WEB.1a", True),
+    ("aide", "Centre d'aide", "Lot 6", "AIDE.1", True),
+    ("aide-recherche", "Centre d'aide : résultats de recherche", "Lot 6", "AIDE.1", True),
+    ("aide-article", "Article d'aide", "Lot 6", "AIDE.1", True),
+    ("aide-nouveautes", "Quoi de neuf", "Lot 6", "AIDE.1", True),
 ]
 
 # Marque de la plateforme (lot 1, BRAND.1) : piste A retenue le 2026-10-29 (pistes : commit f39f60a9).
@@ -457,7 +470,8 @@ SITE_NAV = [
     ("demonstration.html", "Contact"),
 ]
 SITE_ACTIVE = {"ecoles.html": "ecoles.html", "parents.html": "parents.html", "actualites.html": "actualites.html",
-               "article.html": "actualites.html", "demonstration.html": "demonstration.html"}
+               "article.html": "actualites.html",
+               "aide.html": None, "aide-article.html": None, "aide-recherche.html": None, "aide-nouveautes.html": None, "demonstration.html": "demonstration.html"}
 
 
 def site_header(active: str | None) -> str:
@@ -510,7 +524,7 @@ def site_footer() -> str:
         + col("Accès", [("trouver-mon-ecole.html", "Trouver mon école"),
                         ("https://parents.mwangazaschool.com/", "Espace parents"),
                         ("demonstration.html", "Demander une démonstration")])
-        + col("Informations", [("accueil.html#questions", "Questions fréquentes"), ("mentions.html", "Mentions légales"),
+        + col("Informations", [("aide.html", "Centre d'aide"), ("accueil.html#questions", "Questions fréquentes"), ("mentions.html", "Mentions légales"),
                                ("mentions.html#confidentialite", "Confidentialité"), ("demonstration.html", "Contact")])
         + "</div>"
         '<div class="sfbottom"><p class="sflang"><a href="accueil.html" lang="fr" aria-current="true">Français</a>'

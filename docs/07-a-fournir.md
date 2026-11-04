@@ -37,8 +37,9 @@ Comment s'y prendre (quoi demander à l'ITIG et quand, message à envoyer, compt
 | M17 | Situation financière d'un élève imprimable ; export des impayés (PDF, Excel) | Impression | G1, G2 | 4.1 | `gestion/situation-financiere`, `gestion/impayes-export` | [ ] |
 | M18 | Changements de coordonnées faits par les parents, à prendre en compte par le secrétariat | Gestion | H5 | 4.4 | `gestion/changements-coordonnees` | [ ] |
 | M19 | Portail : se connecter, mot de passe oublié, installer l'application | Portail | H1, H6 | 4.4 | `portail/connexion`, `portail/mot-de-passe-oublie`, `portail/installer` | [ ] |
-| M20 | Guides de première connexion : caissier, comptable, parent | Gestion, Portail | I3 | 4.5.1 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
+| M20 | Guides de première connexion : caissier, comptable, parent ; enseignant, secrétaire, direction (lot 6, dessinés le 2026-11-04) | Gestion, Portail | I3 | 4.5.1 | `gestion/guide-premiere-connexion`, `portail/guide` | [ ] |
 | M21 | Préparer le hors-ligne : bandeau du code PIN, page hors ligne qui explique (dessinée par Claude le 2026-10-17) | Gestion | B5 | L.6 | `gestion/hors-ligne-preparer` | [x] |
+| M22 | Aide : centre d'aide du site (accueil, recherche, article, quoi de neuf), panneau « Aide » des trois applications, « Quoi de neuf », guide PDF, demandes d'aide (Gestion et Console) — dessinées par Claude le 2026-11-04 (lot 6) | Site, Gestion, Portail, Console | AIDE.1, AIDE.2, SUP.1 | lot 6 | `site/aide*`, `gestion/aide-*`, `gestion/quoi-de-neuf`, `gestion/guide-pdf`, `portail/aide`, `console/demande*-aide` | [x] |
 
 ### V1.0 — clôture
 

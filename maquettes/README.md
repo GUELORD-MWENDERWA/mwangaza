@@ -40,6 +40,11 @@ Domaine retenu le 2026-09-26 : `mwangaza.school`. Les maquettes affichent encore
 | Notifications : centre et réglages (cloche de la barre du haut) | `gestion/notifications.html` | V1.1 | 5.5 | dessinée par Claude en 5.5.1 d'après `console/annonces` et `mon-compte` (à valider) ; codée en 5.5.1 : `/app/notifications`, réglages sur la même page (pas dans « Mon compte »), aperçu du téléphone non reproduit (c'est le système qui l'affiche) ; 5.6.1 : alertes « Annulation à valider » et « Écart de caisse », offertes selon les droits ; 5.6.2 : « Caisse encore ouverte » |
 | Pages d'état et d'erreur (Gestion et Portail) | `gestion/pages-etat.html` | V1.0 | M8 | à valider |
 | Guide de première connexion (caissier, comptable) | `gestion/guide-premiere-connexion.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 : « Guide du caissier » (pas de féminin fixe) ; 1re étape du comptable « Vérifiez le taux de change » (taux fixe pour l'année, `04`) ; élément absent (ex. montant avant le choix d'un élève) : carte en bas, sans assombrir ; croix = fermé jusqu'à la prochaine ouverture ; donné d'après les droits du compte, pas le nom de son rôle (M.3.1 : comptable = règle les frais sans régler l'école, caisse = encaisse) |
+| Panneau « Aide » (article de l'écran, recherche) | `gestion/aide-panneau.html` | Lot 6 | AIDE.2 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) ; guides enseignant, secrétaire, direction ajoutés à `guide-premiere-connexion` |
+| Écrire au support | `gestion/aide-demande.html` | Lot 6 | SUP.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
+| Mes demandes d'aide | `gestion/aide-mes-demandes.html` | Lot 6 | SUP.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
+| Quoi de neuf (une fois après une mise en ligne) | `gestion/quoi-de-neuf.html` | Lot 6 | AIDE.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
+| Guide PDF d'une application | `gestion/guide-pdf.html` | Lot 6 | AIDE.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
 | Liste des élèves | `gestion/eleves-liste.html` | V1.0 | D2 | fournie |
 | Fiche élève, onglet Identité | `gestion/eleve-fiche-identite.html` | V1.0 | D2–D3 · M9 | à valider |
 | Fiche élève, onglet Famille | `gestion/eleve-fiche-famille.html` | V1.0 | D4 · M9 | à valider |
@@ -141,6 +146,7 @@ Bulletins : structure et maxima repris des formulaires officiels trouvés en lig
 | Mot de passe oublié (nouveau code famille) | `portail/mot-de-passe-oublie.html` | V1.0 | H1 · M19 | à valider |
 | Installer l'application | `portail/installer.html` | V1.0 | H6 · M19 | à valider (la Gestion a un écran d'installation obligatoire sans maquette, 4.24, dessiné d'après `StandaloneStatus` ; capture 390 px non gardée) |
 | Guide de première connexion (parent) | `portail/guide.html` | V1.0 | I3 · M20 | à valider — codé en 4.5.1 avec des exemples neutres (pas de numéro de reçu d'une école) ; relancé : « L'essentiel du portail en 3 étapes » au lieu de « compte activé » |
+| Aide dans l'espace parents | `portail/aide.html` | Lot 6 | AIDE.2 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
 | Accueil — mes enfants (multi-écoles) | `portail/accueil.html` | V1.0 | H2 | fournie ; carte « Places pour l'année prochaine » ajoutée par Claude en 8.4.5 (à valider) |
 | Paiements d'un enfant | `portail/enfant-paiements.html` | V1.0 | H3 | fournie |
 | Annonces | `portail/annonces.html` | V1.0 | H4 | fournie |
@@ -172,6 +178,8 @@ Pas de menu latéral comme la Gestion : barre du haut bleu nuit (lignes de relie
 | Acceptation des conditions (Gestion) | `gestion/conditions-acceptation.html` | Lot 3 | partie ③ | dessinée par Claude (2026-11-03, à valider) ; codée sans écart |
 | Mon abonnement + bandeau lecture seule (Gestion) | `gestion/mon-abonnement.html` | Lot 3 | partie ⑤ | dessinée par Claude (2026-11-03, à valider) d'après `parametres-ecole` |
 | Demandes de modules (console, onglet de Facturation) | `console/demandes-modules.html` | Lot 3 | partie ⑤ | dessinée par Claude (2026-11-03, à valider) d'après `console/facturation` |
+| Demandes d'aide des écoles | `console/demandes-aide.html` | Lot 6 | SUP.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
+| Demande d'aide : fil et suivi | `console/demande-aide.html` | Lot 6 | SUP.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
 | Site public : questions, « Prochainement », bandeau | `console/site.html` | V1.3 | SITE.1a | dessinée par Claude en SITE.1a d'après `console/annonces` et les éditeurs de contenu des grands services (liste à gauche, éditeur en deux langues et aperçu à droite) (à valider) ; codée en SITE.1a (`/site`) ; écart : sur téléphone, l'état et les flèches passent sous le titre ; « Modifiée le » sans le nom du membre (il est au journal) |
 | Site public : témoignages, écoles de référence, titres de recherche, réseaux sociaux (onglets de `console/site`) | `console/site-contenus.html` | Lot 2 | SITE.1b, SITE.5 | dessinée par Claude (2026-10-30) d'après l'écran Site (à valider) |
 | Actualités du site : liste, éditeur en petit Markdown, aperçu | `console/actualites.html` | Lot 2 | SITE.2 | dessinée par Claude (2026-10-30, à valider) ; actualités codées dans le style du site en ligne |
@@ -195,6 +203,10 @@ Dessiné par Claude d'après l'étude de 13 sites (`docs/claude/recherches/2026-
 | Démonstration et contact (formulaire, état « envoyée ») | `site/demonstration.html` | Lancement | WEB.1a | formulaire codé en WEB.1d sans écart (libellés : « Fonction », champs à 16 px pour que le téléphone ne zoome pas) ; « Suivez-nous » et réseaux du pied de page (WEB.1d) : cachés tant que l'identité n'a aucun lien |
 | Trouver mon école | `site/trouver-mon-ecole.html` | Lancement | WEB.1a | codé (WEB.1b) ; à valider |
 | Mentions légales et confidentialité | `site/mentions.html` | Lancement | WEB.1a | codé (WEB.1b) : une seule adresse, `/confidentialite/` y mène ; texte dans les traductions, pas dans la console ; à faire relire par un juriste |
+| Centre d'aide | `site/aide.html` | Lot 6 | AIDE.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) ; « Centre d'aide » ajouté au pied de toutes les pages |
+| Centre d'aide : résultats de recherche | `site/aide-recherche.html` | Lot 6 | AIDE.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
+| Article d'aide | `site/aide-article.html` | Lot 6 | AIDE.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
+| Quoi de neuf | `site/aide-nouveautes.html` | Lot 6 | AIDE.1 · M22 | dessinée par Claude (2026-11-04, à valider) d'après Shopify, Stripe, Linear, Zendesk (`docs/claude/recherches/2026-11-04-centre-d-aide.md`) |
 | Images de partage (WhatsApp, Facebook, LinkedIn ; 1200 × 630, une par page et par langue) | `site/partage.html` | Lancement | WEB.1c | dessinée par Claude (à valider) ; codée en WEB.1c (Pillow, `core/share.py`), sans écart |
 
 ### Menu de la Gestion

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guide PDF d'une application — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css"><style>
+body{background:var(--surface);padding:24px 16px;display:flex;flex-direction:column;align-items:center;gap:24px}
+.a4p{width:100%;max-width:794px;aspect-ratio:210/297;background:#fff;box-shadow:0 4px 18px rgba(10,30,70,.12);padding:56px 60px;display:flex;flex-direction:column;overflow:hidden;font-size:.95rem}
+.a4p .rh{display:flex;justify-content:space-between;font-size:.75rem;color:var(--ink-3);border-bottom:1px solid var(--line);padding-bottom:8px}
+.a4p .rf{margin-top:auto;display:flex;justify-content:space-between;font-size:.75rem;color:var(--ink-3);border-top:1px solid var(--line);padding-top:8px}
+.cover{justify-content:center;gap:18px;background:linear-gradient(var(--night),var(--night)) top/100% 42% no-repeat,#fff;color:var(--ink)}
+.cover .brand{color:#fff;font-size:1.6rem;padding:0;position:absolute}
+.cover h1{font-size:2.4rem;margin-top:120px}
+.toc2 ol{padding-left:0;list-style:none;display:grid;gap:4px}.toc2 li{display:flex;gap:8px}.toc2 li span{flex:1;border-bottom:1px dotted var(--line);transform:translateY(-4px)}
+.toc2 h3{margin-top:16px;font-size:1rem;color:var(--lake-700)}
+.art2 h2{font-size:1.4rem;margin-top:20px}.art2 ol{padding-left:20px;display:grid;gap:6px}.art2 .shot{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-top:14px}.art2 .shot img{display:block;width:100%;height:200px;object-fit:cover;object-position:top left}
+@media (max-width:600px){.a4p{padding:24px 20px;font-size:.8rem}.cover h1{font-size:1.6rem;margin-top:60px}}
+</style></head>
+<body>
+<section class="a4p cover" style="position:relative"><div class="brand" style="top:56px;left:60px"><span class="mark"></span><b>Mwangaza</b></div>
+ <h1>Guide de la Gestion</h1><p class="lead">Pour le personnel de l'école : direction, secrétariat, caisse, enseignants.</p>
+ <p class="muted">Version 1.14 · novembre 2026 · en ligne : mwangazaschool.com/aide</p></section>
+<section class="a4p toc2"><div class="rh"><span>Guide de la Gestion</span><span>Sommaire</span></div><h2 style="margin-top:24px">Sommaire</h2>
+ <h3>Premiers pas</h3><ol><li>Se connecter à la Gestion<span></span>3</li><li>Travailler sans internet<span></span>4</li></ol>
+ <h3>Caisse et comptabilité</h3><ol><li>Ouvrir et clôturer la caisse<span></span>9</li><li>Encaisser un paiement<span></span>10</li><li>Réimprimer un reçu<span></span>11</li><li>Suivre les impayés<span></span>12</li></ol>
+ <h3>Enseignants</h3><ol><li>Saisir les notes d'un cours<span></span>15</li><li>Imprimer une fiche de cotes<span></span>16</li></ol>
+ <div class="rf"><span>Mwangaza · mwangazaschool.com/aide</span><span>2</span></div></section>
+<section class="a4p art2"><div class="rh"><span>Guide de la Gestion</span><span>Caisse et comptabilité</span></div>
+ <h2>Encaisser un paiement</h2><p class="muted">Pour : caissier, comptable</p><p>Recevoir l'argent d'un parent, l'enregistrer et remettre le reçu, même quand internet est coupé.</p>
+ <ol><li>Ouvrez <b>Caisse</b> dans le menu.</li><li>Cherchez l'élève par son nom ou son matricule.</li><li>Saisissez le montant et la devise ; vérifiez la répartition.</li><li>Cliquez sur <b>Encaisser</b> (F9) et remettez le reçu.</li></ol>
+ <div class="shot"><img src="../captures/desktop/gestion-caisse-encaissement.png" alt="La caisse"></div>
+ <p class="tipbox" style="margin-top:14px"><b>À savoir :</b> un paiement ne se modifie jamais ; en cas d'erreur, demandez son annulation (page 13).</p>
+ <div class="rf"><span>Mwangaza · mwangazaschool.com/aide</span><span>10</span></div></section>
+<div class="note" style="max-width:794px"><b>Guide PDF (AIDE.1) :</b> construit par WeasyPrint depuis les mêmes articles (<code>make guide</code>) : un PDF par application (Gestion, Portail, Console) et par langue, A4. Couverture avec l'identité de la plateforme (nom, logo, couleur : jamais en dur), sommaire avec numéros de page, un groupe par chapitre (nouvelle page), en-tête courant (guide, groupe), pied (adresse du centre d'aide, page). Un article ne se coupe pas entre son titre et ses étapes ; liens vers d'autres articles écrits « (page N) ». Court : seulement les articles de l'application, sans « Questions fréquentes ».</div>
+</body></html>

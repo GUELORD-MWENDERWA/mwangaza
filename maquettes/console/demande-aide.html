@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Console — demande d'aide — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Console de la plateforme (lot 5, ②bis) : la même coquille que la Gestion (menu latéral bleu nuit,
+   barre du haut blanche), avec l'étiquette « Console » et l'interrupteur Réel / Démonstration. */
+.side .brand{display:flex;align-items:center;gap:10px}
+.top .ic,.todo .ic,.demob .ic,.drawer .brand .ic{width:18px;height:18px;flex:none}
+.top .search span,.kbd{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.side .brand,.drawer .brand{flex-wrap:wrap;row-gap:8px}
+.chip{font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--night);background:var(--lamp);border-radius:var(--r-pill);padding:2px 8px}
+.cmode{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:10px;background:var(--night-2);box-shadow:inset 0 0 0 1px var(--night-3)}
+.cmode span{text-align:center;padding:7px 6px;border-radius:7px;font-size:.85rem;font-weight:600;color:var(--night-soft)}
+.cmode span.on{background:#fff;color:var(--night)}
+.cmode span.on.demo{background:var(--warn);color:#2B1A00}
+.cmodehint{font-size:.8rem;color:var(--night-muted);padding:6px 4px 0}
+.top .state{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--ink-2);border:1px solid var(--line);border-radius:var(--r-pill);padding:5px 11px}
+.top .state i{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+.top .bell{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;color:var(--ink-2)}
+.g4{display:grid;gap:14px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.cols{display:grid;gap:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr);align-items:start}
+.stack{display:flex;flex-direction:column;gap:16px}
+.todo li{display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.todo li:first-child{border-top:0}
+.todo .ti{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;flex:none}
+.todo .ti.due{background:var(--due-50);color:var(--due)}.todo .ti.warn{background:var(--warn-50);color:#8A5300}.todo .ti.info{background:var(--info-50);color:var(--lake-700)}
+.todo .tx{flex:1;min-width:0}.todo .tx span{display:block;color:var(--ink-3);font-size:.85rem}
+.health li,.recent li{padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.health li:first-child,.recent li:first-child{border-top:0}
+.health .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.recent li{display:grid;grid-template-columns:44px minmax(0,1fr);gap:8px}
+.recent time{color:var(--ink-3);font-size:.85rem}
+.recent span{display:block;color:var(--ink-3);font-size:.85rem}
+.cardfoot{padding:10px 16px;border-top:1px solid var(--line);font-size:.85rem}
+.sec li{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-top:1px solid var(--line);font-size:.92rem}
+.sec li:first-child{border-top:0}
+.sec .ti{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;flex:none;background:var(--due-50);color:var(--due)}
+.sec .tx{flex:1;min-width:0}.sec .tx span{display:block;color:var(--ink-3);font-size:.85rem}
+.sec time{flex:none;color:var(--ink-3);font-size:.85rem;white-space:nowrap}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:8px}
+.dot.ok{background:var(--ok)}.dot.warn{background:var(--warn)}.dot.due{background:var(--due)}.dot.off{background:var(--ink-3)}
+ul.l{list-style:none;margin:0;padding:0}
+@media (max-width:1100px){.cols{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:820px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.top .state b{display:none}}
+</style><style>.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}.seg span{padding:8px 14px;font-size:.85rem;font-weight:700;color:var(--ink-2);white-space:nowrap}.seg span.on{background:var(--lake);color:#fff}dl.brief{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 16px;padding:12px 16px 16px;margin:0;font-size:.92rem}dl.brief dt{color:var(--ink-3)}dl.brief dd{margin:0;min-width:0;overflow-wrap:anywhere}</style></head>
+<body><div class="app"><aside class="side">
+  <div class="brand"><span class="mark"></span><b>Mwangaza</b><span class="chip">Console</span></div>
+  <div class="cmode" role="radiogroup" aria-label="Données affichées"><span class="on">Réel</span><span>Démonstration</span></div>
+  <div class="cmodehint">Espaces réels et essais. Rien de fictif.</div>
+  <nav class="nav">
+    <div class="navlabel">Pilotage</div>
+    <a href="tableau-de-bord.html"><svg class="ic" data-ic="home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg><span>Tableau de bord</span></a>
+    <a href="affaires.html"><svg class="ic" data-ic="wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7.5h14a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a1 1 0 0 1-1-1z"/><path d="M4 7.5 15 4v3.5M15.5 13.5h2"/></svg><span>Affaires</span></a>
+    <div class="navlabel">Clients</div>
+    <a href="ecoles.html"><svg class="ic" data-ic="school" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9 12 4l10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/></svg><span>Écoles</span></a>
+    <a href="demandes.html"><svg class="ic" data-ic="inbox" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13L20 13v6H4v-6z"/></svg><span>Prospects</span><span class="count">3</span></a>
+    <a class="on" href="demandes-aide.html"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5 5.4 15.6A8 8 0 1 1 8.4 18.4z"/><path d="M8.5 11.5h.1M12 11.5h.1M15.5 11.5h.1"/></svg><span>Demandes d'aide</span><span class="count">2</span></a>
+    <a href="facturation.html"><svg class="ic" data-ic="card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/></svg><span>Facturation</span></a>
+    <a href="comptes.html"><svg class="ic" data-ic="users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.5 3.5 0 0 1 0 6.4M18.5 14.8c1.7.7 2.8 2.4 3.2 5.2"/></svg><span>Comptes</span></a>
+    <a href="annonces.html"><svg class="ic" data-ic="megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10v4l12 5V5z"/><path d="M15 9a3 3 0 0 1 0 6M6 14.5 7.5 20h3l-1.3-4.5"/></svg><span>Annonces aux écoles</span></a>
+    <div class="navlabel">Contenu du site</div>
+    <a href="site.html"><svg class="ic" data-ic="globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span>Site public</span></a>
+    <a href="actualites.html"><svg class="ic" data-ic="book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19V4.5"/></svg><span>Actualités</span></a>
+    <a href="photos.html"><svg class="ic" data-ic="image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5.5-5 4 3.5 3-2.5 3.5 3"/></svg><span>Photothèque</span></a>
+    <div class="navlabel">Plateforme</div>
+    <a href="identite-plateforme.html"><svg class="ic" data-ic="settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg><span>Identité</span></a>
+    <a href="appareils.html"><svg class="ic" data-ic="phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><span>Appareils</span></a>
+    <a href="journal.html"><svg class="ic" data-ic="journal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 3.5V6h6V3.5M9 11h6M9 15h4"/></svg><span>Journal</span></a>
+    <a href="equipe.html"><svg class="ic" data-ic="shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg><span>Équipe</span></a>
+  </nav>
+  <div class="foot">Version 1.4 · Administration de dépannage</div>
+</aside><div class="main"><header class="top">
+  <div class="search"><svg class="ic" data-ic="search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><span>Rechercher une école, un compte…</span><span class="kbd" style="margin-left:auto">Ctrl K</span></div>
+  <span class="grow" style="flex:1"></span>
+  <a class="state" href="#sante"><i></i><b>Tous les services fonctionnent</b></a>
+  <a class="bell" href="journal.html" aria-label="Journal et alertes"><svg class="ic" data-ic="bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></a>
+  <a class="helpbtn" href="#" aria-label="Aide"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.6"/><path d="M12 16.9v.1"/></svg><span>Aide</span></a>
+  <div class="user"><span class="hide-m" style="text-align:right"><b>Guelord Mwenderwa</b><br><span class="muted small">Propriétaire</span></span><span class="avatar">GM</span></div>
+</header><main class="content">
+<a class="small" href="demandes-aide.html"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"/></svg> Demandes d'aide</a>
+<div class="pagehead"><div><h1>Le reçu ne s'imprime plus</h1><p>N° 42 · reçue le 04/11/2026 à 08:12 · ITIG Don Bosco</p></div><span class="pill info">En attente de l'école</span></div>
+<div class="cols">
+ <div class="card">
+  <div class="thread">
+   <div class="msg"><div class="by"><b>Jeanne Kavira</b> · Caissière · 08:12</div><p>Depuis ce matin, quand j'encaisse, le reçu ne sort pas. L'imprimante est allumée et le papier est en place.</p></div>
+   <div class="msg me"><div class="by"><b>Patrick M.</b> (vous) · 09:40</div><p>Bonjour Jeanne,
+Le format des reçus a été changé hier en « tiers d'A4 ». Votre imprimante est une 80 mm : demandez à la direction de choisir « Thermique 80 mm » dans Paramètres de l'école › Reçus, puis réessayez.
+Dites-nous si c'est réglé.</p></div>
+  </div>
+  <div class="reply"><textarea aria-label="Réponse à l'école" placeholder="Réponse à l'école…"></textarea><div class="row"><a class="btn sm ghost" href="#">Fermer la demande</a><a class="btn primary sm" href="#">Envoyer la réponse</a></div></div>
+ </div>
+ <div class="stack">
+  <div class="card"><div class="hd"><h2>Suivi</h2></div><dl class="brief"><dt>État</dt><dd><span class="inp">En attente de l'école <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></dd><dt>Responsable</dt><dd><span class="inp">Patrick M. <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></dd></dl></div>
+  <div class="card"><div class="hd"><h2>Demandeur</h2></div><dl class="brief"><dt>Nom</dt><dd>Jeanne Kavira</dd><dt>Rôle</dt><dd>Caissière</dd><dt>Téléphone</dt><dd><a href="tel:+243971234567">+243 97 123 45 67</a></dd><dt>École</dt><dd><a href="ecoles.html">ITIG Don Bosco (itig)</a> · espace réel</dd></dl></div>
+  <div class="card"><div class="hd"><h2>Contexte</h2></div><dl class="brief"><dt>Écran</dt><dd>Caisse <span class="muted">(/app/cash)</span></dd><dt>Version</dt><dd>1.14</dd><dt>Appareil</dt><dd>Chrome 130 · Android 14</dd></dl><div class="cardfoot"><a href="ecoles.html">Ouvrir une session support</a></div></div>
+ </div>
+</div>
+<div class="note"><b>SUP.1 :</b> la réponse part à l'auteur (notification dans la Gestion + e-mail s'il en a un) et passe la demande « En attente de l'école » ; la réponse de l'école la remet « À traiter ». « Fermer » : l'école peut la rouvrir pendant 30 jours en répondant. Changement d'état et de responsable au journal de la plateforme. Textes en texte simple, jamais de HTML. Le responsable se choisit parmi l'équipe qui a le droit. « Ouvrir une session support » mène à l'outil existant (mêmes règles). Sous 1 100 px : le fil, puis les cartes dessous.</div>
+</main></div></div>
+</body></html>
