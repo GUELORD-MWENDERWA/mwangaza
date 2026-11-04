@@ -320,6 +320,8 @@ class DemoRequest(models.Model):
         _("follow-up"), max_length=9, choices=Status.choices, default=Status.NEW
     )
     notes = models.TextField(_("internal note"), max_length=2000, blank=True)
+    # Fictif (console en mode démonstration, lot 5 ②bis) : jamais montré en mode réel.
+    is_demo = models.BooleanField(_("fictional"), default=False, db_index=True)
     assignee = models.ForeignKey(
         "accounts.User",
         verbose_name=_("assigned to"),

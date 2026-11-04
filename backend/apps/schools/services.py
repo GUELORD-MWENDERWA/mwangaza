@@ -146,6 +146,11 @@ def open_space(school: School, *, actor) -> School:
         _record_platform(PlatformAction.SCHOOL_CREATED, school, actor=actor)
         with use_school(school):
             audit.record(Action.SCHOOL_CREATED, school, actor=actor, after=_identity(school))
+        if school.is_demo:
+            # Console en mode démonstration : prospects fictifs s'il n'y en a pas encore.
+            from apps.core.demo import ensure_demo_console
+
+            ensure_demo_console()
     return school
 
 

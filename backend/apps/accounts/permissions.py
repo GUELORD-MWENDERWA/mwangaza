@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
-from apps.accounts import support
+from apps.accounts import console_mode, support
 from apps.accounts.login import MFA_SESSION_KEY
 from apps.accounts.roles import TOTP_PERMISSIONS
 from apps.accounts.services import SchoolAccess, get_school_access
@@ -116,6 +116,9 @@ class HasPlatformPermission(BasePermission):
 
     def has_permission(self, request, view) -> bool:
         if not is_console_host(request.get_host()):
+            raise NotFound
+        # Ce qui n'existe qu'en réel (site, facturation, identité, affaires) : 404 en démonstration.
+        if getattr(view, "live_only", False) and console_mode.is_demo(request):
             raise NotFound
         user = request.user
         if not (user.is_authenticated and request.session.get(MFA_SESSION_KEY)):

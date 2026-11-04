@@ -5,7 +5,7 @@
 ## Parties
 - [x] ① CON.1 tableau de bord des affaires (chiffres en SQL, cache 5 min, exports Excel) + CON.2 fiche d'école, cycle de vie, export complet à la résiliation
 - [x] ② CON.3 prospects : suivi commercial des demandes de démonstration, rappels, « Créer l'espace d'essai »
-- [ ] ②bis-a **Console réelle / démonstration** (demande du 2026-11-04) : interrupteur de mode, données fictives jamais mêlées aux réelles (serveur)
+- [x] ②bis-a **Console réelle / démonstration** (demande du 2026-11-04) : interrupteur de mode, données fictives jamais mêlées aux réelles (serveur). Fait : `accounts/console_mode.py` ; réel = espaces réels + essais, démonstration = espaces de démonstration ; **équipe** commune aux deux modes (page en réel seulement, comptes de l'équipe listés en réel) ; « Créer une démonstration » seulement en mode démonstration ; journal fictif déduit de l'objet (`record_platform`). **Le front n'envoie pas encore l'en-tête** : démonstrations invisibles dans la console jusqu'à ②bis-b
 - [ ] ②bis-b **Console refaite comme la Gestion** : coquille à barre latérale, interrupteur et bandeau de mode, tableau de bord et pages repositionnés (maquette d'abord)
 - [ ] ③ IA.1.2 page « IA » et carte de la fiche d'école ; S.8 alertes de sécurité (carte « Sécurité » de la santé)
 - [ ] ④ MOD.1 registre des modules (champs, réglages, rôles, widgets, documents), forfaits de départ à la création d'une école, matrice de tests par forfait

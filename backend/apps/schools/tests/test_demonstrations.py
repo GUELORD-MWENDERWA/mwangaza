@@ -20,6 +20,7 @@ from apps.students.models import Family, Student
 pytestmark = pytest.mark.django_db
 
 CONSOLE = "admin.localhost"
+DEMO = {"HTTP_X_CONSOLE_MODE": "demo"}
 SCHOOLS = "/api/console/schools/"
 PASSWORD = "/api/auth/password/"
 
@@ -46,7 +47,7 @@ def test_a_demonstration_space_is_filled_shown_on_its_sheet_and_reset_without_th
     api, platform_admin, settings
 ):
     settings.DEMO_SPACES_MAX = 2
-    console = api(platform_admin, host=CONSOLE)
+    console = api(platform_admin, host=CONSOLE, headers=DEMO)
 
     created = create(console)
     other = create(console, code="salon").json()
@@ -125,12 +126,15 @@ def test_a_demonstration_space_is_filled_shown_on_its_sheet_and_reset_without_th
 def test_only_a_ready_console_demonstration_has_a_sheet_and_a_reset(
     api, platform_admin, school, monkeypatch, django_capture_on_commit_callbacks
 ):
-    console = api(platform_admin, host=CONSOLE)
+    console = api(platform_admin, host=CONSOLE, headers=DEMO)
+    live = api(platform_admin, host=CONSOLE)
     # Ni un espace réel, ni un espace de `make demo` (sans ligne `Demonstration`).
-    for action in (console.get(f"{SCHOOLS}{school.pk}/access-sheet/", output="html"),):
+    for action in (live.get(f"{SCHOOLS}{school.pk}/access-sheet/", output="html"),):
         assert (action.status_code, action.json()["code"]) == (409, "not_a_console_demo")
-    refused = console.post(f"{SCHOOLS}{school.pk}/reset/", {"confirm": "alpha"})
+    refused = live.post(f"{SCHOOLS}{school.pk}/reset/", {"confirm": "alpha"})
     assert (refused.status_code, refused.json()["code"]) == (409, "not_a_console_demo")
+    # Une démonstration ne se crée qu'en mode démonstration.
+    assert create(live).status_code == 404
     empty = console.post(SCHOOLS, {"code": "vide", "name": "Vide", "environment": "demo"})
     assert (empty.status_code, "environment" in empty.json()["fields"]) == (400, True)
 

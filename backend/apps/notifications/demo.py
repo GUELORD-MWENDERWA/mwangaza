@@ -430,6 +430,7 @@ def _publish_platform(schools: dict[str, School]) -> None:
             body=body,
             audience="schools" if codes else "all_schools",
             schools=[schools[code] for code in codes],
+            is_demo=True,
         )
         if archived:
             platform.archive(announcement, actor=admin)

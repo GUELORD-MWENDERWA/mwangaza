@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.models import User
 from apps.accounts.permissions import HasPlatformPermission
@@ -170,7 +171,9 @@ class ConsolePlatformLogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = PlatformLogSerializer
 
     def get_queryset(self):
-        logs = PlatformAuditLog.objects.select_related("actor")
+        logs = PlatformAuditLog.objects.select_related("actor").filter(
+            is_demo=console_mode.is_demo(self.request)
+        )
         if self.action != "list":
             return logs
         params = PlatformLogFilterSerializer(data=self.request.query_params)

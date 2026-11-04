@@ -39,6 +39,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.permissions import HasPlatformPermission
 from apps.core import demo_requests, markdown, services, site_content
@@ -186,6 +187,7 @@ class ConsolePlatformView(APIView):
     dernières modifications. Chaque changement va dans le journal de la plateforme."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.IDENTITY_EDIT
     serializer_class = ConsolePlatformSerializer
 
@@ -212,6 +214,7 @@ class ConsolePlatformLogoView(APIView):
     lui, la lampe."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.IDENTITY_EDIT
     parser_classes = [MultiPartParser, FormParser]
     serializer_class = PlatformLogoUploadSerializer
@@ -280,7 +283,9 @@ class ConsoleDemoRequestViewSet(
     http_method_names = ["get", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
-        requests = DemoRequest.objects.select_related("assignee")
+        requests = DemoRequest.objects.filter(
+            is_demo=console_mode.is_demo(self.request)
+        ).select_related("assignee")
         status = self.request.query_params.get("status")
         if self.action == "list" and status in DemoRequest.Status.values:
             requests = requests.filter(status=status)
@@ -305,6 +310,7 @@ class OrderedSiteViewSet(
     au journal de la plateforme ; le site le montre tout de suite."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.SITE_EDIT
     pagination_class = None
     parser_classes = [JSONParser, MultiPartParser, FormParser]
@@ -438,6 +444,7 @@ class ConsoleSiteBannerView(APIView):
     facultatives, affiché ou caché. Chaque changement va au journal de la plateforme."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.SITE_EDIT
     serializer_class = ConsoleSiteBannerSerializer
 
@@ -467,6 +474,7 @@ class ConsoleSitePageViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     non, dans l'ordre du site."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.SITE_EDIT
     serializer_class = ConsoleSitePageSerializer
     pagination_class = None
@@ -526,6 +534,7 @@ class ConsoleArticleViewSet(
     tout de suite, un article programmé à sa date."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.SITE_EDIT
     serializer_class = ConsoleArticleSerializer
     pagination_class = ArticlePagination
@@ -623,6 +632,7 @@ class ConsoleSitePhotoViewSet(
     `multipart/form-data` ; suppression refusée tant qu'une photo est montrée."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.SITE_EDIT
     serializer_class = ConsoleSitePhotoSerializer
     pagination_class = PhotoPagination
@@ -674,6 +684,7 @@ class ConsoleSocialLinksView(APIView):
     l'identité. Un lien vide n'apparaît pas sur le site ; chaque changement au journal."""
 
     permission_classes = [HasPlatformPermission]
+    live_only = True
     platform_permission = team.SITE_EDIT
     serializer_class = ConsoleSocialLinksSerializer
 

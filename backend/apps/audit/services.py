@@ -159,6 +159,7 @@ def record_platform(
         label = str(entity) if entity is not None else ""
     info = current_request_info()
     return PlatformAuditLog.objects.create(
+        is_demo=_concerns_demo(entity),
         action=action,
         actor=actor,
         created_by=actor,
@@ -170,6 +171,22 @@ def record_platform(
         ip=info.ip,
         user_agent=info.user_agent,
     )
+
+
+def _concerns_demo(entity: models.Model | None) -> bool:
+    """L'entrée porte-t-elle sur un espace de démonstration ou un compte fictif ? Elle n'apparaît
+    alors que dans la console en mode démonstration."""
+    from apps.accounts.phone import is_demo_phone
+
+    # Un espace de démonstration ou une annonce fictive portent `is_demo` ; une facture, un contrat
+    # ou un appareil, leur école.
+    if isinstance(getattr(entity, "is_demo", None), bool):
+        return entity.is_demo
+    school = getattr(entity, "school", None)
+    if school is not None:
+        return school.is_demo
+    phone = getattr(entity, "phone", None)
+    return bool(phone) and is_demo_phone(str(phone))
 
 
 def changes(before: dict, after: dict) -> tuple[dict, dict]:

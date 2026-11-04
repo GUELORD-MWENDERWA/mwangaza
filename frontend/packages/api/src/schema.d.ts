@@ -2268,7 +2268,8 @@ export interface paths {
         /**
          * @description Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
          *     en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
-         *     déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface.
+         *     déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface. Console en mode
+         *     démonstration seulement.
          */
         post: operations["console_schools_demo_create"];
         delete?: never;

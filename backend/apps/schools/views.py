@@ -14,13 +14,14 @@ from rest_framework.decorators import (
     authentication_classes,
     permission_classes,
 )
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from apps.accounts import console_mode
 from apps.accounts import platform_roles as team
 from apps.accounts.models import Membership
 from apps.accounts.permissions import (
@@ -43,6 +44,7 @@ from apps.accounts.views import SchoolViewSet
 from apps.core.documents import PRINT_RESPONSE, render
 from apps.core.errors import SCHOOL_NOT_FOUND, ApiError, ErrorSerializer
 from apps.core.http import serve_image
+from apps.core.models import DemoRequest
 from apps.schools import (
     business,
     console,
@@ -655,7 +657,11 @@ class ConsoleDashboardView(APIView):
         responses={200: ConsoleDashboardSerializer, 403: ErrorSerializer, 404: ErrorSerializer}
     )
     def get(self, request: Request) -> Response:
-        return Response(ConsoleDashboardSerializer(console.dashboard()).data)
+        return Response(
+            ConsoleDashboardSerializer(
+                console.dashboard(console_mode.stats_environments(request))
+            ).data
+        )
 
 
 XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -670,6 +676,7 @@ class ConsoleBusinessView(APIView):
 
     permission_classes = [HasPlatformPermission]
     platform_permission = (team.SCHOOLS_VIEW, team.BILLING_MANAGE, team.LEADS_MANAGE)
+    live_only = True
 
     @extend_schema(responses={200: ConsoleBusinessSerializer, 403: ErrorSerializer})
     def get(self, request: Request) -> Response:
@@ -684,6 +691,7 @@ class ConsoleBusinessExportView(APIView):
 
     permission_classes = [HasPlatformPermission]
     platform_permission = (team.SCHOOLS_VIEW, team.BILLING_MANAGE)
+    live_only = True
 
     @extend_schema(
         responses={(200, XLSX): OpenApiTypes.BINARY, 403: ErrorSerializer, 404: ErrorSerializer}
@@ -733,6 +741,7 @@ class ConsoleSchoolViewSet(
         schools = console.schools()
         if getattr(self, "swagger_fake_view", False):
             return schools
+        schools = schools.filter(environment__in=console_mode.list_environments(self.request))
         if team.SCHOOLS_VIEW not in self.request.user.platform_permissions:
             schools = schools.exclude(environment=School.Environment.LIVE)
         if self.action != "list":
@@ -776,7 +785,10 @@ class ConsoleSchoolViewSet(
         """Nouvelle école avec son premier directeur. Nouveau numéro : mot de passe provisoire
         renvoyé une seule fois (pas de SMS en V1) ; numéro connu : ajouté sans nouveau mot de
         passe."""
-        environment = request.data.get("environment") or School.Environment.LIVE
+        environments = console_mode.list_environments(request)
+        environment = request.data.get("environment") or environments[0]
+        if environment not in environments:
+            raise ValidationError({"environment": _("Not available in this console mode.")})
         self._allowed(environment, team.SCHOOLS_MANAGE)
         serializer = ConsoleSchoolCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -785,6 +797,10 @@ class ConsoleSchoolViewSet(
         prospect = data.pop("prospect", None)
         if prospect is not None:
             ensure_platform_permission(request, team.LEADS_MANAGE)
+            if not DemoRequest.objects.filter(
+                pk=prospect, is_demo=console_mode.is_demo(request)
+            ).exists():
+                raise NotFound
         director = services.Director(
             phone=head["phone"],
             **{
@@ -875,8 +891,11 @@ class ConsoleSchoolViewSet(
     def demo(self, request: Request) -> Response:
         """Nouvel espace de démonstration (A6) : ouvert tout de suite, rempli de données fictives
         en tâche de fond (`demonstration` de la fiche : avancement). Refusé si la plateforme en a
-        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface."""
+        déjà son maximum, ou pendant qu'un autre espace se crée ou s'efface. Console en mode
+        démonstration seulement."""
         ensure_platform_permission(request, team.DEMOS_MANAGE)
+        if not console_mode.is_demo(request):
+            raise NotFound
         serializer = DemonstrationCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         school = demonstrations.create(actor=request.user, **serializer.validated_data)

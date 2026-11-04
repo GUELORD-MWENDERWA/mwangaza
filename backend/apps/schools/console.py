@@ -53,8 +53,8 @@ def schools() -> QuerySet[School]:
     )
 
 
-def _schools(day) -> dict:
-    live = School.objects.filter(environment=LIVE)
+def _schools(day, environments) -> dict:
+    live = School.objects.filter(environment__in=environments)
     counts = dict(live.values_list("status").annotate(count=Count("id")).order_by())
     ending = live.filter(
         status=School.Status.TRIAL, trial_ends_on__lte=day + timedelta(days=TRIAL_ENDING_DAYS)
@@ -67,11 +67,11 @@ def _schools(day) -> dict:
     }
 
 
-def _today_payments(day) -> tuple[list[dict], list[dict]]:
+def _today_payments(day, environments) -> tuple[list[dict], list[dict]]:
     start = timezone.make_aware(datetime.combine(day, time()))
     rows = (
         Payment.all_schools.filter(
-            school__environment=LIVE,
+            school__environment__in=environments,
             cancellation__isnull=True,
             paid_at__gte=start,
             paid_at__lt=start + timedelta(days=1),
@@ -114,7 +114,7 @@ def _today_payments(day) -> tuple[list[dict], list[dict]]:
 SYNC_SCHOOLS = 10
 
 
-def _last_syncs() -> list[dict]:
+def _last_syncs(environments) -> list[dict]:
     """Dernière activité d'un appareil non révoqué, par école réelle ouverte : les dix plus
     anciennes d'abord (une école muette depuis des jours est celle qu'on appelle). Une requête."""
     seen = (
@@ -123,7 +123,7 @@ def _last_syncs() -> list[dict]:
         .values("last_seen_at")[:1]
     )
     rows = (
-        School.objects.filter(environment=LIVE)
+        School.objects.filter(environment__in=environments)
         .exclude(status__in=School.CLOSED_STATUSES)
         .annotate(last_sync_at=Subquery(seen))
         .order_by(F("last_sync_at").asc(nulls_first=True), "name")[:SYNC_SCHOOLS]
@@ -133,18 +133,19 @@ def _last_syncs() -> list[dict]:
     ]
 
 
-def dashboard() -> dict:
+def dashboard(environments=(LIVE,)) -> dict:
+    """Chiffres des espaces de ces types (réels, ou démonstrations en mode démonstration)."""
     day = timezone.localdate()
-    today, active = _today_payments(day)
+    today, active = _today_payments(day, environments)
     return {
         "day": day,
-        "schools": _schools(day),
+        "schools": _schools(day, environments),
         "students": Enrollment.all_schools.filter(
-            school__environment=LIVE, status="active", academic_year__is_current=True
+            school__environment__in=environments, status="active", academic_year__is_current=True
         ).count(),
         "today": today,
         "payments_today": sum(row["count"] for row in today),
         "active_schools": active,
         "health": health.report(),
-        "platform": {**health.platform(), "syncs": _last_syncs()},
+        "platform": {**health.platform(), "syncs": _last_syncs(environments)},
     }

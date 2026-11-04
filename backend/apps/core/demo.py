@@ -208,9 +208,17 @@ def create_demo_requests() -> None:
         if days is not None:
             fields["follow_up_on"] = today + timedelta(days=days)
             fields["assignee"] = seller
-        request = DemoRequest.objects.create(**fields)
+        request = DemoRequest.objects.create(is_demo=True, **fields)
         # `auto_now_add` remplit la date à la création : on la recule ensuite.
         DemoRequest.objects.filter(pk=request.pk).update(created_at=now - timedelta(hours=hours))
+
+
+def ensure_demo_console() -> None:
+    """Console en mode démonstration (lot 5, ②bis) : crée une école de démonstration depuis la
+    console, jamais depuis `make demo`. S'il n'y a encore aucun prospect fictif, en remet : le
+    mode démonstration montre alors une console vivante. Ne touche à rien de réel."""
+    if not DemoRequest.objects.filter(is_demo=True).exists():
+        create_demo_requests()
 
 
 def create_demo_platform() -> PlatformSettings:

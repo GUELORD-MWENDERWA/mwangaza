@@ -14,7 +14,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts import console, login, services, staff_import, support, totp
+from apps.accounts import console, console_mode, login, services, staff_import, support, totp
 from apps.accounts import platform_roles as team
 from apps.accounts import team as team_services
 from apps.accounts.console_serializers import (
@@ -689,7 +689,7 @@ class ConsoleAccountViewSet(
 
     def get_queryset(self):
         search = self.request.query_params.get("search", "") if self.action == "list" else ""
-        return console.accounts(search)
+        return console.accounts(search).filter(console_mode.account_scope(self.request))
 
     def list(self, request: Request) -> Response:
         page = self.paginate_queryset(self.get_queryset())
@@ -764,7 +764,8 @@ class ConsoleSupportSessionViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
     serializer_class = ConsoleSupportSessionSerializer
 
     def get_queryset(self):
-        return support.sessions(self.request.query_params.get("search", ""))
+        sessions = support.sessions(self.request.query_params.get("search", ""))
+        return sessions.filter(school__environment__in=console_mode.list_environments(self.request))
 
 
 @extend_schema(tags=["console"])
@@ -777,6 +778,8 @@ class ConsoleTeamViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     permission_classes = [HasPlatformPermission]
     platform_permission = team.TEAM_MANAGE
+    # La même équipe travaille dans les deux modes : sa page n'existe qu'en réel.
+    live_only = True
     serializer_class = TeamMemberSerializer
     http_method_names = ["get", "post", "patch", "head", "options"]
 
