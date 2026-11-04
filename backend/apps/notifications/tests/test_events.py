@@ -157,6 +157,7 @@ def test_each_account_only_sets_the_kinds_it_can_receive_in_that_school(
 
     assert at_alpha.get(preferences).json()["kinds"] == [
         "platform_news",
+        "support_reply",
         "staff_announcement",
         "cancellation_request",
         "cash_difference",
@@ -165,7 +166,11 @@ def test_each_account_only_sets_the_kinds_it_can_receive_in_that_school(
         "ai_credits",
         "subscription",
     ]
-    assert at_beta.get(preferences).json()["kinds"] == ["platform_news", "staff_announcement"]
+    assert at_beta.get(preferences).json()["kinds"] == [
+        "platform_news",
+        "support_reply",
+        "staff_announcement",
+    ]
     at_alpha.put(preferences, {"muted": ["cash_difference"]})
     # À beta, il ne coupe pas une alerte qu'il n'y reçoit pas, et son réglage ne défait pas
     # celui d'alpha.

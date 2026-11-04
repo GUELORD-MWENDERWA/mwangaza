@@ -45,6 +45,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   test: "bell",
   subscription: "wallet",
   platform_news: "megaphone",
+  support_reply: "inbox",
   payment_received: "cash",
   announcement: "megaphone",
   cancellation_request: "undo",

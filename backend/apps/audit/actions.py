@@ -291,6 +291,10 @@ class PlatformAction(models.TextChoices):
     INVOICE_PAYMENT = "billing.invoice_payment", _("Invoice payment recorded")
     INVOICE_PAYMENT_REVERSED = "billing.invoice_payment_reversed", _("Invoice payment cancelled")
     MODULE_REQUEST_HANDLED = "billing.module_request_handled", _("Module request handled")
+    # Demandes d'aide des écoles (SUP.1) : réponse, fermeture, responsable.
+    SUPPORT_REPLIED = "support.replied", _("Help request answered")
+    SUPPORT_CLOSED = "support.closed", _("Help request closed")
+    SUPPORT_ASSIGNED = "support.assigned", _("Help request assigned")
     SCHOOL_CREATED = "school.created", _("School created")
     SCHOOL_UPDATED = "school.updated", _("School or subscription changed")
     SCHOOL_SUSPENDED = "school.suspended", _("School suspended")

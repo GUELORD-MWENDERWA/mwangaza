@@ -14,6 +14,7 @@ export const keys = {
   accounts: ["console", "accounts"],
   devices: ["console", "devices"],
   demoRequests: ["console", "demo-requests"],
+  support: ["console", "support"],
   announcements: ["console", "announcements"],
   journal: ["console", "journal"],
   supportSessions: ["console", "support-sessions"],

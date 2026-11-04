@@ -58,6 +58,7 @@ export const keys = {
   calendar: ["calendar-events"],
   summons: ["summons"],
   platformNews: ["platform-news"],
+  supportRequests: ["support-requests"],
   notifications: ["notifications"],
   notificationPreferences: ["notification-preferences"],
   contactChanges: ["contact-changes"],

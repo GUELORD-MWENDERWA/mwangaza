@@ -172,9 +172,15 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "account",
       "notifications",
       "platform-news",
+      "help/requests",
     ];
     for (const path of pages)
       await visit(head, `${ITIG}${path}`, "gestion", path.replace(/\//g, "-") || "accueil");
+    // Fil d'une demande d'aide (SUP.1) : la première de la liste.
+    await visit(head, `${ITIG}help/requests`, "gestion", "help-requests-fil", async (page) => {
+      await page.locator('a[href*="/help/requests/"]').first().click();
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+    });
     // Import du personnel (R.1) : aperçu d'un fichier, sans rien enregistrer.
     await visit(head, `${ITIG}staff/import`, "gestion", "staff-import-apercu", async (page) => {
       const rows = [
@@ -343,6 +349,7 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "schools",
       "schools/new",
       "demo-requests",
+      "support",
       "accounts",
       "announcements",
       "billing",
@@ -360,6 +367,11 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
         path.replace(/\//g, "-") || "tableau-de-bord",
       );
     }
+    // Fiche d'une demande d'aide (SUP.1) : la première à traiter.
+    await visit(admin, `${CONSOLE}support`, "console", "support-fiche", async (page) => {
+      await page.locator('a[href^="/support/"]').first().click();
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+    });
     // Mode démonstration (lot 5, ②bis) : bandeau orange, menu sans les pages du réel.
     await admin.evaluate(() => localStorage.setItem("mwangaza-console-mode", "demo"));
     await visit(admin, CONSOLE, "console", "tableau-de-bord-demo");

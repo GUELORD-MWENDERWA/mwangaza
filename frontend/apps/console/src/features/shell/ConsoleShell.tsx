@@ -33,6 +33,7 @@ import { HELP_SCREENS } from "./helpScreens";
 import { useLogout } from "../auth/useGoToStep";
 import { useAlertMessages } from "../journal/AlertsCard";
 import { ConsoleSearch } from "./ConsoleSearch";
+import { useTodoCount } from "../support/SupportPage";
 import { ConsoleTag } from "./ConsoleTag";
 import { DemoBanner, ModeSwitch } from "./ModeSwitch";
 
@@ -110,6 +111,7 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
                     <Icon name={item.icon} />
                   </span>
                   <span>{t(`console.menu.${item.key}`)}</span>
+                  {item.key === "support" && <SupportCount />}
                 </>
               )}
             </NavLink>
@@ -117,6 +119,15 @@ function Nav({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       ))}
     </nav>
+  );
+}
+
+/** Demandes d'aide à traiter, à côté de l'entrée du menu (rien quand il n'y en a pas). */
+function SupportCount() {
+  const count = useTodoCount(true);
+  if (!count) return null;
+  return (
+    <span className="ml-auto rounded-full bg-lamp px-2 text-xs font-bold text-night">{count}</span>
   );
 }
 

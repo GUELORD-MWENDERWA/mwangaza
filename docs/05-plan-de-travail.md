@@ -51,7 +51,7 @@ Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche u
 | 3 | ~~**Vendre : contrats, abonnements, factures**~~ ✓ | CTR.1, ABO.1, ABO.2, ABO.3, ABO.4, WEB.1 (prix), SITE.4 | ① offres, conditions générales, contrat PDF ② factures, avoirs, paiements, relevé ③ échéances, lecture seule, « Mon abonnement », page des prix | tarif (T6), informations légales (I20), juriste |
 | 4 | **Bulletins aux parents** | 8.4.6, 8.8, 8.2.6, HL.3, PERF.6, S.10 | ① proclamation liée aux frais, notifications des notes ② Portail : notes, bulletins, écrire à l'école, sans réseau ③ rapidité et revue de sécurité | — |
 | ~~5~~ ✓ | ~~**Console finie**~~ | CON.1, CON.2, CON.3, IA.1.2, S.8, MOD.1 | ① tableau de bord des affaires, fiche et cycle de vie d'une école, export complet ② prospects ③ IA et alertes de sécurité ④ forfaits et réglages selon les modules (MOD.1) | — |
-| 6 | **Aide, guide et support** | AIDE.1, AIDE.2, SUP.1 | ① centre d'aide en ligne et guides PDF tirés des mêmes textes, « Quoi de neuf » ② bouton « Aide » sur chaque écran, demandes d'aide suivies dans la console | — |
+| ~~6~~ ✓ | ~~**Aide, guide et support**~~ | AIDE.1, AIDE.2, SUP.1 | ① centre d'aide en ligne et guides PDF tirés des mêmes textes, « Quoi de neuf » ② bouton « Aide » sur chaque écran, demandes d'aide suivies dans la console | — |
 | 7 | **Finances et caisse complètes** | FIN.1, FIN.2, FIN.3, HL.1, PERF.7, OPS.5 | ① dépenses ② sorties de caisse, inscription hors ligne ③ budget, rapports, écrans plus légers | passage à 4 Go le moment venu |
 | 8 | **Cours communs et notes** | 8.1.2a, 8.1.2b, 8.2.5, 8.2.4, HL.2 | ① cours communs ② remplaçant, import Excel des notes, conduite hors ligne | — |
 | 9 | **Emploi du temps fini et IA** | EDT.5b, EDT.6, IA.5, IA.3, IA.4 | ① horaire des épreuves, heures prestées ② grille de cours depuis un PDF, assistant de questions, aide à la rédaction | — |
@@ -94,8 +94,8 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 **Lot 6 — Aide**
 
-- [ ] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
-- [ ] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
+- [x] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
+- [x] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
 
 ## 2 ter. Équipements : tâches ajoutées le 2026-11-03
 
@@ -538,7 +538,7 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 - [ ] **8.9** Sondages ; blocage des bulletins en cas de dette (désactivé par défaut) *(P2, S)*
 - [ ] **8.2.4** Import des points d'une classe depuis un classeur Excel (modèle fourni, erreurs montrées ligne par ligne, rien enregistré avant confirmation) *(P2, S)*
 - [ ] **I18N.1** Swahili (puis lingala) pour le Portail et les messages aux parents, à côté du français et de l'anglais *(P2, S)*
-- [ ] **SUP.1** Aide dans l'application (guide court par écran) et demande d'aide de l'école à la plateforme, suivie dans la console *(P1, M ; avancée dans le lot 6 le 2026-10-29)*
+- [x] **SUP.1** Aide dans l'application (guide court par écran) et demande d'aide de l'école à la plateforme, suivie dans la console *(P1, M ; avancée dans le lot 6 le 2026-10-29)*
 - [ ] **7.6** Connexion Google, champs complémentaires de la fiche élève *(P3, S)*
 
 ### V2 — après la V1.7 (ordre à valider avant de commencer)

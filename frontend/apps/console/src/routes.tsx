@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { RouteObject } from "react-router";
 
+import { SupportPage } from "./features/support/SupportPage";
 import { AccountPage } from "./features/accounts/AccountPage";
 import { AccountsPage } from "./features/accounts/AccountsPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
@@ -70,6 +71,8 @@ export const routes: RouteObject[] = [
           { path: "schools/:id", element: only([schoolsView, demosManage], <SchoolPage />) },
           { path: "schools/:id/access", element: only([demosManage], <AccessSheetPage />) },
           { path: "demo-requests", element: only([RIGHTS.leadsManage], <DemoRequestsPage />) },
+          { path: "support", element: only([RIGHTS.supportHandle], <SupportPage />) },
+          { path: "support/:id", element: only([RIGHTS.supportHandle], <SupportPage />) },
           { path: "accounts", element: only([accountsSupport], <AccountsPage />) },
           { path: "accounts/:id", element: only([accountsSupport], <AccountPage />) },
           { path: "announcements", element: only([RIGHTS.newsPublish], <AnnouncementsPage />) },

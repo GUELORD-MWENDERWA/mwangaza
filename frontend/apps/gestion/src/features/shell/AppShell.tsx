@@ -24,6 +24,7 @@ import { useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { GuideProvider, useGuide } from "../guide/Guide";
+import { SupportDialog } from "../support/SupportDialog";
 import { HELP_SCREENS } from "./helpScreens";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
@@ -105,30 +106,56 @@ function TopBar({ me }: { me: Me }) {
   );
 }
 
-/** Bouton « Aide » (AIDE.2) : l'article de l'écran ouvert ; en bas, revoir le guide. */
+/** Bouton « Aide » (AIDE.2) : l'article de l'écran ouvert ; en bas, écrire au support (SUP.1,
+ *  sauf en session support), mes demandes, revoir le guide. */
 function HelpMenu() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const { restart } = useGuide();
+  const inSupportSession = Boolean(useCurrentMe().support);
+  const [writing, setWriting] = useState(false);
+  const link = "cursor-pointer self-start text-sm font-semibold text-lake";
   return (
-    <HelpButton
-      app="gestion"
-      screen={articleForPath(HELP_SCREENS, pathname)}
-      footer={(close) =>
-        restart && (
-          <button
-            type="button"
-            onClick={() => {
-              close();
-              restart();
-            }}
-            className="cursor-pointer self-start text-sm font-semibold text-lake"
-          >
-            {t("guide.help")}
-          </button>
-        )
-      }
-    />
+    <>
+      <HelpButton
+        app="gestion"
+        screen={articleForPath(HELP_SCREENS, pathname)}
+        footer={(close) => (
+          <>
+            {!inSupportSession && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    close();
+                    setWriting(true);
+                  }}
+                  className={link}
+                >
+                  {t("helpRequests.write")}
+                </button>
+                <Link to="/help/requests" onClick={close} className={link}>
+                  {t("helpRequests.title")}
+                </Link>
+              </>
+            )}
+            {restart && (
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  restart();
+                }}
+                className={link}
+              >
+                {t("guide.help")}
+              </button>
+            )}
+          </>
+        )}
+      />
+      <SupportDialog open={writing} onClose={() => setWriting(false)} />
+    </>
   );
 }
 

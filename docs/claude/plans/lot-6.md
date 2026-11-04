@@ -7,7 +7,7 @@
 - [x] ② Moteur : format, lecture, rendu, recherche, site `/aide/` et `/en/help/` (+ sitemap, llms.txt), API `/api/help/`, commande des guides PDF, « Quoi de neuf »
 - [x] ③ Articles fr + en des trois applications (un par écran ou tâche), captures (`make captures-aide`), `make guide` → trois PDF par langue
 - [x] ④ Bouton « Aide » et panneau dans les trois applications, table écran → article + test, dialogue « Quoi de neuf », guides de première connexion enseignant, secrétaire, direction
-- [ ] ⑤ SUP.1 (modèle, API, Gestion, Console, e-mails, démo) puis fin du lot (docs, vérification, PR)
+- [x] ⑤ SUP.1 (modèle, API, Gestion, Console, e-mails, démo) puis fin du lot (docs, vérification, PR)
 
 ## Décisions (regard senior)
 - **Textes** : Markdown dans `backend/apps/core/help/<lang>/<app>/<slug>.md`, en-tête `clé: valeur` (titre, résumé, rôles, ordre), rendus par `core/markdown.py` (étendu aux captures `![…](capture:<nom>)`), lus une fois par processus : ni table, ni dépendance, ni écriture. Recherche en mémoire, sans accents (site et API : même fonction).
@@ -31,3 +31,4 @@ Isolation et propriété des demandes (autre école, collègue) ; console 403 sa
 
 - Partie ③ (2026-11-04) : 24 articles par langue (Gestion 15, Portail 5, Console 3 + `take-payment`) ; captures `make captures-aide` (fr + en, sauf caisse en fr ; pas de capture des notes) ; `make guide` écrit les 6 PDF, `guide.html` retiré.
 - Partie ④ (2026-11-04) : paquet `@mwangaza/help` (bouton + panneau + « Quoi de neuf »), tables écran → article par application (`helpScreens.ts`, test `apps/gestion/aide.test.ts`) ; guides enseignant, secrétariat, direction (`guides.ts`, choisis par les droits). Écarts : « Quoi de neuf » n'a pas de date de création du compte (absente de `Me`) : jamais pendant un guide ni en session support, sinon montré une fois ; pas de bouton « Aide » sur les pages avant connexion du Portail ; « Écrire au support » et « Mes demandes » : partie ⑤ (emplacement `footer` du panneau).
+- Partie ⑤ (2026-11-04) : `SupportRequest` / `SupportReply` (`notifications`, migration 0024 + séquence du numéro), `support.py`, `support_views.py` ; Gestion `features/support/` (dialogue + « Mes demandes d'aide ») ; Console `features/support/` ; droit `platform.support.handle`. Écarts : pas d'e-mail à l'auteur, dialogue au lieu du panneau, pas de filtre « École ».

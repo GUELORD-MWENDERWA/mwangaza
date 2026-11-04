@@ -38,7 +38,7 @@ from apps.core.models import Article, DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools, use_school
 from apps.finance.models import Payment
 from apps.finance.tests.test_payments import pay, school_with_fees
-from apps.notifications.models import Thread
+from apps.notifications.models import SupportRequest, Thread
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
@@ -259,6 +259,16 @@ def created(demo) -> None:
     with use_school(itig):
         thread = Thread.objects.get()
         assert thread.messages.count() == 2 and thread.parent_read_at is None
+
+    # Demandes d'aide (SUP.1) : une avec réponse de la plateforme, une fermée.
+    with use_school(itig):
+        assert sorted(SupportRequest.objects.values_list("status", flat=True)) == [
+            "answered",
+            "closed",
+            "open",
+        ]
+    with use_school(volcans):
+        assert SupportRequest.objects.count() == 1
 
     # Organisation scolaire (1.7) de l'ITIG.
     with use_school(itig):

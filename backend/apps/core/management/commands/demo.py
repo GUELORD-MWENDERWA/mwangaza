@@ -26,7 +26,7 @@ from apps.core.demo import (
 )
 from apps.core.demo_articles import create_demo_articles
 from apps.core.tenancy import use_all_schools
-from apps.notifications.demo import create_demo_platform_announcements
+from apps.notifications.demo import create_demo_platform_announcements, create_demo_support
 from apps.portal.demo import demo_portal
 from apps.schools import deletion
 from apps.schools.demo import DEMO_CODES, create_demo_schools, make_demo_refusal
@@ -104,6 +104,7 @@ class Command(BaseCommand):
             fill(spaces)
             if admin is not None:
                 create_demo_platform_announcements(spaces)
+                create_demo_support(spaces)
                 create_demo_requests()
                 create_demo_security()
                 create_demo_billing(spaces, admin)

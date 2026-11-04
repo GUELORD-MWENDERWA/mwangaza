@@ -20,6 +20,7 @@ export const RIGHTS = {
   identityEdit: "platform.identity.edit",
   teamManage: "platform.team.manage",
   aiManage: "platform.ai.manage",
+  supportHandle: "platform.support.handle",
 } as const;
 
 export type Right = (typeof RIGHTS)[keyof typeof RIGHTS];
@@ -78,6 +79,15 @@ export const MENU = [
     end: true,
     live: false,
     rights: [RIGHTS.leadsManage],
+  },
+  {
+    to: "/support",
+    key: "support",
+    group: "clients",
+    icon: "chat",
+    end: false,
+    live: false,
+    rights: [RIGHTS.supportHandle],
   },
   {
     to: "/billing",

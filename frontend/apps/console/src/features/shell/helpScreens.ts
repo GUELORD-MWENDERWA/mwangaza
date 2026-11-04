@@ -4,6 +4,7 @@ import type { ScreenTable } from "@mwangaza/help";
 export const HELP_SCREENS: ScreenTable = {
   schools: "create-school",
   accounts: "handle-support",
+  support: "handle-support",
   billing: "manage-billing",
   announcements: "platform-announcements",
 };

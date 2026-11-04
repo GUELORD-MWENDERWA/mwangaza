@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.core.models import BaseModel, TenantModel
@@ -280,6 +281,8 @@ class Notification(TenantModel):
         TIMETABLE_PUBLISHED = "timetable_published", _("New timetable")
         # IA (IA.1.1) : 80 % des crédits du mois dépensés, à ceux qui gèrent les rôles.
         AI_CREDITS = "ai_credits", _("AI credits running low")
+        # Demande d'aide (SUP.1) : la réponse de la plateforme, à l'auteur de la demande.
+        SUPPORT_REPLY = "support_reply", _("Reply from support")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -452,3 +455,76 @@ class Message(TenantModel):
 
     def __str__(self) -> str:
         return self.body[:40]
+
+
+class SupportRequest(TenantModel):
+    """Demande d'aide d'un membre du personnel à la plateforme (SUP.1) : un fil de messages
+    (`SupportReply`), suivi dans la console. `created_by` est l'auteur : lui seul voit la demande
+    côté école. Écran, version et appareil sont joints d'office ; pas de pièce jointe."""
+
+    class Status(models.TextChoices):
+        # La plateforme doit répondre.
+        OPEN = "open", _("To handle")
+        # Réponse envoyée : c'est à l'école.
+        ANSWERED = "answered", _("Waiting for the school")
+        CLOSED = "closed", _("Closed")
+
+    number = models.PositiveIntegerField(_("number"), unique=True, editable=False)
+    subject = models.CharField(_("subject"), max_length=120)
+    screen = models.CharField(_("screen"), max_length=120, blank=True)
+    app_version = models.CharField(_("version"), max_length=20, blank=True)
+    device = models.CharField(_("device"), max_length=120, blank=True)
+    # Numéro du compte au moment de la demande, pour rappeler la personne.
+    phone = models.CharField(_("phone"), max_length=30, blank=True)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.OPEN
+    )
+    assignee = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("assigned to"),
+    )
+    last_activity_at = models.DateTimeField(_("last activity"), default=timezone.now)
+    closed_at = models.DateTimeField(_("closed at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-last_activity_at", "-number"]
+        verbose_name = _("support request")
+        verbose_name_plural = _("support requests")
+        indexes = [
+            models.Index(
+                fields=["school", "created_by", "last_activity_at"], name="support_author"
+            ),
+            models.Index(fields=["status", "last_activity_at"], name="support_queue"),
+        ]
+
+    def __str__(self) -> str:
+        return f"#{self.number} {self.subject}"
+
+
+class SupportReply(TenantModel):
+    """Message d'une demande d'aide : le premier est celui de l'auteur. Jamais modifié ni effacé."""
+
+    request = models.ForeignKey(
+        SupportRequest,
+        on_delete=models.CASCADE,
+        related_name="replies",
+        verbose_name=_("request"),
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("author"),
+    )
+    from_platform = models.BooleanField(_("from the platform team"))
+    body = models.TextField(_("message"), max_length=5000)
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        verbose_name = _("support message")
+        verbose_name_plural = _("support messages")
+        indexes = [models.Index(fields=["request", "created_at"], name="support_reply_thread")]

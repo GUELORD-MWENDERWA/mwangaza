@@ -263,6 +263,7 @@ SPECTACULAR_SETTINGS = {
     ],
     # Une seule liste de devises, sous un seul nom (devises de l'école, devise principale).
     "ENUM_NAME_OVERRIDES": {
+        "SupportStatusEnum": "apps.notifications.models.SupportRequest.Status",
         "GradeEntryEnum": "apps.schools.grading.ENTRY_CHOICES",
         "BillingPeriodEnum": "apps.billing.models.Plan.Period",
         "InvoicePaymentMethodEnum": "apps.billing.models.InvoicePayment.Method",

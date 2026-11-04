@@ -23,4 +23,5 @@ export const HELP_SCREENS: ScreenTable = {
   staff: "manage-roles",
   devices: "work-offline",
   support: "contact-support",
+  help: "contact-support",
 };

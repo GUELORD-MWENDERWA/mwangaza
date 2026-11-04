@@ -3045,6 +3045,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/console/support/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Demandes d'aide de toutes les écoles du mode de la console (réel : espaces réels et essais ;
+         *     démonstration : démonstrations). « À traiter » : la plus ancienne en attente d'abord.
+         */
+        get: operations["console_support_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/console/support-sessions/": {
         parameters: {
             query?: never;
@@ -3057,6 +3077,114 @@ export interface paths {
          *     d'abord : équipe selon ses droits, à la console.
          */
         get: operations["console_support_sessions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Demandes d'aide de toutes les écoles du mode de la console (réel : espaces réels et essais ;
+         *     démonstration : démonstrations). « À traiter » : la plus ancienne en attente d'abord.
+         */
+        get: operations["console_support_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support/{id}/assign/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Confie la demande à un membre de l'équipe (ou la libère avec `null`). */
+        post: operations["console_support_assign_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support/{id}/close/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Demandes d'aide de toutes les écoles du mode de la console (réel : espaces réels et essais ;
+         *     démonstration : démonstrations). « À traiter » : la plus ancienne en attente d'abord.
+         */
+        post: operations["console_support_close_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support/{id}/reply/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Répond à l'auteur : « en attente de l'école », avec une notification. */
+        post: operations["console_support_reply_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support/assignees/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Membres de l'équipe à qui confier une demande. */
+        get: operations["console_support_assignees_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/console/support/counts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Nombre de demandes par état (compteur du menu et des onglets). */
+        get: operations["console_support_counts_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -4150,6 +4278,85 @@ export interface paths {
         get: operations["help_article"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Mes demandes d'aide à la plateforme, l'activité la plus récente d'abord (SUP.1). Tout
+         *     membre du personnel écrit ; il ne voit jamais celles d'un collègue. Ouvert aussi quand
+         *     l'école est en lecture seule (c'est justement là qu'on a besoin d'aide) ; fermé pendant une
+         *     session support (aucun compte propre).
+         */
+        get: operations["help_requests_list"];
+        put?: never;
+        /** @description Envoie une demande (10 par jour et par compte) ; la plateforme en est prévenue. */
+        post: operations["help_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/requests/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Mes demandes d'aide à la plateforme, l'activité la plus récente d'abord (SUP.1). Tout
+         *     membre du personnel écrit ; il ne voit jamais celles d'un collègue. Ouvert aussi quand
+         *     l'école est en lecture seule (c'est justement là qu'on a besoin d'aide) ; fermé pendant une
+         *     session support (aucun compte propre).
+         */
+        get: operations["help_requests_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/requests/{id}/close/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description « C'est réglé » : ferme la demande. */
+        post: operations["help_requests_close_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/help/requests/{id}/reply/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Répond dans le fil ; rouvre une demande fermée depuis moins de 30 jours. */
+        post: operations["help_requests_reply_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -9677,6 +9884,62 @@ export interface components {
             /** TikTok */
             tiktok_url: string;
         };
+        ConsoleSupportRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            readonly subject: string;
+            readonly screen: string;
+            readonly status: components["schemas"]["SupportStatusEnum"];
+            /**
+             * Last activity
+             * Format: date-time
+             */
+            readonly last_activity_at: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly closed_at: string | null;
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            readonly school: string;
+            /** Format: uuid */
+            readonly school_id: string;
+            readonly school_name: string;
+            readonly author_name: string;
+            /** Format: uuid */
+            readonly assignee: string | null;
+            readonly assignee_name: string;
+        };
+        ConsoleSupportRequestDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            readonly subject: string;
+            readonly screen: string;
+            readonly status: components["schemas"]["SupportStatusEnum"];
+            /**
+             * Last activity
+             * Format: date-time
+             */
+            readonly last_activity_at: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly closed_at: string | null;
+            /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
+            readonly school: string;
+            /** Format: uuid */
+            readonly school_id: string;
+            readonly school_name: string;
+            readonly author_name: string;
+            /** Format: uuid */
+            readonly assignee: string | null;
+            readonly assignee_name: string;
+            readonly phone: string;
+            readonly app_version: string;
+            readonly device: string;
+            readonly replies: components["schemas"]["SupportReply"][];
+        };
         /**
          * @description Une session support « en tant qu'école » (5.4.2), reconstituée depuis le journal de
          *     l'école (`support.sessions`).
@@ -11975,9 +12238,10 @@ export interface components {
          *     * `school_reply` - Reply from the school
          *     * `timetable_published` - New timetable
          *     * `ai_credits` - AI credits running low
+         *     * `support_reply` - Reply from support
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -12247,6 +12511,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["ConsoleSitePhoto"][];
+        };
+        PaginatedConsoleSupportRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["ConsoleSupportRequest"][];
         };
         PaginatedConsoleSupportSessionList: {
             /** @example 123 */
@@ -12682,6 +12961,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Summons"][];
+        };
+        PaginatedSupportRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["SupportRequest"][];
         };
         PaginatedTeamMemberList: {
             /** @example 123 */
@@ -13827,6 +14121,9 @@ export interface components {
          *     * `billing.invoice_payment` - Invoice payment recorded
          *     * `billing.invoice_payment_reversed` - Invoice payment cancelled
          *     * `billing.module_request_handled` - Module request handled
+         *     * `support.replied` - Help request answered
+         *     * `support.closed` - Help request closed
+         *     * `support.assigned` - Help request assigned
          *     * `school.created` - School created
          *     * `school.updated` - School or subscription changed
          *     * `school.suspended` - School suspended
@@ -13882,7 +14179,7 @@ export interface components {
          *     * `security.revoked_device` - Disconnected device keeps trying
          * @enum {string}
          */
-        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "billing.module_request_handled" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted" | "security.login_burst" | "security.unusual_export" | "security.cancellations" | "security.revoked_device";
+        PlatformActionEnum: "platform.updated" | "platform.logo_changed" | "platform.icon_changed" | "ai.settings_changed" | "ai.allowance_changed" | "ai.top_up" | "ai.cap_80" | "ai.cap_100" | "billing.plan_saved" | "billing.contract_created" | "billing.contract_activated" | "billing.contract_ended" | "billing.legal_published" | "billing.invoice_issued" | "billing.credit_note_issued" | "billing.invoice_payment" | "billing.invoice_payment_reversed" | "billing.module_request_handled" | "support.replied" | "support.closed" | "support.assigned" | "school.created" | "school.updated" | "school.suspended" | "school.reactivated" | "school.stopped" | "school.deleted" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "account.totp_reset" | "device.revoked" | "announcement.published" | "announcement.archived" | "access.login" | "access.code_refused" | "access.address_refused" | "team.member_invited" | "team.roles_changed" | "team.member_removed" | "site.entry_created" | "site.entry_updated" | "site.entry_moved" | "site.entry_deleted" | "site.banner_updated" | "site.testimonial_created" | "site.testimonial_updated" | "site.testimonial_moved" | "site.testimonial_deleted" | "site.reference_created" | "site.reference_updated" | "site.reference_moved" | "site.reference_deleted" | "site.plan_created" | "site.plan_updated" | "site.plan_moved" | "site.plan_deleted" | "site.partner_created" | "site.partner_updated" | "site.partner_moved" | "site.partner_deleted" | "site.page_updated" | "site.article_created" | "site.article_updated" | "site.article_published" | "site.article_deleted" | "site.photo_added" | "site.photo_updated" | "site.photo_deleted" | "security.login_burst" | "security.unusual_export" | "security.cancellations" | "security.revoked_device";
         /**
          * @description * `all_schools` - All schools
          *     * `schools` - Some schools
@@ -16115,6 +16412,81 @@ export interface components {
             /** Student number */
             matricule: string;
         };
+        SupportAssignRequest: {
+            /** Format: uuid */
+            assignee: string | null;
+        };
+        SupportAssignee: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
+        SupportCounts: {
+            todo: number;
+            waiting: number;
+            closed: number;
+        };
+        SupportReply: {
+            /** Format: uuid */
+            readonly id: string;
+            /** From the platform team */
+            readonly from_platform: boolean;
+            readonly author_name: string;
+            /** Message */
+            readonly body: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        SupportReplyCreateRequest: {
+            body: string;
+        };
+        SupportRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            readonly subject: string;
+            readonly screen: string;
+            readonly status: components["schemas"]["SupportStatusEnum"];
+            /**
+             * Last activity
+             * Format: date-time
+             */
+            readonly last_activity_at: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly closed_at: string | null;
+        };
+        SupportRequestCreateRequest: {
+            subject: string;
+            body: string;
+            /** @default  */
+            screen: string;
+            /** @default  */
+            app_version: string;
+            /** @default  */
+            device: string;
+        };
+        SupportRequestDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            readonly subject: string;
+            readonly screen: string;
+            readonly status: components["schemas"]["SupportStatusEnum"];
+            /**
+             * Last activity
+             * Format: date-time
+             */
+            readonly last_activity_at: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly closed_at: string | null;
+            readonly app_version: string;
+            readonly device: string;
+            readonly replies: components["schemas"]["SupportReply"][];
+        };
         /** @description Session support en cours (A3) : l'interface affiche un bandeau rouge permanent. */
         SupportSession: {
             school: components["schemas"]["MySchool"];
@@ -16138,6 +16510,13 @@ export interface components {
             /** @description Motif, lu par l'école dans son journal (ex. demande du directeur). */
             reason: string;
         };
+        /**
+         * @description * `open` - To handle
+         *     * `answered` - Waiting for the school
+         *     * `closed` - Closed
+         * @enum {string}
+         */
+        SupportStatusEnum: "open" | "answered" | "closed";
         SwapRequest: {
             /** Format: uuid */
             entry: string;
@@ -22024,9 +22403,10 @@ export interface operations {
                  *     * `school` - school
                  *     * `security` - security
                  *     * `site` - site
+                 *     * `support` - support
                  *     * `team` - team
                  */
-                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "security" | "site" | "team";
+                domain?: "access" | "account" | "ai" | "announcement" | "billing" | "device" | "platform" | "school" | "security" | "site" | "support" | "team";
                 /** @description A page number within the paginated result set. */
                 page?: number;
                 /** @description Dans le nom de l'objet. */
@@ -25966,6 +26346,75 @@ export interface operations {
             };
         };
     };
+    console_support_list: {
+        parameters: {
+            query?: {
+                /** @description Seulement celles qui me sont confiées. */
+                mine?: boolean;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Numéro, sujet ou école. */
+                q?: string;
+                /** @description Code de l'école. */
+                school?: string;
+                state?: "all" | "closed" | "todo" | "waiting";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedConsoleSupportRequestList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     console_support_sessions_list: {
         parameters: {
             query?: {
@@ -26005,6 +26454,384 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSupportRequestDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_assign_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportAssignRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupportAssignRequest"];
+                "multipart/form-data": components["schemas"]["SupportAssignRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSupportRequest"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_close_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsoleSupportRequest"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_reply_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportReplyCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupportReplyCreateRequest"];
+                "multipart/form-data": components["schemas"]["SupportReplyCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportReply"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_assignees_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportAssignee"][];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    console_support_counts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportCounts"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -29415,6 +30242,325 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HelpArticle"];
+                };
+            };
+        };
+    };
+    help_requests_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedSupportRequestList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    help_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportRequestCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupportRequestCreateRequest"];
+                "multipart/form-data": components["schemas"]["SupportRequestCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    help_requests_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequestDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    help_requests_close_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportRequest"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    help_requests_reply_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this support request. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SupportReplyCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SupportReplyCreateRequest"];
+                "multipart/form-data": components["schemas"]["SupportReplyCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportReply"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
         };

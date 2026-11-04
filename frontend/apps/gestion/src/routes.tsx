@@ -10,6 +10,7 @@ import { CalendarPage } from "./features/calendar/CalendarPage";
 import { StaffNewsPage } from "./features/staff-news/StaffNewsPage";
 import { SummonsPage } from "./features/summons/SummonsPage";
 import { NotificationsPage } from "./features/notifications/NotificationsPage";
+import { SupportRequestsPage } from "./features/support/SupportRequestsPage";
 import { PlatformNewsPage } from "./features/platform-news/PlatformNewsPage";
 import { AuditPage } from "./features/audit/AuditPage";
 import { CodePage } from "./features/auth/CodePage";
@@ -210,6 +211,8 @@ export const routes: RouteObject[] = [
                   { path: "account", element: <AccountPage /> },
                   { path: "account/two-factor", element: <AccountTwoFactorPage /> },
                   { path: "platform-news", element: <PlatformNewsPage /> },
+                  { path: "help/requests", element: <SupportRequestsPage /> },
+                  { path: "help/requests/:id", element: <SupportRequestsPage /> },
                   { path: "notifications", element: <NotificationsPage /> },
                   ...MENU_ITEMS.map((item) => ({
                     path: item.path,
