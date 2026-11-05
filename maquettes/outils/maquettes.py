@@ -111,6 +111,8 @@ MENU = [
         ("frais-baremes.html", "Frais et barèmes", "tag", None),
         ("annulations.html", "Annulations", "undo", 2),
         ("clotures-caisse.html", "Clôtures de caisse", "lock", None),
+        ("depenses.html", "Dépenses", "wallet", None),
+        ("budget.html", "Budget et rapports", "chart", None),
         ("credits-eleves.html", "Crédits d'élèves", "credit", 3),
         ("paie.html", "Personnel et paie", "card", "V1.1"),
     ]),
@@ -185,6 +187,10 @@ ACTIVE_FOR = {
     "mon-horaire.html": "notes-saisie.html",
     "impression-emploi-du-temps.html": "notes-saisie.html",
     "guide-premiere-connexion.html": "caisse-encaissement.html",
+    "depense-nouvelle.html": "depenses.html",
+    "caisse-sortie.html": "caisse-encaissement.html",
+    "caisse-cloture-sorties.html": "caisse-encaissement.html",
+    "eleve-nouveau-hors-ligne.html": "eleves-liste.html",
 }
 
 
@@ -349,6 +355,12 @@ GESTION = [
     ("recu-annulation", "Reçu d'annulation", "V1.0", "Finances · F7 · M15", True),
     ("caisse-cloture", "Clôture de caisse", "V1.0", "Finances · F8", False),
     ("clotures-caisse", "Clôtures vues par le comptable", "V1.0", "Finances · F8 · M16", True),
+    ("depenses", "Dépenses", "Lot 7", "FIN.1", True),
+    ("depense-nouvelle", "Nouvelle dépense (justificatif, validation)", "Lot 7", "FIN.1", True),
+    ("caisse-sortie", "Sortie de caisse et bon de sortie", "Lot 7", "FIN.2", True),
+    ("caisse-cloture-sorties", "Clôture avec sorties de caisse", "Lot 7", "FIN.2", True),
+    ("budget", "Budget et rapports", "Lot 7", "FIN.3", True),
+    ("eleve-nouveau-hors-ligne", "Inscrire un élève sans réseau", "Lot 7", "HL.1", True),
     ("credits-eleves", "Crédits d'élèves (surpaiements)", "V1.0", "Finances · 3.6 · M14", True),
     ("impayes", "Impayés", "V1.0", "Finances · G1–G2", False),
     ("situation-financiere", "Situation financière imprimable", "V1.0", "Impression · G2 · M17", True),
