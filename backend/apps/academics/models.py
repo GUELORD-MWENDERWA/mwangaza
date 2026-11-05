@@ -83,6 +83,15 @@ class Course(TenantModel):
         verbose_name=_("teacher"),
     )
     order = models.PositiveSmallIntegerField(_("order"), default=0)
+    # Cours commun à plusieurs classes (8.1.2a) : l'enseignant du groupe est celui du cours.
+    course_group = models.ForeignKey(
+        "CourseGroup",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="courses",
+        verbose_name=_("joint course"),
+    )
     # Placement dans l'horaire (EDT.1b, spec emploi du temps § 4), lu par les contrôles et le
     # calcul. Séances : « 2+2+1 », somme = heures ; vide = calculé (`timetable.placement`).
     lesson_pattern = models.CharField(_("lessons"), max_length=40, blank=True)
@@ -135,6 +144,48 @@ class Course(TenantModel):
             ),
         ]
         indexes = [models.Index(fields=["school", "teacher"], name="course_school_teacher")]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class CourseGroup(TenantModel):
+    """Cours commun à plusieurs classes d'un même niveau et d'une même année (8.1.2a) : un seul
+    enseignant, une seule fiche de cotes. Les notes, les maxima et les bulletins restent ceux de
+    chaque cours de classe (`Course.course_group`). Au moins deux cours : en dessous, le groupe
+    est dissous (`course_groups.py`)."""
+
+    academic_year = models.ForeignKey(
+        "schools.AcademicYear",
+        on_delete=models.CASCADE,
+        related_name="course_groups",
+        verbose_name=_("academic year"),
+    )
+    level = models.ForeignKey(
+        "schools.Level",
+        on_delete=models.CASCADE,
+        related_name="course_groups",
+        verbose_name=_("level"),
+    )
+    name = models.CharField(_("name"), max_length=100)
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("teacher"),
+    )
+
+    class Meta:
+        ordering = ["level__order", "name"]
+        verbose_name = _("joint course")
+        verbose_name_plural = _("joint courses")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["academic_year", "level", "name"], name="course_group_name_unique"
+            )
+        ]
 
     def __str__(self) -> str:
         return self.name

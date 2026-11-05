@@ -4,7 +4,7 @@
 Tâches : 8.1.2a (#309), 8.1.2b (#310), 8.2.5 (#311), 8.2.4 (#303), HL.2 (#340).
 
 ## Parties (une conversation chacune)
-- [ ] ① Maquettes du lot (cours communs, remplaçant, import Excel) ; 8.1.2a serveur : `CourseGroup`, `Course.course_group`, un enseignant propagé aux cours du groupe, API, audit, démo, tests (isolation, groupe de classes d'une autre école) — **Opus**
+- [x] ① Maquettes du lot (cours communs, remplaçant, import Excel) ; 8.1.2a serveur : `CourseGroup`, `Course.course_group`, un enseignant propagé aux cours du groupe, API, audit, démo, tests (isolation, groupe de classes d'une autre école) — **Opus**
 - [ ] ② 8.1.2a écran « Cours communs » (créer pour un niveau, sortir une classe) + fiche de cotes commune (une page, toutes les classes) — Sonnet
 - [ ] ③ 8.1.2b charges horaires par groupe, repêchage et délibération inchangés, règle `joint_courses` alimentée par le groupe (un créneau) — **Opus**
 - [ ] ④ 8.2.5 serveur : `CourseSubstitute`, accès restreint (total + examen, après envoi), correction avec motif, notification du propriétaire — **Opus**

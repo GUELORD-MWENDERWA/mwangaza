@@ -30,6 +30,7 @@ from apps.academics.models import (
     ApplicationGrade,
     ConductGrade,
     Course,
+    CourseGroup,
     Deliberation,
     DeliberationDecision,
     DeliberationSnapshot,
@@ -137,6 +138,32 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     "category",
                 ],
             )
+            _joint_course(year)
+
+
+def _joint_course(year) -> None:
+    """Un cours commun (8.1.2a) : le premier cours que partagent deux sections d'un même niveau
+    (un seul enseignant, celui de la première section)."""
+    by_level: dict = {}
+    for course in Course.objects.filter(class_group__academic_year=year).select_related(
+        "class_group"
+    ):
+        by_level.setdefault(course.class_group.level_id, {}).setdefault(
+            course.name.casefold(), []
+        ).append(course)
+    for level_id, names in by_level.items():
+        for courses in names.values():
+            if len(courses) >= 2 and courses[0].teacher_id and courses[0].is_taught:
+                group, _ = CourseGroup.objects.get_or_create(
+                    academic_year=year,
+                    level_id=level_id,
+                    name=courses[0].name,
+                    defaults={"teacher": courses[0].teacher},
+                )
+                for course in courses[:2]:
+                    course.course_group, course.teacher = group, group.teacher
+                    course.save(update_fields=["course_group", "teacher"])
+                return
 
 
 # Évaluations de la 1re période : nom et part du maximum du cours.

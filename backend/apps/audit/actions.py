@@ -82,6 +82,7 @@ class Action(models.TextChoices):
 
     # Cours de chaque classe (8.1) : grille enregistrée, copiée, ou reprise d'une autre année.
     COURSES_CHANGED = "courses.changed", _("Courses of a class changed")
+    COURSE_GROUP_CHANGED = "course_group.changed", _("Joint course changed")
     # Notes d'un cours dans une période ou des examens (8.2.1) : une entrée par enregistrement.
     GRADES_CHANGED = "grades.changed", _("Grades changed")
     # Contrôle des notes (8.2.2) : envoi, validation, réouverture, date limite de saisie.

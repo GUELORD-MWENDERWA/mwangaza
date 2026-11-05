@@ -207,7 +207,7 @@ def _snapshot(course: Course) -> dict:
 
 
 def courses_of(group: ClassGroup):
-    return group.courses.select_related("teacher", "room").order_by("order")
+    return group.courses.select_related("teacher", "room", "course_group").order_by("order")
 
 
 def set_courses(
@@ -264,7 +264,11 @@ def set_courses(
             course.category = item.category
             hours_changed = course.weekly_hours != item.weekly_hours
             course.weekly_hours = item.weekly_hours
-            course.teacher = staff.get(item.teacher_id) if item.teacher_id else None
+            if course.course_group_id:
+                # Cours commun (8.1.2a) : l'enseignant du groupe, changé depuis le groupe.
+                course.teacher = course.course_group.teacher
+            else:
+                course.teacher = staff.get(item.teacher_id) if item.teacher_id else None
             if item.placement is not None:
                 data = item.placement
                 course.lesson_pattern = data["lesson_pattern"].replace(" ", "")

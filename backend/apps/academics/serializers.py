@@ -16,6 +16,7 @@ from apps.academics.models import (
     SCORE_DECIMALS,
     SCORE_DIGITS,
     Course,
+    CourseGroup,
     Evaluation,
     GradeSheet,
 )
@@ -71,6 +72,7 @@ class CourseSerializer(serializers.ModelSerializer):
             "category",
             "weekly_hours",
             "teacher",
+            "course_group",
             "placement",
         ]
         read_only_fields = fields
@@ -594,3 +596,44 @@ class GradeSheetPrintSerializer(PrintOptionsSerializer):
         if attrs["kind"] in ("course", "blank") and "course" not in attrs:
             raise serializers.ValidationError({"course": "Required for this kind of sheet."})
         return attrs
+
+
+class JointCourseClassSerializer(serializers.Serializer):
+    class_group = serializers.UUIDField(source="class_group_id")
+    class_name = serializers.CharField(source="class_group.name")
+    course = serializers.UUIDField(source="pk")
+    period_max = serializers.IntegerField()
+    has_exam = serializers.BooleanField()
+    students = serializers.IntegerField()
+
+
+class CourseGroupSerializer(serializers.ModelSerializer):
+    teacher = PersonSerializer(read_only=True, allow_null=True)
+    level = serializers.UUIDField(source="level_id", read_only=True)
+    academic_year = serializers.UUIDField(source="academic_year_id", read_only=True)
+    classes = JointCourseClassSerializer(source="class_courses", many=True, read_only=True)
+    students = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = CourseGroup
+        fields = ["id", "name", "academic_year", "level", "teacher", "classes", "students"]
+        read_only_fields = fields
+
+
+class CourseGroupFilterSerializer(serializers.Serializer):
+    academic_year = serializers.UUIDField(required=False)
+    level = serializers.UUIDField(required=False)
+
+
+class CourseGroupCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    class_groups = serializers.ListField(child=serializers.UUIDField(), min_length=2, max_length=12)
+    teacher_id = serializers.UUIDField(required=False, allow_null=True, default=None)
+
+
+class CourseGroupUpdateSerializer(serializers.Serializer):
+    teacher_id = serializers.UUIDField(allow_null=True)
+
+
+class CourseGroupRemoveClassSerializer(serializers.Serializer):
+    class_group = serializers.UUIDField()

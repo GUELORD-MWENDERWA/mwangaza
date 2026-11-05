@@ -785,6 +785,7 @@ paths:
           - organisation.class_deleted
           - organisation.matricule_format_changed
           - courses.changed
+          - course_group.changed
           - grades.changed
           - grades.submitted
           - grades.validated
@@ -949,6 +950,7 @@ paths:
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
+          * `course_group.changed` - Joint course changed
           * `grades.changed` - Grades changed
           * `grades.submitted` - Grades sent for validation
           * `grades.validated` - Grades validated
@@ -1079,6 +1081,7 @@ paths:
           - audit
           - auth
           - contract
+          - course_group
           - courses
           - deliberation
           - devices
@@ -1105,6 +1108,7 @@ paths:
           * `audit` - audit
           * `auth` - auth
           * `contract` - contract
+          * `course_group` - course_group
           * `courses` - courses
           * `deliberation` - deliberation
           * `devices` - devices
@@ -1300,6 +1304,7 @@ paths:
           - organisation.class_deleted
           - organisation.matricule_format_changed
           - courses.changed
+          - course_group.changed
           - grades.changed
           - grades.submitted
           - grades.validated
@@ -1464,6 +1469,7 @@ paths:
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
+          * `course_group.changed` - Joint course changed
           * `grades.changed` - Grades changed
           * `grades.submitted` - Grades sent for validation
           * `grades.validated` - Grades validated
@@ -1594,6 +1600,7 @@ paths:
           - audit
           - auth
           - contract
+          - course_group
           - courses
           - deliberation
           - devices
@@ -1620,6 +1627,7 @@ paths:
           * `audit` - audit
           * `auth` - auth
           * `contract` - contract
+          * `course_group` - course_group
           * `courses` - courses
           * `deliberation` - deliberation
           * `devices` - devices
@@ -10804,6 +10812,222 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-groups/:
+    get:
+      operationId: course_groups_list
+      description: Cours communs de l'école, d'une année et d'un niveau au choix.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: level
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseGroup'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: course_groups_create
+      description: 'Relie le cours de même nom de plusieurs classes d''un même niveau
+        : un seul enseignant.'
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseGroupCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseGroupCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseGroupCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseGroup'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-groups/{id}/:
+    patch:
+      operationId: course_groups_partial_update
+      description: 'Change l''enseignant du groupe : il devient celui du cours de
+        chaque classe.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseGroupUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseGroupUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseGroupUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseGroup'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: course_groups_destroy
+      description: 'Défait le cours commun : chaque classe garde son cours, ses notes
+        et son enseignant.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-groups/{id}/remove-class/:
+    post:
+      operationId: course_groups_remove_class_create
+      description: Sort une classe du groupe sans perdre ses notes ; sous deux classes,
+        il est défait.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseGroupRemoveClassRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseGroupRemoveClassRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseGroupRemoveClassRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
           content:
             application/json:
               schema:
@@ -24293,6 +24517,7 @@ components:
       - organisation.class_deleted
       - organisation.matricule_format_changed
       - courses.changed
+      - course_group.changed
       - grades.changed
       - grades.submitted
       - grades.validated
@@ -24456,6 +24681,7 @@ components:
         * `organisation.class_deleted` - Class deleted
         * `organisation.matricule_format_changed` - Student number format changed
         * `courses.changed` - Courses of a class changed
+        * `course_group.changed` - Joint course changed
         * `grades.changed` - Grades changed
         * `grades.submitted` - Grades sent for validation
         * `grades.validated` - Grades validated
@@ -30518,6 +30744,12 @@ components:
           - $ref: '#/components/schemas/Person'
           readOnly: true
           nullable: true
+        course_group:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          title: Joint course
         placement:
           allOf:
           - $ref: '#/components/schemas/CoursePlacement'
@@ -30533,6 +30765,7 @@ components:
       - category
       - weekly_hours
       - teacher
+      - course_group
       - placement
     CourseCategoryEnum:
       enum:
@@ -30546,6 +30779,74 @@ components:
         * `main` - Main course
         * `option` - Option course
         * `practical` - Practical
+    CourseGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          readOnly: true
+        level:
+          type: string
+          format: uuid
+          readOnly: true
+        teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/JointCourseClass'
+          readOnly: true
+        students:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - name
+      - academic_year
+      - level
+      - teacher
+      - classes
+      - students
+    CourseGroupCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        class_groups:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 12
+          minItems: 2
+        teacher_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - class_groups
+      - name
+    CourseGroupRemoveClassRequest:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+      required:
+      - class_group
     CourseInputRequest:
       type: object
       properties:
@@ -31689,6 +31990,7 @@ components:
       - audit
       - auth
       - contract
+      - course_group
       - courses
       - deliberation
       - devices
@@ -34350,6 +34652,30 @@ components:
           maxLength: 200
       required:
       - reason
+    JointCourseClass:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+        course:
+          type: string
+          format: uuid
+        period_max:
+          type: integer
+        has_exam:
+          type: boolean
+        students:
+          type: integer
+      required:
+      - class_group
+      - class_name
+      - course
+      - period_max
+      - has_exam
+      - students
     LanguageEnum:
       enum:
       - fr
@@ -37811,6 +38137,13 @@ components:
           title: Example
         published:
           type: boolean
+    PatchedCourseGroupUpdateRequest:
+      type: object
+      properties:
+        teacher_id:
+          type: string
+          format: uuid
+          nullable: true
     PatchedEnrollmentUpdateRequest:
       type: object
       properties:

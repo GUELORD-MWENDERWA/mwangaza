@@ -27,7 +27,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 5 — Console finie | 7 ✓ | 7 |
 | 6 — Aide, guide et support | 5 ✓ | 5 |
 | 7 — Finances et caisse complètes | 4 ✓ | 4 |
-| 8 — Cours communs et notes | 0 | 2 |
+| 8 — Cours communs et notes | 1 | 7 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |
 | 10 — Carte et présences | 0 | 3 |
 | 11 — Bibliothèque et ateliers | 0 | 3 |

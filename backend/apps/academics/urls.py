@@ -2,6 +2,7 @@ from django.urls import path
 
 from apps.academics import application_views as application
 from apps.academics import (
+    course_group_views,
     deliberation_views,
     promotion_views,
     resits_views,
@@ -39,6 +40,17 @@ urlpatterns = [
         "class-groups/<uuid:pk>/grade-sheet/",
         views.GradeSheetPrintView.as_view(),
         name="grade-sheet-print",
+    ),
+    path("course-groups/", course_group_views.CourseGroupsView.as_view(), name="course-groups"),
+    path(
+        "course-groups/<uuid:pk>/",
+        course_group_views.CourseGroupView.as_view(),
+        name="course-group",
+    ),
+    path(
+        "course-groups/<uuid:pk>/remove-class/",
+        course_group_views.CourseGroupRemoveClassView.as_view(),
+        name="course-group-remove-class",
     ),
     path("course-templates/", views.OfficialGridsView.as_view(), name="course-templates"),
     path("teaching-loads/", views.TeachingLoadsView.as_view(), name="teaching-loads"),
