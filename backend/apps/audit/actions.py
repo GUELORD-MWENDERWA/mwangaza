@@ -210,6 +210,22 @@ class Action(models.TextChoices):
         _("Earlier payment recorded (not at the cash desk)"),
     )
     # Reçus (F6) : chaque duplicata est noté.
+    FINANCE_EXPENSE_CATEGORY_CREATED = (
+        "finance.expense_category_created",
+        _("Expense category created"),
+    )
+    FINANCE_EXPENSE_CATEGORY_UPDATED = (
+        "finance.expense_category_updated",
+        _("Expense category changed"),
+    )
+    FINANCE_EXPENSE_SETTINGS_UPDATED = (
+        "finance.expense_settings_updated",
+        _("Expense approval threshold changed"),
+    )
+    FINANCE_EXPENSE_RECORDED = "finance.expense_recorded", _("Expense recorded")
+    FINANCE_EXPENSE_APPROVED = "finance.expense_approved", _("Expense approved")
+    FINANCE_EXPENSE_REJECTED = "finance.expense_rejected", _("Expense rejected")
+    FINANCE_EXPENSE_CANCELLED = "finance.expense_cancelled", _("Expense cancelled")
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
     # Annulations (F7) : demande, décision, duplicata du reçu d'annulation.
     FINANCE_CANCELLATION_REQUESTED = (

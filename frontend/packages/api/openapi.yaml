@@ -867,6 +867,13 @@ paths:
           - finance.cash_session_closed
           - finance.payment_recorded
           - finance.prior_payment_recorded
+          - finance.expense_category_created
+          - finance.expense_category_updated
+          - finance.expense_settings_updated
+          - finance.expense_recorded
+          - finance.expense_approved
+          - finance.expense_rejected
+          - finance.expense_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1019,6 +1026,13 @@ paths:
           * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
           * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+          * `finance.expense_category_created` - Expense category created
+          * `finance.expense_category_updated` - Expense category changed
+          * `finance.expense_settings_updated` - Expense approval threshold changed
+          * `finance.expense_recorded` - Expense recorded
+          * `finance.expense_approved` - Expense approved
+          * `finance.expense_rejected` - Expense rejected
+          * `finance.expense_cancelled` - Expense cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -1358,6 +1372,13 @@ paths:
           - finance.cash_session_closed
           - finance.payment_recorded
           - finance.prior_payment_recorded
+          - finance.expense_category_created
+          - finance.expense_category_updated
+          - finance.expense_settings_updated
+          - finance.expense_recorded
+          - finance.expense_approved
+          - finance.expense_rejected
+          - finance.expense_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1510,6 +1531,13 @@ paths:
           * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
           * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+          * `finance.expense_category_created` - Expense category created
+          * `finance.expense_category_updated` - Expense category changed
+          * `finance.expense_settings_updated` - Expense approval threshold changed
+          * `finance.expense_recorded` - Expense recorded
+          * `finance.expense_approved` - Expense approved
+          * `finance.expense_rejected` - Expense rejected
+          * `finance.expense_cancelled` - Expense cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -12074,6 +12102,645 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expense-categories/:
+    get:
+      operationId: expense_categories_list
+      description: |-
+        Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+        rapports, réglées avec `finance.configure_fees`.
+      tags:
+      - expense-categories
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: expense_categories_create
+      description: |-
+        Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+        rapports, réglées avec `finance.configure_fees`.
+      tags:
+      - expense-categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expense-categories/{id}/:
+    patch:
+      operationId: expense_categories_partial_update
+      description: |-
+        Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+        rapports, réglées avec `finance.configure_fees`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense category.
+        required: true
+      tags:
+      - expense-categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expense-settings/:
+    get:
+      operationId: expense_settings_retrieve
+      description: Seuil de validation d'une dépense, par devise (FIN.1).
+      tags:
+      - expense-settings
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: expense_settings_update
+      description: Seuil de validation d'une dépense, par devise (FIN.1).
+      tags:
+      - expense-settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseSettingsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseSettingsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseSettingsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSettings'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/:
+    get:
+      operationId: expenses_list
+      description: |-
+        Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+        valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+        `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+        enregistrée. Une dépense ne s'efface jamais.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: month
+        schema:
+          type: string
+        description: Mois « AAAA-MM » de la date de la dépense.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - approved
+          - paid
+          - rejected
+          type: string
+          minLength: 1
+        description: |-
+          * `pending` - Waiting for approval
+          * `approved` - Approved, to be paid
+          * `paid` - Paid
+          * `rejected` - Rejected
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpenseList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: expenses_create
+      description: |-
+        Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+        valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+        `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+        enregistrée. Une dépense ne s'efface jamais.
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/:
+    get:
+      operationId: expenses_retrieve
+      description: |-
+        Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+        valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+        `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+        enregistrée. Une dépense ne s'efface jamais.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/approve/:
+    post:
+      operationId: expenses_approve_create
+      description: |-
+        Valider une dépense en attente. 409 `expense_decided` ; 403 `own_expense` pour la
+        sienne.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/cancel/:
+    post:
+      operationId: expenses_cancel_create
+      description: |-
+        Annuler : une ligne liée avec motif ; la dépense reste dans la liste. 409
+        `expense_cancelled` si déjà annulée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/reject/:
+    post:
+      operationId: expenses_reject_create
+      description: Refuser une dépense en attente (motif conseillé dans `note`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/voucher/:
+    get:
+      operationId: expenses_voucher_retrieve
+      description: Le justificatif (photo ou PDF), lu seulement par le personnel de
+        l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/summary/:
+    get:
+      operationId: expenses_summary_retrieve
+      description: Totaux de la liste filtrée, par devise (jamais de somme entre devises).
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: month
+        schema:
+          type: string
+        description: Mois « AAAA-MM » de la date de la dépense.
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - approved
+          - paid
+          - rejected
+          type: string
+          minLength: 1
+        description: |-
+          * `pending` - Waiting for approval
+          * `approved` - Approved, to be paid
+          * `paid` - Paid
+          * `rejected` - Rejected
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSummary'
           description: ''
         '400':
           content:
@@ -22943,6 +23610,16 @@ components:
       description: |-
         * `notebook` - notebook
         * `total` - total
+    AccountEnum:
+      enum:
+      - cash
+      - bank
+      - mobile_money
+      type: string
+      description: |-
+        * `cash` - Cash desk
+        * `bank` - Bank
+        * `mobile_money` - Mobile money
     ActionEnum:
       enum:
       - auth.login
@@ -23074,6 +23751,13 @@ components:
       - finance.cash_session_closed
       - finance.payment_recorded
       - finance.prior_payment_recorded
+      - finance.expense_category_created
+      - finance.expense_category_updated
+      - finance.expense_settings_updated
+      - finance.expense_recorded
+      - finance.expense_approved
+      - finance.expense_rejected
+      - finance.expense_cancelled
       - finance.payment_reprinted
       - finance.cancellation_requested
       - finance.payment_cancelled
@@ -23225,6 +23909,13 @@ components:
         * `finance.cash_session_closed` - Cash session closed
         * `finance.payment_recorded` - Payment recorded
         * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+        * `finance.expense_category_created` - Expense category created
+        * `finance.expense_category_updated` - Expense category changed
+        * `finance.expense_settings_updated` - Expense approval threshold changed
+        * `finance.expense_recorded` - Expense recorded
+        * `finance.expense_approved` - Expense approved
+        * `finance.expense_rejected` - Expense rejected
+        * `finance.expense_cancelled` - Expense cancelled
         * `finance.payment_reprinted` - Receipt reprinted
         * `finance.cancellation_requested` - Payment cancellation requested
         * `finance.payment_cancelled` - Payment cancelled
@@ -24671,6 +25362,19 @@ components:
       - allocations
       - cash_register_name
       - academic_year
+    CancelledTotal:
+      type: object
+      properties:
+        currency:
+          type: string
+        total:
+          type: integer
+        count:
+          type: integer
+      required:
+      - currency
+      - total
+      - count
     CashCloseRequest:
       type: object
       properties:
@@ -29273,6 +29977,28 @@ components:
       description: |-
         * `USD` - US dollar
         * `CDF` - Congolese franc
+    CurrencyTotal:
+      type: object
+      properties:
+        currency:
+          type: string
+        spent:
+          type: integer
+          nullable: true
+        pending:
+          type: integer
+          nullable: true
+        pending_count:
+          type: integer
+        cash:
+          type: integer
+          nullable: true
+      required:
+      - currency
+      - spent
+      - pending
+      - pending_count
+      - cash
     CurrentCashSession:
       type: object
       description: Caisse ouverte du caissier (M13) et taux des encaissements.
@@ -30689,6 +31415,247 @@ components:
       required:
       - academic_year
       - rate
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 40
+        category:
+          type: string
+          format: uuid
+        category_name:
+          type: string
+          readOnly: true
+        beneficiary:
+          type: string
+          maxLength: 120
+        reason:
+          type: string
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        spent_on:
+          type: string
+          format: date
+          title: Date
+        account:
+          allOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          title: Paid from
+        status:
+          $ref: '#/components/schemas/ExpenseStatusEnum'
+        has_voucher:
+          type: boolean
+          readOnly: true
+        requested_by_name:
+          type: string
+          readOnly: true
+        decided_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_note:
+          type: string
+          maxLength: 200
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancellation_reason:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - number
+      - category
+      - category_name
+      - beneficiary
+      - reason
+      - amount_minor
+      - currency
+      - spent_on
+      - account
+      - status
+      - has_voucher
+      - requested_by_name
+      - decided_by_name
+      - decided_at
+      - decision_note
+      - paid_at
+      - cancelled
+      - cancellation_reason
+      - created_at
+    ExpenseCancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
+    ExpenseCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        is_active:
+          type: boolean
+          title: Active
+      required:
+      - id
+      - name
+      - is_active
+    ExpenseCategoryWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        is_active:
+          type: boolean
+          title: Active
+      required:
+      - name
+    ExpenseCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant UUID v7 du client.
+        category:
+          type: string
+          format: uuid
+        beneficiary:
+          type: string
+          minLength: 1
+          maxLength: 120
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        spent_on:
+          type: string
+          format: date
+        account:
+          $ref: '#/components/schemas/AccountEnum'
+        voucher:
+          type: string
+          format: binary
+      required:
+      - account
+      - amount_minor
+      - beneficiary
+      - category
+      - currency
+      - reason
+      - spent_on
+    ExpenseDecisionRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+          maxLength: 200
+    ExpenseSettings:
+      type: object
+      properties:
+        usd_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (centimes).'
+        cdf_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (francs).'
+      required:
+      - usd_threshold_minor
+      - cdf_threshold_minor
+    ExpenseSettingsRequest:
+      type: object
+      properties:
+        usd_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (centimes).'
+        cdf_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (francs).'
+      required:
+      - cdf_threshold_minor
+      - usd_threshold_minor
+    ExpenseStatusEnum:
+      enum:
+      - pending
+      - approved
+      - paid
+      - rejected
+      type: string
+      description: |-
+        * `pending` - Waiting for approval
+        * `approved` - Approved, to be paid
+        * `paid` - Paid
+        * `rejected` - Rejected
+    ExpenseSummary:
+      type: object
+      properties:
+        by_currency:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyTotal'
+        cancelled:
+          type: array
+          items:
+            $ref: '#/components/schemas/CancelledTotal'
+      required:
+      - by_currency
+      - cancelled
     Family:
       type: object
       properties:
@@ -34052,6 +35019,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Device'
+    PaginatedExpenseList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
     PaginatedFamilyDetailList:
       type: object
       required:
@@ -35845,6 +36837,16 @@ components:
           type: string
           format: uuid
           nullable: true
+    PatchedExpenseCategoryWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        is_active:
+          type: boolean
+          title: Active
     PatchedFamilyWriteRequest:
       type: object
       properties:
@@ -36601,6 +37603,9 @@ components:
       - finance.approve_cancellation
       - finance.close_register
       - finance.view_reports
+      - finance.record_expense
+      - finance.approve_expense
+      - finance.cancel_expense
       - finance.import_prior_payments
       - timetable.manage
       - timetable.publish
@@ -36632,6 +37637,9 @@ components:
         * `finance.approve_cancellation` - Approve a payment cancellation
         * `finance.close_register` - Close a cash register
         * `finance.view_reports` - View financial reports
+        * `finance.record_expense` - Record an expense
+        * `finance.approve_expense` - Approve an expense above the threshold
+        * `finance.cancel_expense` - Cancel an expense
         * `finance.import_prior_payments` - Record what students paid before the school started here
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `timetable.publish` - Publish the timetable

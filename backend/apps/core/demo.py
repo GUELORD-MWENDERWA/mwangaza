@@ -22,6 +22,7 @@ from apps.finance.demo import (
     create_demo_charges,
     create_demo_credits,
     create_demo_discounts,
+    create_demo_expenses,
     create_demo_fees,
     create_demo_payments,
 )
@@ -57,6 +58,7 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_payments,
     create_demo_credits,
     create_demo_cancellations,
+    create_demo_expenses,
     create_demo_devices,
     create_demo_announcements,
     create_demo_portal,

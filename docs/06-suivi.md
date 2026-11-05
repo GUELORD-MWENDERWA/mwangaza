@@ -7,7 +7,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Lot 7 — Finances et caisse complètes, partie ① (maquettes + FIN.1) |
+| Lot en cours | Lot 7 — Finances et caisse complètes, partie ① faite (maquettes + FIN.1 serveur), reste ② à ④ |
 | Prochain lot | Lot 8 — Cours communs et notes ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #428 (lot 7) |
@@ -26,7 +26,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 4 — Bulletins aux parents | 4 ✓ | 4 |
 | 5 — Console finie | 7 ✓ | 7 |
 | 6 — Aide, guide et support | 5 ✓ | 5 |
-| 7 — Finances et caisse complètes | 0 | 3 |
+| 7 — Finances et caisse complètes | 1 | 4 |
 | 8 — Cours communs et notes | 0 | 2 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |
 | 10 — Carte et présences | 0 | 3 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **6 lots sur 17** | **49** |
+| **V1 complète** | **6 lots sur 17** | **50** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 

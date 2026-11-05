@@ -856,3 +856,120 @@ class CashClosing(ImmutableModel):
 
     def __str__(self) -> str:
         return f"{self.cash_session} · {self.currency}"
+
+
+class ExpenseCategory(TenantModel):
+    """Catégorie de dépenses [T] réglée par l'école (« Atelier mécanique », « Entretien »)."""
+
+    name = models.CharField(_("name"), max_length=80)
+    is_active = models.BooleanField(_("active"), default=True)
+
+    class Meta:
+        ordering = ["name"]
+        verbose_name = _("expense category")
+        verbose_name_plural = _("expense categories")
+        constraints = [
+            models.UniqueConstraint(
+                "school", models.functions.Lower("name"), name="expense_category_name_unique"
+            )
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+def expense_voucher_path(expense, filename: str) -> str:
+    return f"expenses/{expense.school_id}/{expense.pk}/{filename}"
+
+
+class Expense(TenantModel):
+    """Dépense de l'école [T] (FIN.1). Jamais effacée : une annulation est une
+    `ExpenseCancellation` liée. Montant, devise et date ne changent plus après l'envoi ; seule
+    l'étape (`status`) avance, par les services (validation, paiement)."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", _("Waiting for approval")
+        APPROVED = "approved", _("Approved, to be paid")
+        PAID = "paid", _("Paid")
+        REJECTED = "rejected", _("Rejected")
+
+    class Account(models.TextChoices):
+        CASH = "cash", _("Cash desk")
+        BANK = "bank", _("Bank")
+        MOBILE_MONEY = "mobile_money", _("Mobile money")
+
+    number = models.CharField(_("number"), max_length=40)
+    category = models.ForeignKey(
+        ExpenseCategory,
+        on_delete=models.PROTECT,
+        related_name="expenses",
+        verbose_name=_("category"),
+    )
+    beneficiary = models.CharField(_("beneficiary"), max_length=120)
+    reason = models.CharField(_("reason"), max_length=200)
+    amount_minor = models.BigIntegerField(_("amount"))
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    spent_on = models.DateField(_("date"))
+    account = models.CharField(_("paid from"), max_length=14, choices=Account.choices)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.PENDING
+    )
+    voucher = models.FileField(_("voucher"), upload_to=expense_voucher_path, blank=True)
+    requested_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("requested by"),
+    )
+    decided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("decided by"),
+    )
+    decided_at = models.DateTimeField(_("decided at"), null=True, blank=True)
+    decision_note = models.CharField(_("decision note"), max_length=200, blank=True)
+    paid_at = models.DateTimeField(_("paid at"), null=True, blank=True)
+
+    class Meta:
+        ordering = ["-spent_on", "-number"]
+        verbose_name = _("expense")
+        verbose_name_plural = _("expenses")
+        constraints = [
+            models.UniqueConstraint(fields=["school", "number"], name="expense_number_unique"),
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="expense_amount_positive"
+            ),
+        ]
+        indexes = [models.Index(fields=["school", "-spent_on"], name="expense_by_date")]
+
+    def __str__(self) -> str:
+        return self.number
+
+    def delete(self, *args, **kwargs):
+        raise ImmutablePaymentError("Une dépense ne s'efface pas : l'annuler.")
+
+
+class ExpenseCancellation(ImmutableModel):
+    """Annulation d'une dépense [T] [I] : enregistrement lié, avec motif et auteur."""
+
+    expense = models.OneToOneField(
+        Expense,
+        on_delete=models.PROTECT,
+        related_name="cancellation",
+        verbose_name=_("expense"),
+    )
+    reason = models.CharField(_("reason"), max_length=200)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )
+    cancelled_at = models.DateTimeField(_("cancelled at"), default=timezone.now)
+
+    class Meta:
+        verbose_name = _("expense cancellation")
+        verbose_name_plural = _("expense cancellations")

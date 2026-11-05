@@ -16,7 +16,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.core.money import Money
 from apps.core.tenancy import use_school
-from apps.finance import services
+from apps.finance import expenses, services
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
@@ -24,6 +24,7 @@ from apps.finance.models import (
     CashSession,
     Discount,
     ExchangeRate,
+    ExpenseCategory,
     FeeRule,
     FeeType,
     Payment,
@@ -489,3 +490,73 @@ def create_demo_cancellations(spaces: list[DemoSpace]) -> None:
                 services.request_cancellation(
                     payment, actor=approver, reason="Mauvais élève (même nom, autre classe)"
                 )
+
+
+EXPENSE_RECORDERS = {"itig": "+243000001004", "volcans": "+243000002004"}
+EXPENSE_BOSSES = {"itig": "+243000001001", "volcans": "+243000002001"}
+DEMO_EXPENSE_CATEGORIES = ["Atelier mécanique", "Électricité", "Fournitures de bureau", "Entretien"]
+# (catégorie, bénéficiaire, motif, montant en plus petite unité, devise, compte, décision)
+DEMO_EXPENSES = [
+    (
+        "Atelier mécanique",
+        "Quincaillerie Mapendo",
+        "Pièces du banc d'essai",
+        18500,
+        "USD",
+        "cash",
+        "",
+    ),
+    (
+        "Électricité",
+        "SNEL Goma",
+        "Facture d'électricité d'octobre",
+        42000,
+        "USD",
+        "bank",
+        "approve",
+    ),
+    ("Entretien", "Ets Kahindo", "Peinture des salles", 180000, "CDF", "cash", ""),
+    (
+        "Fournitures de bureau",
+        "Librairie Le Lac",
+        "Papier et toner",
+        75000,
+        "CDF",
+        "mobile_money",
+        "",
+    ),
+    ("Atelier mécanique", "Garage Ndosho", "Moteur d'essai d'occasion", 95000, "USD", "bank", ""),
+]
+
+
+def create_demo_expenses(spaces: list[DemoSpace]) -> None:
+    """Une seule fois par école : des catégories, des dépenses sous et au-dessus du seuil (une
+    validée par le directeur, une en attente) et une annulée (FIN.1)."""
+    for space in spaces:
+        code, school = space.profile, space.school
+        with use_school(school):
+            if ExpenseCategory.objects.exists():
+                continue
+            recorder = User.objects.get(phone=space.numbers.of(EXPENSE_RECORDERS[code]))
+            boss = User.objects.get(phone=space.numbers.of(EXPENSE_BOSSES[code]))
+            categories = {
+                name: expenses.create_category(actor=recorder, name=name)
+                for name in DEMO_EXPENSE_CATEGORIES
+            }
+            today = timezone.localdate()
+            made = []
+            for category, who, why, amount, currency, account, decision in DEMO_EXPENSES:
+                expense, _created = expenses.record_expense(
+                    actor=recorder,
+                    category=categories[category],
+                    beneficiary=who,
+                    reason=why,
+                    amount_minor=amount,
+                    currency=currency,
+                    spent_on=today - timedelta(days=len(made) * 2),
+                    account=account,
+                )
+                if decision == "approve":
+                    expenses.decide_expense(expense, actor=boss, approve=True)
+                made.append(expense)
+            expenses.cancel_expense(made[3], actor=boss, reason="Saisie en double")

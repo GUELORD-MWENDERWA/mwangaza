@@ -3,9 +3,10 @@
 **But** : l'école suit aussi ce qui sort (dépenses, sorties de caisse, budget), inscrit un nouvel élève sans réseau et garde des écrans « Impayés » et tableau de bord légers pour le serveur de 2 Go.
 
 ## Parties
-- [ ] ① Maquettes (dépenses, sortie de caisse + bon de sortie, bordereau de clôture mis à jour, budget et rapports, inscription hors ligne) ; FIN.1 : modèles, API, écran, justificatifs, validation, annulation, audit, démo
-- [ ] ② FIN.2 (sortie de caisse en ligne et hors ligne, clôture, bon imprimé) ; HL.1 (inscription hors ligne, doublons signalés, Playwright réseau coupé)
-- [ ] ③ FIN.3 (budget, réalisé/prévu, entrées/sorties par mois et devise, comptes, export Excel) ; PERF.7 (SQL, `assertNumQueries`, mesure `make perf`) ; OPS.5 (procédure 4 Go) ; fin du lot (docs, vérification, PR)
+- [x] ① Maquettes du lot (6, dans `maquettes/gestion/`) ; FIN.1 serveur : modèles, migration, services, API, droits, audit, démo, tests
+- [ ] ② FIN.1 écran « Dépenses » (liste, saisie, justificatif, validation, annulation, catégories, seuil, aide) ; FIN.2 (sortie de caisse en ligne et hors ligne, clôture, bon imprimé)
+- [ ] ③ HL.1 (inscription hors ligne, doublons signalés, Playwright réseau coupé)
+- [ ] ④ FIN.3 (budget, réalisé/prévu, entrées/sorties, comptes, Excel) ; PERF.7 ; OPS.5 ; fin du lot (docs, vérification, PR)
 
 ## Décisions (regard senior)
 - Dépense = enregistrement immuable comme un paiement : annulation = nouvel enregistrement lié (motif, permission, audit). Montants entiers + devise + taux.
