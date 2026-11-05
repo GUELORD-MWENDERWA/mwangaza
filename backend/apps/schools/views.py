@@ -758,7 +758,12 @@ class ConsoleSchoolViewSet(
         schools = console.schools()
         if getattr(self, "swagger_fake_view", False):
             return schools
-        schools = schools.filter(environment__in=console_mode.list_environments(self.request))
+        environments = console_mode.list_environments(self.request)
+        if self.action == "access_sheet":
+            # Ouverte par un lien (PDF) ou dans un cadre (aperçu), qui n'envoient pas
+            # `X-Console-Mode` ; elle n'existe que pour une démonstration : lue dans ce mode.
+            environments = (School.Environment.DEMO,)
+        schools = schools.filter(environment__in=environments)
         if team.SCHOOLS_VIEW not in self.request.user.platform_permissions:
             schools = schools.exclude(environment=School.Environment.LIVE)
         if self.action != "list":
