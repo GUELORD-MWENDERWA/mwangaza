@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
-import { allowCodeAgain, closeCashSessions, manage, unpaidStudent } from "./django";
+import {
+  allowCodeAgain,
+  cashExpense,
+  cashOutOf,
+  closeCashSessions,
+  manage,
+  unpaidStudent,
+} from "./django";
 import { enterCode, enterPassword, ITIG, skipGuide } from "./helpers";
 
 /** Inscriptions de l'année en cours de l'ITIG : ce que l'instantané descend sur l'appareil. */
@@ -55,12 +62,13 @@ test("appareil mémorisé : l'école descend sur l'appareil, puis hors ligne et 
   await expect(indicator).toHaveText("En ligne · à jour");
 });
 
-test("démarrage sans réseau : code PIN, puis la caisse encaisse sur l'appareil (3.7.1)", async ({
+test("démarrage sans réseau : code PIN, puis la caisse encaisse et paie une dépense sur l'appareil (3.7.1, FIN.2)", async ({
   page,
   context,
 }) => {
   closeCashSessions();
   const student = unpaidStudent();
+  const expense = cashExpense();
   await page.addInitScript(() => {
     window.print = () => undefined;
     navigator.storage.persist = async () => true;
@@ -80,8 +88,13 @@ test("démarrage sans réseau : code PIN, puis la caisse encaisse sur l'appareil
   await page.getByLabel("Confirmer le code PIN").fill("2580");
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Code PIN enregistré sur cet appareil.")).toBeVisible();
+  // La caisse de l'appareil garde les dépenses à payer dès son ouverture.
+  const payable = page.waitForResponse((response) =>
+    response.url().includes("/api/cash-outs/payable/"),
+  );
   await page.goto(`${ITIG}cash`);
   await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
+  await payable;
 
   // Le serveur ne répond plus (en production, le service worker sert l'application ; ici, Vite).
   // Seulement `/api/…` : les modules de Vite (`packages/api/…`) doivent encore arriver.
@@ -107,9 +120,23 @@ test("démarrage sans réseau : code PIN, puis la caisse encaisse sur l'appareil
   ).toBeVisible();
   await expect(indicator).toHaveText("Hors ligne · 2 en attente");
 
+  // Sortie de caisse sans réseau : la dépense gardée, le bon numéroté par l'appareil.
+  await page.getByRole("link", { name: "Sortie de caisse" }).click();
+  await page.getByLabel("Dépense à payer").selectOption(expense);
+  await page.getByRole("button", { name: "Sortir et imprimer le bon" }).click();
+  await expect(
+    page.getByText(/^Sortie ITIG-DEMO-P\d+-26-S0001 enregistrée : 7,50\s\$\./),
+  ).toBeVisible();
+  await expect(indicator).toHaveText("Hors ligne · 3 en attente");
+  await page.getByRole("link", { name: "Retour à la caisse" }).click();
+
   // Retour du réseau : la session du serveur est toujours là, tout part.
   await page.unrouteAll();
   await context.setOffline(false);
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
   await expect(page.getByText(/Session ouverte à .* · 1 paiement$/)).toBeVisible();
+  // Une seule sortie, au bon de l'appareil ; la dépense est payée ; 10 $ reçus − 7,50 $ sortis.
+  const [count, number, status, expected] = cashOutOf(expense);
+  expect([count, status, expected]).toEqual(["1", "paid", "250"]);
+  expect(number).toMatch(/^ITIG-DEMO-P\d+-26-S0001$/);
 });

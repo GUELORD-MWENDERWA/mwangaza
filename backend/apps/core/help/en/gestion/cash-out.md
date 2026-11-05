@@ -22,4 +22,4 @@ updated: 2026-11-05
 
 **I picked the wrong expense.** While the register is open, a manager can cancel the cash out: the money goes back into the register and the expense becomes payable again.
 
-**Can I do it offline?** Not yet: a cash out needs the network.
+**Can I do it offline?** Yes, on a remembered device: the cash-out and its slip are made on the device (slip numbered by the device, for example `…-P1-26-S0001`) and sent when the network is back, like a payment. The list of expenses to pay is the one read the last time the cash desk was opened with the network. On an online-only computer, a cash out needs the network.

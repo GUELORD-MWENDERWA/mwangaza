@@ -22,4 +22,4 @@ updated: 2026-11-05
 
 **Je me suis trompé de dépense.** Tant que la caisse est ouverte, un responsable peut annuler la sortie : l'argent revient dans la caisse et la dépense redevient à payer.
 
-**Puis-je le faire sans réseau ?** Pas encore : une sortie demande le réseau.
+**Puis-je le faire sans réseau ?** Oui, sur un appareil mémorisé : la sortie et son bon sont faits sur l'appareil (bon numéroté par l'appareil, par exemple `…-P1-26-S0001`) et envoyés au retour du réseau, comme un paiement. La liste des dépenses à payer est celle lue à la dernière ouverture de la caisse avec le réseau. Sur un ordinateur en ligne seulement, la sortie demande le réseau.
