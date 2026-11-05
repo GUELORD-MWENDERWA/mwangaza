@@ -16,7 +16,7 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.core.money import Money
 from apps.core.tenancy import use_school
-from apps.finance import cash_outs, expenses, services
+from apps.finance import budget, cash_outs, expenses, services
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
@@ -613,3 +613,56 @@ def create_demo_expenses(spaces: list[DemoSpace]) -> None:
                     expenses.decide_expense(expense, actor=boss, approve=True)
                 made.append(expense)
             expenses.cancel_expense(made[3], actor=boss, reason="Saisie en double")
+            _demo_budget(recorder, categories)
+
+
+# Budget de l'année (FIN.3), en plus petite unité : (catégorie, devise, prévu).
+DEMO_BUDGET = [
+    ("Atelier mécanique", "USD", 300000),
+    ("Électricité", "USD", 480000),
+    ("Fournitures de bureau", "USD", 120000),
+    ("Entretien", "USD", 250000),
+    ("Entretien", "CDF", 2_000_000),
+    ("Fournitures de bureau", "CDF", 500_000),
+]
+# Soldes de départ des comptes : (compte, devise, montant).
+DEMO_OPENINGS = [
+    ("cash", "USD", 50000),
+    ("cash", "CDF", 300_000),
+    ("bank", "USD", 1_200_000),
+    ("mobile_money", "USD", 30000),
+    ("mobile_money", "CDF", 200_000),
+]
+
+
+def _demo_budget(recorder: User, categories: dict) -> None:
+    """Le budget de l'année, les soldes de départ et un versement de la caisse à la banque."""
+    year = AcademicYear.objects.get(is_current=True)
+    for currency in ("USD", "CDF"):
+        budget.set_budget(
+            actor=recorder,
+            academic_year=year,
+            currency=currency,
+            amounts={categories[name]: amount for name, c, amount in DEMO_BUDGET if c == currency},
+        )
+    for account, currency, amount in DEMO_OPENINGS:
+        budget.record_movement(
+            actor=recorder,
+            academic_year=year,
+            kind="opening",
+            to_account=account,
+            amount_minor=amount,
+            currency=currency,
+            made_on=year.starts_on,
+        )
+    budget.record_movement(
+        actor=recorder,
+        academic_year=year,
+        kind="transfer",
+        from_account="cash",
+        to_account="bank",
+        amount_minor=200000,
+        currency="USD",
+        made_on=timezone.localdate() - timedelta(days=7),
+        note="Versement à la banque",
+    )

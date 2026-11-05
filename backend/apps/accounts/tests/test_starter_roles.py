@@ -58,6 +58,7 @@ TABLE = {
     "finance.approve_expense": "✔ . . . . . ✔ .",
     "finance.cancel_expense": "✔ . . . . . ✔ .",
     "finance.import_prior_payments": "✔ . . ✔ . . . .",
+    "finance.manage_budget": "✔ . . ✔ . . . .",
     "timetable.manage": "✔ ✔ . . . . . .",
     "timetable.publish": "✔ ✔ . . . . . .",
     "ai.use": ". . . . . . . .",

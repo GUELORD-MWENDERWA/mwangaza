@@ -876,6 +876,9 @@ paths:
           - finance.expense_cancelled
           - finance.cash_out_recorded
           - finance.cash_out_cancelled
+          - finance.budget_updated
+          - finance.treasury_movement_recorded
+          - finance.treasury_movement_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1037,6 +1040,9 @@ paths:
           * `finance.expense_cancelled` - Expense cancelled
           * `finance.cash_out_recorded` - Cash paid out for an expense
           * `finance.cash_out_cancelled` - Cash-out cancelled
+          * `finance.budget_updated` - Budget changed
+          * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+          * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -1385,6 +1391,9 @@ paths:
           - finance.expense_cancelled
           - finance.cash_out_recorded
           - finance.cash_out_cancelled
+          - finance.budget_updated
+          - finance.treasury_movement_recorded
+          - finance.treasury_movement_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1546,6 +1555,9 @@ paths:
           * `finance.expense_cancelled` - Expense cancelled
           * `finance.cash_out_recorded` - Cash paid out for an expense
           * `finance.cash_out_cancelled` - Cash-out cancelled
+          * `finance.budget_updated` - Budget changed
+          * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+          * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -2164,6 +2176,164 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/budget/:
+    get:
+      operationId: budget_retrieve
+      description: |-
+        Budget et rapports de l'année (FIN.3), pour une devise : prévu et dépensé par catégorie,
+        entrées et sorties par mois, solde des comptes (toutes devises). Lu avec
+        `finance.view_reports` ; budget réglé avec `finance.manage_budget`. Jamais de somme entre
+        deux devises.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - in: query
+        name: currency
+        schema:
+          enum:
+          - USD
+          - CDF
+          type: string
+          minLength: 1
+        description: |-
+          Absent : la première de l'école.
+
+          * `USD` - US dollar
+          * `CDF` - Congolese franc
+      tags:
+      - budget
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetReport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: budget_update
+      description: |-
+        Prévu de chaque catégorie envoyée pour l'année et la devise ; 0 retire la ligne, les
+        catégories absentes ne changent pas.
+      tags:
+      - budget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BudgetWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BudgetWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetReport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/budget/export/:
+    get:
+      operationId: budget_export_retrieve
+      description: |-
+        Classeur Excel de l'année (FIN.3) : budget, entrées et sorties par mois, comptes, toutes
+        devises, chacune dans sa colonne.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      tags:
+      - budget
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -23386,6 +23556,175 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/treasury-movements/:
+    get:
+      operationId: treasury_movements_list
+      description: |-
+        Soldes de départ et virements entre les comptes de l'école (FIN.3), les plus récents
+        d'abord. Lus avec `finance.view_reports` ; saisis et annulés avec `finance.manage_budget`.
+        Rien ne s'efface : annuler écrit une ligne liée avec motif.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - treasury-movements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTreasuryMovementList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: treasury_movements_create
+      description: |-
+        Soldes de départ et virements entre les comptes de l'école (FIN.3), les plus récents
+        d'abord. Lus avec `finance.view_reports` ; saisis et annulés avec `finance.manage_budget`.
+        Rien ne s'efface : annuler écrit une ligne liée avec motif.
+      tags:
+      - treasury-movements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TreasuryMovementCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TreasuryMovementCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TreasuryMovementCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryMovement'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/treasury-movements/{id}/cancel/:
+    post:
+      operationId: treasury_movements_cancel_create
+      description: |-
+        Annuler un solde de départ ou un virement (motif). 409 `treasury_movement_cancelled`
+        si déjà fait.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account movement.
+        required: true
+      tags:
+      - treasury-movements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryMovement'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/unpaid/:
     get:
       operationId: unpaid_list
@@ -23866,6 +24205,35 @@ components:
       description: |-
         * `notebook` - notebook
         * `total` - total
+    AccountBalance:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/AccountEnum'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        opening_minor:
+          type: integer
+        receipts_minor:
+          type: integer
+          description: Reçu à la caisse (compte « caisse »).
+        transfers_in_minor:
+          type: integer
+        transfers_out_minor:
+          type: integer
+        expenses_minor:
+          type: integer
+        balance_minor:
+          type: integer
+      required:
+      - account
+      - currency
+      - opening_minor
+      - receipts_minor
+      - transfers_in_minor
+      - transfers_out_minor
+      - expenses_minor
+      - balance_minor
     AccountEnum:
       enum:
       - cash
@@ -24016,6 +24384,9 @@ components:
       - finance.expense_cancelled
       - finance.cash_out_recorded
       - finance.cash_out_cancelled
+      - finance.budget_updated
+      - finance.treasury_movement_recorded
+      - finance.treasury_movement_cancelled
       - finance.payment_reprinted
       - finance.cancellation_requested
       - finance.payment_cancelled
@@ -24176,6 +24547,9 @@ components:
         * `finance.expense_cancelled` - Expense cancelled
         * `finance.cash_out_recorded` - Cash paid out for an expense
         * `finance.cash_out_cancelled` - Cash-out cancelled
+        * `finance.budget_updated` - Budget changed
+        * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+        * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
         * `finance.payment_reprinted` - Receipt reprinted
         * `finance.cancellation_requested` - Payment cancellation requested
         * `finance.payment_cancelled` - Payment cancelled
@@ -25267,6 +25641,93 @@ components:
         * `submitted` - submitted
         * `validated` - validated
         * `returned` - returned
+    BudgetAmountRequest:
+      type: object
+      properties:
+        category:
+          type: string
+          format: uuid
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+      required:
+      - amount_minor
+      - category
+    BudgetReport:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyEnum'
+        budget:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetRow'
+        planned_minor:
+          type: integer
+        spent_minor:
+          type: integer
+        months:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthFlow'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+      required:
+      - academic_year
+      - currency
+      - currencies
+      - budget
+      - planned_minor
+      - spent_minor
+      - months
+      - accounts
+    BudgetRow:
+      type: object
+      properties:
+        category:
+          type: string
+          format: uuid
+        name:
+          type: string
+        is_active:
+          type: boolean
+        planned_minor:
+          type: integer
+        spent_minor:
+          type: integer
+      required:
+      - category
+      - name
+      - is_active
+      - planned_minor
+      - spent_minor
+    BudgetWriteRequest:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetAmountRequest'
+      required:
+      - academic_year
+      - currency
+      - lines
     BusinessMoney:
       type: object
       properties:
@@ -34730,6 +35191,24 @@ components:
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
         * `offline` - Offline work and synchronisation
+    MonthFlow:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+          description: Premier jour du mois.
+        receipts_minor:
+          type: integer
+        expenses_minor:
+          type: integer
+        balance_minor:
+          type: integer
+      required:
+      - month
+      - receipts_minor
+      - expenses_minor
+      - balance_minor
     MySchool:
       type: object
       properties:
@@ -36270,6 +36749,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Thread'
+    PaginatedTreasuryMovementList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreasuryMovement'
     PaginatedUnpaidStudentList:
       type: object
       required:
@@ -38174,6 +38678,7 @@ components:
       - finance.approve_expense
       - finance.cancel_expense
       - finance.import_prior_payments
+      - finance.manage_budget
       - timetable.manage
       - timetable.publish
       - ai.use
@@ -38208,6 +38713,7 @@ components:
         * `finance.approve_expense` - Approve an expense above the threshold
         * `finance.cancel_expense` - Cancel an expense
         * `finance.import_prior_payments` - Record what students paid before the school started here
+        * `finance.manage_budget` - Set the budget, the opening balance of the accounts and the transfers between them
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `timetable.publish` - Publish the timetable
         * `ai.use` - Use the AI assistance
@@ -45199,6 +45705,117 @@ components:
       required:
       - code
       - name
+    TreasuryMovement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          title: School year
+        kind:
+          $ref: '#/components/schemas/TreasuryMovementKindEnum'
+        from_account:
+          title: From
+          oneOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        to_account:
+          allOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          title: To
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        made_on:
+          type: string
+          format: date
+          title: Date
+        note:
+          type: string
+          maxLength: 200
+        recorded_by_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancel_reason:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - academic_year
+      - kind
+      - from_account
+      - to_account
+      - amount_minor
+      - currency
+      - made_on
+      - note
+      - recorded_by_name
+      - created_at
+      - cancelled
+      - cancel_reason
+    TreasuryMovementCreateRequest:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+          description: 'Absent : l''année en cours.'
+        kind:
+          $ref: '#/components/schemas/TreasuryMovementKindEnum'
+        from_account:
+          allOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          description: |-
+            Virement seulement.
+
+            * `cash` - Cash desk
+            * `bank` - Bank
+            * `mobile_money` - Mobile money
+        to_account:
+          $ref: '#/components/schemas/AccountEnum'
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        made_on:
+          type: string
+          format: date
+        note:
+          type: string
+          maxLength: 200
+      required:
+      - amount_minor
+      - currency
+      - kind
+      - made_on
+      - to_account
+    TreasuryMovementKindEnum:
+      enum:
+      - opening
+      - transfer
+      type: string
+      description: |-
+        * `opening` - Opening balance
+        * `transfer` - Transfer between accounts
     Unavailable:
       type: object
       description: 'Une absence : un jour entier, ou une plage horaire de ce jour

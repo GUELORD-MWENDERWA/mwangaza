@@ -44,6 +44,9 @@ PERMISSIONS: dict[str, Promise] = {
     "finance.approve_expense": _("Approve an expense above the threshold"),
     "finance.cancel_expense": _("Cancel an expense"),
     "finance.import_prior_payments": _("Record what students paid before the school started here"),
+    "finance.manage_budget": _(
+        "Set the budget, the opening balance of the accounts and the transfers between them"
+    ),
     "timetable.manage": _("Configure the timetable: time grids, rooms and rules"),
     "timetable.publish": _("Publish the timetable"),
     "ai.use": _("Use the AI assistance"),
@@ -113,6 +116,7 @@ EXPENSES_READ = (
 FINANCE_REQUEST_CANCELLATION = "finance.request_cancellation"
 # Reprise en cours d'année (E6) : importer ce que chaque élève avait déjà payé, hors caisse.
 FINANCE_IMPORT_PRIOR_PAYMENTS = "finance.import_prior_payments"
+FINANCE_MANAGE_BUDGET = "finance.manage_budget"
 # Crédits d'élèves (M14) : tous lus avec l'un de ces droits ; utilisés par le comptable, ou à la
 # caisse par le caissier (3.6.2), qui voit ceux de l'élève avec ses frais dus (`CHARGES_READ`).
 CREDITS_READ = (FINANCE_VIEW_REPORTS, FINANCE_APPROVE_CANCELLATION)
@@ -169,6 +173,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.approve_expense",
             "finance.cancel_expense",
             "finance.import_prior_payments",
+            "finance.manage_budget",
             "timetable.manage",
             "timetable.publish",
             "announcements.publish",
@@ -215,6 +220,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.view_reports",
             "finance.record_expense",
             "finance.import_prior_payments",
+            "finance.manage_budget",
         ),
     ),
     "cashier": StarterRole(

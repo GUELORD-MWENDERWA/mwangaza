@@ -56,6 +56,7 @@ SUPPORT_EXCLUDED_PERMISSIONS = frozenset(
         "finance.record_expense",
         "finance.approve_expense",
         "finance.cancel_expense",
+        "finance.manage_budget",
     }
 )
 SUPPORT_PERMISSIONS = frozenset(PERMISSIONS) - SUPPORT_EXCLUDED_PERMISSIONS

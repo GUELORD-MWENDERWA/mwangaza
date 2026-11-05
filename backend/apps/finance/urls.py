@@ -1,7 +1,7 @@
 from django.urls import path
 from rest_framework.routers import SimpleRouter
 
-from apps.finance import expense_views, views
+from apps.finance import budget_views, expense_views, views
 
 router = SimpleRouter()
 router.register("fee-types", views.FeeTypeViewSet, basename="fee-type")
@@ -18,6 +18,9 @@ router.register("student-credits", views.StudentCreditViewSet, basename="student
 router.register("expenses", expense_views.ExpenseViewSet, basename="expense")
 router.register("cash-outs", expense_views.CashOutViewSet, basename="cash-out")
 router.register(
+    "treasury-movements", budget_views.TreasuryMovementViewSet, basename="treasury-movement"
+)
+router.register(
     "expense-categories", expense_views.ExpenseCategoryViewSet, basename="expense-category"
 )
 router.register("unpaid", views.UnpaidViewSet, basename="unpaid")
@@ -32,5 +35,7 @@ urlpatterns = [
         name="prior-payments-template",
     ),
     path("expense-settings/", expense_views.ExpenseSettingsView.as_view(), name="expense-settings"),
+    path("budget/", budget_views.BudgetView.as_view(), name="budget"),
+    path("budget/export/", budget_views.BudgetExportView.as_view(), name="budget-export"),
     *router.urls,
 ]

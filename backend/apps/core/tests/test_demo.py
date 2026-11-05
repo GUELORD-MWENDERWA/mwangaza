@@ -36,8 +36,16 @@ from apps.core.demo import STEPS, fill
 from apps.core.management.commands.demo import _erase_demo_spaces
 from apps.core.models import Article, DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools, use_school
+from apps.finance import budget
 from apps.finance.cash_outs import payable_expenses
-from apps.finance.models import CashOut, Expense, ExpenseCancellation, Payment
+from apps.finance.models import (
+    BudgetLine,
+    CashOut,
+    Expense,
+    ExpenseCancellation,
+    Payment,
+    TreasuryMovement,
+)
 from apps.finance.services import closing_summary
 from apps.finance.tests.test_payments import pay, school_with_fees
 from apps.notifications.models import SupportRequest, Thread
@@ -382,6 +390,12 @@ def rerun_puts_everything_back(demo, settings) -> None:
             assert row["paid_out_minor"] == cash_out.amount_minor
             assert line.expected_minor == row["received_minor"] - cash_out.amount_minor
             assert payable_expenses().count() == 2
+            # Budget et comptes (FIN.3) : six lignes, cinq soldes de départ et un versement.
+            year = AcademicYear.objects.get(is_current=True)
+            report = budget.report(year, "USD")
+            assert len(report["budget"]) == 4 and report["planned_minor"] == 1_150_000
+            assert report["spent_minor"] > 0 and report["months"]
+            assert BudgetLine.objects.count() == 6 and TreasuryMovement.objects.count() == 6
     # Actualités du site (SITE.2) : six parues, une programmée, un brouillon anglais.
     assert len(site_content.news("fr")) == 6 and site_content.news("en") == []
     assert Article.objects.count() == 8

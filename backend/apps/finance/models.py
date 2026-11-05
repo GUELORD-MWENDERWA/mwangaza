@@ -1041,3 +1041,113 @@ class CashOutCancellation(ImmutableModel):
     class Meta:
         verbose_name = _("cash-out cancellation")
         verbose_name_plural = _("cash-out cancellations")
+
+
+class BudgetLine(TenantModel):
+    """Budget prévu d'une catégorie de dépenses pour une année et une devise [T] (FIN.3). Jamais
+    converti : un budget en dollars et un en francs sont deux lignes. Modifié par
+    `budget.set_budget` (audit) ; ramené à zéro, la ligne part."""
+
+    academic_year = models.ForeignKey(
+        AcademicYear, on_delete=models.CASCADE, related_name="+", verbose_name=_("school year")
+    )
+    category = models.ForeignKey(
+        ExpenseCategory,
+        on_delete=models.PROTECT,
+        related_name="budget_lines",
+        verbose_name=_("category"),
+    )
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    amount_minor = models.BigIntegerField(_("planned amount"))
+
+    class Meta:
+        verbose_name = _("budget line")
+        verbose_name_plural = _("budget lines")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["school", "academic_year", "category", "currency"],
+                name="budget_line_unique",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="budget_line_amount_positive"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.category} · {self.currency}"
+
+
+class TreasuryMovement(ImmutableModel):
+    """Mouvement saisi entre les comptes de l'école [T] [I] (FIN.3) : le solde de départ d'un
+    compte pour l'année (`opening`, sans compte de départ) ou un virement d'un compte à un autre
+    (`transfer` : versement de la caisse à la banque, retrait). Les comptes sont ceux d'où sort
+    une dépense (`Expense.Account`). Annulé par une `TreasuryMovementCancellation` liée."""
+
+    class Kind(models.TextChoices):
+        OPENING = "opening", _("Opening balance")
+        TRANSFER = "transfer", _("Transfer between accounts")
+
+    academic_year = models.ForeignKey(
+        AcademicYear, on_delete=models.PROTECT, related_name="+", verbose_name=_("school year")
+    )
+    kind = models.CharField(_("kind"), max_length=8, choices=Kind.choices)
+    from_account = models.CharField(
+        _("from"), max_length=14, choices=Expense.Account.choices, blank=True
+    )
+    to_account = models.CharField(_("to"), max_length=14, choices=Expense.Account.choices)
+    amount_minor = models.BigIntegerField(_("amount"))
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    made_on = models.DateField(_("date"))
+    note = models.CharField(_("note"), max_length=200, blank=True)
+    recorded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("recorded by"),
+    )
+
+    class Meta:
+        ordering = ["-made_on", "-created_at"]
+        verbose_name = _("account movement")
+        verbose_name_plural = _("account movements")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="treasury_movement_amount_positive"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(kind="opening", from_account="")
+                | (
+                    models.Q(kind="transfer")
+                    & ~models.Q(from_account="")
+                    & ~models.Q(from_account=models.F("to_account"))
+                ),
+                name="treasury_movement_accounts",
+            ),
+        ]
+        indexes = [models.Index(fields=["school", "academic_year"], name="treasury_movement_year")]
+
+    def __str__(self) -> str:
+        return f"{self.get_kind_display()} · {self.made_on}"
+
+
+class TreasuryMovementCancellation(ImmutableModel):
+    """Annulation d'un mouvement entre comptes [T] [I] : motif et auteur, le mouvement reste."""
+
+    movement = models.OneToOneField(
+        TreasuryMovement,
+        on_delete=models.PROTECT,
+        related_name="cancellation",
+        verbose_name=_("movement"),
+    )
+    reason = models.CharField(_("reason"), max_length=200)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )
+    cancelled_at = models.DateTimeField(_("cancelled at"), default=timezone.now)
+
+    class Meta:
+        verbose_name = _("account movement cancellation")
+        verbose_name_plural = _("account movement cancellations")

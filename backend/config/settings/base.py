@@ -298,6 +298,8 @@ SPECTACULAR_SETTINGS = {
         "DiscountKindEnum": "apps.finance.models.Discount.Kind",
         "TermKindEnum": "apps.schools.models.Term.Kind",
         "CreditStateEnum": "apps.finance.serializers.CREDIT_STATES",
+        "AccountEnum": "apps.finance.models.Expense.Account",
+        "TreasuryMovementKindEnum": "apps.finance.models.TreasuryMovement.Kind",
         "CancellationStatusEnum": "apps.finance.models.CancellationRequest.Status",
         "PaymentOriginEnum": "apps.finance.models.Payment.Origin",
         "CreditOriginEnum": "apps.finance.models.StudentCredit.Origin",

@@ -565,6 +565,7 @@ export const en: Messages<typeof fr> = {
         grant_discount: "Grant a discount",
         view_reports: "View financial reports",
         import_prior_payments: "Record payments made before the application",
+        manage_budget: "Set the budget, the opening balances of the accounts and the transfers",
       },
       school: {
         configure: "Configure the school",
@@ -3337,6 +3338,9 @@ export const en: Messages<typeof fr> = {
         expense_cancelled: "Expense cancelled",
         cash_out_recorded: "Cash paid out for an expense",
         cash_out_cancelled: "Cash-out cancelled",
+        budget_updated: "Budget changed",
+        treasury_movement_recorded: "Account balance or transfer recorded",
+        treasury_movement_cancelled: "Account balance or transfer cancelled",
         cancellation_requested: "Payment cancellation requested",
         payment_cancelled: "Payment cancelled",
         cancellation_rejected: "Payment cancellation refused",

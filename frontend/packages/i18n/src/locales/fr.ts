@@ -567,6 +567,7 @@ export const fr = {
         grant_discount: "Accorder une réduction",
         view_reports: "Voir les rapports financiers",
         import_prior_payments: "Enregistrer les paiements d'avant l'application (reprise)",
+        manage_budget: "Régler le budget, les soldes de départ des comptes et les virements",
       },
       school: {
         configure: "Configurer l'école",
@@ -3369,6 +3370,9 @@ export const fr = {
         expense_cancelled: "Dépense annulée",
         cash_out_recorded: "Sortie de caisse pour une dépense",
         cash_out_cancelled: "Sortie de caisse annulée",
+        budget_updated: "Budget modifié",
+        treasury_movement_recorded: "Solde de départ ou virement saisi",
+        treasury_movement_cancelled: "Solde de départ ou virement annulé",
         cancellation_requested: "Annulation de paiement demandée",
         payment_cancelled: "Paiement annulé",
         cancellation_rejected: "Annulation de paiement refusée",
