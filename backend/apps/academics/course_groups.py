@@ -2,15 +2,17 @@
 d'un même niveau et d'une même année ; il a un seul enseignant, donné à chacun de ses cours.
 Les maxima, les notes et les bulletins restent ceux de chaque classe. Droit
 `courses.configure`, vérifié par l'API ; chaque changement va dans le journal (`course_group.*`).
+L'emploi du temps en fait un cours commun (un créneau pour toutes ses classes, 8.1.2b) : ses cours
+ne sont pas aussi dans une règle de groupe de l'horaire.
 """
 
 from uuid import UUID
 
+from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from rest_framework.exceptions import ValidationError
 
 from apps.academics.courses import active_staff
 from apps.academics.models import Course, CourseGroup
@@ -20,6 +22,7 @@ from apps.audit.actions import Action
 from apps.notifications import events
 from apps.schools.models import ClassGroup
 from apps.students.models import Enrollment
+from apps.timetable import constraints
 
 MAX_CLASSES = 12
 
@@ -94,6 +97,8 @@ def create_group(
         )
     teacher = _teacher(teacher_id)
     with transaction.atomic():
+        # Le verrou des règles de l'horaire d'abord : groupes disjoints exacts.
+        constraints.lock_school()
         courses = list(
             Course.objects.select_for_update(of=("self",))
             .filter(class_group__in=unique, name__iexact=name, is_taught=True)
@@ -106,6 +111,15 @@ def create_group(
                 "name",
                 _("A class is already in a joint course for this course."),
                 "already_grouped",
+            )
+        if constraints.in_rule_group({str(course.pk) for course in courses}):
+            raise _invalid(
+                "name",
+                _(
+                    "A class's course is already in a timetable group (parallel groups or joint "
+                    "course): remove it from that rule first."
+                ),
+                "timetable_grouped",
             )
         if CourseGroup.objects.filter(
             academic_year_id=year, level_id=level, name__iexact=name

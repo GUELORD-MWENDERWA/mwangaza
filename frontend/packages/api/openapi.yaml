@@ -21129,8 +21129,8 @@ paths:
       operationId: teaching_loads_retrieve
       description: |-
         Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine
-        de ses cours), et les cours sans enseignant. Sert aussi de liste des enseignants
-        possibles : tout le personnel, quel que soit son rôle.
+        de ses cours, un cours commun une fois), et les cours sans enseignant. Sert aussi de
+        liste des enseignants possibles : tout le personnel, quel que soit son rôle.
       parameters:
       - in: query
         name: academic_year
@@ -35121,12 +35121,19 @@ components:
           minimum: 1
           nullable: true
           title: Hours per week
+        course_group:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours commun (8.1.2a) : ses classes ne comptent qu''une fois
+            dans la charge.'
       required:
       - id
       - name
       - class_group
       - class_name
       - weekly_hours
+      - course_group
     LoginCodeRequest:
       type: object
       properties:

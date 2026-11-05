@@ -2,6 +2,7 @@
 // l'année en cours attribués à chaque membre du personnel, et cours sans enseignant. Lecture
 // seule : l'attribution se fait dans « Cours et maxima ». Droit `courses.configure`. Avec
 // `timetable.manage` (EDT.1b) : charge au plus et absences de chacun, réglées dans une fenêtre.
+import type { Schemas } from "@mwangaza/api";
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Button,
@@ -33,6 +34,35 @@ import { useTeachingLoads } from "./data";
 // Le reste se voit classe par classe dans « Cours et maxima ».
 const UNASSIGNED_SHOWN = 8;
 
+type LoadCourse = Schemas["LoadCourse"];
+type Line = { id: string; name: string; classes: string[]; hours: number; joint: boolean };
+
+// Un cours commun (8.1.2b) tient sur une ligne, ses classes réunies : le serveur le compte une
+// fois dans les heures, la plus longue s'il y a un écart.
+function lines(courses: LoadCourse[]): Line[] {
+  const result: Line[] = [];
+  const byGroup = new Map<string, Line>();
+  for (const course of courses) {
+    const hours = course.weekly_hours ?? 0;
+    const known = course.course_group ? byGroup.get(course.course_group) : undefined;
+    if (known) {
+      known.classes.push(course.class_name);
+      known.hours = Math.max(known.hours, hours);
+      continue;
+    }
+    const line = {
+      id: course.id,
+      name: course.name,
+      classes: [course.class_name],
+      hours,
+      joint: !!course.course_group,
+    };
+    result.push(line);
+    if (course.course_group) byGroup.set(course.course_group, line);
+  }
+  return result;
+}
+
 export function TeachingLoadsPage() {
   const { t, i18n } = useTranslation();
   const years = useYears();
@@ -47,6 +77,7 @@ export function TeachingLoadsPage() {
   if (loads.isError) return <LoadError error={loads.error} onRetry={() => void loads.refetch()} />;
 
   const number = (value: number) => new Intl.NumberFormat(i18n.language).format(value);
+  const list = new Intl.ListFormat(i18n.language, { type: "conjunction" });
   const hours = (count: number) => t("courses.hoursValue", { count, value: number(count) });
   const year = years.data?.find((item) => item.is_current);
   const teaching = loads.data.loads.filter((load) => load.courses.length > 0);
@@ -93,6 +124,7 @@ export function TeachingLoadsPage() {
               {teaching.map((load) => {
                 const profile = profileOf(load.teacher.id);
                 const max = profile?.max_week_hours ?? null;
+                const given = lines(load.courses);
                 const absences = describe(profile?.unavailable ?? [], dayName);
                 return (
                   <tr key={load.teacher.id}>
@@ -101,29 +133,31 @@ export function TeachingLoadsPage() {
                     </td>
                     <td data-wrap>
                       <ul className="flex flex-col gap-0.5 text-sm">
-                        {load.courses.map((course) => (
-                          <li key={course.id}>
-                            <span className="text-ink-2">{course.class_name}</span> · {course.name}
-                            {course.weekly_hours ? (
-                              <span className="whitespace-nowrap">
-                                {" "}
-                                · {hours(course.weekly_hours)}
-                              </span>
+                        {given.map((line) => (
+                          <li key={line.id}>
+                            <span className="text-ink-2">{list.format(line.classes)}</span> ·{" "}
+                            {line.name}
+                            {line.hours ? (
+                              <span className="whitespace-nowrap"> · {hours(line.hours)}</span>
                             ) : null}
+                            {line.joint && (
+                              <>
+                                {" "}
+                                <StatusPill>{t("courses.loads.joint")}</StatusPill>
+                              </>
+                            )}
                           </li>
                         ))}
                       </ul>
                     </td>
-                    <td className="text-right tabular-nums max-[600px]:hidden">
-                      {load.courses.length}
-                    </td>
+                    <td className="text-right tabular-nums max-[600px]:hidden">{given.length}</td>
                     <td className="text-right whitespace-nowrap tabular-nums">
                       <b className={cn(max !== null && load.hours > max && "text-due")}>
                         {hours(load.hours)}
                       </b>
                       {max !== null && (
                         <div className="text-xs text-ink-2">
-                          {t("timetable.availability.atMost", { count: max })}
+                          {t("timetable.availability.atMost", { value: number(max) })}
                         </div>
                       )}
                     </td>
@@ -163,7 +197,7 @@ export function TeachingLoadsPage() {
                 <tr className="font-bold [&_td]:bg-table-head">
                   <td colSpan={2}>{t("courses.loads.total")}</td>
                   <td className="text-right tabular-nums max-[600px]:hidden">
-                    {number(teaching.reduce((sum, load) => sum + load.courses.length, 0))}
+                    {number(teaching.reduce((sum, load) => sum + lines(load.courses).length, 0))}
                   </td>
                   <td className="text-right whitespace-nowrap tabular-nums">
                     {hours(assignedHours)}

@@ -153,6 +153,11 @@ def created(demo) -> None:
         )
         draft = checks.draft(run.result)
         assert draft["errors"] == 0 and draft["left"] == [], draft["issues"]
+        # 8.1.2b : le cours commun de mathématique (onglet Notes) aux mêmes heures dans ses classes.
+        joint: dict = {}
+        for entry in run.result.entries.filter(course__course_group__isnull=False):
+            joint.setdefault(entry.course_id, set()).add((entry.weekday, entry.first, entry.length))
+        assert len(joint) >= 2 and len({frozenset(slots) for slots in joint.values()}) == 1
         # Toutes les places de la grille occupées, sans trou ; chaque cours a son enseignant.
         assert {(row["placed"], row["due"]) for row in draft["classes"]} == {(39, 39)}
         assert not Course.objects.filter(

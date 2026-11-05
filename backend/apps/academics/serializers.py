@@ -203,10 +203,15 @@ class OfficialGridSerializer(serializers.Serializer):
 class LoadCourseSerializer(serializers.ModelSerializer):
     class_group = serializers.UUIDField(source="class_group_id")
     class_name = serializers.CharField(source="class_group.name")
+    course_group = serializers.UUIDField(
+        source="course_group_id",
+        allow_null=True,
+        help_text="Cours commun (8.1.2a) : ses classes ne comptent qu'une fois dans la charge.",
+    )
 
     class Meta:
         model = Course
-        fields = ["id", "name", "class_group", "class_name", "weekly_hours"]
+        fields = ["id", "name", "class_group", "class_name", "weekly_hours", "course_group"]
 
 
 class TeachingLoadSerializer(serializers.Serializer):

@@ -162,8 +162,8 @@ class TeachingLoadsView(_CoursesView):
     )
     def get(self, request: Request) -> Response:
         """Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine
-        de ses cours), et les cours sans enseignant. Sert aussi de liste des enseignants
-        possibles : tout le personnel, quel que soit son rôle."""
+        de ses cours, un cours commun une fois), et les cours sans enseignant. Sert aussi de
+        liste des enseignants possibles : tout le personnel, quel que soit son rôle."""
         params = TeachingLoadsFilterSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         year = params.validated_data.get("academic_year") or organisation.current_year()
@@ -175,7 +175,7 @@ class TeachingLoadsView(_CoursesView):
             "loads": loads,
             "unassigned": unassigned[:UNASSIGNED_LISTED],
             "unassigned_count": len(unassigned),
-            "unassigned_hours": sum(course.weekly_hours or 0 for course in unassigned),
+            "unassigned_hours": courses.weekly_hours(unassigned),
         }
         return Response(TeachingLoadsSerializer(data).data)
 

@@ -7094,8 +7094,8 @@ export interface paths {
         };
         /**
          * @description Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine
-         *     de ses cours), et les cours sans enseignant. Sert aussi de liste des enseignants
-         *     possibles : tout le personnel, quel que soit son rôle.
+         *     de ses cours, un cours commun une fois), et les cours sans enseignant. Sert aussi de
+         *     liste des enseignants possibles : tout le personnel, quel que soit son rôle.
          */
         get: operations["teaching_loads_retrieve"];
         put?: never;
@@ -12763,6 +12763,11 @@ export interface components {
             class_name: string;
             /** Hours per week */
             weekly_hours: number | null;
+            /**
+             * Format: uuid
+             * @description Cours commun (8.1.2a) : ses classes ne comptent qu'une fois dans la charge.
+             */
+            course_group: string | null;
         };
         LoginCodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */

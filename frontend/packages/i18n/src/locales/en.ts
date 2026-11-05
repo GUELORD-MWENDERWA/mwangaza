@@ -2946,6 +2946,7 @@ export const en: Messages<typeof fr> = {
       withoutCourse: "{{className}} (does not have this course)",
     },
     loads: {
+      joint: "joint",
       title: "Teaching loads",
       subtitle: "{{year}} · teaching hours per week",
       teacher: "Teacher",

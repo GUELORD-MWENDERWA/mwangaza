@@ -374,10 +374,22 @@ class Load:
     courses: list[Course] = field(default_factory=list)
 
 
+def weekly_hours(courses: list[Course]) -> int:
+    """Heures par semaine de ces cours ; un cours commun (8.1.2b) compte une fois, ses classes
+    l'ont ensemble (la plus longue s'il y a un écart)."""
+    alone = sum(course.weekly_hours or 0 for course in courses if not course.course_group_id)
+    shared: dict[UUID, int] = {}
+    for course in courses:
+        if course.course_group_id:
+            hours = course.weekly_hours or 0
+            shared[course.course_group_id] = max(shared.get(course.course_group_id, 0), hours)
+    return alone + sum(shared.values())
+
+
 def teaching_loads(year: AcademicYear) -> tuple[list[Load], list[Course]]:
     """Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine de ses
-    cours ; 0 sans cours), la plus lourde d'abord ; puis les cours sans enseignant.
-    Deux requêtes."""
+    cours, un cours commun une fois ; 0 sans cours), la plus lourde d'abord ; puis les cours sans
+    enseignant. Deux requêtes."""
     loads = {user.pk: Load(user) for user in active_staff()}
     unassigned: list[Course] = []
     courses = (
@@ -395,12 +407,12 @@ def teaching_loads(year: AcademicYear) -> tuple[list[Load], list[Course]]:
         if course.teacher_id is None:
             unassigned.append(course)
         elif course.teacher_id in loads:
-            load = loads[course.teacher_id]
-            load.courses.append(course)
-            load.hours += course.weekly_hours or 0
+            loads[course.teacher_id].courses.append(course)
         else:
             # Parti de l'école depuis : ses cours sont à réattribuer.
             former[course.teacher_id].append(course)
     unassigned += [course for group in former.values() for course in group]
+    for load in loads.values():
+        load.hours = weekly_hours(load.courses)
     ordered = sorted(loads.values(), key=lambda load: (-load.hours, str(load.teacher)))
     return ordered, unassigned

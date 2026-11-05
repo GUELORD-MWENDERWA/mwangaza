@@ -6,7 +6,7 @@ Tâches : 8.1.2a (#309), 8.1.2b (#310), 8.2.5 (#311), 8.2.4 (#303), HL.2 (#340).
 ## Parties (une conversation chacune)
 - [x] ① Maquettes du lot (cours communs, remplaçant, import Excel) ; 8.1.2a serveur : `CourseGroup`, `Course.course_group`, un enseignant propagé aux cours du groupe, API, audit, démo, tests (isolation, groupe de classes d'une autre école) — **Opus**
 - [x] ② 8.1.2a écran « Cours communs » (créer pour un niveau, sortir une classe) + fiche de cotes commune (une page, toutes les classes) — Sonnet
-- [ ] ③ 8.1.2b charges horaires par groupe, repêchage et délibération inchangés, règle `joint_courses` alimentée par le groupe (un créneau) — **Opus**
+- [x] ③ 8.1.2b charges horaires par groupe, repêchage et délibération inchangés, règle `joint_courses` alimentée par le groupe (un créneau) — **Opus**
 - [ ] ④ 8.2.5 serveur : `CourseSubstitute`, accès restreint (total + examen, après envoi), correction avec motif, notification du propriétaire — **Opus**
 - [ ] ⑤ 8.2.5 écran « Remplaçant » + 8.2.4 import Excel des points (modèle, erreurs par ligne, confirmation) — Sonnet
 - [ ] ⑥ HL.2 conduite et discipline hors ligne (Dexie, file, synchro idempotente, Playwright réseau coupé) — **Opus**
@@ -18,6 +18,7 @@ Tâches : 8.1.2a (#309), 8.1.2b (#310), 8.2.5 (#311), 8.2.4 (#303), HL.2 (#340).
 - Un cours n'est que dans un seul groupe ; le groupe porte l'enseignant, les cours le reprennent (une seule source, propagée dans la même transaction).
 - Remplaçant : désigné par le directeur des études seul, jamais d'accès aux devoirs ni interrogations (comme NB.1).
 - ② fait sans nouvel endpoint : la fiche commune (`grades/joint`, `joint.ts`) lit et enregistre la feuille de chaque classe (même file hors ligne) ; colonnes réunies par nom. Démo : mathématique des 1HT Électricité A et B de `0000001008`. Écart à la maquette : pas de « Voir la fiche de cotes » côté direction (la fiche est celle de l'enseignant). Pour ⑦ : `maquettes/README.md`, `07` § 1 et § 4, `reference.md` (`/courses/joint`, `/grades/joint`, `course_group` de `/api/grading/`).
+- ③ : un `CourseGroup` est un cours commun de l'horaire sans règle à écrire (`checks._course_groups`, lu sur les cours déjà chargés) ; un cours n'est jamais à la fois dans un groupe et dans une règle de groupe (409 `course_grouped`, 400 `timetable_grouped`) ; charge et heures sans enseignant comptent le groupe une fois (`courses.weekly_hours`), écran « Charges » : une ligne « commun ». Corrigé : messages d'erreur des cours communs (rendus bruts, jamais traduits). Pour ⑦ : `04`, spec EDT § 4, `reference.md` (`course_group` de `/api/teaching-loads/`).
 - HL.2 réutilise la file et Dexie de 8.2.3 (`grades/offline.ts`) : pas de nouveau mécanisme.
 
 ## Hors périmètre

@@ -2977,6 +2977,7 @@ export const fr = {
       withoutCourse: "{{className}} (n'a pas ce cours)",
     },
     loads: {
+      joint: "commun",
       title: "Charges des enseignants",
       subtitle: "{{year}} · heures de cours par semaine",
       teacher: "Enseignant",
