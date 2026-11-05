@@ -51,6 +51,8 @@ export const keys = {
   payments: ["payments"],
   credits: ["student-credits"],
   unpaid: ["unpaid"],
+  expenses: ["expenses"],
+  expenseCategories: ["expense-categories"],
   dashboard: ["dashboard"],
   setup: ["school-setup"],
   announcements: ["announcements"],

@@ -4,7 +4,8 @@
 
 ## Parties
 - [x] ① Maquettes du lot (6, dans `maquettes/gestion/`) ; FIN.1 serveur : modèles, migration, services, API, droits, audit, démo, tests
-- [ ] ② FIN.1 écran « Dépenses » (liste, saisie, justificatif, validation, annulation, catégories, seuil, aide) ; FIN.2 (sortie de caisse en ligne et hors ligne, clôture, bon imprimé)
+- [x] ②a FIN.1 écran « Dépenses » (liste, filtres, saisie avec justificatif, validation, annulation, seuil et catégories, article d'aide) — à regarder à 390/1440 px avant la PR
+- [ ] ②b FIN.2 (sortie de caisse en ligne et hors ligne, clôture, bon imprimé)
 - [ ] ③ HL.1 (inscription hors ligne, doublons signalés, Playwright réseau coupé)
 - [ ] ④ FIN.3 (budget, réalisé/prévu, entrées/sorties, comptes, Excel) ; PERF.7 ; OPS.5 ; fin du lot (docs, vérification, PR)
 
