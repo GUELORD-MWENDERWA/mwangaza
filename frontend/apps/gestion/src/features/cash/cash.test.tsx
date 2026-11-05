@@ -298,8 +298,22 @@ describe("Caisse (F1-F2)", () => {
     const summary = {
       session,
       currencies: [
-        { currency: "USD", expected_minor: 265000, count: 40 },
-        { currency: "CDF", expected_minor: 480000, count: 1 },
+        {
+          currency: "USD",
+          received_minor: 265000,
+          paid_out_minor: 0,
+          expected_minor: 265000,
+          count: 40,
+          cash_outs_count: 0,
+        },
+        {
+          currency: "CDF",
+          received_minor: 480000,
+          paid_out_minor: 0,
+          expected_minor: 480000,
+          count: 1,
+          cash_outs_count: 0,
+        },
       ],
       fee_types: [
         { fee_type: "Minerval", currency: "USD", amount_minor: 265000 },
@@ -310,6 +324,7 @@ describe("Caisse (F1-F2)", () => {
       last_receipt: "ALPHA-C2-26-000185",
       cancelled: [{ currency: "USD", amount_minor: 5000, count: 1 }],
       cancellations_pending: 1,
+      cash_outs: [],
       closing: null,
     };
     const lines = [

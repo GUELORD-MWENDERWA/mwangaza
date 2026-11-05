@@ -62,3 +62,74 @@ from apps.schools.models import School
 with use_school(School.objects.get(code="itig-demo")):
     CashSession.objects.filter(closed_at__isnull=True).update(closed_at=timezone.now())`);
 }
+
+/** Une dépense de 7,50 $ à payer en espèces, validée d'office (sous le seuil) : son identifiant. */
+export function cashExpense(): string {
+  const output = manage(
+    "shell",
+    "-c",
+    `from datetime import date
+from apps.accounts.models import User
+from apps.core.tenancy import use_school
+from apps.finance import expenses
+from apps.finance.models import ExpenseCategory
+from apps.schools.models import School
+with use_school(School.objects.get(code="itig-demo")):
+    expense, _ = expenses.record_expense(actor=User.objects.get(phone="+243000001005"),
+        category=ExpenseCategory.objects.order_by("name").first(), beneficiary="Ets Kahindo",
+        reason="Cadenas du magasin", amount_minor=750, currency="USD",
+        spent_on=date.today(), account="cash")
+    print(expense.pk)`,
+  );
+  return output.trim().split("\n").at(-1)!;
+}
+
+/** Sorties de caisse d'une dépense au serveur : nombre, numéro du bon, état de la dépense et
+ *  attendu en dollars de la session, séparés par « | ». */
+export function cashOutOf(expense: string): string[] {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.finance import services
+from apps.finance.models import CashOut, Expense
+from apps.schools.models import School
+with use_school(School.objects.get(code="itig-demo")):
+    outs = list(CashOut.objects.filter(expense_id="${expense}"))
+    usd = [c for c in services.closing_summary(outs[0].cash_session)["currencies"] if c["currency"] == "USD"]
+    print(len(outs), outs[0].number, Expense.objects.get(pk="${expense}").status, usd[0]["expected_minor"], sep="|")`,
+  );
+  return output.trim().split("\n").at(-1)!.split("|");
+}
+
+/** Ajoute ou retire une permission aux rôles d'un compte de l'ITIG de démonstration (ex. une
+ *  caissière qui inscrit aussi, HL.1). */
+export function setPermission(phone: string, permission: string, granted: boolean) {
+  shell(`from apps.accounts.models import Role
+from apps.core.tenancy import use_school
+from apps.schools.models import School
+with use_school(School.objects.get(code="itig-demo")):
+    for role in Role.objects.filter(memberships__user__phone="${phone}"):
+        others = [code for code in role.permissions if code != "${permission}"]
+        role.permissions = [*others, "${permission}"] if ${granted ? "True" : "False"} else others
+        role.save()`);
+}
+
+/** Élèves de l'ITIG de démonstration à ce nom au serveur : nombre, matricule, nombre de
+ *  paiements et total reçu (centimes), séparés par « | ». */
+export function studentsNamed(lastName: string): string[] {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.finance.models import Payment
+from apps.schools.models import School
+from apps.students.models import Student
+with use_school(School.objects.get(code="itig-demo")):
+    found = list(Student.objects.filter(last_name="${lastName}"))
+    paid = list(Payment.objects.filter(enrollment__student__in=found))
+    matricule = found[0].matricule if found else ""
+    print(len(found), matricule, len(paid), sum(p.received_amount_minor for p in paid), sep="|")`,
+  );
+  return output.trim().split("\n").at(-1)!.split("|");
+}

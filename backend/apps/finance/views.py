@@ -555,12 +555,14 @@ class CashSessionViewSet(mixins.CreateModelMixin, SchoolViewSet):
     @extend_schema(responses={200: CurrentCashSessionSerializer, **ERRORS})
     @action(detail=False)
     def current(self, request: Request) -> Response:
-        """La caisse ouverte du caissier (ou `null`), ses totaux et le taux des encaissements."""
+        """La caisse ouverte du caissier (ou `null`), ses totaux, ses sorties de caisse et le taux
+        des encaissements."""
         session = services.open_session_of(request.user)
         rate, fallback = services.payment_rate()
         data = {
             "session": session,
             "totals": services.session_totals(session) if session else [],
+            "paid_out": services.session_paid_out(session) if session else [],
             "rate": rate.rate if rate else None,
             "rate_is_fallback": fallback,
         }

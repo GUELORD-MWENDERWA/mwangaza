@@ -3,23 +3,33 @@
 // un identifiant donné par l'appareil : un nouvel envoi après une coupure ne crée pas de doublon.
 // Même nom, prénom et date de naissance qu'un autre élève : avertissement avec le lien vers sa
 // fiche, puis « Inscrire quand même ». Photo envoyée après l'inscription ; puis la fiche s'ouvre.
-// Frais appliqués : 2.6 ; hors-ligne : 3.x.
+// Frais appliqués : 2.6. Appareil mémorisé sans réseau (HL.1, maquette `eleve-nouveau-hors-ligne`) :
+// même formulaire, l'inscription part dans la file (`offline.ts`), numéros provisoires, puis
+// « Inscrire et encaisser » ouvre la caisse sur l'élève ; doublon de l'appareil signalé avant.
 import { zodResolver } from "@hookform/resolvers/zod";
 import { type ApiError, api, call } from "@mwangaza/api";
-import { type TFunction, useTranslation } from "@mwangaza/i18n";
+import { formatDate, formatTime, type TFunction, useTranslation } from "@mwangaza/i18n";
 import { Banner, Button, Field, Icon, Input, PageHeader, Segmented, Select } from "@mwangaza/ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { type Path, type UseFormReturn, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import { z } from "zod";
 
-import { applyServerErrors } from "../../lib/errors";
+import { applyServerErrors, errorMessage } from "../../lib/errors";
 import { uuidv7 } from "../../lib/ids";
+import { useOnline } from "../../lib/online";
 import { formatPhone, studentName } from "../../lib/people";
+import { can } from "../../lib/permissions";
 import { hasCode, keys, useCurrentMe, useSchool } from "../../lib/queries";
+import { useCurrentSchool } from "../../lib/school";
 import { useSettled } from "../../lib/settled";
-import { type ClassGroup, useClasses, useYears } from "../organisation/data";
+import type { LocalEnrollment } from "../../lib/sync/db";
+import type { Enrollment } from "../../lib/sync/engine";
+import { useSyncStatus } from "../../lib/sync/session";
+import type { Chosen } from "../cash/CollectPanel";
+import { schoolDay } from "../cash/offline";
+import { useClasses, useYears } from "../organisation/data";
 import type { Created } from "./StudentPage";
 import {
   birthDateRequired,
@@ -38,6 +48,17 @@ import {
   uploadPhoto,
   useFamilySearch,
 } from "./data";
+import {
+  type DeviceStudents,
+  deviceCharges,
+  enrollOffline,
+  localDuplicates,
+  type OfflineEnrollment,
+  provisionalFamilyCode,
+  provisionalMatricule,
+  searchLocalFamilies,
+  useDeviceStudents,
+} from "./offline";
 
 /** Élève qui a déjà les mêmes noms et date de naissance (réponse `possible_duplicate`). */
 type Duplicate = {
@@ -87,7 +108,29 @@ function studentSchema(t: TFunction, birthDate: boolean) {
 
 type Schema = ReturnType<typeof studentSchema>;
 type Values = z.input<Schema>;
-type Form = UseFormReturn<Values, unknown, z.output<Schema>>;
+type Output = z.output<Schema>;
+type Form = UseFormReturn<Values, unknown, Output>;
+
+/** Ce que reçoivent « Inscrire un élève » et l'opération `student.enroll` (sans les identifiants),
+ *  et la classe choisie. */
+function studentBody({ class_group, family_mode, family, guardians, sex, ...fields }: Output) {
+  const body = {
+    ...fields,
+    sex: sex as "M" | "F",
+    ...(family_mode === "existing"
+      ? { family }
+      : {
+          guardians: guardians.map((guardian, index) => ({
+            ...guardian,
+            relationship: guardian.relationship as Relationship,
+            is_primary: index === 0,
+          })),
+        }),
+  };
+  return { body, classGroup: class_group };
+}
+
+const newIds = () => ({ student: uuidv7(), enrollment: uuidv7(), family: uuidv7() });
 
 const EMPTY_GUARDIAN = { full_name: "", relationship: "", phone: "" };
 const EMPTY: Values = {
@@ -110,53 +153,52 @@ const SERVER_FIELDS = [
 ];
 
 export function NewStudentPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const school = useCurrentSchool();
+  // Appareil mémorisé sans réseau, ou serveur injoignable au dernier essai : l'inscription passe
+  // par la file (HL.1). Le formulaire reste le même si le réseau va et vient.
+  const sync = useSyncStatus();
+  const online = useOnline();
+  const device = useDeviceStudents(sync.db);
+  const offline = Boolean(sync.db) && (!online || sync.failed);
   const years = useYears();
-  const year = years.data?.find((candidate) => candidate.is_current);
-  const classes = useClasses(year?.id ?? "");
+  const serverYear = years.data?.find((candidate) => candidate.is_current);
+  const year = offline ? device?.config?.academic_year : serverYear;
+  const classes = useClasses(offline ? "" : (serverYear?.id ?? ""));
   // C5 : rien n'est annoncé si l'école n'attribue pas de matricule (il se saisit sur la fiche).
   const givesMatricule = useSchool().data?.auto_matricule !== false;
   // Un identifiant par écran ouvert : renvoyé tel quel si l'envoi est recommencé.
-  const ids = useRef({ student: uuidv7(), enrollment: uuidv7() });
+  const [ids, setIds] = useState(newIds);
   const [general, setGeneral] = useState<string | null>(null);
   const [duplicates, setDuplicates] = useState<Duplicate[] | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const me = useCurrentMe();
+  const canCollect = can(me, ["finance.collect_payment"]) && Boolean(device?.config?.fee_rules);
   const schema = useMemo(() => studentSchema(t, birthDateRequired(me)), [t, me]);
   const form: Form = useForm({ resolver: zodResolver(schema), defaultValues: EMPTY });
+  const [deviceDuplicates, setDeviceDuplicates] = useState<{
+    found: LocalEnrollment[];
+    collect: boolean;
+  } | null>(null);
+  const [enrolledHere, setEnrolledHere] = useState<{ name: string; matricule: string } | null>(
+    null,
+  );
 
   const save = useMutation({
-    mutationFn: async ({
-      values,
-      allowDuplicate,
-    }: {
-      values: z.output<Schema>;
-      allowDuplicate: boolean;
-    }) => {
-      const { class_group, family_mode, family, guardians, sex, ...fields } = values;
-      const { student, enrollment } = ids.current;
+    mutationFn: async ({ values, allowDuplicate }: { values: Output; allowDuplicate: boolean }) => {
+      const { student, enrollment } = ids;
       await call(
         api.POST("/api/students/", {
-          body: {
-            id: student,
-            ...fields,
-            sex: sex as "M" | "F",
-            ...(family_mode === "existing"
-              ? { family }
-              : {
-                  guardians: guardians.map((guardian, index) => ({
-                    ...guardian,
-                    relationship: guardian.relationship as Relationship,
-                    is_primary: index === 0,
-                  })),
-                }),
-            allow_duplicate: allowDuplicate,
-          },
+          body: { id: student, ...studentBody(values).body, allow_duplicate: allowDuplicate },
         }),
       );
-      await call(api.POST("/api/enrollments/", { body: { id: enrollment, student, class_group } }));
+      await call(
+        api.POST("/api/enrollments/", {
+          body: { id: enrollment, student, class_group: values.class_group },
+        }),
+      );
       if (photo) return uploadPhoto(student, photo);
       return call(api.GET("/api/students/{id}/", { params: { path: { id: student } } }));
     },
@@ -190,9 +232,103 @@ export function NewStudentPage() {
       save.mutate({ values, allowDuplicate });
     });
 
-  const groups = classes.data ?? [];
-  const noYear = years.data && !year;
-  const blocked = noYear || (classes.data && groups.length === 0);
+  // Sur l'appareil : élève, famille, inscription et frais dus dans la file, numéros provisoires.
+  const saveHere = useMutation({
+    mutationFn: async ({
+      values,
+      collect,
+      distinct,
+    }: {
+      values: Output;
+      collect: boolean;
+      distinct: boolean;
+    }) => {
+      const known = device;
+      const config = known?.config;
+      if (!sync.db || !known || !config?.academic_year) throw new Error("No device state");
+      const { student, enrollment, family } = ids;
+      const birthDate = values.birth_date || null;
+      const found = localDuplicates(known.enrollments, { ...values, birth_date: birthDate });
+      if (found.length && !distinct) return { kind: "duplicates", found, collect } as const;
+      const day = schoolDay(school.timezone);
+      const charges = deviceCharges(config, values.class_group, enrollment, uuidv7);
+      const newFamily = values.family_mode === "new";
+      const payload: OfflineEnrollment = {
+        ...studentBody(values).body,
+        birth_date: birthDate,
+        id: student,
+        enrollment_id: enrollment,
+        class_group: values.class_group,
+        enrolled_on: day,
+        charges: charges.map(({ charge, template }) => ({
+          id: charge.id,
+          installment_template: template,
+        })),
+        distinct_from: found.map((other) => other.student.id),
+        ...(newFamily && { family_id: family }),
+      };
+      const familyId = newFamily ? family : values.family;
+      const finance = config.fee_rules !== null;
+      const local: Enrollment = {
+        id: enrollment,
+        academic_year: config.academic_year.id,
+        class_group: values.class_group,
+        status: "active",
+        enrolled_on: day,
+        left_on: null,
+        student: {
+          id: student,
+          family: familyId,
+          matricule: givesMatricule ? provisionalMatricule(student) : "",
+          last_name: values.last_name,
+          middle_name: values.middle_name,
+          first_name: values.first_name,
+          sex: values.sex as "M" | "F",
+          birth_date: birthDate,
+          family_code: newFamily
+            ? provisionalFamilyCode(family)
+            : (known.enrollments.find((item) => item.student.family === familyId)?.student
+                .family_code ?? ""),
+        },
+        charges: finance ? charges.map(({ charge }) => charge) : null,
+        payments: finance ? [] : null,
+        credits: finance ? [] : null,
+        credit_uses: finance ? [] : null,
+      };
+      await enrollOffline(sync.db, payload, local);
+      return { kind: "enrolled", local, collect } as const;
+    },
+    onSuccess: (result) => {
+      if (result.kind === "duplicates") {
+        setDeviceDuplicates({ found: result.found, collect: result.collect });
+        return;
+      }
+      const { local, collect } = result;
+      const name = studentName(local.student);
+      if (collect) {
+        void navigate("/cash", { state: { collect: collectOf(local, groups) } });
+        return;
+      }
+      setEnrolledHere({ name, matricule: local.student.matricule });
+      setIds(newIds());
+      form.reset(EMPTY);
+      window.scrollTo({ top: 0 });
+    },
+    onError: (error) => setGeneral(errorMessage(error, t)),
+  });
+  const submitHere = (collect: boolean, distinct = false) =>
+    form.handleSubmit((values) => {
+      setGeneral(null);
+      setEnrolledHere(null);
+      setDeviceDuplicates(null);
+      saveHere.mutate({ values, collect, distinct });
+    });
+
+  const groups: { id: string; name: string }[] =
+    (offline ? device?.config?.class_groups : classes.data) ?? [];
+  const noYear = offline ? device && !year : years.data && !year;
+  const blocked = noYear || ((offline ? device : classes.data) && groups.length === 0);
+  const pending = save.isPending || saveHere.isPending;
 
   return (
     <>
@@ -206,22 +342,64 @@ export function NewStudentPage() {
           </>
         }
         title={t("students.new.title")}
+        subtitle={offline ? t("students.offline.subtitle") : undefined}
         actions={
           <>
             <Button asChild variant="outline">
               <Link to="/students">{t("common.cancel")}</Link>
             </Button>
-            <Button type="submit" form="new-student" disabled={save.isPending || Boolean(blocked)}>
-              {t("students.new.submit")}
+            {/* Sans réseau, au guichet : « Inscrire et encaisser » d'abord (maquette). */}
+            <Button
+              type="submit"
+              form="new-student"
+              variant={offline && canCollect ? "outline" : undefined}
+              disabled={pending || Boolean(blocked)}
+            >
+              {offline && canCollect ? t("students.offline.enrollOnly") : t("students.new.submit")}
             </Button>
+            {offline && canCollect && (
+              <Button
+                type="button"
+                disabled={pending || Boolean(blocked)}
+                onClick={() => void submitHere(true)()}
+              >
+                {t("students.offline.enrollAndCollect")}
+              </Button>
+            )}
           </>
         }
       />
+      {offline && (
+        <Banner tone="warn" icon="wifioff">
+          <span>
+            <b>{t("common.offline")}.</b> {t("students.offline.provisional")}
+          </span>
+        </Banner>
+      )}
+      {enrolledHere && (
+        <Banner tone="ok" role="status">
+          {t("students.offline.enrolled", {
+            name: enrolledHere.name,
+            matricule: enrolledHere.matricule || t("common.none"),
+          })}
+        </Banner>
+      )}
       {noYear && <Banner tone="warn">{t("students.new.noYear")}</Banner>}
-      {year && classes.data && groups.length === 0 && (
+      {year && groups.length === 0 && (offline ? device : classes.data) && (
         <Banner tone="warn">{t("students.new.noClasses")}</Banner>
       )}
       {general && <Banner tone="due">{general}</Banner>}
+      {deviceDuplicates && (
+        <DeviceDuplicates
+          found={deviceDuplicates.found}
+          groups={groups}
+          canCollect={canCollect}
+          onDistinct={() => void submitHere(deviceDuplicates.collect, true)()}
+          onCollect={(other) =>
+            void navigate("/cash", { state: { collect: collectOf(other, groups) } })
+          }
+        />
+      )}
       {duplicates && (
         <Banner tone="warn" role="alert">
           <span className="flex flex-col items-start gap-2">
@@ -243,13 +421,27 @@ export function NewStudentPage() {
       <form
         id="new-student"
         noValidate
-        onSubmit={submit(false)}
+        onSubmit={offline ? submitHere(false) : submit(false)}
         className="flex max-w-[1040px] flex-col gap-5"
       >
         <IdentitySections form={form} />
         <Section title={t("students.new.schooling", { year: year?.name ?? "" })}>
           <div className="grid gap-3 min-[700px]:grid-cols-3">
-            <ClassField form={form} groups={groups} />
+            <ClassField
+              form={form}
+              groups={groups}
+              help={(id) => {
+                if (offline) return device && seenAtSync(device, id, t, i18n.language, school);
+                const group = classes.data?.find((item) => item.id === id);
+                if (!group) return undefined;
+                return group.capacity === null
+                  ? t("students.new.enrolledCount", { count: group.student_count })
+                  : t("students.new.places", {
+                      count: group.student_count,
+                      capacity: group.capacity,
+                    });
+              }}
+            />
             <TextField
               form={form}
               name="previous_school"
@@ -259,24 +451,219 @@ export function NewStudentPage() {
               <Field
                 id="student-matricule"
                 label={t("students.new.matricule")}
-                help={t("students.new.matriculeHelp")}
+                help={offline ? undefined : t("students.new.matriculeHelp")}
               >
                 {(control) => (
                   <Input
                     {...control}
                     readOnly
-                    value={t("students.new.matriculeValue")}
+                    value={
+                      offline
+                        ? t("students.offline.provisionalValue", {
+                            value: provisionalMatricule(ids.student),
+                          })
+                        : t("students.new.matriculeValue")
+                    }
                     className="text-ink-3"
                   />
                 )}
               </Field>
             )}
+            {offline && <ProvisionalFamilyCode form={form} family={ids.family} device={device} />}
           </div>
         </Section>
-        <PhotoSection form={form} photo={photo} onPhoto={setPhoto} />
-        <FamilySection form={form} />
+        {/* La photo s'envoie au serveur : sans réseau, elle s'ajoute sur la fiche ensuite. */}
+        {!offline && <PhotoSection form={form} photo={photo} onPhoto={setPhoto} />}
+        <FamilySection form={form} device={offline ? device : undefined} />
       </form>
     </>
+  );
+}
+
+/** Inscrits dans la classe d'après l'appareil, et l'heure de sa dernière synchronisation. */
+function seenAtSync(
+  device: DeviceStudents,
+  classGroup: string,
+  t: TFunction,
+  language: string,
+  school: { timezone: string },
+) {
+  const count = device.enrollments.filter(
+    (item) => item.class_group === classGroup && item.status === "active",
+  ).length;
+  return device.lastSyncAt
+    ? t("students.offline.seenAtSync", {
+        count,
+        time: formatTime(device.lastSyncAt, language, school.timezone),
+      })
+    : t("students.new.enrolledCount", { count });
+}
+
+/** Élève à encaisser, passé à la caisse de l'appareil (`CashDesk`). */
+function collectOf(enrollment: Enrollment, groups: { id: string; name: string }[]): Chosen {
+  return {
+    enrollment: enrollment.id,
+    name: studentName(enrollment.student),
+    matricule: enrollment.student.matricule,
+    classGroup: groups.find((group) => group.id === enrollment.class_group)?.name ?? "",
+    guardian: null,
+  };
+}
+
+/** Même nom, prénom et date de naissance qu'un élève de l'appareil : jamais fusionné ; « Ce sont
+ *  deux élèves » inscrit et le dit au serveur (pas de signalement), « C'est le même » encaisse. */
+function DeviceDuplicates({
+  found,
+  groups,
+  canCollect,
+  onDistinct,
+  onCollect,
+}: {
+  found: LocalEnrollment[];
+  groups: { id: string; name: string }[];
+  canCollect: boolean;
+  onDistinct: () => void;
+  onCollect: (other: LocalEnrollment) => void;
+}) {
+  const { t, i18n } = useTranslation();
+  const school = useCurrentSchool();
+  return (
+    <Banner tone="warn" role="alert">
+      <span className="flex flex-col items-start gap-2">
+        <span>
+          <b>{t("students.offline.duplicateTitle")}</b> {t("students.offline.duplicateHelp")}
+        </span>
+        {found.map((other) => (
+          <span key={other.id} className="flex flex-wrap items-center gap-2">
+            {t("students.offline.duplicateOne", {
+              name: studentName(other.student),
+              born: other.student.birth_date
+                ? formatDate(other.student.birth_date, i18n.language, school.timezone)
+                : "",
+              detail: [
+                other.student.matricule,
+                groups.find((group) => group.id === other.class_group)?.name,
+              ]
+                .filter(Boolean)
+                .join(", "),
+            })}
+            {canCollect && (
+              <Button type="button" size="sm" variant="ghost" onClick={() => onCollect(other)}>
+                {t("students.offline.sameCollect")}
+              </Button>
+            )}
+          </span>
+        ))}
+        <Button type="button" size="sm" variant="outline" onClick={onDistinct}>
+          {t("students.offline.distinct")}
+        </Button>
+      </span>
+    </Banner>
+  );
+}
+
+/** Code famille : provisoire pour une nouvelle famille, celui de la famille choisie sinon. */
+function ProvisionalFamilyCode({
+  form,
+  family,
+  device,
+}: {
+  form: Form;
+  family: string;
+  device?: DeviceStudents;
+}) {
+  const { t } = useTranslation();
+  const [mode, chosen] = useWatch({ control: form.control, name: ["family_mode", "family"] });
+  const code =
+    mode === "new"
+      ? t("students.offline.provisionalValue", { value: provisionalFamilyCode(family) })
+      : (device?.enrollments.find((item) => item.student.family === chosen)?.student.family_code ??
+        "");
+  return (
+    <Field id="student-family-code" label={t("students.offline.familyCode")}>
+      {(control) => <Input {...control} readOnly value={code} className="text-ink-3" />}
+    </Field>
+  );
+}
+
+/** Famille existante sans réseau : cherchée parmi les élèves de l'appareil (nom d'un enfant ou
+ *  code famille). */
+function DeviceFamily({ form, device }: { form: Form; device: DeviceStudents }) {
+  const { t } = useTranslation();
+  const [search, setSearch] = useState("");
+  const chosen = useWatch({ control: form.control, name: "family" });
+  const classes = new Map(device.config?.class_groups.map((item) => [item.id, item.name]));
+  const all = searchLocalFamilies(device.enrollments, search.trim(), 6);
+  const selected = chosen
+    ? (all.find((family) => family.id === chosen) ??
+      searchLocalFamilies(
+        device.enrollments.filter((item) => item.student.family === chosen),
+        device.enrollments.find((item) => item.student.family === chosen)?.student.family_code ??
+          "",
+        1,
+      )[0])
+    : undefined;
+  const results = all.filter((family) => family.id !== chosen).slice(0, 5);
+  const card = (family: (typeof all)[number], isChosen: boolean) => (
+    <div
+      key={family.id}
+      className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-line p-3.5"
+    >
+      <div className="text-md">
+        <b>{t("students.new.familyCode", { code: family.code })}</b>
+        <br />
+        <span className="text-sm text-ink-3">
+          {t("students.new.children", {
+            count: family.children.length,
+            names: family.children
+              .map((child) =>
+                [studentName(child.student), classes.get(child.class_group)]
+                  .filter(Boolean)
+                  .join(", "),
+              )
+              .join(" ; "),
+          })}
+        </span>
+      </div>
+      {isChosen ? (
+        <span className="inline-flex items-center gap-1.5 rounded-field bg-lake px-3 py-1.5 text-sm font-bold text-white">
+          <Icon name="check" size={14} />
+          {t("students.new.chosen")}
+        </span>
+      ) : (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => form.setValue("family", family.id, { shouldValidate: true })}
+        >
+          {t("students.new.choose")}
+        </Button>
+      )}
+    </div>
+  );
+  return (
+    <div className="flex flex-col gap-3">
+      <Field
+        id="family-search"
+        label={t("students.offline.familySearch")}
+        error={form.formState.errors.family?.message}
+      >
+        {(control) => (
+          <Input
+            {...control}
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        )}
+      </Field>
+      {selected && card(selected, true)}
+      {results.map((family) => card(family, false))}
+      {search.trim().length >= 2 && all.length === 0 && (
+        <p className="text-sm text-ink-3">{t("students.new.familyNone")}</p>
+      )}
+    </div>
   );
 }
 
@@ -285,22 +672,24 @@ function duplicatesOf(error: ApiError): Duplicate[] {
   return Array.isArray(found) ? (found as Duplicate[]) : [];
 }
 
-function ClassField({ form, groups }: { form: Form; groups: ClassGroup[] }) {
+function ClassField({
+  form,
+  groups,
+  help,
+}: {
+  form: Form;
+  groups: { id: string; name: string }[];
+  help: (id: string) => string | undefined;
+}) {
   const { t } = useTranslation();
   const value = useWatch({ control: form.control, name: "class_group" });
-  const chosen = groups.find((group) => group.id === value);
   return (
     <Field
       id="student-class"
       label={t("students.new.class")}
       required
       error={form.formState.errors.class_group?.message}
-      help={
-        chosen &&
-        (chosen.capacity === null
-          ? t("students.new.enrolledCount", { count: chosen.student_count })
-          : t("students.new.places", { count: chosen.student_count, capacity: chosen.capacity }))
-      }
+      help={value ? help(value) : undefined}
     >
       {(control) => (
         <Select {...control} {...form.register("class_group")}>
@@ -316,7 +705,7 @@ function ClassField({ form, groups }: { form: Form; groups: ClassGroup[] }) {
   );
 }
 
-function FamilySection({ form }: { form: Form }) {
+function FamilySection({ form, device }: { form: Form; device?: DeviceStudents }) {
   const { t } = useTranslation();
   const mode = useWatch({ control: form.control, name: "family_mode" });
   return (
@@ -334,7 +723,13 @@ function FamilySection({ form }: { form: Form }) {
         />
       }
     >
-      {mode === "existing" ? <ExistingFamily form={form} /> : <NewFamily form={form} />}
+      {mode === "new" ? (
+        <NewFamily form={form} />
+      ) : device ? (
+        <DeviceFamily form={form} device={device} />
+      ) : (
+        <ExistingFamily form={form} />
+      )}
     </Section>
   );
 }

@@ -9,7 +9,9 @@ from apps.finance.models import (
     CashRegister,
     Discount,
     ExchangeRate,
+    FeeRule,
     FeeType,
+    InstallmentTemplate,
     Payment,
     PaymentCancellation,
     StudentCharge,
@@ -39,6 +41,8 @@ CONFIG_MODELS = (
     Track,
     ClassGroup,
     FeeType,
+    FeeRule,
+    InstallmentTemplate,
     CashRegister,
     ExchangeRate,
 )

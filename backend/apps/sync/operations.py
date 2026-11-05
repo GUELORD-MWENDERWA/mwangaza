@@ -3,8 +3,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
-caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), feuille de notes
-(8.2.3). Une opération hors
+caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), sortie de caisse
+(FIN.2), inscription d'un élève (HL.1), feuille de notes (8.2.3). Une opération hors
 ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
 donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
 jours (`purge`)."""
@@ -34,13 +34,17 @@ from apps.accounts.roles import (
     GRADES_ENTER,
     GRADES_ENTER_ANY,
     GRADES_VALIDATE,
+    STUDENTS_EDIT,
 )
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.core.tenancy import use_all_schools
+from apps.finance import cash_outs
 from apps.finance import services as finance
-from apps.finance.models import CashRegister, CashSession, Payment, StudentCredit
+from apps.finance.models import CashRegister, CashSession, Expense, Payment, StudentCredit
 from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
-from apps.schools.models import Term
+from apps.schools.models import ClassGroup, Term
+from apps.students import services as students
+from apps.students.serializers import StudentWriteSerializer
 from apps.sync.models import Device, SyncOperation
 
 UNKNOWN_OPERATION = ApiError(
@@ -120,6 +124,37 @@ def _close_session(data: dict, device: Device, actor: User) -> dict:
     session = data.pop("session")
     finance.close_cash_session(session, actor=actor, device=device, **data)
     return {"cash_session": str(session.pk)}
+
+
+class OfflineCashOutSerializer(serializers.Serializer):
+    """Sortie de caisse hors ligne (FIN.2) : l'argent est sorti, le bon signé sur l'appareil."""
+
+    id = serializers.UUIDField(help_text="UUID v7 donné par l'appareil.")
+    expense = serializers.PrimaryKeyRelatedField(queryset=Expense.objects)
+    cash_session = serializers.UUIDField(help_text="Session ouverte du caissier.")
+    number = serializers.CharField(max_length=40, help_text="`ITIG-P1-26-S0003`.")
+    received_by = serializers.CharField(max_length=120)
+    paid_at = serializers.DateTimeField(help_text="Heure de l'appareil à la sortie.")
+
+    def to_service(self) -> dict:
+        return dict(self.validated_data)
+
+
+def _create_cash_out(data: dict, device: Device, actor: User) -> dict:
+    offline = cash_outs.OfflineCashOut(
+        device=device,
+        cash_session_id=data["cash_session"],
+        number=data["number"],
+        paid_at=data["paid_at"],
+    )
+    cash_out, _created = cash_outs.record_cash_out(
+        actor=actor,
+        expense=data["expense"],
+        received_by=data["received_by"],
+        cash_out_id=data["id"],
+        offline=offline,
+    )
+    return {"cash_out": str(cash_out.pk), "number": cash_out.number}
 
 
 class OfflineReprintSerializer(serializers.Serializer):
@@ -222,6 +257,61 @@ def _save_grades(data: dict, device: Device, actor: User) -> dict:
     return {"course": str(course.pk), "term": str(term.pk)}
 
 
+class OfflineChargeSerializer(serializers.Serializer):
+    id = serializers.UUIDField(help_text="UUID v7 du frais dû créé par l'appareil.")
+    installment_template = serializers.UUIDField(help_text="Tranche du barème.")
+
+
+class OfflineEnrollmentSerializer(StudentWriteSerializer):
+    """Élève inscrit hors ligne (HL.1) : comme « Inscrire un élève », avec les identifiants de
+    l'appareil (élève, nouvelle famille, inscription, frais dus calculés d'après `fee_rules`)."""
+
+    id = serializers.UUIDField(help_text="UUID v7 de l'élève, donné par l'appareil.")
+    family_id = serializers.UUIDField(
+        required=False, help_text="Nouvelle famille (`guardians`) : son UUID v7."
+    )
+    enrollment_id = serializers.UUIDField(help_text="UUID v7 de l'inscription.")
+    class_group = serializers.PrimaryKeyRelatedField(queryset=ClassGroup.objects)
+    enrolled_on = serializers.DateField(help_text="Jour de l'appareil.")
+    charges = OfflineChargeSerializer(many=True, required=False, default=list, max_length=100)
+    distinct_from = serializers.ListField(
+        child=serializers.UUIDField(),
+        required=False,
+        default=list,
+        max_length=20,
+        help_text="Élèves aux mêmes noms dits différents sur l'appareil (« Ce sont deux élèves »).",
+    )
+
+    class Meta(StudentWriteSerializer.Meta):
+        fields = [
+            *StudentWriteSerializer.Meta.fields,
+            "family_id",
+            "enrollment_id",
+            "class_group",
+            "enrolled_on",
+            "charges",
+            "distinct_from",
+        ]
+
+    def to_service(self) -> dict:
+        data = dict(self.validated_data)
+        for ignored in ("matricule", "allow_duplicate"):
+            data.pop(ignored, None)
+        return data
+
+
+def _enroll_student(data: dict, device: Device, actor: User) -> dict:
+    """Jamais refusée pour un doublon possible : signalé au secrétariat (`enroll_offline`)."""
+    student, enrollment, duplicates = students.enroll_offline(actor=actor, **data)
+    return {
+        "student": str(student.pk),
+        "enrollment": str(enrollment.pk),
+        "matricule": student.matricule,
+        "family_code": student.family.code,
+        "possible_duplicates": [str(other.pk) for other in duplicates],
+    }
+
+
 @dataclass(frozen=True)
 class OperationType:
     permission: str | tuple[str, ...]
@@ -239,11 +329,15 @@ OPERATIONS = {
     "cash_session.close": OperationType(
         FINANCE_COLLECT_PAYMENT, OfflineClosingSerializer, _close_session
     ),
+    "cash_out.create": OperationType(
+        FINANCE_COLLECT_PAYMENT, OfflineCashOutSerializer, _create_cash_out
+    ),
     "payment.reprint": OperationType(FINANCE_COLLECT_PAYMENT, OfflineReprintSerializer, _reprint),
     "credit.use": OperationType(FINANCE_COLLECT_PAYMENT, OfflineCreditSerializer, _use_credit),
     "cancellation.request": OperationType(
         FINANCE_REQUEST_CANCELLATION, OfflineCancellationSerializer, _request_cancellation
     ),
+    "student.enroll": OperationType(STUDENTS_EDIT, OfflineEnrollmentSerializer, _enroll_student),
     "grades.save": OperationType(
         (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE), OfflineGradesSerializer, _save_grades
     ),

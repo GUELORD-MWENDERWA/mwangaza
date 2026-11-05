@@ -867,6 +867,18 @@ paths:
           - finance.cash_session_closed
           - finance.payment_recorded
           - finance.prior_payment_recorded
+          - finance.expense_category_created
+          - finance.expense_category_updated
+          - finance.expense_settings_updated
+          - finance.expense_recorded
+          - finance.expense_approved
+          - finance.expense_rejected
+          - finance.expense_cancelled
+          - finance.cash_out_recorded
+          - finance.cash_out_cancelled
+          - finance.budget_updated
+          - finance.treasury_movement_recorded
+          - finance.treasury_movement_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1019,6 +1031,18 @@ paths:
           * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
           * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+          * `finance.expense_category_created` - Expense category created
+          * `finance.expense_category_updated` - Expense category changed
+          * `finance.expense_settings_updated` - Expense approval threshold changed
+          * `finance.expense_recorded` - Expense recorded
+          * `finance.expense_approved` - Expense approved
+          * `finance.expense_rejected` - Expense rejected
+          * `finance.expense_cancelled` - Expense cancelled
+          * `finance.cash_out_recorded` - Cash paid out for an expense
+          * `finance.cash_out_cancelled` - Cash-out cancelled
+          * `finance.budget_updated` - Budget changed
+          * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+          * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -1358,6 +1382,18 @@ paths:
           - finance.cash_session_closed
           - finance.payment_recorded
           - finance.prior_payment_recorded
+          - finance.expense_category_created
+          - finance.expense_category_updated
+          - finance.expense_settings_updated
+          - finance.expense_recorded
+          - finance.expense_approved
+          - finance.expense_rejected
+          - finance.expense_cancelled
+          - finance.cash_out_recorded
+          - finance.cash_out_cancelled
+          - finance.budget_updated
+          - finance.treasury_movement_recorded
+          - finance.treasury_movement_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1510,6 +1546,18 @@ paths:
           * `finance.cash_session_closed` - Cash session closed
           * `finance.payment_recorded` - Payment recorded
           * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+          * `finance.expense_category_created` - Expense category created
+          * `finance.expense_category_updated` - Expense category changed
+          * `finance.expense_settings_updated` - Expense approval threshold changed
+          * `finance.expense_recorded` - Expense recorded
+          * `finance.expense_approved` - Expense approved
+          * `finance.expense_rejected` - Expense rejected
+          * `finance.expense_cancelled` - Expense cancelled
+          * `finance.cash_out_recorded` - Cash paid out for an expense
+          * `finance.cash_out_cancelled` - Cash-out cancelled
+          * `finance.budget_updated` - Budget changed
+          * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+          * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -2128,6 +2176,164 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/budget/:
+    get:
+      operationId: budget_retrieve
+      description: |-
+        Budget et rapports de l'année (FIN.3), pour une devise : prévu et dépensé par catégorie,
+        entrées et sorties par mois, solde des comptes (toutes devises). Lu avec
+        `finance.view_reports` ; budget réglé avec `finance.manage_budget`. Jamais de somme entre
+        deux devises.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - in: query
+        name: currency
+        schema:
+          enum:
+          - USD
+          - CDF
+          type: string
+          minLength: 1
+        description: |-
+          Absent : la première de l'école.
+
+          * `USD` - US dollar
+          * `CDF` - Congolese franc
+      tags:
+      - budget
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetReport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: budget_update
+      description: |-
+        Prévu de chaque catégorie envoyée pour l'année et la devise ; 0 retire la ligne, les
+        catégories absentes ne changent pas.
+      tags:
+      - budget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BudgetWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BudgetWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetReport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/budget/export/:
+    get:
+      operationId: budget_export_retrieve
+      description: |-
+        Classeur Excel de l'année (FIN.3) : budget, entrées et sorties par mois, comptes, toutes
+        devises, chacune dans sa colonne.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      tags:
+      - budget
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
           content:
             application/json:
               schema:
@@ -2818,6 +3024,253 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/cash-outs/:
+    get:
+      operationId: cash_outs_list
+      description: |-
+        Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+        espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+        les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+        session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+        enregistrée. Une sortie ne s'efface jamais.
+      parameters:
+      - in: query
+        name: cash_session
+        schema:
+          type: string
+          format: uuid
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - cash-outs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCashOutList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: cash_outs_create
+      description: |-
+        Sortir l'argent d'une dépense de la session ouverte du caissier. 409
+        `no_open_session`, `expense_not_payable_in_cash` (pas validée, ou pas en espèces),
+        `expense_already_paid`, `expense_cancelled`, `not_enough_cash` (la session n'a pas reçu
+        assez dans cette devise).
+      tags:
+      - cash-outs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashOutCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashOutCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashOutCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-outs/{id}/:
+    get:
+      operationId: cash_outs_retrieve
+      description: |-
+        Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+        espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+        les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+        session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+        enregistrée. Une sortie ne s'efface jamais.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash-out.
+        required: true
+      tags:
+      - cash-outs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-outs/{id}/cancel/:
+    post:
+      operationId: cash_outs_cancel_create
+      description: |-
+        Annuler une sortie : l'argent revient dans la caisse, la dépense redevient à payer.
+        409 `cash_out_session_closed` après la clôture, `cash_out_cancelled` si déjà fait.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash-out.
+        required: true
+      tags:
+      - cash-outs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-outs/payable/:
+    get:
+      operationId: cash_outs_payable_list
+      description: |-
+        Dépenses validées à payer en espèces, pas encore sorties de la caisse, les plus
+        anciennes d'abord.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - cash-outs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPayableExpenseList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/cash-registers/:
     get:
       operationId: cash_registers_list
@@ -3114,7 +3567,8 @@ paths:
   /api/cash-sessions/current/:
     get:
       operationId: cash_sessions_current_retrieve
-      description: La caisse ouverte du caissier (ou `null`), ses totaux et le taux
+      description: |-
+        La caisse ouverte du caissier (ou `null`), ses totaux, ses sorties de caisse et le taux
         des encaissements.
       tags:
       - finance
@@ -12074,6 +12528,645 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ExchangeRate'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expense-categories/:
+    get:
+      operationId: expense_categories_list
+      description: |-
+        Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+        rapports, réglées avec `finance.configure_fees`.
+      tags:
+      - expense-categories
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: expense_categories_create
+      description: |-
+        Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+        rapports, réglées avec `finance.configure_fees`.
+      tags:
+      - expense-categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCategoryWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expense-categories/{id}/:
+    patch:
+      operationId: expense_categories_partial_update
+      description: |-
+        Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+        rapports, réglées avec `finance.configure_fees`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense category.
+        required: true
+      tags:
+      - expense-categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedExpenseCategoryWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCategory'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expense-settings/:
+    get:
+      operationId: expense_settings_retrieve
+      description: Seuil de validation d'une dépense, par devise (FIN.1).
+      tags:
+      - expense-settings
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSettings'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: expense_settings_update
+      description: Seuil de validation d'une dépense, par devise (FIN.1).
+      tags:
+      - expense-settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseSettingsRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseSettingsRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseSettingsRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSettings'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/:
+    get:
+      operationId: expenses_list
+      description: |-
+        Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+        valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+        `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+        enregistrée. Une dépense ne s'efface jamais.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: month
+        schema:
+          type: string
+        description: Mois « AAAA-MM » de la date de la dépense.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - approved
+          - paid
+          - rejected
+          type: string
+          minLength: 1
+        description: |-
+          * `pending` - Waiting for approval
+          * `approved` - Approved, to be paid
+          * `paid` - Paid
+          * `rejected` - Rejected
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedExpenseList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: expenses_create
+      description: |-
+        Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+        valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+        `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+        enregistrée. Une dépense ne s'efface jamais.
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/:
+    get:
+      operationId: expenses_retrieve
+      description: |-
+        Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+        valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+        `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+        enregistrée. Une dépense ne s'efface jamais.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/approve/:
+    post:
+      operationId: expenses_approve_create
+      description: |-
+        Valider une dépense en attente. 409 `expense_decided` ; 403 `own_expense` pour la
+        sienne.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/cancel/:
+    post:
+      operationId: expenses_cancel_create
+      description: |-
+        Annuler : une ligne liée avec motif ; la dépense reste dans la liste. 409
+        `expense_cancelled` si déjà annulée.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/reject/:
+    post:
+      operationId: expenses_reject_create
+      description: Refuser une dépense en attente (motif conseillé dans `note`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseDecisionRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/{id}/voucher/:
+    get:
+      operationId: expenses_voucher_retrieve
+      description: Le justificatif (photo ou PDF), lu seulement par le personnel de
+        l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this expense.
+        required: true
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/expenses/summary/:
+    get:
+      operationId: expenses_summary_retrieve
+      description: Totaux de la liste filtrée, par devise (jamais de somme entre devises).
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: month
+        schema:
+          type: string
+        description: Mois « AAAA-MM » de la date de la dépense.
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - approved
+          - paid
+          - rejected
+          type: string
+          minLength: 1
+        description: |-
+          * `pending` - Waiting for approval
+          * `approved` - Approved, to be paid
+          * `paid` - Paid
+          * `rejected` - Rejected
+      tags:
+      - expenses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseSummary'
           description: ''
         '400':
           content:
@@ -22463,6 +23556,175 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/treasury-movements/:
+    get:
+      operationId: treasury_movements_list
+      description: |-
+        Soldes de départ et virements entre les comptes de l'école (FIN.3), les plus récents
+        d'abord. Lus avec `finance.view_reports` ; saisis et annulés avec `finance.manage_budget`.
+        Rien ne s'efface : annuler écrit une ligne liée avec motif.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+        description: 'Absent : l''année en cours.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - treasury-movements
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTreasuryMovementList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: treasury_movements_create
+      description: |-
+        Soldes de départ et virements entre les comptes de l'école (FIN.3), les plus récents
+        d'abord. Lus avec `finance.view_reports` ; saisis et annulés avec `finance.manage_budget`.
+        Rien ne s'efface : annuler écrit une ligne liée avec motif.
+      tags:
+      - treasury-movements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TreasuryMovementCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TreasuryMovementCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TreasuryMovementCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryMovement'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/treasury-movements/{id}/cancel/:
+    post:
+      operationId: treasury_movements_cancel_create
+      description: |-
+        Annuler un solde de départ ou un virement (motif). 409 `treasury_movement_cancelled`
+        si déjà fait.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account movement.
+        required: true
+      tags:
+      - treasury-movements
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryMovement'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/unpaid/:
     get:
       operationId: unpaid_list
@@ -22943,6 +24205,45 @@ components:
       description: |-
         * `notebook` - notebook
         * `total` - total
+    AccountBalance:
+      type: object
+      properties:
+        account:
+          $ref: '#/components/schemas/AccountEnum'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        opening_minor:
+          type: integer
+        receipts_minor:
+          type: integer
+          description: Reçu à la caisse (compte « caisse »).
+        transfers_in_minor:
+          type: integer
+        transfers_out_minor:
+          type: integer
+        expenses_minor:
+          type: integer
+        balance_minor:
+          type: integer
+      required:
+      - account
+      - currency
+      - opening_minor
+      - receipts_minor
+      - transfers_in_minor
+      - transfers_out_minor
+      - expenses_minor
+      - balance_minor
+    AccountEnum:
+      enum:
+      - cash
+      - bank
+      - mobile_money
+      type: string
+      description: |-
+        * `cash` - Cash desk
+        * `bank` - Bank
+        * `mobile_money` - Mobile money
     ActionEnum:
       enum:
       - auth.login
@@ -23074,6 +24375,18 @@ components:
       - finance.cash_session_closed
       - finance.payment_recorded
       - finance.prior_payment_recorded
+      - finance.expense_category_created
+      - finance.expense_category_updated
+      - finance.expense_settings_updated
+      - finance.expense_recorded
+      - finance.expense_approved
+      - finance.expense_rejected
+      - finance.expense_cancelled
+      - finance.cash_out_recorded
+      - finance.cash_out_cancelled
+      - finance.budget_updated
+      - finance.treasury_movement_recorded
+      - finance.treasury_movement_cancelled
       - finance.payment_reprinted
       - finance.cancellation_requested
       - finance.payment_cancelled
@@ -23225,6 +24538,18 @@ components:
         * `finance.cash_session_closed` - Cash session closed
         * `finance.payment_recorded` - Payment recorded
         * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+        * `finance.expense_category_created` - Expense category created
+        * `finance.expense_category_updated` - Expense category changed
+        * `finance.expense_settings_updated` - Expense approval threshold changed
+        * `finance.expense_recorded` - Expense recorded
+        * `finance.expense_approved` - Expense approved
+        * `finance.expense_rejected` - Expense rejected
+        * `finance.expense_cancelled` - Expense cancelled
+        * `finance.cash_out_recorded` - Cash paid out for an expense
+        * `finance.cash_out_cancelled` - Cash-out cancelled
+        * `finance.budget_updated` - Budget changed
+        * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+        * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
         * `finance.payment_reprinted` - Receipt reprinted
         * `finance.cancellation_requested` - Payment cancellation requested
         * `finance.payment_cancelled` - Payment cancelled
@@ -24316,6 +25641,93 @@ components:
         * `submitted` - submitted
         * `validated` - validated
         * `returned` - returned
+    BudgetAmountRequest:
+      type: object
+      properties:
+        category:
+          type: string
+          format: uuid
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+      required:
+      - amount_minor
+      - category
+    BudgetReport:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        currencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyEnum'
+        budget:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetRow'
+        planned_minor:
+          type: integer
+        spent_minor:
+          type: integer
+        months:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonthFlow'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountBalance'
+      required:
+      - academic_year
+      - currency
+      - currencies
+      - budget
+      - planned_minor
+      - spent_minor
+      - months
+      - accounts
+    BudgetRow:
+      type: object
+      properties:
+        category:
+          type: string
+          format: uuid
+        name:
+          type: string
+        is_active:
+          type: boolean
+        planned_minor:
+          type: integer
+        spent_minor:
+          type: integer
+      required:
+      - category
+      - name
+      - is_active
+      - planned_minor
+      - spent_minor
+    BudgetWriteRequest:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetAmountRequest'
+      required:
+      - academic_year
+      - currency
+      - lines
     BusinessMoney:
       type: object
       properties:
@@ -24671,6 +26083,19 @@ components:
       - allocations
       - cash_register_name
       - academic_year
+    CancelledTotal:
+      type: object
+      properties:
+        currency:
+          type: string
+        total:
+          type: integer
+        count:
+          type: integer
+      required:
+      - currency
+      - total
+      - count
     CashCloseRequest:
       type: object
       properties:
@@ -24717,8 +26142,8 @@ components:
     CashClosingDetail:
       type: object
       description: |-
-        Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
-        encaissés hors ligne arrivés après la clôture (hors de l'attendu figé).
+        Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements et
+        sorties de caisse faits hors ligne arrivés après la clôture (hors de l'attendu figé).
       properties:
         session:
           $ref: '#/components/schemas/CashSession'
@@ -24746,6 +26171,11 @@ components:
           description: Annulations validées.
         cancellations_pending:
           type: integer
+        cash_outs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingCashOut'
+          description: Sorties de caisse déduites de l'attendu, dans l'ordre.
         closing:
           allOf:
           - $ref: '#/components/schemas/CashClosing'
@@ -24764,6 +26194,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LatePayment'
+        late_cash_outs:
+          type: array
+          items:
+            $ref: '#/components/schemas/LateCashOut'
       required:
       - session
       - currencies
@@ -24773,9 +26207,11 @@ components:
       - last_receipt
       - cancelled
       - cancellations_pending
+      - cash_outs
       - closing
       - state
       - late_payments
+      - late_cash_outs
     CashClosingLine:
       type: object
       properties:
@@ -24834,6 +26270,11 @@ components:
           description: Annulations validées.
         cancellations_pending:
           type: integer
+        cash_outs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingCashOut'
+          description: Sorties de caisse déduites de l'attendu, dans l'ordre.
         closing:
           allOf:
           - $ref: '#/components/schemas/CashClosing'
@@ -24847,7 +26288,109 @@ components:
       - last_receipt
       - cancelled
       - cancellations_pending
+      - cash_outs
       - closing
+    CashOut:
+      type: object
+      description: Une sortie de caisse et ce qu'imprime son bon.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 40
+        expense:
+          type: string
+          format: uuid
+        expense_number:
+          type: string
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        beneficiary:
+          type: string
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        received_by:
+          type: string
+          maxLength: 120
+        paid_at:
+          type: string
+          format: date-time
+        cash_session:
+          type: string
+          format: uuid
+          title: Session
+        cash_register_code:
+          type: string
+          readOnly: true
+        cash_register_name:
+          type: string
+          readOnly: true
+        cashier_name:
+          type: string
+          readOnly: true
+        offline:
+          type: boolean
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancellation_reason:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - number
+      - expense
+      - expense_number
+      - category_name
+      - beneficiary
+      - reason
+      - amount_minor
+      - currency
+      - received_by
+      - paid_at
+      - cash_session
+      - cash_register_code
+      - cash_register_name
+      - cashier_name
+      - offline
+      - cancelled
+      - cancellation_reason
+    CashOutCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 de l''appareil : un deuxième envoi rend la même sortie.'
+        expense:
+          type: string
+          format: uuid
+          description: Dépense validée à payer en espèces.
+        received_by:
+          type: string
+          minLength: 1
+          description: Nom de la personne qui reçoit l'argent.
+          maxLength: 120
+      required:
+      - expense
+      - received_by
     CashRegister:
       type: object
       properties:
@@ -25866,20 +27409,64 @@ components:
       - name
       - proclaimed_on
       - counts
+    ClosingCashOut:
+      type: object
+      description: Une sortie de caisse du bordereau (FIN.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+          description: Numéro du bon de sortie.
+        expense_number:
+          type: string
+        beneficiary:
+          type: string
+        received_by:
+          type: string
+        amount_minor:
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        paid_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - number
+      - expense_number
+      - beneficiary
+      - received_by
+      - amount_minor
+      - currency
+      - paid_at
     ClosingCurrency:
       type: object
       properties:
         currency:
           $ref: '#/components/schemas/CurrencyEnum'
-        expected_minor:
+        received_minor:
           type: integer
           description: Paiements de la session pas annulés à l'heure de clôture.
+        paid_out_minor:
+          type: integer
+          description: Sorties de caisse pas annulées à l'heure de clôture (FIN.2).
+        expected_minor:
+          type: integer
+          description: Reçu moins sorti ; sous zéro si plus d'argent est sorti qu'entré.
         count:
+          type: integer
+          description: Nombre de paiements.
+        cash_outs_count:
           type: integer
       required:
       - currency
+      - received_minor
+      - paid_out_minor
       - expected_minor
       - count
+      - cash_outs_count
     ClosingDifference:
       type: object
       properties:
@@ -29273,6 +30860,28 @@ components:
       description: |-
         * `USD` - US dollar
         * `CDF` - Congolese franc
+    CurrencyTotal:
+      type: object
+      properties:
+        currency:
+          type: string
+        spent:
+          type: integer
+          nullable: true
+        pending:
+          type: integer
+          nullable: true
+        pending_count:
+          type: integer
+        cash:
+          type: integer
+          nullable: true
+      required:
+      - currency
+      - spent
+      - pending
+      - pending_count
+      - cash
     CurrentCashSession:
       type: object
       description: Caisse ouverte du caissier (M13) et taux des encaissements.
@@ -29286,6 +30895,11 @@ components:
           items:
             $ref: '#/components/schemas/SessionTotal'
           description: Paiements non annulés de la session, par devise, jamais additionnés.
+        paid_out:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Sorties de caisse non annulées de la session, par devise (FIN.2).
         rate:
           type: string
           format: decimal
@@ -29299,6 +30913,7 @@ components:
       required:
       - session
       - totals
+      - paid_out
       - rate
       - rate_is_fallback
     CurrentSchool:
@@ -30689,6 +32304,253 @@ components:
       required:
       - academic_year
       - rate
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 40
+        category:
+          type: string
+          format: uuid
+        category_name:
+          type: string
+          readOnly: true
+        beneficiary:
+          type: string
+          maxLength: 120
+        reason:
+          type: string
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        spent_on:
+          type: string
+          format: date
+          title: Date
+        account:
+          allOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          title: Paid from
+        status:
+          $ref: '#/components/schemas/ExpenseStatusEnum'
+        has_voucher:
+          type: boolean
+          readOnly: true
+        requested_by_name:
+          type: string
+          readOnly: true
+        decided_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        decision_note:
+          type: string
+          maxLength: 200
+        paid_at:
+          type: string
+          format: date-time
+          nullable: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancellation_reason:
+          type: string
+          nullable: true
+          readOnly: true
+        cash_out_number:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Bon de sortie de caisse qui la paie (FIN.2).
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - number
+      - category
+      - category_name
+      - beneficiary
+      - reason
+      - amount_minor
+      - currency
+      - spent_on
+      - account
+      - status
+      - has_voucher
+      - requested_by_name
+      - decided_by_name
+      - decided_at
+      - decision_note
+      - paid_at
+      - cancelled
+      - cancellation_reason
+      - cash_out_number
+      - created_at
+    ExpenseCancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
+    ExpenseCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        is_active:
+          type: boolean
+          title: Active
+      required:
+      - id
+      - name
+      - is_active
+    ExpenseCategoryWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        is_active:
+          type: boolean
+          title: Active
+      required:
+      - name
+    ExpenseCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identifiant UUID v7 du client.
+        category:
+          type: string
+          format: uuid
+        beneficiary:
+          type: string
+          minLength: 1
+          maxLength: 120
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        spent_on:
+          type: string
+          format: date
+        account:
+          $ref: '#/components/schemas/AccountEnum'
+        voucher:
+          type: string
+          format: binary
+      required:
+      - account
+      - amount_minor
+      - beneficiary
+      - category
+      - currency
+      - reason
+      - spent_on
+    ExpenseDecisionRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+          maxLength: 200
+    ExpenseSettings:
+      type: object
+      properties:
+        usd_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (centimes).'
+        cdf_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (francs).'
+      required:
+      - usd_threshold_minor
+      - cdf_threshold_minor
+    ExpenseSettingsRequest:
+      type: object
+      properties:
+        usd_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (centimes).'
+        cdf_threshold_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 0
+          format: int64
+          description: 'Au-dessus : validation (francs).'
+      required:
+      - cdf_threshold_minor
+      - usd_threshold_minor
+    ExpenseStatusEnum:
+      enum:
+      - pending
+      - approved
+      - paid
+      - rejected
+      type: string
+      description: |-
+        * `pending` - Waiting for approval
+        * `approved` - Approved, to be paid
+        * `paid` - Paid
+        * `rejected` - Rejected
+    ExpenseSummary:
+      type: object
+      properties:
+        by_currency:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrencyTotal'
+        cancelled:
+          type: array
+          items:
+            $ref: '#/components/schemas/CancelledTotal'
+      required:
+      - by_currency
+      - cancelled
     Family:
       type: object
       properties:
@@ -32510,6 +34372,46 @@ components:
       - paid_at
       - received_amount_minor
       - received_currency
+    LateCashOut:
+      type: object
+      description: Sortie de caisse faite hors ligne, arrivée après la clôture (FIN.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+          description: Numéro du bon de sortie.
+        expense_number:
+          type: string
+        beneficiary:
+          type: string
+        received_by:
+          type: string
+        amount_minor:
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        paid_at:
+          type: string
+          format: date-time
+        received_at:
+          type: string
+          format: date-time
+          description: Arrivée au serveur.
+        cancelled:
+          type: boolean
+      required:
+      - id
+      - number
+      - expense_number
+      - beneficiary
+      - received_by
+      - amount_minor
+      - currency
+      - paid_at
+      - received_at
+      - cancelled
     LatePayment:
       type: object
       properties:
@@ -33289,6 +35191,24 @@ components:
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
         * `offline` - Offline work and synchronisation
+    MonthFlow:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+          description: Premier jour du mois.
+        receipts_minor:
+          type: integer
+        expenses_minor:
+          type: integer
+        balance_minor:
+          type: integer
+      required:
+      - month
+      - receipts_minor
+      - expenses_minor
+      - balance_minor
     MySchool:
       type: object
       properties:
@@ -33400,6 +35320,7 @@ components:
       - timetable_published
       - ai_credits
       - support_reply
+      - possible_duplicate
       type: string
       description: |-
         * `test` - Test notification
@@ -33432,6 +35353,7 @@ components:
         * `timetable_published` - New timetable
         * `ai_credits` - AI credits running low
         * `support_reply` - Reply from support
+        * `possible_duplicate` - Possible duplicate student
     NotificationPreferences:
       type: object
       properties:
@@ -33727,6 +35649,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CancellationRequest'
+    PaginatedCashOutList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashOut'
     PaginatedCashSessionClosingList:
       type: object
       required:
@@ -34052,6 +35999,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Device'
+    PaginatedExpenseList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
     PaginatedFamilyDetailList:
       type: object
       required:
@@ -34227,6 +36199,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Notification'
+    PaginatedPayableExpenseList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayableExpense'
     PaginatedPaymentList:
       type: object
       required:
@@ -34752,6 +36749,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Thread'
+    PaginatedTreasuryMovementList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TreasuryMovement'
     PaginatedUnpaidStudentList:
       type: object
       required:
@@ -35845,6 +37867,16 @@ components:
           type: string
           format: uuid
           nullable: true
+    PatchedExpenseCategoryWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        is_active:
+          type: boolean
+          title: Active
     PatchedFamilyWriteRequest:
       type: object
       properties:
@@ -36248,6 +38280,47 @@ components:
           type: string
           minLength: 1
           maxLength: 10
+    PayableExpense:
+      type: object
+      description: Dépense validée à payer en espèces, telle que la voit le caissier.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 40
+        category_name:
+          type: string
+          readOnly: true
+        beneficiary:
+          type: string
+          maxLength: 120
+        reason:
+          type: string
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        spent_on:
+          type: string
+          format: date
+          title: Date
+      required:
+      - id
+      - number
+      - category_name
+      - beneficiary
+      - reason
+      - amount_minor
+      - currency
+      - spent_on
     Payment:
       type: object
       properties:
@@ -36601,7 +38674,11 @@ components:
       - finance.approve_cancellation
       - finance.close_register
       - finance.view_reports
+      - finance.record_expense
+      - finance.approve_expense
+      - finance.cancel_expense
       - finance.import_prior_payments
+      - finance.manage_budget
       - timetable.manage
       - timetable.publish
       - ai.use
@@ -36632,7 +38709,11 @@ components:
         * `finance.approve_cancellation` - Approve a payment cancellation
         * `finance.close_register` - Close a cash register
         * `finance.view_reports` - View financial reports
+        * `finance.record_expense` - Record an expense
+        * `finance.approve_expense` - Approve an expense above the threshold
+        * `finance.cancel_expense` - Cancel an expense
         * `finance.import_prior_payments` - Record what students paid before the school started here
+        * `finance.manage_budget` - Set the budget, the opening balance of the accounts and the transfers between them
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `timetable.publish` - Publish the timetable
         * `ai.use` - Use the AI assistance
@@ -42237,6 +44318,11 @@ components:
           - $ref: '#/components/schemas/ExchangeRate'
           nullable: true
           description: Taux des encaissements.
+        fee_rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncFeeRule'
+          nullable: true
       required:
       - school
       - academic_year
@@ -42244,6 +44330,7 @@ components:
       - fee_types
       - cash_registers
       - exchange_rate
+      - fee_rules
     SyncCreditUse:
       type: object
       description: |-
@@ -42286,10 +44373,16 @@ components:
           type: integer
           readOnly: true
           title: Last receipt number
+        last_cash_out_seq:
+          type: integer
+          readOnly: true
+          description: Dernière séquence de bon de sortie de caisse donnée par l'appareil
+            (FIN.2).
       required:
       - id
       - prefix
       - last_receipt_seq
+      - last_cash_out_seq
     SyncEnrollment:
       type: object
       description: |-
@@ -42364,6 +44457,41 @@ components:
       - payments
       - credits
       - credit_uses
+    SyncFeeRule:
+      type: object
+      description: |-
+        Barème de l'année et les classes où il s'applique (le plus précis de son type de frais) :
+        l'appareil en tire les frais dus d'un élève inscrit sans réseau (HL.1).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fee_type:
+          type: string
+          format: uuid
+          readOnly: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncInstallment'
+          readOnly: true
+        class_groups:
+          type: array
+          items:
+            type: string
+            format: uuid
+          readOnly: true
+      required:
+      - id
+      - fee_type
+      - currency
+      - installments
+      - class_groups
     SyncFeeType:
       type: object
       properties:
@@ -42387,10 +44515,42 @@ components:
       - name
       - category
       - is_active
+    SyncInstallment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          readOnly: true
+          title: Amount
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+          title: Due date
+        order:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - label
+      - amount_minor
+      - due_on
+      - order
     SyncStudent:
       type: object
       properties:
         id:
+          type: string
+          format: uuid
+          readOnly: true
+        family:
           type: string
           format: uuid
           readOnly: true
@@ -42422,6 +44582,7 @@ components:
           readOnly: true
       required:
       - id
+      - family
       - matricule
       - last_name
       - middle_name
@@ -43544,6 +45705,117 @@ components:
       required:
       - code
       - name
+    TreasuryMovement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          title: School year
+        kind:
+          $ref: '#/components/schemas/TreasuryMovementKindEnum'
+        from_account:
+          title: From
+          oneOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        to_account:
+          allOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          title: To
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        made_on:
+          type: string
+          format: date
+          title: Date
+        note:
+          type: string
+          maxLength: 200
+        recorded_by_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancel_reason:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - academic_year
+      - kind
+      - from_account
+      - to_account
+      - amount_minor
+      - currency
+      - made_on
+      - note
+      - recorded_by_name
+      - created_at
+      - cancelled
+      - cancel_reason
+    TreasuryMovementCreateRequest:
+      type: object
+      properties:
+        academic_year:
+          type: string
+          format: uuid
+          description: 'Absent : l''année en cours.'
+        kind:
+          $ref: '#/components/schemas/TreasuryMovementKindEnum'
+        from_account:
+          allOf:
+          - $ref: '#/components/schemas/AccountEnum'
+          description: |-
+            Virement seulement.
+
+            * `cash` - Cash desk
+            * `bank` - Bank
+            * `mobile_money` - Mobile money
+        to_account:
+          $ref: '#/components/schemas/AccountEnum'
+        amount_minor:
+          type: integer
+          maximum: 1000000000000
+          minimum: 1
+          format: int64
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        made_on:
+          type: string
+          format: date
+        note:
+          type: string
+          maxLength: 200
+      required:
+      - amount_minor
+      - currency
+      - kind
+      - made_on
+      - to_account
+    TreasuryMovementKindEnum:
+      enum:
+      - opening
+      - transfer
+      type: string
+      description: |-
+        * `opening` - Opening balance
+        * `transfer` - Transfer between accounts
     Unavailable:
       type: object
       description: 'Une absence : un jour entier, ou une plage horaire de ce jour

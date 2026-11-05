@@ -26,7 +26,7 @@ from apps.core.tenancy import require_current_school
 from apps.finance.models import CancellationRequest, CashClosing, CashSession, Payment
 from apps.notifications import push
 from apps.notifications.models import Announcement, Message, Notification, Summons, Thread
-from apps.students.models import Enrollment, Family
+from apps.students.models import Enrollment, Family, Student
 
 App = Notification.App
 Kind = Notification.Kind
@@ -199,6 +199,30 @@ def _by(actor: User) -> str:
     if actor.is_platform_admin:
         return _("%(platform)s support") % {"platform": PlatformSettings.load().name}
     return str(actor)
+
+
+def possible_duplicate(student: Student, others: list[Student], actor: User) -> None:
+    """Élève inscrit hors ligne aux mêmes noms et date de naissance qu'un autre (HL.1) : à ceux
+    qui modifient les élèves, sauf l'auteur. Rien n'est fusionné : le secrétariat vérifie."""
+    names = ", ".join(
+        f"{other} ({other.matricule})" if other.matricule else str(other) for other in others
+    )
+
+    def text() -> tuple[str, str]:
+        title = _("Possible duplicate: %(student)s") % {"student": student}
+        body = _(
+            "Enrolled offline by %(by)s. Same names and birth date as %(others)s. Check both "
+            "files: they are never merged automatically."
+        )
+        return title, body % {"by": _by(actor), "others": names}
+
+    send(
+        staff(Kind.POSSIBLE_DUPLICATE, but=actor),
+        app=App.GESTION,
+        kind=Kind.POSSIBLE_DUPLICATE,
+        url=f"/students/{student.pk}",
+        text=text,
+    )
 
 
 def _rights(permissions: Iterable[str]) -> str:

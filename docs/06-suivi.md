@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Aucun : le lot 6 est fini (PR ouverte, #426) |
-| Prochain lot | Lot 7 — Finances et caisse complètes ; reste du lot 4 : mesure PERF.6 |
+| Lot en cours | Aucun — lot 7 fini (PR ouverte, à fusionner) |
+| Prochain lot | Lot 8 — Cours communs et notes ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #426 (lot 6, à fermer par la PR) |
-| Branche | `lot/6-aide` |
-| Dernière mise à jour | 2026-11-04 (lot 6 fini) |
+| Issue GitHub | #428 (lot 7) |
+| Branche | `lot/7-finances` |
+| Dernière mise à jour | 2026-11-05 (lot 7 fini) |
 
 ## Avancement
 
@@ -26,7 +26,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 4 — Bulletins aux parents | 4 ✓ | 4 |
 | 5 — Console finie | 7 ✓ | 7 |
 | 6 — Aide, guide et support | 5 ✓ | 5 |
-| 7 — Finances et caisse complètes | 0 | 3 |
+| 7 — Finances et caisse complètes | 4 ✓ | 4 |
 | 8 — Cours communs et notes | 0 | 2 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |
 | 10 — Carte et présences | 0 | 3 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **6 lots sur 17** | **49** |
+| **V1 complète** | **7 lots sur 17** | **50** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -63,6 +63,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q17.
 
 ## Journal
+
+### 2026-11-05 — Lot 7 : Finances et caisse complètes
+- Fait : dépenses (FIN.1), sorties de caisse en ligne et hors ligne (FIN.2), inscription d'un élève sans réseau (HL.1), budget, comptes et rapports (FIN.3), Impayés et tableau de bord calculés par la base (PERF.7 : +63 → +11 Mo par travailleur), procédure de passage à 4 Go (OPS.5 : `A-FAIRE.md` § 9 ter, tableau « Capacité » de `03`, skill `deployer`).
+- Tests : isolation, droits, argent, audit, idempotence de synchro, Playwright réseau coupé (inscrire, encaisser, rétablir) ; CI à surveiller.
+- Décisions : voir la fiche `docs/claude/plans/lot-7.md` (« À valider » de la PR). On reste sur 2 Go.
+- Suite : lot 8 — Cours communs et notes.
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
 

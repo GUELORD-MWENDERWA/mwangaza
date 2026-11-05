@@ -29,6 +29,8 @@ export type SyncMeta = {
   gen: number;
   /** Dernier numéro de reçu donné par l'appareil (3.5). */
   receiptSeq: number;
+  /** Dernier numéro de bon de sortie de caisse donné par l'appareil (FIN.2). */
+  cashOutSeq: number;
   lastSyncAt: string | null;
 };
 
@@ -37,6 +39,7 @@ export const EMPTY_META: SyncMeta = {
   snapshot: null,
   gen: 0,
   receiptSeq: 0,
+  cashOutSeq: 0,
   lastSyncAt: null,
 };
 
@@ -124,9 +127,12 @@ async function takeSnapshot(store: LocalStore, server: SyncServer, meta: SyncMet
     const page = await server.snapshot(progress?.after);
     const gen = progress?.gen ?? meta.gen + 1;
     const cursor = progress?.cursor ?? page.cursor ?? 0;
-    // Appareil réinstallé : ne pas redonner un numéro de reçu que le serveur connaît déjà.
+    // Appareil réinstallé : ne pas redonner un numéro de reçu ou de bon que le serveur connaît.
     const receipt = page.device
-      ? { receiptSeq: Math.max(meta.receiptSeq, page.device.last_receipt_seq) }
+      ? {
+          receiptSeq: Math.max(meta.receiptSeq, page.device.last_receipt_seq),
+          cashOutSeq: Math.max(meta.cashOutSeq, page.device.last_cash_out_seq),
+        }
       : {};
     const last = page.next === null;
     progress = last ? null : { gen, cursor, after: page.next! };

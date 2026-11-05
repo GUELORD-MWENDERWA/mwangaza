@@ -480,6 +480,52 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/budget/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Budget et rapports de l'année (FIN.3), pour une devise : prévu et dépensé par catégorie,
+         *     entrées et sorties par mois, solde des comptes (toutes devises). Lu avec
+         *     `finance.view_reports` ; budget réglé avec `finance.manage_budget`. Jamais de somme entre
+         *     deux devises.
+         */
+        get: operations["budget_retrieve"];
+        /**
+         * @description Prévu de chaque catégorie envoyée pour l'année et la devise ; 0 retire la ligne, les
+         *     catégories absentes ne changent pas.
+         */
+        put: operations["budget_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/budget/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Classeur Excel de l'année (FIN.3) : budget, entrées et sorties par mois, comptes, toutes
+         *     devises, chacune dans sa colonne.
+         */
+        get: operations["budget_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/calendar-events/": {
         parameters: {
             query?: never;
@@ -728,6 +774,98 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/cash-outs/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+         *     espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+         *     les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+         *     session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+         *     enregistrée. Une sortie ne s'efface jamais.
+         */
+        get: operations["cash_outs_list"];
+        put?: never;
+        /**
+         * @description Sortir l'argent d'une dépense de la session ouverte du caissier. 409
+         *     `no_open_session`, `expense_not_payable_in_cash` (pas validée, ou pas en espèces),
+         *     `expense_already_paid`, `expense_cancelled`, `not_enough_cash` (la session n'a pas reçu
+         *     assez dans cette devise).
+         */
+        post: operations["cash_outs_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-outs/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+         *     espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+         *     les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+         *     session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+         *     enregistrée. Une sortie ne s'efface jamais.
+         */
+        get: operations["cash_outs_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-outs/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Annuler une sortie : l'argent revient dans la caisse, la dépense redevient à payer.
+         *     409 `cash_out_session_closed` après la clôture, `cash_out_cancelled` si déjà fait.
+         */
+        post: operations["cash_outs_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cash-outs/payable/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Dépenses validées à payer en espèces, pas encore sorties de la caisse, les plus
+         *     anciennes d'abord.
+         */
+        get: operations["cash_outs_payable_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/cash-registers/": {
         parameters: {
             query?: never;
@@ -836,7 +974,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description La caisse ouverte du caissier (ou `null`), ses totaux et le taux des encaissements. */
+        /**
+         * @description La caisse ouverte du caissier (ou `null`), ses totaux, ses sorties de caisse et le taux
+         *     des encaissements.
+         */
         get: operations["cash_sessions_current_retrieve"];
         put?: never;
         post?: never;
@@ -3872,6 +4013,209 @@ export interface paths {
          *     vigueur, les suivants l'historique des corrections. Ni modifiable ni effaçable.
          */
         post: operations["exchange_rates_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expense-categories/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+         *     rapports, réglées avec `finance.configure_fees`.
+         */
+        get: operations["expense_categories_list"];
+        put?: never;
+        /**
+         * @description Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+         *     rapports, réglées avec `finance.configure_fees`.
+         */
+        post: operations["expense_categories_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expense-categories/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Catégories de dépenses de l'école (FIN.1) : lues avec le droit de saisir ou de lire les
+         *     rapports, réglées avec `finance.configure_fees`.
+         */
+        patch: operations["expense_categories_partial_update"];
+        trace?: never;
+    };
+    "/api/expense-settings/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Seuil de validation d'une dépense, par devise (FIN.1). */
+        get: operations["expense_settings_retrieve"];
+        /** @description Seuil de validation d'une dépense, par devise (FIN.1). */
+        put: operations["expense_settings_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+         *     valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+         *     `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+         *     enregistrée. Une dépense ne s'efface jamais.
+         */
+        get: operations["expenses_list"];
+        put?: never;
+        /**
+         * @description Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+         *     valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+         *     `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+         *     enregistrée. Une dépense ne s'efface jamais.
+         */
+        post: operations["expenses_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Dépenses de l'école (FIN.1), les plus récentes d'abord. Saisir : `finance.record_expense` ;
+         *     valider ou refuser : `finance.approve_expense`, jamais la sienne ; annuler :
+         *     `finance.cancel_expense`. Création : 201, ou 200 si cette dépense (même `id`) était déjà
+         *     enregistrée. Une dépense ne s'efface jamais.
+         */
+        get: operations["expenses_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Valider une dépense en attente. 409 `expense_decided` ; 403 `own_expense` pour la
+         *     sienne.
+         */
+        post: operations["expenses_approve_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Annuler : une ligne liée avec motif ; la dépense reste dans la liste. 409
+         *     `expense_cancelled` si déjà annulée.
+         */
+        post: operations["expenses_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/reject/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Refuser une dépense en attente (motif conseillé dans `note`). */
+        post: operations["expenses_reject_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/{id}/voucher/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Le justificatif (photo ou PDF), lu seulement par le personnel de l'école. */
+        get: operations["expenses_voucher_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/expenses/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Totaux de la liste filtrée, par devise (jamais de somme entre devises). */
+        get: operations["expenses_summary_retrieve"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7502,6 +7846,52 @@ export interface paths {
         patch: operations["tracks_partial_update"];
         trace?: never;
     };
+    "/api/treasury-movements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Soldes de départ et virements entre les comptes de l'école (FIN.3), les plus récents
+         *     d'abord. Lus avec `finance.view_reports` ; saisis et annulés avec `finance.manage_budget`.
+         *     Rien ne s'efface : annuler écrit une ligne liée avec motif.
+         */
+        get: operations["treasury_movements_list"];
+        put?: never;
+        /**
+         * @description Soldes de départ et virements entre les comptes de l'école (FIN.3), les plus récents
+         *     d'abord. Lus avec `finance.view_reports` ; saisis et annulés avec `finance.manage_budget`.
+         *     Rien ne s'efface : annuler écrit une ligne liée avec motif.
+         */
+        post: operations["treasury_movements_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/treasury-movements/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Annuler un solde de départ ou un virement (motif). 409 `treasury_movement_cancelled`
+         *     si déjà fait.
+         */
+        post: operations["treasury_movements_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/unpaid/": {
         parameters: {
             query?: never;
@@ -7617,6 +8007,24 @@ export interface components {
          * @enum {string}
          */
         AccessEnum: "notebook" | "total";
+        AccountBalance: {
+            account: components["schemas"]["AccountEnum"];
+            currency: components["schemas"]["CurrencyEnum"];
+            opening_minor: number;
+            /** @description Reçu à la caisse (compte « caisse »). */
+            receipts_minor: number;
+            transfers_in_minor: number;
+            transfers_out_minor: number;
+            expenses_minor: number;
+            balance_minor: number;
+        };
+        /**
+         * @description * `cash` - Cash desk
+         *     * `bank` - Bank
+         *     * `mobile_money` - Mobile money
+         * @enum {string}
+         */
+        AccountEnum: "cash" | "bank" | "mobile_money";
         /**
          * @description * `auth.login` - Logged in
          *     * `account.password_changed` - Password changed
@@ -7747,6 +8155,18 @@ export interface components {
          *     * `finance.cash_session_closed` - Cash session closed
          *     * `finance.payment_recorded` - Payment recorded
          *     * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+         *     * `finance.expense_category_created` - Expense category created
+         *     * `finance.expense_category_updated` - Expense category changed
+         *     * `finance.expense_settings_updated` - Expense approval threshold changed
+         *     * `finance.expense_recorded` - Expense recorded
+         *     * `finance.expense_approved` - Expense approved
+         *     * `finance.expense_rejected` - Expense rejected
+         *     * `finance.expense_cancelled` - Expense cancelled
+         *     * `finance.cash_out_recorded` - Cash paid out for an expense
+         *     * `finance.cash_out_cancelled` - Cash-out cancelled
+         *     * `finance.budget_updated` - Budget changed
+         *     * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+         *     * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
          *     * `finance.payment_reprinted` - Receipt reprinted
          *     * `finance.cancellation_requested` - Payment cancellation requested
          *     * `finance.payment_cancelled` - Payment cancelled
@@ -7769,7 +8189,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -8207,6 +8627,37 @@ export interface components {
          * @enum {string}
          */
         BoardCourseStatusEnum: "not_started" | "in_progress" | "submitted" | "validated" | "returned";
+        BudgetAmountRequest: {
+            /** Format: uuid */
+            category: string;
+            /** Format: int64 */
+            amount_minor: number;
+        };
+        BudgetReport: {
+            /** Format: uuid */
+            academic_year: string;
+            currency: components["schemas"]["CurrencyEnum"];
+            currencies: components["schemas"]["CurrencyEnum"][];
+            budget: components["schemas"]["BudgetRow"][];
+            planned_minor: number;
+            spent_minor: number;
+            months: components["schemas"]["MonthFlow"][];
+            accounts: components["schemas"]["AccountBalance"][];
+        };
+        BudgetRow: {
+            /** Format: uuid */
+            category: string;
+            name: string;
+            is_active: boolean;
+            planned_minor: number;
+            spent_minor: number;
+        };
+        BudgetWriteRequest: {
+            /** Format: uuid */
+            academic_year: string;
+            currency: components["schemas"]["CurrencyEnum"];
+            lines: components["schemas"]["BudgetAmountRequest"][];
+        };
         BusinessMoney: {
             currency: string;
             /** @description Facturé ce mois-ci (unités entières). */
@@ -8344,6 +8795,11 @@ export interface components {
             readonly cash_register_name: string;
             readonly academic_year: string;
         };
+        CancelledTotal: {
+            currency: string;
+            total: number;
+            count: number;
+        };
         CashCloseRequest: {
             /** @description Argent compté, par devise. */
             counted: components["schemas"]["CountedRequest"][];
@@ -8368,8 +8824,8 @@ export interface components {
             received_at: string;
         };
         /**
-         * @description Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
-         *     encaissés hors ligne arrivés après la clôture (hors de l'attendu figé).
+         * @description Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements et
+         *     sorties de caisse faits hors ligne arrivés après la clôture (hors de l'attendu figé).
          */
         CashClosingDetail: {
             session: components["schemas"]["CashSession"];
@@ -8382,6 +8838,8 @@ export interface components {
             /** @description Annulations validées. */
             cancelled: components["schemas"]["SessionTotal"][];
             cancellations_pending: number;
+            /** @description Sorties de caisse déduites de l'attendu, dans l'ordre. */
+            cash_outs: components["schemas"]["ClosingCashOut"][];
             closing: components["schemas"]["CashClosing"] | null;
             /**
              * @description Ouverte aujourd'hui, pas clôturée (ouverte avant aujourd'hui), conforme, ou écart.
@@ -8393,6 +8851,7 @@ export interface components {
              */
             state: components["schemas"]["ClosingStateEnum"];
             late_payments: components["schemas"]["LatePayment"][];
+            late_cash_outs: components["schemas"]["LateCashOut"][];
         };
         CashClosingLine: {
             currency: components["schemas"]["CurrencyEnum"];
@@ -8424,7 +8883,55 @@ export interface components {
             /** @description Annulations validées. */
             cancelled: components["schemas"]["SessionTotal"][];
             cancellations_pending: number;
+            /** @description Sorties de caisse déduites de l'attendu, dans l'ordre. */
+            cash_outs: components["schemas"]["ClosingCashOut"][];
             closing: components["schemas"]["CashClosing"] | null;
+        };
+        /** @description Une sortie de caisse et ce qu'imprime son bon. */
+        CashOut: {
+            /** Format: uuid */
+            readonly id: string;
+            number: string;
+            /** Format: uuid */
+            expense: string;
+            readonly expense_number: string;
+            readonly category_name: string;
+            readonly beneficiary: string;
+            readonly reason: string;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            received_by: string;
+            /** Format: date-time */
+            paid_at: string;
+            /**
+             * Session
+             * Format: uuid
+             */
+            cash_session: string;
+            readonly cash_register_code: string;
+            readonly cash_register_name: string;
+            readonly cashier_name: string;
+            readonly offline: boolean;
+            readonly cancelled: boolean;
+            readonly cancellation_reason: string | null;
+        };
+        CashOutCreateRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 de l'appareil : un deuxième envoi rend la même sortie.
+             */
+            id?: string;
+            /**
+             * Format: uuid
+             * @description Dépense validée à payer en espèces.
+             */
+            expense: string;
+            /** @description Nom de la personne qui reçoit l'argent. */
+            received_by: string;
         };
         CashRegister: {
             /** Format: uuid */
@@ -8883,11 +9390,31 @@ export interface components {
             proclaimed_on: string | null;
             counts: components["schemas"]["Counts"];
         };
+        /** @description Une sortie de caisse du bordereau (FIN.2). */
+        ClosingCashOut: {
+            /** Format: uuid */
+            id: string;
+            /** @description Numéro du bon de sortie. */
+            number: string;
+            expense_number: string;
+            beneficiary: string;
+            received_by: string;
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date-time */
+            paid_at: string;
+        };
         ClosingCurrency: {
             currency: components["schemas"]["CurrencyEnum"];
             /** @description Paiements de la session pas annulés à l'heure de clôture. */
+            received_minor: number;
+            /** @description Sorties de caisse pas annulées à l'heure de clôture (FIN.2). */
+            paid_out_minor: number;
+            /** @description Reçu moins sorti ; sous zéro si plus d'argent est sorti qu'entré. */
             expected_minor: number;
+            /** @description Nombre de paiements. */
             count: number;
+            cash_outs_count: number;
         };
         ClosingDifference: {
             currency: components["schemas"]["CurrencyEnum"];
@@ -10410,11 +10937,20 @@ export interface components {
          * @enum {string}
          */
         CurrencyEnum: "USD" | "CDF";
+        CurrencyTotal: {
+            currency: string;
+            spent: number | null;
+            pending: number | null;
+            pending_count: number;
+            cash: number | null;
+        };
         /** @description Caisse ouverte du caissier (M13) et taux des encaissements. */
         CurrentCashSession: {
             session: components["schemas"]["CashSession"] | null;
             /** @description Paiements non annulés de la session, par devise, jamais additionnés. */
             totals: components["schemas"]["SessionTotal"][];
+            /** @description Sorties de caisse non annulées de la session, par devise (FIN.2). */
+            paid_out: components["schemas"]["SessionTotal"][];
             /**
              * Format: decimal
              * @description Francs pour 1 dollar.
@@ -11058,6 +11594,118 @@ export interface components {
              * @default
              */
             reason: string;
+        };
+        Expense: {
+            /** Format: uuid */
+            readonly id: string;
+            number: string;
+            /** Format: uuid */
+            category: string;
+            readonly category_name: string;
+            beneficiary: string;
+            reason: string;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Date
+             * Format: date
+             */
+            spent_on: string;
+            /** Paid from */
+            account: components["schemas"]["AccountEnum"];
+            status: components["schemas"]["ExpenseStatusEnum"];
+            readonly has_voucher: boolean;
+            readonly requested_by_name: string;
+            readonly decided_by_name: string | null;
+            /** Format: date-time */
+            decided_at: string | null;
+            decision_note: string;
+            /** Format: date-time */
+            paid_at: string | null;
+            readonly cancelled: boolean;
+            readonly cancellation_reason: string | null;
+            /** @description Bon de sortie de caisse qui la paie (FIN.2). */
+            readonly cash_out_number: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ExpenseCancelRequest: {
+            reason: string;
+        };
+        ExpenseCategory: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** Active */
+            is_active: boolean;
+        };
+        ExpenseCategoryWriteRequest: {
+            name: string;
+            /** Active */
+            is_active?: boolean;
+        };
+        ExpenseCreateRequest: {
+            /**
+             * Format: uuid
+             * @description Identifiant UUID v7 du client.
+             */
+            id?: string;
+            /** Format: uuid */
+            category: string;
+            beneficiary: string;
+            reason: string;
+            /** Format: int64 */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date */
+            spent_on: string;
+            account: components["schemas"]["AccountEnum"];
+            /** Format: binary */
+            voucher?: string;
+        };
+        ExpenseDecisionRequest: {
+            /** @default  */
+            note: string;
+        };
+        ExpenseSettings: {
+            /**
+             * Format: int64
+             * @description Au-dessus : validation (centimes).
+             */
+            usd_threshold_minor: number;
+            /**
+             * Format: int64
+             * @description Au-dessus : validation (francs).
+             */
+            cdf_threshold_minor: number;
+        };
+        ExpenseSettingsRequest: {
+            /**
+             * Format: int64
+             * @description Au-dessus : validation (centimes).
+             */
+            usd_threshold_minor: number;
+            /**
+             * Format: int64
+             * @description Au-dessus : validation (francs).
+             */
+            cdf_threshold_minor: number;
+        };
+        /**
+         * @description * `pending` - Waiting for approval
+         *     * `approved` - Approved, to be paid
+         *     * `paid` - Paid
+         *     * `rejected` - Rejected
+         * @enum {string}
+         */
+        ExpenseStatusEnum: "pending" | "approved" | "paid" | "rejected";
+        ExpenseSummary: {
+            by_currency: components["schemas"]["CurrencyTotal"][];
+            cancelled: components["schemas"]["CancelledTotal"][];
         };
         Family: {
             /** Format: uuid */
@@ -11832,6 +12480,26 @@ export interface components {
             received_amount_minor: number;
             received_currency: components["schemas"]["CurrencyEnum"];
         };
+        /** @description Sortie de caisse faite hors ligne, arrivée après la clôture (FIN.2). */
+        LateCashOut: {
+            /** Format: uuid */
+            id: string;
+            /** @description Numéro du bon de sortie. */
+            number: string;
+            expense_number: string;
+            beneficiary: string;
+            received_by: string;
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date-time */
+            paid_at: string;
+            /**
+             * Format: date-time
+             * @description Arrivée au serveur.
+             */
+            received_at: string;
+            cancelled: boolean;
+        };
         LatePayment: {
             /** Format: uuid */
             readonly id: string;
@@ -12180,6 +12848,16 @@ export interface components {
          * @enum {string}
          */
         ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "ai" | "portal" | "notifications" | "offline";
+        MonthFlow: {
+            /**
+             * Format: date
+             * @description Premier jour du mois.
+             */
+            month: string;
+            receipts_minor: number;
+            expenses_minor: number;
+            balance_minor: number;
+        };
         MySchool: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
             code: string;
@@ -12239,9 +12917,10 @@ export interface components {
          *     * `timetable_published` - New timetable
          *     * `ai_credits` - AI credits running low
          *     * `support_reply` - Reply from support
+         *     * `possible_duplicate` - Possible duplicate student
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply" | "possible_duplicate";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -12391,6 +13070,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["CancellationRequest"][];
+        };
+        PaginatedCashOutList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["CashOut"][];
         };
         PaginatedCashSessionClosingList: {
             /** @example 123 */
@@ -12587,6 +13281,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Device"][];
         };
+        PaginatedExpenseList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Expense"][];
+        };
         PaginatedFamilyDetailList: {
             /** @example 123 */
             count: number;
@@ -12691,6 +13400,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Notification"][];
+        };
+        PaginatedPayableExpenseList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["PayableExpense"][];
         };
         PaginatedPaymentList: {
             /** @example 123 */
@@ -13006,6 +13730,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Thread"][];
+        };
+        PaginatedTreasuryMovementList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["TreasuryMovement"][];
         };
         PaginatedUnpaidStudentList: {
             /** @example 123 */
@@ -13561,6 +14300,11 @@ export interface components {
             /** Format: uuid */
             invigilator?: string | null;
         };
+        PatchedExpenseCategoryWriteRequest: {
+            name?: string;
+            /** Active */
+            is_active?: boolean;
+        };
         PatchedFamilyWriteRequest: {
             guardians?: components["schemas"]["GuardianRequest"][];
         };
@@ -13771,6 +14515,26 @@ export interface components {
             name?: string;
             code?: string;
         };
+        /** @description Dépense validée à payer en espèces, telle que la voit le caissier. */
+        PayableExpense: {
+            /** Format: uuid */
+            readonly id: string;
+            number: string;
+            readonly category_name: string;
+            beneficiary: string;
+            reason: string;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Date
+             * Format: date
+             */
+            spent_on: string;
+        };
         Payment: {
             /** Format: uuid */
             readonly id: string;
@@ -13937,7 +14701,11 @@ export interface components {
          *     * `finance.approve_cancellation` - Approve a payment cancellation
          *     * `finance.close_register` - Close a cash register
          *     * `finance.view_reports` - View financial reports
+         *     * `finance.record_expense` - Record an expense
+         *     * `finance.approve_expense` - Approve an expense above the threshold
+         *     * `finance.cancel_expense` - Cancel an expense
          *     * `finance.import_prior_payments` - Record what students paid before the school started here
+         *     * `finance.manage_budget` - Set the budget, the opening balance of the accounts and the transfers between them
          *     * `timetable.manage` - Configure the timetable: time grids, rooms and rules
          *     * `timetable.publish` - Publish the timetable
          *     * `ai.use` - Use the AI assistance
@@ -13946,7 +14714,7 @@ export interface components {
          *     * `billing.view` - View the subscription, invoices and payments to the platform
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.import_prior_payments" | "timetable.manage" | "timetable.publish" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -16548,6 +17316,7 @@ export interface components {
             cash_registers: components["schemas"]["CashRegister"][] | null;
             /** @description Taux des encaissements. */
             exchange_rate: components["schemas"]["ExchangeRate"] | null;
+            fee_rules: components["schemas"]["SyncFeeRule"][] | null;
         };
         /**
          * @description Part d'un crédit utilisée sur un frais dû : payée depuis `created_at`, jusqu'à
@@ -16569,6 +17338,8 @@ export interface components {
             readonly prefix: string;
             /** Last receipt number */
             readonly last_receipt_seq: number;
+            /** @description Dernière séquence de bon de sortie de caisse donnée par l'appareil (FIN.2). */
+            readonly last_cash_out_seq: number;
         };
         /**
          * @description Entité `enrollment` : l'élève, sa classe, ses frais dus, ses paiements et ses crédits à
@@ -16599,6 +17370,19 @@ export interface components {
             readonly credits: components["schemas"]["StudentCredit"][] | null;
             readonly credit_uses: components["schemas"]["SyncCreditUse"][] | null;
         };
+        /**
+         * @description Barème de l'année et les classes où il s'applique (le plus précis de son type de frais) :
+         *     l'appareil en tire les frais dus d'un élève inscrit sans réseau (HL.1).
+         */
+        SyncFeeRule: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly fee_type: string;
+            readonly currency: components["schemas"]["CurrencyEnum"];
+            readonly installments: components["schemas"]["SyncInstallment"][];
+            readonly class_groups: string[];
+        };
         SyncFeeType: {
             /** Format: uuid */
             readonly id: string;
@@ -16607,9 +17391,24 @@ export interface components {
             /** Active */
             readonly is_active: boolean;
         };
+        SyncInstallment: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly label: string;
+            /** Amount */
+            readonly amount_minor: number;
+            /**
+             * Due date
+             * Format: date
+             */
+            readonly due_on: string;
+            readonly order: number;
+        };
         SyncStudent: {
             /** Format: uuid */
             readonly id: string;
+            /** Format: uuid */
+            readonly family: string;
             /** Student number */
             readonly matricule: string;
             readonly last_name: string;
@@ -17117,6 +17916,66 @@ export interface components {
             /** @description Majuscules et chiffres (matricule `{OPT}`). */
             code: string;
         };
+        TreasuryMovement: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * School year
+             * Format: uuid
+             */
+            academic_year: string;
+            kind: components["schemas"]["TreasuryMovementKindEnum"];
+            /** From */
+            from_account: components["schemas"]["AccountEnum"] | components["schemas"]["BlankEnum"];
+            /** To */
+            to_account: components["schemas"]["AccountEnum"];
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /**
+             * Date
+             * Format: date
+             */
+            made_on: string;
+            note: string;
+            readonly recorded_by_name: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly cancelled: boolean;
+            readonly cancel_reason: string;
+        };
+        TreasuryMovementCreateRequest: {
+            /**
+             * Format: uuid
+             * @description Absent : l'année en cours.
+             */
+            academic_year?: string;
+            kind: components["schemas"]["TreasuryMovementKindEnum"];
+            /**
+             * @description Virement seulement.
+             *
+             *     * `cash` - Cash desk
+             *     * `bank` - Bank
+             *     * `mobile_money` - Mobile money
+             */
+            from_account?: components["schemas"]["AccountEnum"];
+            to_account: components["schemas"]["AccountEnum"];
+            /** Format: int64 */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date */
+            made_on: string;
+            note?: string;
+        };
+        /**
+         * @description * `opening` - Opening balance
+         *     * `transfer` - Transfer between accounts
+         * @enum {string}
+         */
+        TreasuryMovementKindEnum: "opening" | "transfer";
         /** @description Une absence : un jour entier, ou une plage horaire de ce jour (début et fin). */
         Unavailable: {
             /** @description 1 = lundi. */
@@ -18120,6 +18979,18 @@ export interface operations {
                  *     * `finance.cash_session_closed` - Cash session closed
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+                 *     * `finance.expense_category_created` - Expense category created
+                 *     * `finance.expense_category_updated` - Expense category changed
+                 *     * `finance.expense_settings_updated` - Expense approval threshold changed
+                 *     * `finance.expense_recorded` - Expense recorded
+                 *     * `finance.expense_approved` - Expense approved
+                 *     * `finance.expense_rejected` - Expense rejected
+                 *     * `finance.expense_cancelled` - Expense cancelled
+                 *     * `finance.cash_out_recorded` - Cash paid out for an expense
+                 *     * `finance.cash_out_cancelled` - Cash-out cancelled
+                 *     * `finance.budget_updated` - Budget changed
+                 *     * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+                 *     * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
                  *     * `finance.payment_reprinted` - Receipt reprinted
                  *     * `finance.cancellation_requested` - Payment cancellation requested
                  *     * `finance.payment_cancelled` - Payment cancelled
@@ -18141,7 +19012,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -18419,6 +19290,18 @@ export interface operations {
                  *     * `finance.cash_session_closed` - Cash session closed
                  *     * `finance.payment_recorded` - Payment recorded
                  *     * `finance.prior_payment_recorded` - Earlier payment recorded (not at the cash desk)
+                 *     * `finance.expense_category_created` - Expense category created
+                 *     * `finance.expense_category_updated` - Expense category changed
+                 *     * `finance.expense_settings_updated` - Expense approval threshold changed
+                 *     * `finance.expense_recorded` - Expense recorded
+                 *     * `finance.expense_approved` - Expense approved
+                 *     * `finance.expense_rejected` - Expense rejected
+                 *     * `finance.expense_cancelled` - Expense cancelled
+                 *     * `finance.cash_out_recorded` - Cash paid out for an expense
+                 *     * `finance.cash_out_cancelled` - Cash-out cancelled
+                 *     * `finance.budget_updated` - Budget changed
+                 *     * `finance.treasury_movement_recorded` - Account balance or transfer recorded
+                 *     * `finance.treasury_movement_cancelled` - Account balance or transfer cancelled
                  *     * `finance.payment_reprinted` - Receipt reprinted
                  *     * `finance.cancellation_requested` - Payment cancellation requested
                  *     * `finance.payment_cancelled` - Payment cancelled
@@ -18440,7 +19323,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -19047,6 +19930,171 @@ export interface operations {
                 };
             };
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    budget_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+                /**
+                 * @description Absent : la première de l'école.
+                 *
+                 *     * `USD` - US dollar
+                 *     * `CDF` - Congolese franc
+                 */
+                currency?: "USD" | "CDF";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetReport"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    budget_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BudgetWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BudgetWriteRequest"];
+                "multipart/form-data": components["schemas"]["BudgetWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BudgetReport"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    budget_export_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19712,6 +20760,254 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_outs_list: {
+        parameters: {
+            query?: {
+                cash_session?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCashOutList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_outs_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CashOutCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CashOutCreateRequest"];
+                "multipart/form-data": components["schemas"]["CashOutCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashOut"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashOut"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_outs_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cash-out. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashOut"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_outs_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this cash-out. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseCancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseCancelRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseCancelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CashOut"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    cash_outs_payable_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPayableExpenseList"];
                 };
             };
             403: {
@@ -28933,6 +30229,655 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExchangeRate"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expense_categories_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expense_categories_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseCategoryWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseCategoryWriteRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseCategoryWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expense_categories_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this expense category. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedExpenseCategoryWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedExpenseCategoryWriteRequest"];
+                "multipart/form-data": components["schemas"]["PatchedExpenseCategoryWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategory"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expense_settings_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseSettings"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expense_settings_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseSettingsRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseSettingsRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseSettingsRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseSettings"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_list: {
+        parameters: {
+            query?: {
+                category?: string;
+                /** @description Mois « AAAA-MM » de la date de la dépense. */
+                month?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /**
+                 * @description * `pending` - Waiting for approval
+                 *     * `approved` - Approved, to be paid
+                 *     * `paid` - Paid
+                 *     * `rejected` - Rejected
+                 */
+                status?: "pending" | "approved" | "paid" | "rejected";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedExpenseList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ExpenseCreateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this expense. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this expense. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["ExpenseDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseDecisionRequest"];
+                "application/json": components["schemas"]["ExpenseDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this expense. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ExpenseCancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseCancelRequest"];
+                "application/json": components["schemas"]["ExpenseCancelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_reject_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this expense. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["ExpenseDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseDecisionRequest"];
+                "application/json": components["schemas"]["ExpenseDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Expense"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_voucher_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this expense. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    expenses_summary_retrieve: {
+        parameters: {
+            query?: {
+                category?: string;
+                /** @description Mois « AAAA-MM » de la date de la dépense. */
+                month?: string;
+                /**
+                 * @description * `pending` - Waiting for approval
+                 *     * `approved` - Approved, to be paid
+                 *     * `paid` - Paid
+                 *     * `rejected` - Rejected
+                 */
+                status?: "pending" | "approved" | "paid" | "rejected";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseSummary"];
                 };
             };
             400: {
@@ -39746,6 +41691,179 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Track"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    treasury_movements_list: {
+        parameters: {
+            query?: {
+                /** @description Absent : l'année en cours. */
+                academic_year?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedTreasuryMovementList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    treasury_movements_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TreasuryMovementCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TreasuryMovementCreateRequest"];
+                "multipart/form-data": components["schemas"]["TreasuryMovementCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryMovement"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    treasury_movements_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description A UUID string identifying this account movement. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseCancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExpenseCancelRequest"];
+                "multipart/form-data": components["schemas"]["ExpenseCancelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TreasuryMovement"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             403: {

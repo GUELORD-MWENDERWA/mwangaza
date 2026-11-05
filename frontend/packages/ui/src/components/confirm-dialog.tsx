@@ -13,6 +13,8 @@ type ConfirmDialogProps = {
   onConfirm: () => void;
   pending?: boolean;
   destructive?: boolean;
+  /** Bouton bloqué tant que le formulaire en `children` n'est pas valide. */
+  confirmDisabled?: boolean;
 };
 
 /** Confirmation d'une action (désactiver, supprimer, réinitialiser) : Échap ou « Annuler » ferme
@@ -27,6 +29,7 @@ export function ConfirmDialog({
   onConfirm,
   pending,
   destructive,
+  confirmDisabled,
 }: ConfirmDialogProps) {
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
@@ -39,7 +42,7 @@ export function ConfirmDialog({
             </DialogClose>
             <Button
               variant={destructive ? "destructive" : "default"}
-              disabled={pending}
+              disabled={pending || confirmDisabled}
               onClick={onConfirm}
             >
               {confirmLabel}

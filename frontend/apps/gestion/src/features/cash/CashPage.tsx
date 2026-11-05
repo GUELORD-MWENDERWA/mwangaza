@@ -40,8 +40,9 @@ import {
   type CurrentSession,
   useCashRegisters,
   useCurrentSession,
+  useKeepPayable,
 } from "./data";
-import { closedHere, openOffline, saveSession, useLocalCash } from "./localData";
+import { deviceSession, openOffline, saveSession, useLocalCash } from "./localData";
 import { sampleReceipt, useReceiptPrinter } from "./Receipt";
 import { usePreloadSignatures } from "./signatures";
 
@@ -94,12 +95,13 @@ function DeviceCash({
   const { t } = useTranslation();
   const local = useLocalCash(db);
   const current = useCurrentSession();
+  useKeepPayable(db);
   const { data, dataUpdatedAt, refetch } = current;
   useEffect(() => {
     if (data) void saveSession(db, data, dataUpdatedAt);
   }, [db, data, dataUpdatedAt]);
-  const opening = local.data?.queued.filter((op) => op.type === "cash_session.open").at(-1);
-  const accepted = opening?.status === "sent";
+  const lastOpening = local.data?.queued.filter((op) => op.type === "cash_session.open").at(-1);
+  const accepted = lastOpening?.status === "sent";
   // Ouverture acceptée : la session du serveur est relue (une lecture partie avant est annulée).
   useEffect(() => {
     if (accepted) void refetch();
@@ -116,12 +118,8 @@ function DeviceCash({
     ) : (
       <Skeleton label={t("common.loading")} />
     );
-  const refused = opening?.status === "rejected";
   // Clôturée ici (3.8.2) : la caisse revient à l'ouverture, même sans réseau.
-  const closed = closedHere(local.data.queued);
-  const session = [known.session, refused ? undefined : opening?.session].find(
-    (item) => item && !closed.has(item.id),
-  );
+  const { session, opening } = deviceSession(known, local.data.queued);
   if (!session)
     return (
       <OpenSession
@@ -129,7 +127,7 @@ function DeviceCash({
         device={{
           db,
           registers: local.data.config?.cash_registers ?? [],
-          refused: refused ? opening.error : null,
+          refused: opening?.status === "rejected" ? opening.error : null,
         }}
       />
     );

@@ -58,6 +58,7 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   discipline_incident: "alert",
   place_offered: "users",
   sensitive_rights: "shield",
+  possible_duplicate: "users",
   grades_sent: "file",
   grades_returned: "undo",
   grades_reminder: "bell",

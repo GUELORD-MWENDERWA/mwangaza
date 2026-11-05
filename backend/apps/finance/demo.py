@@ -16,14 +16,16 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.core.money import Money
 from apps.core.tenancy import use_school
-from apps.finance import services
+from apps.finance import budget, cash_outs, expenses, services
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
+    CashOut,
     CashRegister,
     CashSession,
     Discount,
     ExchangeRate,
+    ExpenseCategory,
     FeeRule,
     FeeType,
     Payment,
@@ -258,6 +260,7 @@ def create_demo_payments(spaces: list[DemoSpace]) -> None:
                 close_cash_session(session, actor=session.cashier, counted=expected)
             if not Payment.objects.exists():
                 _demo_payments(school, registers)
+                _demo_cash_outs(school)
             _demo_closings(school)
 
 
@@ -330,10 +333,51 @@ def _demo_payments(school: School, registers: list[tuple[CashRegister, User]]) -
     PaymentAllocation.objects.bulk_create(allocations, batch_size=1000)
 
 
+def _demo_cash_outs(school: School) -> None:
+    """Sorties de caisse (FIN.2) des dépenses validées en dollars à payer en espèces, sauf la plus
+    récente, laissée à payer pour essayer la caisse (comme celle en francs) : chacune dans la
+    dernière session qui a reçu assez, une heure avant la fin. Écrites comme les paiements de la
+    démo, avant les clôtures qui les déduisent."""
+    payable = cash_outs.payable_expenses().filter(currency="USD").order_by("-spent_on", "-number")
+    for expense in list(payable)[1:]:
+        enough = (
+            Payment.objects.filter(
+                received_currency=expense.currency,
+                cash_session__isnull=False,
+                cancellation__isnull=True,
+            )
+            .values("cash_session")
+            .annotate(total=Sum("received_amount_minor"))
+            .filter(total__gte=expense.amount_minor)
+            .order_by()
+        )
+        session = (
+            CashSession.objects.select_related("cash_register")
+            .filter(pk__in=[row["cash_session"] for row in enough])
+            .order_by("-opened_at")
+            .first()
+        )
+        if session is None:
+            continue
+        cash_out = CashOut.objects.create(
+            expense=expense,
+            cash_session=session,
+            number=cash_outs._next_number(school, session.cash_register),
+            amount_minor=expense.amount_minor,
+            currency=expense.currency,
+            received_by="Mumbere Kasereka",
+            paid_at=session.closed_at - timedelta(hours=1),
+            created_by_id=session.cashier_id,
+        )
+        expense.status, expense.paid_at = expense.Status.PAID, cash_out.paid_at
+        expense.save(update_fields=["status", "paid_at", "updated_at"])
+
+
 def _demo_closings(school: School) -> None:
     """Sessions fermées sans clôture (paiements de la démo, bases d'avant 3.8.2) : clôturées le
-    soir, l'argent compté juste, sauf la plus récente où il manque 5,00 $ (billet refusé),
-    expliqué : l'écart se voit dans le mois en cours (Clôtures de caisse, 3.8.3)."""
+    soir, l'argent compté juste (paiements moins sorties de caisse), sauf la plus récente où il
+    manque 5,00 $ (billet refusé), expliqué : l'écart se voit dans le mois en cours (Clôtures de
+    caisse, 3.8.3)."""
     sessions = list(
         CashSession.objects.filter(closed_at__isnull=False, closings__isnull=True).order_by(
             "opened_at"
@@ -346,6 +390,14 @@ def _demo_closings(school: School) -> None:
         .annotate(amount_minor=Sum("received_amount_minor"))
         .order_by()
     }
+    for row in (
+        CashOut.objects.filter(cash_session__in=sessions, cancellation__isnull=True)
+        .values("cash_session", "currency")
+        .annotate(amount_minor=Sum("amount_minor"))
+        .order_by()
+    ):
+        key = (row["cash_session"], row["currency"])
+        expected[key] = expected.get(key, 0) - row["amount_minor"]
     first = not CashClosing.objects.exclude(difference_minor=0).exists()
     closings = []
     for index, session in enumerate(sessions):
@@ -489,3 +541,128 @@ def create_demo_cancellations(spaces: list[DemoSpace]) -> None:
                 services.request_cancellation(
                     payment, actor=approver, reason="Mauvais élève (même nom, autre classe)"
                 )
+
+
+EXPENSE_RECORDERS = {"itig": "+243000001004", "volcans": "+243000002004"}
+EXPENSE_BOSSES = {"itig": "+243000001001", "volcans": "+243000002001"}
+DEMO_EXPENSE_CATEGORIES = ["Atelier mécanique", "Électricité", "Fournitures de bureau", "Entretien"]
+# (catégorie, bénéficiaire, motif, montant en plus petite unité, devise, compte, décision)
+DEMO_EXPENSES = [
+    (
+        "Atelier mécanique",
+        "Quincaillerie Mapendo",
+        "Pièces du banc d'essai",
+        18500,
+        "USD",
+        "cash",
+        "",
+    ),
+    (
+        "Électricité",
+        "SNEL Goma",
+        "Facture d'électricité d'octobre",
+        42000,
+        "USD",
+        "bank",
+        "approve",
+    ),
+    ("Entretien", "Ets Kahindo", "Peinture des salles", 180000, "CDF", "cash", ""),
+    (
+        "Fournitures de bureau",
+        "Librairie Le Lac",
+        "Papier et toner",
+        75000,
+        "CDF",
+        "mobile_money",
+        "",
+    ),
+    ("Atelier mécanique", "Garage Ndosho", "Moteur d'essai d'occasion", 95000, "USD", "bank", ""),
+    # Payée en espèces, sortie d'une caisse passée (`_demo_cash_outs`, FIN.2).
+    ("Entretien", "Ets Kahindo", "Serrures des ateliers", 4500, "USD", "cash", ""),
+]
+
+
+def create_demo_expenses(spaces: list[DemoSpace]) -> None:
+    """Une seule fois par école : des catégories, des dépenses sous et au-dessus du seuil (une
+    validée par le directeur, une en attente) et une annulée (FIN.1)."""
+    for space in spaces:
+        code, school = space.profile, space.school
+        with use_school(school):
+            if ExpenseCategory.objects.exists():
+                continue
+            recorder = User.objects.get(phone=space.numbers.of(EXPENSE_RECORDERS[code]))
+            boss = User.objects.get(phone=space.numbers.of(EXPENSE_BOSSES[code]))
+            categories = {
+                name: expenses.create_category(actor=recorder, name=name)
+                for name in DEMO_EXPENSE_CATEGORIES
+            }
+            today = timezone.localdate()
+            made = []
+            for category, who, why, amount, currency, account, decision in DEMO_EXPENSES:
+                expense, _created = expenses.record_expense(
+                    actor=recorder,
+                    category=categories[category],
+                    beneficiary=who,
+                    reason=why,
+                    amount_minor=amount,
+                    currency=currency,
+                    spent_on=today - timedelta(days=len(made) * 2),
+                    account=account,
+                )
+                if decision == "approve":
+                    expenses.decide_expense(expense, actor=boss, approve=True)
+                made.append(expense)
+            expenses.cancel_expense(made[3], actor=boss, reason="Saisie en double")
+            _demo_budget(recorder, categories)
+
+
+# Budget de l'année (FIN.3), en plus petite unité : (catégorie, devise, prévu).
+DEMO_BUDGET = [
+    ("Atelier mécanique", "USD", 300000),
+    ("Électricité", "USD", 480000),
+    ("Fournitures de bureau", "USD", 120000),
+    ("Entretien", "USD", 250000),
+    ("Entretien", "CDF", 2_000_000),
+    ("Fournitures de bureau", "CDF", 500_000),
+]
+# Soldes de départ des comptes : (compte, devise, montant).
+DEMO_OPENINGS = [
+    ("cash", "USD", 50000),
+    ("cash", "CDF", 300_000),
+    ("bank", "USD", 1_200_000),
+    ("mobile_money", "USD", 30000),
+    ("mobile_money", "CDF", 200_000),
+]
+
+
+def _demo_budget(recorder: User, categories: dict) -> None:
+    """Le budget de l'année, les soldes de départ et un versement de la caisse à la banque."""
+    year = AcademicYear.objects.get(is_current=True)
+    for currency in ("USD", "CDF"):
+        budget.set_budget(
+            actor=recorder,
+            academic_year=year,
+            currency=currency,
+            amounts={categories[name]: amount for name, c, amount in DEMO_BUDGET if c == currency},
+        )
+    for account, currency, amount in DEMO_OPENINGS:
+        budget.record_movement(
+            actor=recorder,
+            academic_year=year,
+            kind="opening",
+            to_account=account,
+            amount_minor=amount,
+            currency=currency,
+            made_on=year.starts_on,
+        )
+    budget.record_movement(
+        actor=recorder,
+        academic_year=year,
+        kind="transfer",
+        from_account="cash",
+        to_account="bank",
+        amount_minor=200000,
+        currency="USD",
+        made_on=timezone.localdate() - timedelta(days=7),
+        note="Versement à la banque",
+    )

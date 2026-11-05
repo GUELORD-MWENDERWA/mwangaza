@@ -18,6 +18,7 @@ import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { LoginTwoFactorPage } from "./features/auth/LoginTwoFactorPage";
 import { NewPasswordPage } from "./features/auth/NewPasswordPage";
+import { CashOutPage } from "./features/cash/CashOutPage";
 import { CashPage } from "./features/cash/CashPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
@@ -53,6 +54,9 @@ import { ImportStudentsPage } from "./features/students/ImportStudentsPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
 import { RegistrationFormPage } from "./features/students/RegistrationFormPage";
 import { StudentPage } from "./features/students/StudentPage";
+import { BudgetPage } from "./features/budget/BudgetPage";
+import { ExpensesPage } from "./features/expenses/ExpensesPage";
+import { NewExpensePage } from "./features/expenses/NewExpensePage";
 import { StudentStatementPage, UnpaidStatementsPage } from "./features/students/StatementPage";
 import { StudentsPage } from "./features/students/StudentsPage";
 import { AppShell } from "./features/shell/AppShell";
@@ -111,6 +115,8 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   credits: <CreditsPage />,
   cancellations: <CancellationsPage />,
   closings: <ClosingsPage />,
+  expenses: <ExpensesPage />,
+  budget: <BudgetPage />,
   unpaid: <UnpaidPage />,
   fees: <FeesPage />,
   staff: <StaffPage />,
@@ -135,6 +141,16 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     path: "students/new",
     item: { ...menuItem("students"), permissions: ["students.edit"] },
     element: <NewStudentPage />,
+  },
+  {
+    path: "expenses/new",
+    item: { ...menuItem("expenses"), permissions: ["finance.record_expense"] },
+    element: <NewExpensePage />,
+  },
+  {
+    path: "cash/out",
+    item: { ...menuItem("cash"), permissions: ["finance.collect_payment"] },
+    element: <CashOutPage />,
   },
   {
     path: "fees/prior-payments",

@@ -4,7 +4,7 @@ summary: Create a new student's record with family, class and payment schedule.
 groups: secretariat
 roles: secretary
 order: 10
-updated: 2026-11-04
+updated: 2026-11-05
 
 ## Steps
 
@@ -25,3 +25,5 @@ updated: 2026-11-04
 **Duplicate?** The app warns you if a student with the same name and birth date already exists.
 
 **Wrong class chosen?** Open the record, **Edit**, change the class.
+
+**No network?** On a remembered device, enrolment still works: the student number and family code shown are provisional, the final ones arrive when the device syncs. If your account also collects payments, **Enrol and collect** opens the cash desk on the student. Add the photo and print the registration form once the network is back. If two devices enrolled the same child, the office is notified; nothing is merged automatically.

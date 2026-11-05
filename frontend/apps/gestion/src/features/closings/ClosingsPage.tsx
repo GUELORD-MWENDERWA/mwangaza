@@ -501,6 +501,27 @@ function ClosingDetail({ id }: { id: string }) {
             </List>
           </Banner>
         )}
+        {data.late_cash_outs.length > 0 && (
+          <Banner tone="warn" icon="wifioff">
+            {t("closings.detail.lateOuts", { count: data.late_cash_outs.length })}
+            <List className="mt-2">
+              {data.late_cash_outs.map((out) => (
+                <Line key={out.id} label={`${out.number} · ${out.beneficiary}`}>
+                  <b>− {money(out.amount_minor, out.currency)}</b>{" "}
+                  {out.cancelled && (
+                    <StatusPill tone="gray">{t("closings.detail.cancelledPill")}</StatusPill>
+                  )}
+                  <span className="block text-ink-3">
+                    {t("closings.detail.lateOutLine", {
+                      paid: formatDateTime(out.paid_at, i18n.language, school.timezone),
+                      received: formatDateTime(out.received_at, i18n.language, school.timezone),
+                    })}
+                  </span>
+                </Line>
+              ))}
+            </List>
+          </Banner>
+        )}
         <div className="flex flex-wrap gap-2">
           {closing && (
             <Button variant="outline" onClick={printSlip}>

@@ -55,6 +55,7 @@ function enrollment(payments: Schemas["Payment"][] = []): LocalEnrollment {
     left_on: null,
     student: {
       id: "st1",
+      family: "fa1",
       matricule: "26-0042",
       last_name: "Kambale",
       middle_name: "Muhindo",

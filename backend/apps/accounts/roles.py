@@ -40,7 +40,13 @@ PERMISSIONS: dict[str, Promise] = {
     "finance.approve_cancellation": _("Approve a payment cancellation"),
     "finance.close_register": _("Close a cash register"),
     "finance.view_reports": _("View financial reports"),
+    "finance.record_expense": _("Record an expense"),
+    "finance.approve_expense": _("Approve an expense above the threshold"),
+    "finance.cancel_expense": _("Cancel an expense"),
     "finance.import_prior_payments": _("Record what students paid before the school started here"),
+    "finance.manage_budget": _(
+        "Set the budget, the opening balance of the accounts and the transfers between them"
+    ),
     "timetable.manage": _("Configure the timetable: time grids, rooms and rules"),
     "timetable.publish": _("Publish the timetable"),
     "ai.use": _("Use the AI assistance"),
@@ -96,9 +102,21 @@ FINANCE_GRANT_DISCOUNT = "finance.grant_discount"
 FINANCE_COLLECT_PAYMENT = "finance.collect_payment"
 FINANCE_VIEW_REPORTS = "finance.view_reports"
 FINANCE_APPROVE_CANCELLATION = "finance.approve_cancellation"
+# Dépenses de l'école (FIN.1) : saisir, valider au-delà du seuil, annuler ; lues avec l'un d'eux
+# ou avec `finance.view_reports`.
+FINANCE_RECORD_EXPENSE = "finance.record_expense"
+FINANCE_APPROVE_EXPENSE = "finance.approve_expense"
+FINANCE_CANCEL_EXPENSE = "finance.cancel_expense"
+EXPENSES_READ = (
+    FINANCE_VIEW_REPORTS,
+    FINANCE_RECORD_EXPENSE,
+    FINANCE_APPROVE_EXPENSE,
+    FINANCE_CANCEL_EXPENSE,
+)
 FINANCE_REQUEST_CANCELLATION = "finance.request_cancellation"
 # Reprise en cours d'année (E6) : importer ce que chaque élève avait déjà payé, hors caisse.
 FINANCE_IMPORT_PRIOR_PAYMENTS = "finance.import_prior_payments"
+FINANCE_MANAGE_BUDGET = "finance.manage_budget"
 # Crédits d'élèves (M14) : tous lus avec l'un de ces droits ; utilisés par le comptable, ou à la
 # caisse par le caissier (3.6.2), qui voit ceux de l'élève avec ses frais dus (`CHARGES_READ`).
 CREDITS_READ = (FINANCE_VIEW_REPORTS, FINANCE_APPROVE_CANCELLATION)
@@ -152,7 +170,10 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.grant_discount",
             "finance.approve_cancellation",
             "finance.view_reports",
+            "finance.approve_expense",
+            "finance.cancel_expense",
             "finance.import_prior_payments",
+            "finance.manage_budget",
             "timetable.manage",
             "timetable.publish",
             "announcements.publish",
@@ -197,7 +218,9 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.approve_cancellation",
             "finance.close_register",
             "finance.view_reports",
+            "finance.record_expense",
             "finance.import_prior_payments",
+            "finance.manage_budget",
         ),
     ),
     "cashier": StarterRole(
@@ -220,7 +243,15 @@ STARTER_ROLES: dict[str, StarterRole] = {
         ),
     ),
     "promoter": StarterRole(
-        _("Promoter"), ("students.view", "finance.view_reports", "audit.view", "billing.view")
+        _("Promoter"),
+        (
+            "students.view",
+            "finance.view_reports",
+            "finance.approve_expense",
+            "finance.cancel_expense",
+            "audit.view",
+            "billing.view",
+        ),
     ),
     # Enseignant : les notes de ses cours et de la classe dont il est titulaire (8.2.1). Parent :
     # rien dans la Gestion, le portail lui montre ses enfants.

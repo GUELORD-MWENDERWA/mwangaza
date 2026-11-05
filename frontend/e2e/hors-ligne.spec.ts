@@ -1,7 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-import { allowCodeAgain, closeCashSessions, manage, unpaidStudent } from "./django";
-import { enterCode, enterPassword, ITIG, skipGuide } from "./helpers";
+import {
+  allowCodeAgain,
+  cashExpense,
+  cashOutOf,
+  closeCashSessions,
+  manage,
+  setPermission,
+  studentsNamed,
+  unpaidStudent,
+} from "./django";
+import { enterCode, enterPassword, ITIG, mainMenu, skipGuide } from "./helpers";
 
 /** Inscriptions de l'année en cours de l'ITIG : ce que l'instantané descend sur l'appareil. */
 function currentEnrollments(): number {
@@ -55,61 +64,120 @@ test("appareil mémorisé : l'école descend sur l'appareil, puis hors ligne et 
   await expect(indicator).toHaveText("En ligne · à jour");
 });
 
-test("démarrage sans réseau : code PIN, puis la caisse encaisse sur l'appareil (3.7.1)", async ({
+test("démarrage sans réseau : code PIN, puis la caisse encaisse, paie une dépense, inscrit et encaisse un nouvel élève sur l'appareil (3.7.1, FIN.2, HL.1)", async ({
   page,
   context,
 }) => {
+  // Trois opérations sans réseau après la connexion et le code PIN.
+  test.setTimeout(120_000);
   closeCashSessions();
   const student = unpaidStudent();
-  await page.addInitScript(() => {
-    window.print = () => undefined;
-    navigator.storage.persist = async () => true;
-    navigator.storage.persisted = async () => true;
-  });
-  allowCodeAgain("+243000001005");
-  await page.goto(`${ITIG}account`);
-  await enterPassword(page, "0000001005");
-  await enterCode(page);
-  await skipGuide(page);
-  const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
-  await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
+  const expense = cashExpense();
+  // La caissière inscrit aussi (rôle changé par l'école) : « Inscrire et encaisser ».
+  setPermission("+243000001005", "students.edit", true);
+  const newcomer = `ESSAI${Date.now().toString(36).toUpperCase()}`;
+  try {
+    await page.addInitScript(() => {
+      window.print = () => undefined;
+      navigator.storage.persist = async () => true;
+      navigator.storage.persisted = async () => true;
+    });
+    allowCodeAgain("+243000001005");
+    await page.goto(`${ITIG}account`);
+    await enterPassword(page, "0000001005");
+    await enterCode(page);
+    await skipGuide(page);
+    const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
+    await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
 
-  // Code PIN propre à cet appareil (Mon compte).
-  await page.getByRole("button", { name: "Définir un code PIN" }).click();
-  await page.getByLabel("Nouveau code PIN").fill("2580");
-  await page.getByLabel("Confirmer le code PIN").fill("2580");
-  await page.getByRole("button", { name: "Enregistrer" }).click();
-  await expect(page.getByText("Code PIN enregistré sur cet appareil.")).toBeVisible();
-  await page.goto(`${ITIG}cash`);
-  await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
+    // Code PIN propre à cet appareil (Mon compte).
+    await page.getByRole("button", { name: "Définir un code PIN" }).click();
+    await page.getByLabel("Nouveau code PIN").fill("2580");
+    await page.getByLabel("Confirmer le code PIN").fill("2580");
+    await page.getByRole("button", { name: "Enregistrer" }).click();
+    await expect(page.getByText("Code PIN enregistré sur cet appareil.")).toBeVisible();
+    // La caisse de l'appareil garde les dépenses à payer dès son ouverture.
+    const payable = page.waitForResponse((response) =>
+      response.url().includes("/api/cash-outs/payable/"),
+    );
+    await page.goto(`${ITIG}cash`);
+    await expect(page.getByRole("heading", { name: "Ouvrir la caisse" })).toBeVisible();
+    await payable;
 
-  // Le serveur ne répond plus (en production, le service worker sert l'application ; ici, Vite).
-  // Seulement `/api/…` : les modules de Vite (`packages/api/…`) doivent encore arriver.
-  await page.route(new URL("/api/**", ITIG).href, (route) => route.abort("internetdisconnected"));
-  await page.reload();
-  await expect(page.getByRole("heading", { name: "Bonjour Grâce" })).toBeVisible({
-    timeout: 15_000,
-  });
-  await context.setOffline(true);
-  for (const digit of "1111") await page.getByRole("button", { name: digit, exact: true }).click();
-  await expect(page.getByRole("alert")).toHaveText("Code faux. Encore 4 essais.");
-  await page.keyboard.type("2580");
+    // Le serveur ne répond plus (en production, le service worker sert l'application ; ici, Vite).
+    // Seulement `/api/…` : les modules de Vite (`packages/api/…`) doivent encore arriver.
+    await page.route(new URL("/api/**", ITIG).href, (route) => route.abort("internetdisconnected"));
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Bonjour Grâce" })).toBeVisible({
+      timeout: 15_000,
+    });
+    await context.setOffline(true);
+    for (const digit of "1111")
+      await page.getByRole("button", { name: digit, exact: true }).click();
+    await expect(page.getByRole("alert")).toHaveText("Code faux. Encore 4 essais.");
+    await page.keyboard.type("2580");
 
-  // Déverrouillée : la caisse travaille avec ce que l'appareil garde.
-  await expect(indicator).toHaveText("Hors ligne");
-  await page.getByRole("button", { name: /^Ouvrir la caisse C/ }).click();
-  await page.getByLabel("Élève qui paie").fill(student.matricule);
-  await page.getByRole("button", { name: new RegExp(student.matricule) }).click();
-  await page.getByLabel("Montant reçu en USD").fill("10");
-  await page.keyboard.press("F9");
-  await expect(
-    page.getByText(/^Paiement enregistré : reçu ITIG-DEMO-P\d+-26-\d{6}\.$/),
-  ).toBeVisible();
-  await expect(indicator).toHaveText("Hors ligne · 2 en attente");
+    // Déverrouillée : la caisse travaille avec ce que l'appareil garde.
+    await expect(indicator).toHaveText("Hors ligne");
+    await page.getByRole("button", { name: /^Ouvrir la caisse C/ }).click();
+    await page.getByLabel("Élève qui paie").fill(student.matricule);
+    await page.getByRole("button", { name: new RegExp(student.matricule) }).click();
+    await page.getByLabel("Montant reçu en USD").fill("10");
+    await page.keyboard.press("F9");
+    await expect(
+      page.getByText(/^Paiement enregistré : reçu ITIG-DEMO-P\d+-26-\d{6}\.$/),
+    ).toBeVisible();
+    await expect(indicator).toHaveText("Hors ligne · 2 en attente");
 
-  // Retour du réseau : la session du serveur est toujours là, tout part.
-  await page.unrouteAll();
-  await context.setOffline(false);
-  await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
-  await expect(page.getByText(/Session ouverte à .* · 1 paiement$/)).toBeVisible();
+    // Sortie de caisse sans réseau : la dépense gardée, le bon numéroté par l'appareil.
+    await page.getByRole("link", { name: "Sortie de caisse" }).click();
+    await page.getByLabel("Dépense à payer").selectOption(expense);
+    await page.getByRole("button", { name: "Sortir et imprimer le bon" }).click();
+    await expect(
+      page.getByText(/^Sortie ITIG-DEMO-P\d+-26-S0001 enregistrée : 7,50\s\$\./),
+    ).toBeVisible();
+    await expect(indicator).toHaveText("Hors ligne · 3 en attente");
+    await page.getByRole("link", { name: "Retour à la caisse" }).click();
+
+    // Nouvel élève sans réseau (HL.1) : inscrit sur l'appareil, numéros provisoires, encaissé
+    // aussitôt sur ses frais dus calculés ici.
+    await mainMenu(page).getByRole("link", { name: "Élèves", exact: true }).click();
+    await page.getByRole("link", { name: "Nouvel élève" }).click({ timeout: 20_000 });
+    await expect(page.getByText(/Le matricule et le code famille sont provisoires/)).toBeVisible();
+    await expect(page.getByLabel(/^Matricule/)).toHaveValue(/^Provisoire · PRV-/);
+    await page.getByLabel(/^Classe/).selectOption({ index: 1 });
+    await page.getByLabel(/^Nom/).fill(newcomer);
+    await page.getByLabel(/^Post-nom/).fill("Bahati");
+    await page.getByLabel(/^Prénom/).fill("Daniel");
+    await page.getByRole("radio", { name: "Masculin" }).click();
+    await page.getByLabel(/^Date de naissance/).fill("2013-03-12");
+    await page.getByRole("radio", { name: "Nouvelle famille" }).click();
+    await page.getByLabel(/^Nom complet/).fill("Bahati Marie");
+    await page.getByLabel(/^Lien/).selectOption("mère");
+    await page.getByLabel(/^Téléphone/).fill("+243000009901");
+    await page.getByRole("button", { name: "Inscrire et encaisser" }).click();
+    await page.getByLabel("Montant reçu en USD").fill("25");
+    await page.keyboard.press("F9");
+    await expect(
+      page.getByText(/^Paiement enregistré : reçu ITIG-DEMO-P\d+-26-\d{6}\.$/),
+    ).toBeVisible();
+    await expect(indicator).toHaveText("Hors ligne · 5 en attente");
+
+    // Retour du réseau : la session du serveur est toujours là, tout part.
+    await page.unrouteAll();
+    await context.setOffline(false);
+    await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
+    await expect(page.getByText(/Session ouverte à .* · 2 paiements$/)).toBeVisible();
+    // Une seule sortie, au bon de l'appareil ; la dépense est payée ; 10 $ + 25 $ reçus − 7,50 $
+    // sortis.
+    const [count, number, status, expected] = cashOutOf(expense);
+    expect([count, status, expected]).toEqual(["1", "paid", "2750"]);
+    expect(number).toMatch(/^ITIG-DEMO-P\d+-26-S0001$/);
+    // Un seul élève, au matricule du serveur, et un seul paiement de 25 $ : aucun doublon.
+    const [students, matricule, payments, received] = studentsNamed(newcomer);
+    expect([students, payments, received]).toEqual(["1", "1", "2500"]);
+    expect(matricule).not.toMatch(/^PRV-/);
+  } finally {
+    setPermission("+243000001005", "students.edit", false);
+  }
 });

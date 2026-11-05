@@ -38,7 +38,15 @@ export type QueuedOperation = Operation & {
   session?: Schemas["CashSession"];
   /** Crédit utilisé à la caisse : ses parts, comptées comme payées jusqu'à la descente (3.6.2). */
   creditUse?: CreditUse;
+  /** Élève inscrit ici (HL.1) : son inscription provisoire, montrée à la caisse jusqu'à la
+   *  descente qui apporte celle du serveur (même identifiant, numéros définitifs). */
+  enrollment?: Enrollment;
 };
+
+/** Sortie de caisse faite sur l'appareil (FIN.2), écrite avec son opération `cash_out.create`
+ *  (même `id`). Gardée jusqu'à la clôture acceptée de sa session : le serveur ne la redescend
+ *  pas, la caisse de l'appareil la déduit (opération refusée : plus comptée). */
+export type LocalCashOut = { id: string; session: string; out: Schemas["CashOut"] };
 
 /** Notes (8.2.3) : liste des cours et feuilles lues en ligne, gardées pour la saisie sans réseau
  *  (`grading`, `sheet|<cours>|<période>`). Une feuille saisie hors ligne y est mise à jour, avec
@@ -71,6 +79,7 @@ export class LocalDb extends Dexie {
   cash!: EntityTable<CashRow, "id">;
   grades!: EntityTable<GradesRow, "id">;
   reads!: EntityTable<ReadRow, "id">;
+  cashOuts!: EntityTable<LocalCashOut, "id">;
 
   constructor(deviceId: string) {
     super(localDbName(deviceId));
@@ -85,6 +94,7 @@ export class LocalDb extends Dexie {
     this.version(2).stores({ cash: "id" });
     this.version(3).stores({ grades: "id" });
     this.version(4).stores({ reads: "id" });
+    this.version(5).stores({ cashOuts: "id, session" });
     this.on("populate", (transaction) => {
       void transaction.table("meta").add({ ...EMPTY_META, id: "sync" });
     });
@@ -96,15 +106,18 @@ export function dexieStore(db: LocalDb): LocalStore {
     ...EMPTY_META,
     ...(await db.meta.get("sync")),
   });
-  // La séquence des reçus ne recule jamais : un instantané lu avant un encaissement ne remet
-  // pas un numéro déjà donné.
+  // Les séquences des reçus et des bons ne reculent jamais : un instantané lu avant un
+  // encaissement ne remet pas un numéro déjà donné.
   const writeMeta = (changes: Partial<SyncMeta>) =>
     db.transaction("rw", db.meta, async () => {
-      const { receiptSeq } = await readMeta();
+      const { receiptSeq, cashOutSeq } = await readMeta();
       await db.meta.update("sync", {
         ...changes,
         ...(changes.receiptSeq !== undefined && {
           receiptSeq: Math.max(receiptSeq, changes.receiptSeq),
+        }),
+        ...(changes.cashOutSeq !== undefined && {
+          cashOutSeq: Math.max(cashOutSeq, changes.cashOutSeq),
         }),
       });
     });
@@ -135,7 +148,7 @@ export function dexieStore(db: LocalDb): LocalStore {
       }),
     pending: (limit) => db.outbox.where("status").equals("pending").limit(limit).toArray(),
     settle: (outcomes) =>
-      db.transaction("rw", [db.outbox, db.cash], async () => {
+      db.transaction("rw", [db.outbox, db.cash, db.cashOuts], async () => {
         for (const outcome of outcomes) {
           const operation = db.outbox.where("op_id").equals(outcome.op_id);
           const queued = outcome.status === "rejected" ? undefined : await operation.first();
@@ -151,8 +164,9 @@ export function dexieStore(db: LocalDb): LocalStore {
               });
           }
           if (queued?.type === "cash_session.close") {
-            // Clôture acceptée : la session gardée n'est plus ouverte.
+            // Clôture acceptée : la session gardée n'est plus ouverte, ses sorties sont au serveur.
             const closed = (queued.payload as { cash_session: string }).cash_session;
+            await db.cashOuts.where("session").equals(closed).delete();
             await db.cash
               .where("id")
               .equals("session")

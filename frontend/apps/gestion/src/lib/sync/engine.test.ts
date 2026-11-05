@@ -86,7 +86,7 @@ function memoryStore(meta: Partial<SyncMeta> = {}, queued: Operation[] = []) {
 type Page = Awaited<ReturnType<SyncServer["snapshot"]>>;
 const page = (items: Enrollment[], next: string | null, first = false): Page => ({
   cursor: first ? 40 : null,
-  device: first ? { id: "d1", prefix: "P1", last_receipt_seq: 184 } : null,
+  device: first ? { id: "d1", prefix: "P1", last_receipt_seq: 184, last_cash_out_seq: 7 } : null,
   config: first ? config : null,
   enrollments: items,
   next,
@@ -116,8 +116,8 @@ function server(overrides: Partial<FakeServer> = {}): FakeServer {
 const NOW = () => new Date("2026-09-29T09:30:00Z");
 
 describe("instantané", () => {
-  it("premier chargement : toutes les pages, curseur de la première, séquence des reçus reprise", async () => {
-    const { store, state } = memoryStore({ receiptSeq: 3 });
+  it("premier chargement : toutes les pages, curseur de la première, séquences reprises", async () => {
+    const { store, state } = memoryStore({ receiptSeq: 3, cashOutSeq: 9 });
     const remote = server();
 
     expect(await synchronize(store, remote, NOW)).toBe("done");
@@ -125,8 +125,15 @@ describe("instantané", () => {
     expect(remote.snapshot.mock.calls).toEqual([[undefined], ["e2"]]);
     expect([...state.enrollments.keys()]).toEqual(["e1", "e2", "e3"]);
     expect(state.config).toBe(config);
-    // Réinstallé : le serveur connaît déjà le reçu 184, l'appareil ne redonne pas ce numéro.
-    expect(state.meta).toMatchObject({ cursor: 40, snapshot: null, receiptSeq: 184, gen: 1 });
+    // Réinstallé : le serveur connaît déjà le reçu 184, l'appareil ne redonne pas ce numéro ; le
+    // bon 9 de l'appareil n'est pas encore arrivé au serveur (7) : la séquence ne recule pas.
+    expect(state.meta).toMatchObject({
+      cursor: 40,
+      snapshot: null,
+      receiptSeq: 184,
+      cashOutSeq: 9,
+      gen: 1,
+    });
     expect(state.meta.lastSyncAt).toBe("2026-09-29T09:30:00.000Z");
 
     await synchronize(store, remote, NOW);

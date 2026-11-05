@@ -7,7 +7,7 @@ from collections import defaultdict
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.utils import timezone
 
@@ -129,21 +129,53 @@ def percent(paid: dict[str, int], due: dict[str, int], factors: dict[str, Decima
     return int(received * 100 / total)
 
 
+def _sums(currency: str) -> dict:
+    """Dû, payé et reste d'une devise, additionnés par la base."""
+    only = Q(currency=currency)
+    return {
+        f"due_{currency}": Sum("amount_minor", filter=only),
+        f"paid_{currency}": Sum("settled_minor", filter=only),
+        f"overdue_{currency}": Sum("remaining_minor", filter=only),
+    }
+
+
 def schooling(year: AcademicYear, day: date) -> dict:
-    """Effectifs, impayés échus et recouvrement de l'année, par classe et pour l'école : trois
-    requêtes pour les frais dus (`charges_by_enrollment`), une pour les inscriptions, une pour
-    les classes. Recouvrement : payé sur dû (après réductions) des frais dont l'échéance est
-    passée, comme les impayés (G1)."""
+    """Effectifs, impayés échus et recouvrement de l'année, par classe et pour l'école.
+    Recouvrement : payé sur dû (après réductions) des frais dont l'échéance est passée, comme
+    les impayés (G1). Effectifs et frais des élèves sans réduction additionnés par la base (une
+    ligne par classe) ; ceux qui ont une réduction, frais par frais (`charges_by_enrollment`)."""
     enrollments = Enrollment.objects.filter(academic_year=year, status=Enrollment.Status.ACTIVE)
-    students = {row["pk"]: row for row in enrollments.values("pk", "class_group", "student__sex")}
+    counts: dict = defaultdict(lambda: {Student.Sex.MALE: 0, Student.Sex.FEMALE: 0})
+    for row in (
+        enrollments.order_by().values("class_group", "student__sex").annotate(count=Count("pk"))
+    ):
+        counts[row["class_group"]][row["student__sex"]] = row["count"]
     due: dict = defaultdict(lambda: defaultdict(int))
     paid: dict = defaultdict(lambda: defaultdict(int))
     overdue: dict[str, int] = defaultdict(int)
-    late_students = set()
-    for enrollment_id, charges in services.charges_by_enrollment(
-        enrollments.values("pk"), light=True
-    ).items():
-        group = students[enrollment_id]["class_group"]
+    late_students = 0
+    for row in (
+        services.settled_charges(enrollments)
+        .filter(due_on__lt=day)
+        .order_by()
+        .values("enrollment__class_group")
+        .annotate(
+            late=Count("enrollment", distinct=True, filter=Q(remaining_minor__gt=0)),
+            **{name: total for c in Currency.values for name, total in _sums(c).items()},
+        )
+    ):
+        group = row["enrollment__class_group"]
+        # Une inscription est dans une seule classe : les élèves en retard s'additionnent.
+        late_students += row["late"]
+        for c in Currency.values:
+            if row[f"due_{c}"] is not None:
+                due[group][c] += row[f"due_{c}"]
+                paid[group][c] += row[f"paid_{c}"]
+                overdue[c] += row[f"overdue_{c}"]
+    discounted = services.discounted(enrollments)
+    groups = dict(Enrollment.objects.filter(pk__in=discounted).values_list("pk", "class_group"))
+    for enrollment_id, charges in services.charges_by_enrollment(discounted, light=True).items():
+        group, late = groups[enrollment_id], False
         for charge in charges:
             if charge.state is None or charge.due_on >= day:
                 continue
@@ -151,10 +183,8 @@ def schooling(year: AcademicYear, day: date) -> dict:
             paid[group][charge.currency] += charge.paid_minor
             if charge.state == services.OVERDUE:
                 overdue[charge.currency] += charge.remaining_minor
-                late_students.add(enrollment_id)
-    counts: dict = defaultdict(lambda: {Student.Sex.MALE: 0, Student.Sex.FEMALE: 0})
-    for row in students.values():
-        counts[row["class_group"]][row["student__sex"]] += 1
+                late = True
+        late_students += late
     factors = _factors(year)
     classes = [
         {
@@ -176,13 +206,13 @@ def schooling(year: AcademicYear, day: date) -> dict:
             school_paid[currency] += paid[group][currency]
     return {
         "classes": classes,
-        "enrolled": len(students),
-        "male": sum(1 for row in students.values() if row["student__sex"] == Student.Sex.MALE),
-        "female": sum(1 for row in students.values() if row["student__sex"] == Student.Sex.FEMALE),
+        "enrolled": sum(sum(sexes.values()) for sexes in counts.values()),
+        "male": sum(sexes[Student.Sex.MALE] for sexes in counts.values()),
+        "female": sum(sexes[Student.Sex.FEMALE] for sexes in counts.values()),
         "overdue": [
             {"currency": c, "amount_minor": overdue.get(c, 0)} for c in _currencies(overdue)
         ],
-        "overdue_students": len(late_students),
+        "overdue_students": late_students,
         "recovery_percent": percent(school_paid, school_due, factors),
     }
 

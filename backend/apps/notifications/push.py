@@ -21,6 +21,7 @@ from apps.accounts.roles import (
     GRADES_ENTER,
     GRADES_VALIDATE,
     ROLES_MANAGE,
+    STUDENTS_EDIT,
 )
 from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_all_schools, use_school
@@ -43,6 +44,7 @@ STAFF_KINDS = {
     Kind.CASH_DIFFERENCE: FINANCE_VIEW_REPORTS,
     Kind.REGISTER_OPEN: FINANCE_VIEW_REPORTS,
     Kind.SENSITIVE_RIGHTS: ROLES_MANAGE,
+    Kind.POSSIBLE_DUPLICATE: STUDENTS_EDIT,
     # Le titulaire la reçoit aussi (`events.grades_sent`), sans pouvoir la couper : une par cours.
     Kind.GRADES_SENT: GRADES_VALIDATE,
     Kind.REPORT_CARDS_READY: GRADES_VALIDATE,

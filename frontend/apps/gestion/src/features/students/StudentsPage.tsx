@@ -24,8 +24,9 @@ import { Link } from "react-router";
 
 import { formatPhone, studentName } from "../../lib/people";
 import { can } from "../../lib/permissions";
-import { useCurrentMe } from "../../lib/queries";
+import { hasCode, useCurrentMe } from "../../lib/queries";
 import { useSettled } from "../../lib/settled";
+import { useSyncStatus } from "../../lib/sync/session";
 import { useClasses, useTracks, useYears } from "../organisation/data";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
@@ -63,6 +64,7 @@ const NO_FILTERS: Filters = {
 export function StudentsPage() {
   const { t } = useTranslation();
   const me = useCurrentMe();
+  const { db } = useSyncStatus();
   const finance = can(me, CHARGES_READ);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [page, setPage] = useState(1);
@@ -94,7 +96,26 @@ export function StudentsPage() {
   };
 
   if (students.isError && !students.data) {
-    return <LoadError error={students.error} onRetry={() => void students.refetch()} />;
+    // Sans réseau, un appareil mémorisé inscrit quand même (HL.1).
+    const enrollHere = db && can(me, ["students.edit"]) && hasCode(students.error, "network");
+    return (
+      <>
+        {enrollHere && (
+          <PageHeader
+            title={t("students.list.title")}
+            actions={
+              <Button asChild>
+                <Link to="/students/new">
+                  <Icon name="plus" size={16} />
+                  {t("students.list.newStudent")}
+                </Link>
+              </Button>
+            }
+          />
+        )}
+        <LoadError error={students.error} onRetry={() => void students.refetch()} />
+      </>
+    );
   }
   const results = students.data?.results ?? [];
   const count = students.data?.count ?? 0;

@@ -19,8 +19,12 @@ FORMATS = {"PNG": "png", "JPEG": "jpg"}
 JPEG_QUALITY = 90
 
 
-def _too_large() -> ValidationError:
-    return ValidationError(_("The image must not exceed 1 MB."), code="image_too_large")
+def _too_large(max_size: int = MAX_SIZE) -> ValidationError:
+    return ValidationError(
+        _("The image must not exceed %(mb)s MB."),
+        code="image_too_large",
+        params={"mb": max_size // (1024 * 1024)},
+    )
 
 
 def _wrong_type() -> ValidationError:
@@ -35,9 +39,9 @@ def _too_big() -> ValidationError:
     )
 
 
-def check_size(file) -> None:
-    if file.size > MAX_SIZE:
-        raise _too_large()
+def check_size(file, max_size: int = MAX_SIZE) -> None:
+    if file.size > max_size:
+        raise _too_large(max_size)
 
 
 def _mode(image: Image.Image) -> str:
@@ -50,10 +54,12 @@ def _mode(image: Image.Image) -> str:
     return "L" if image.mode in ("L", "1") else "RGB"
 
 
-def clean_image(file, *, formats: dict[str, str] = FORMATS) -> ContentFile:
+def clean_image(
+    file, *, formats: dict[str, str] = FORMATS, max_size: int = MAX_SIZE
+) -> ContentFile:
     """L'image ré-encodée dans son format, tournée comme l'appareil photo l'indiquait ;
     `ValidationError` si le fichier n'en est pas une, pèse ou mesure trop."""
-    check_size(file)
+    check_size(file, max_size)
     file.seek(0)
     try:
         image = Image.open(file, formats=list(formats))
