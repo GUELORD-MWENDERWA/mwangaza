@@ -8,10 +8,12 @@ from decimal import Decimal
 
 import openpyxl
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
-from apps.core.money import format_amount
+from apps.core.money import Money, format_amount
 from apps.core.tenancy import use_school
 from apps.finance import services, statements
 from apps.finance.tests.test_balance import at
@@ -24,6 +26,7 @@ pytestmark = pytest.mark.django_db
 UNPAID = "/api/unpaid/"
 STATEMENT = "/api/student-charges/statement/"
 STUDENTS = "/api/students/"
+DASHBOARD = "/api/dashboard/"
 
 
 @pytest.fixture
@@ -66,6 +69,10 @@ def amounts(row: dict) -> list:
     return [(amount["currency"], amount["overdue_minor"]) for amount in row["amounts"]]
 
 
+def amounts_of(rows: list[dict]) -> list:
+    return [(row["currency"], row["amount_minor"]) for row in rows]
+
+
 def test_late_is_after_discounts_without_cancelled_payments_and_per_currency(
     monkeypatch, api, head, late
 ):
@@ -95,6 +102,68 @@ def test_late_is_after_discounts_without_cancelled_payments_and_per_currency(
 
     at(monkeypatch, "2026-11-01")
     assert client.get(f"{UNPAID}summary/").json()["long_overdue"] == 2
+
+
+def overdue(school, enrollment) -> list[tuple]:
+    """En retard selon la fiche de l'élève (solde 2.7), par devise."""
+    with use_school(school):
+        balance = services.balance(services.charges_of(enrollment.pk))
+    return [(c.currency, c.overdue_minor) for c in balance.currencies if c.overdue_minor]
+
+
+def test_the_database_gives_the_student_balance_without_more_queries_for_more_students(
+    api, school, head, cashier, alpha, late
+):
+    """PERF.7 : sans réduction, le reste est calculé par la base ; il doit rester celui de la
+    fiche de l'élève (paiement partiel, paiement annulé, crédit utilisé, réduction retirée)."""
+    client = api(head)
+    screens = (UNPAID, f"{UNPAID}summary/", DASHBOARD)
+
+    def queries() -> list[int]:
+        counts = []
+        for url in screens:
+            with CaptureQueriesContext(connection) as captured:
+                assert client.get(url).status_code == 200
+            counts.append(len(captured))
+        return counts
+
+    before = queries()
+    students = [enrolled(school, head, alpha["group"], last_name=n) for n in ("Zawadi", "Kahindo")]
+    with use_school(school):
+        zawadi, kahindo = (student.enrollments.get() for student in students)
+    pay(school, cashier, zawadi, 5000, "USD")
+    cancelled = pay(school, cashier, zawadi, 25000, "CDF")
+    with use_school(school):
+        request, _created = services.request_cancellation(
+            cancelled, actor=cashier, reason="Mauvais élève sélectionné (homonyme)"
+        )
+        services.approve_cancellation(request, actor=head)
+        discount = services.grant_discount(
+            kahindo,
+            actor=head,
+            fee_type=None,
+            kind="percent",
+            percent=50,
+            reason_code="scholarship",
+            reason="Bourse",
+        )
+        services.revoke_discount(discount, actor=head, reason="Bourse non renouvelée")
+        credit = services._create_credit(kahindo, actor=head, amount=Money(3000, "USD"))
+        services.use_credit(credit, actor=head)
+
+    assert queries() == before
+    rows = {row["enrollment"]: amounts(row) for row in client.get(UNPAID).json()["results"]}
+    assert rows[str(zawadi.pk)] == [("USD", 7000), ("CDF", 25000)]
+    assert rows[str(kahindo.pk)] == [("USD", 9000), ("CDF", 25000)]
+    everyone = [late["kasereka"], late["amani"], late["paluku"], zawadi, kahindo]
+    assert rows == {str(e.pk): overdue(school, e) for e in everyone if overdue(school, e)}
+    data = client.get(DASHBOARD).json()
+    totals = {"USD": 0, "CDF": 0}
+    for enrollment in everyone:
+        for currency, amount in overdue(school, enrollment):
+            totals[currency] += amount
+    assert amounts_of(data["overdue"]) == list(totals.items())
+    assert data["overdue_students"] == len(rows) == 4
 
 
 def test_excel_has_one_line_per_late_fee_and_each_export_is_audited(api, school, head, late):

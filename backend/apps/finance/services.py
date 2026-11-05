@@ -23,6 +23,7 @@ from django.db.models import (
     BigIntegerField,
     Count,
     Exists,
+    ExpressionWrapper,
     F,
     OuterRef,
     Prefetch,
@@ -32,7 +33,7 @@ from django.db.models import (
     Subquery,
     Sum,
 )
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, Least
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -1025,6 +1026,45 @@ def charges_by_enrollment(enrollment_ids, *, light: bool = False) -> dict:
     for enrollment_id, items in charges.items():
         _settle(items, discounts[enrollment_id], day)
     return charges
+
+
+# Soldes calculés par la base (PERF.7) : pour les écrans de toute une école (impayés, tableau
+# de bord), PostgreSQL calcule le reste de chaque frais dû et ne renvoie que les frais retenus ou
+# des totaux, sans un objet Python par frais. Même calcul que `_settle` pour un élève sans
+# réduction ; ceux qui en ont une (peu nombreux) passent par `charges_by_enrollment`, seule à
+# répartir les réductions (`discount_shares`, aussi dans `@mwangaza/money`).
+
+
+def discounted(enrollments: QuerySet) -> QuerySet:
+    """Inscriptions parmi `enrollments` qui ont une réduction en cours (sous-requête)."""
+    return Discount.objects.filter(enrollment__in=enrollments, revoked_at__isnull=True).values(
+        "enrollment"
+    )
+
+
+def settled_charges(enrollments: QuerySet) -> QuerySet[StudentCharge]:
+    """Frais dus actifs des inscriptions sans réduction en cours, avec `settled_minor` (payé :
+    paiements non annulés et crédits utilisés, plafonné à ce qui est dû) et `remaining_minor`,
+    calculés par la base. Sous-requêtes par frais, pour pouvoir additionner ensuite."""
+    allocated = (
+        PaymentAllocation.objects.filter(
+            student_charge=OuterRef("pk"), payment__cancellation__isnull=True
+        )
+        .values("student_charge")
+        .annotate(total=Sum("amount_minor"))
+        .values("total")
+    )
+    paid = Coalesce(Subquery(allocated), 0, output_field=BigIntegerField()) + _credit_used()
+    return (
+        StudentCharge.objects.filter(enrollment__in=enrollments, status=StudentCharge.Status.ACTIVE)
+        .exclude(enrollment__in=discounted(enrollments))
+        .annotate(settled_minor=Least(paid, F("amount_minor"), output_field=BigIntegerField()))
+        .annotate(
+            remaining_minor=ExpressionWrapper(
+                F("amount_minor") - F("settled_minor"), output_field=BigIntegerField()
+            )
+        )
+    )
 
 
 @dataclass

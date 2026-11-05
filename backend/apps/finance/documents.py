@@ -131,7 +131,7 @@ def unpaid_workbook(rows: list[unpaid.UnpaidStudent]) -> bytes:
                     charge.fee_type.name,
                     charge.label,
                     charge.due_on,
-                    _money(charge.amount_minor - charge.discount_minor, currency),
+                    _money(charge.due_minor, currency),
                     _money(charge.paid_minor, currency),
                     _money(charge.remaining_minor, currency),
                     SYMBOLS[currency],

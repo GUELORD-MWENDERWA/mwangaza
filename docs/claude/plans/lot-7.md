@@ -12,7 +12,7 @@
 - [x] ③b HL.1 appareil : « Inscrire un élève » hors ligne (maquette), élève provisoire à la caisse, Playwright réseau coupé (inscrire, encaisser, rétablir) — **Opus**
 - [x] ④a FIN.3 serveur : budget par catégorie, comptes (solde de départ, virements), rapports en SQL, Excel, droit `finance.manage_budget`, audit, démo, tests — **Opus**
 - [x] ④b FIN.3 écran « Budget et rapports » (maquette complétée : saisie du budget, virement), article d'aide, 390/1440 px — Sonnet
-- [ ] ④c PERF.7 « Impayés » et tableau de bord en SQL, mesure avant/après (`make perf`) — **Opus**
+- [x] ④c PERF.7 « Impayés » et tableau de bord en SQL, mesure avant/après (`make perf`) — **Opus**
 - [ ] ④d OPS.5 (tableau Capacité, procédure 4 Go) ; fin du lot (docs, vérification, PR) — Sonnet
 
 ## Décisions (regard senior)
@@ -32,6 +32,8 @@
 - Budget et comptes (④a) : comptes fixes caisse (toutes les caisses), banque, Mobile Money, comme `Expense.Account` ; solde = départ saisi + caisse reçue + virements − dépenses ; reprises hors des entrées (déjà dans le départ) ; dépense comptée à sa date ; nouveau droit `finance.manage_budget` (directeur, comptable ; écoles existantes : à ajouter à leurs rôles, à valider) ; autres entrées (dons, ventes de l'atelier) : comptabilité V2. Reste : `reference.md`, `03` (fin du lot).
 
 - Écran « Budget et rapports » (④b) : trois rubriques (budget, entrées et sorties, comptes), un tableau par devise ; « Régler le budget » n'envoie que les lignes changées ; solde de départ et virement dans une fenêtre, annulation avec motif ; l'écran se montre avec `finance.view_reports` (menu), les boutons de saisie avec `finance.manage_budget`. Reste : `reference.md`, `A-FAIRE.md` § 11, `07`, `maquettes/README.md` (fin du lot).
+
+- Impayés et tableau de bord en SQL (④c) : la base calcule le reste des frais des élèves sans réduction en cours ; avec une réduction, calcul Python inchangé (pas de 3e copie de la répartition) ; +63 → +11 Mo par travailleur, ≈ 2 s → 0,5–0,8 s ; mesure en processus au lieu de `make perf` (machine de 8 Go, à valider) ; limite Django gardée à 576 Mo (Argon2). Note : `recherches/perf-7-…`. Reste : 05 (cocher), PR.
 
 ## Hors périmètre
 Comptabilité complète, rapprochement bancaire, paiement en ligne.
