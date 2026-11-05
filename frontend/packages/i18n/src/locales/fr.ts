@@ -3640,6 +3640,26 @@ export const fr = {
       duplicateOpen: "Ouvrir la fiche de {{name}} ({{matricule}})",
       duplicateConfirm: "Inscrire quand même",
     },
+    offline: {
+      subtitle: "Vous pouvez inscrire et encaisser sans réseau.",
+      provisional:
+        "Le matricule et le code famille sont provisoires ; les définitifs arrivent à la synchronisation.",
+      provisionalValue: "Provisoire · {{value}}",
+      familyCode: "Code famille",
+      seenAtSync_one: "{{count}} élève inscrit à la dernière synchro ({{time}})",
+      seenAtSync_other: "{{count}} élèves inscrits à la dernière synchro ({{time}})",
+      enrollAndCollect: "Inscrire et encaisser",
+      enrollOnly: "Inscrire seulement",
+      enrolled:
+        "{{name}} est inscrit sur cet appareil (matricule provisoire {{matricule}}). Il part au serveur à la prochaine synchronisation ; la fiche d'inscription s'imprime ensuite.",
+      familySearch: "Rechercher par le nom d'un enfant ou le code famille",
+      duplicateTitle: "Doublon possible.",
+      duplicateHelp:
+        "Cet appareil connaît déjà un élève aux mêmes nom, prénom et date de naissance. Rien n'est fusionné : vérifiez avec le parent.",
+      duplicateOne: "{{name}}, né le {{born}} ({{detail}})",
+      sameCollect: "C'est le même : encaisser",
+      distinct: "Ce sont deux élèves : inscrire",
+    },
     photo: {
       title: "Photo",
       pick: "Prendre une photo ou choisir un fichier",
@@ -5134,6 +5154,9 @@ export const fr = {
         creditUse: "Crédit utilisé",
         cancellation: "Demande d'annulation",
         grades: "Notes saisies sans réseau",
+        cashOut: "Sortie de caisse",
+        cashClose: "Clôture de caisse",
+        enroll: "Inscription d'un élève",
         other: "Opération",
       },
     },

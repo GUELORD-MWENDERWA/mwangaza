@@ -38,6 +38,9 @@ export type QueuedOperation = Operation & {
   session?: Schemas["CashSession"];
   /** Crédit utilisé à la caisse : ses parts, comptées comme payées jusqu'à la descente (3.6.2). */
   creditUse?: CreditUse;
+  /** Élève inscrit ici (HL.1) : son inscription provisoire, montrée à la caisse jusqu'à la
+   *  descente qui apporte celle du serveur (même identifiant, numéros définitifs). */
+  enrollment?: Enrollment;
 };
 
 /** Sortie de caisse faite sur l'appareil (FIN.2), écrite avec son opération `cash_out.create`

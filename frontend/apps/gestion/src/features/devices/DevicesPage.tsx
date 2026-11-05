@@ -27,6 +27,7 @@ import { type ReactNode, useState } from "react";
 
 import { errorMessage } from "../../lib/errors";
 import { useOnline } from "../../lib/online";
+import { studentName } from "../../lib/people";
 import { can } from "../../lib/permissions";
 import { keys, useCurrentMe } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
@@ -326,7 +327,16 @@ function LocalDevice({ db, prefix }: { db: LocalDb; prefix: string }) {
 }
 
 type QueueType =
-  "payment" | "reprint" | "cashOpen" | "creditUse" | "cancellation" | "grades" | "other";
+  | "payment"
+  | "reprint"
+  | "cashOpen"
+  | "cashOut"
+  | "cashClose"
+  | "creditUse"
+  | "cancellation"
+  | "grades"
+  | "enroll"
+  | "other";
 
 const TYPES: Record<string, QueueType> = {
   "payment.create": "payment",
@@ -335,6 +345,9 @@ const TYPES: Record<string, QueueType> = {
   "credit.use": "creditUse",
   "cancellation.request": "cancellation",
   "grades.save": "grades",
+  "cash_out.create": "cashOut",
+  "cash_session.close": "cashClose",
+  "student.enroll": "enroll",
 };
 
 function QueueRow({ operation }: { operation: QueuedOperation }) {
@@ -352,6 +365,9 @@ function QueueRow({ operation }: { operation: QueuedOperation }) {
           {" · "}
           {t(`devices.queue.types.${TYPES[operation.type] ?? "other"}`)}
         </p>
+        {operation.type === "student.enroll" && operation.enrollment && (
+          <span className="text-sm text-ink-3">{studentName(operation.enrollment.student)}</span>
+        )}
         {receipt && (
           <span className="text-sm text-ink-3 tabular-nums">
             {receipt.receipt_number} ·{" "}

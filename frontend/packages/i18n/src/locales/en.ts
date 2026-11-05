@@ -3607,6 +3607,26 @@ export const en: Messages<typeof fr> = {
       duplicateOpen: "Open the record of {{name}} ({{matricule}})",
       duplicateConfirm: "Enrol anyway",
     },
+    offline: {
+      subtitle: "You can enrol and collect payments without a network.",
+      provisional:
+        "The student number and family code are provisional; the final ones arrive when the device syncs.",
+      provisionalValue: "Provisional · {{value}}",
+      familyCode: "Family code",
+      seenAtSync_one: "{{count}} student enrolled at the last sync ({{time}})",
+      seenAtSync_other: "{{count}} students enrolled at the last sync ({{time}})",
+      enrollAndCollect: "Enrol and collect",
+      enrollOnly: "Enrol only",
+      enrolled:
+        "{{name}} is enrolled on this device (provisional number {{matricule}}). It goes to the server at the next sync; the registration form is printed afterwards.",
+      familySearch: "Search by a child's name or the family code",
+      duplicateTitle: "Possible duplicate.",
+      duplicateHelp:
+        "This device already knows a student with the same last name, first name and date of birth. Nothing is merged: check with the parent.",
+      duplicateOne: "{{name}}, born {{born}} ({{detail}})",
+      sameCollect: "Same student: collect",
+      distinct: "Two different students: enrol",
+    },
     photo: {
       title: "Photo",
       pick: "Take a photo or choose a file",
@@ -5090,6 +5110,9 @@ export const en: Messages<typeof fr> = {
         creditUse: "Credit used",
         cancellation: "Cancellation request",
         grades: "Grades typed offline",
+        cashOut: "Cash withdrawal",
+        cashClose: "Cash closing",
+        enroll: "Student enrolment",
         other: "Operation",
       },
     },

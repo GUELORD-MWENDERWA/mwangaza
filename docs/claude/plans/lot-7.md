@@ -9,7 +9,7 @@
 - [x] ②b2 FIN.2 écrans en ligne : sortie de caisse, bon de sortie imprimé, ligne « sorties » dans la clôture — Sonnet
 - [x] ②b3 FIN.2 hors ligne : sortie en file d'attente, synchro idempotente, Playwright réseau coupé — **Opus**
 - [x] ③a HL.1 serveur : opération `student.enroll` (identifiants de l'appareil, frais dus compris), barèmes par classe dans la config, doublon signalé (notification), tests — **Opus**
-- [ ] ③b HL.1 appareil : « Inscrire un élève » hors ligne (maquette), élève provisoire à la caisse, Playwright réseau coupé (inscrire, encaisser, rétablir) — **Opus**
+- [x] ③b HL.1 appareil : « Inscrire un élève » hors ligne (maquette), élève provisoire à la caisse, Playwright réseau coupé (inscrire, encaisser, rétablir) — **Opus**
 - [ ] ④ FIN.3 (budget, réalisé/prévu, entrées/sorties, comptes, Excel) ; PERF.7 ; OPS.5 ; fin du lot (docs, vérification, PR)
 
 ## Décisions (regard senior)
@@ -23,6 +23,8 @@
 - Hors ligne (②b3) : sur un appareil mémorisé, toujours par la file (comme l'encaissement), bon `…-P1-26-S0001` de l'appareil ; dépense payée ou annulée entre-temps : gardée (l'argent est parti), `conflict` au journal, **pas de notification** (cas rare, à valider) ; sorties faites ailleurs dans la même session pas vues par la clôture de l'appareil (le serveur recalcule).
 
 - Inscription hors ligne (③a) : jamais refusée pour un doublon (l'élève a pu payer) ; doublon trouvé au serveur et pas déjà écarté sur l'appareil (« Ce sont deux élèves ») → notification `possible_duplicate` à ceux qui ont `students.edit`, sans champ ni fusion (à valider) ; frais dus aux identifiants de l'appareil (paiement réparti sur la bonne tranche), identifiant pris ailleurs ignoré ; barèmes envoyés seulement avec un droit sur les finances. Reste : `reference.md`, `03`, `04` (fin du lot).
+
+- Inscription sur l'appareil (③b) : seulement sans réseau ou serveur injoignable (en ligne : écran habituel, matricule tout de suite) ; « Inscrire et encaisser » pour un compte qui a les deux droits (aucun rôle de départ ne les a : à l'école de régler ses rôles, à valider) ; famille existante cherchée par un enfant ou le code (les tuteurs ne descendent pas) ; photo après la synchro.
 
 ## Hors périmètre
 Comptabilité complète, rapprochement bancaire, paiement en ligne.

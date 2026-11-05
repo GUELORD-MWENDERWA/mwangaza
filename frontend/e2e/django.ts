@@ -101,3 +101,35 @@ with use_school(School.objects.get(code="itig-demo")):
   );
   return output.trim().split("\n").at(-1)!.split("|");
 }
+
+/** Ajoute ou retire une permission aux rôles d'un compte de l'ITIG de démonstration (ex. une
+ *  caissière qui inscrit aussi, HL.1). */
+export function setPermission(phone: string, permission: string, granted: boolean) {
+  shell(`from apps.accounts.models import Role
+from apps.core.tenancy import use_school
+from apps.schools.models import School
+with use_school(School.objects.get(code="itig-demo")):
+    for role in Role.objects.filter(memberships__user__phone="${phone}"):
+        others = [code for code in role.permissions if code != "${permission}"]
+        role.permissions = [*others, "${permission}"] if ${granted ? "True" : "False"} else others
+        role.save()`);
+}
+
+/** Élèves de l'ITIG de démonstration à ce nom au serveur : nombre, matricule, nombre de
+ *  paiements et total reçu (centimes), séparés par « | ». */
+export function studentsNamed(lastName: string): string[] {
+  const output = manage(
+    "shell",
+    "-c",
+    `from apps.core.tenancy import use_school
+from apps.finance.models import Payment
+from apps.schools.models import School
+from apps.students.models import Student
+with use_school(School.objects.get(code="itig-demo")):
+    found = list(Student.objects.filter(last_name="${lastName}"))
+    paid = list(Payment.objects.filter(enrollment__student__in=found))
+    matricule = found[0].matricule if found else ""
+    print(len(found), matricule, len(paid), sum(p.received_amount_minor for p in paid), sep="|")`,
+  );
+  return output.trim().split("\n").at(-1)!.split("|");
+}

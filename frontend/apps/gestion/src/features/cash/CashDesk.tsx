@@ -26,7 +26,7 @@ import {
 } from "@mwangaza/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { fullName, studentName } from "../../lib/people";
@@ -99,7 +99,11 @@ export function CashDesk({
   const reprintable = (id: string) =>
     !rows ||
     rows.some((row) => row.payment.id === id && row.sync !== "rejected" && !row.payment.cancelled);
-  const [chosen, setChosen] = useState<Chosen | null>(null);
+  // Élève tout juste inscrit sur l'appareil (« Inscrire et encaisser », HL.1) : choisi d'office.
+  const location = useLocation();
+  const [chosen, setChosen] = useState<Chosen | null>(
+    () => (location.state as { collect?: Chosen } | null)?.collect ?? null,
+  );
   const [recorded, setRecorded] = useState<Receipt | null>(null);
   const [cancelling, setCancelling] = useState<SessionPayment["payment"] | null>(null);
   const [closing, setClosing] = useState(false);

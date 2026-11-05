@@ -11,6 +11,7 @@ import { uuidv7 } from "../../lib/ids";
 import type { LocalCashOut, LocalDb, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
 import type { Config } from "../../lib/sync/engine";
 import { syncNow } from "../../lib/sync/session";
+import { queuedEnrollments } from "../students/offline";
 import type { Line } from "./allocation";
 import { creditUse, offlinePayload } from "./offline";
 import type { Receipt } from "./Receipt";
@@ -63,14 +64,22 @@ const readState = async (db: LocalDb) => {
 const readQueue = (db: LocalDb) => db.outbox.orderBy("seq").toArray();
 
 /** L'état reçu du serveur (qui change à la synchronisation) et la file (à chaque encaissement),
- *  lus à part. */
+ *  lus à part ; les élèves inscrits ici et pas encore descendus s'y ajoutent (HL.1). */
 export function useLocalCash(db: LocalDb): Live<LocalCash> {
   const state = useLive(db, readState);
   const queue = useLive(db, readQueue);
   const error = state.error ?? queue.error;
   if (error) return { error };
   if (!state.data || !queue.data) return {};
-  return { data: { ...state.data, queued: queue.data } };
+  return { data: withEnrolledHere(state.data, queue.data) };
+}
+
+function withEnrolledHere(known: Omit<LocalCash, "queued">, queued: QueuedOperation[]): LocalCash {
+  const added = queuedEnrollments(queued, known.byId);
+  if (!added.length) return { ...known, queued };
+  const enrollments = [...known.enrollments, ...added];
+  const byId = new Map(enrollments.map((item) => [item.id, item]));
+  return { ...known, enrollments, byId, queued };
 }
 
 /** Session lue en ligne à `readAt` : gardée pour continuer sans réseau, sauf si l'appareil en

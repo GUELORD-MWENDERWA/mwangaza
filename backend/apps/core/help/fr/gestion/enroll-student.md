@@ -4,7 +4,7 @@ summary: Créer la fiche d'un nouvel élève avec sa famille, sa classe et son �
 groups: secretariat
 roles: secretary
 order: 10
-updated: 2026-11-04
+updated: 2026-11-05
 
 ## Étapes
 
@@ -25,3 +25,5 @@ updated: 2026-11-04
 **Doublon ?** L'application prévient si un élève du même nom et de la même date de naissance existe déjà.
 
 **Mauvaise classe choisie ?** Ouvrez la fiche, **Modifier**, changez la classe.
+
+**Pas de réseau ?** Sur un appareil mémorisé, l'inscription marche quand même : le matricule et le code famille affichés sont provisoires, les définitifs arrivent à la synchronisation. Si votre compte encaisse aussi, **Inscrire et encaisser** ouvre la caisse sur l'élève. La photo et la fiche d'inscription se font ensuite, une fois le réseau revenu. Si deux appareils ont inscrit le même enfant, le secrétariat est prévenu ; rien n'est fusionné tout seul.
