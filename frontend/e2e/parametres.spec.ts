@@ -48,9 +48,10 @@ test("directeur des études : organisation scolaire, classe ajoutée puis retir�
 
   await page.getByRole("tab", { name: "Matricule" }).click();
   const format = page.getByLabel("Modèle");
-  // 800 élèves de démonstration inscrits : le prochain numéro de l'année est 801.
+  // 800 élèves de démonstration inscrits (plus celui que le parcours hors ligne a pu ajouter) :
+  // le prochain numéro de l'année est 801 ou 802.
   await format.fill("ITIG/{AA}/{0000}");
-  await expect(page.getByText("ITIG/26/0801")).toBeVisible();
+  await expect(page.getByText(/^ITIG\/26\/080[12]$/)).toBeVisible();
   await page.getByRole("button", { name: "Enregistrer" }).click();
   await expect(page.getByText("Format enregistré.")).toBeVisible();
   await format.fill("ITIG-{AAAA}-{0000}");
