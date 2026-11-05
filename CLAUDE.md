@@ -107,7 +107,7 @@ Une partie de lot tient dans une conversation ; la qualité ne baisse pas (9 rè
 
 **Claude est le développeur** (code, teste, ouvre les PR) ; **l'utilisateur est le chef de projet et le relecteur** (valide, teste ce qui est visible, fusionne). La description de PR doit suffire sans lire le code.
 
-1. **Une seule PR par lot**, `base: main`, branche partie de `main` à jour ; les petites réparations du lot vont dedans. PR séparée seulement pour une décision à valider avant de continuer ou une correction urgente (le dire et pourquoi). Jamais de PR empilée.
+1. **Une seule PR par lot**, `base: main`, branche partie de `main` à jour, **ouverte en brouillon dès la partie 1** (la CI vérifie chaque push ; passée en relecture à la fin du lot) ; les petites réparations du lot vont dedans. PR séparée seulement pour une décision à valider avant de continuer ou une correction urgente (le dire et pourquoi). Jamais de PR empilée.
 2. **Ne jamais fusionner.**
 3. Pas d'attente à vide : PR donnée tout de suite, CI surveillée en arrière-plan, puis « ✅ contrôles verts » (ou correction dans la même PR).
 4. Description en français simple : ce qui change et pourquoi, tests, puis **« À valider »** (ou « Rien »), **« À tester toi-même »** (5 à 8 étapes, adresses complètes, résultat attendu), **« Après la fusion »** ; puis `Closes #<n>`. Modèle : skill `tache`.
