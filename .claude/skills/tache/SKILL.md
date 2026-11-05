@@ -22,7 +22,7 @@ Depuis le 2026-10-29 on travaille **par lots** (`05` § 2) : un lot = 2 à 7 tâ
 2. **Regard senior** (`CLAUDE.md`, « Façon de travailler ») : chaque tâche du lot est-elle utile, faisable, sans coût caché pour le serveur ? Retirer ou simplifier ; noter la raison dans la fiche et dans « À valider ».
 3. Branche **partie de `main` à jour** : `git fsck`, puis `git switch main && git pull && git switch -c lot/<N>-<mot-clé>`. Si le lot a besoin d'une PR pas encore fusionnée : le dire et attendre.
 4. Issue : `gh issue list --state all --search "\"Lot <N> —\" in:title" --json number,title` ; absente → `gh issue create --title "Lot <N> — <titre>" --milestone "V1 complète" --body-file <fichier>` (tâches en cases, avec le `#n` de leurs anciennes issues : `gh issue list --state open --search "\"<numéro> —\" in:title"`). Jalon absent → `gh api repos/GUELORD-MWENDERWA/mwangaza/milestones -f title="V1 complète"`.
-5. Fiche `docs/claude/plans/lot-<N>.md`, **30 lignes maximum** : But (pour l'école) · Parties (`- [ ]`, une conversation chacune, reprises de `05` § 2) · Hors périmètre · Critères d'acceptation · Tests obligatoires · Documents à mettre à jour · Risques / à vérifier dans le code. La résumer en 3 lignes ; continuer sauf décision non couverte par les documents.
+5. Fiche `docs/claude/plans/lot-<N>.md`, **30 lignes maximum** : But (pour l'école) · Parties (`- [ ]`, une conversation chacune, **3 au plus** : serveur, écrans, fin du lot — règle du 2026-11-06) · Hors périmètre · Critères d'acceptation · Tests obligatoires · Documents à mettre à jour · Risques / à vérifier dans le code. La résumer en 3 lignes ; continuer sauf décision non couverte par les documents.
 6. `docs/06-suivi.md` → « État actuel » : lot et partie en cours, branche, issue, date. `gh issue comment <n> --body "Démarré — branche lot/…, fiche : docs/claude/plans/lot-<N>.md"`.
 7. **Maquettes de tous les écrans et documents du lot, en une passe**, avant le code (skill `design`, « Méthode » ; `maquettes/README.md`).
 
@@ -33,23 +33,24 @@ Depuis le 2026-10-29 on travaille **par lots** (`05` § 2) : un lot = 2 à 7 tâ
 3. Code minimal et propre (`CLAUDE.md` : glossaire, `services.py`, i18n, pas de nouvelle dépendance sans demander) ; pas de N+1 (`select_related` / `prefetch_related`, annotations), listes paginées. Nouveau modèle → `make demo` (`07` § 4) ; nouvelle clé vers un élève → `import_cancellation.py`.
 4. Lancer seulement les tests du module touché : `set -a && . ./.env && set +a && cd backend && uv run pytest apps/<app> -q 2>&1 | tail -3` ; `cd frontend && pnpm exec vitest run apps/gestion/src/features/<dossier> 2>&1 | tail -5` ; types : `cd frontend && pnpm typecheck 2>&1 | grep 'error TS'`.
 5. Caisse ou hors-ligne : test Playwright qui coupe le réseau, encaisse deux paiements, rétablit le réseau, vérifie aucun doublon, reçus et soldes justes. Erreurs glissées exprès seulement pour l'argent, l'isolation et le hors-ligne.
-6. Nouvel écran : une capture à 390 px et une à 1440 px (`make apercu`), comparées à la maquette (alignement, débordement, textes bruts).
+6. Écrans : pendant la partie, typecheck, lint et tests seulement ; **pas de capture** (elles se font toutes en fin de lot, § 4). Un outil qui bloque deux fois : chercher la cause dans l'environnement (migrations, serveur à jour), sinon passer et le dire.
 7. **Fin de la partie** : cocher la partie dans la fiche et le compteur « Avancement » de `06` ; commit (français, style conventionnel, ligne Co-Authored-By) ; `git push -u origin lot/<N>-…` (sauvegarde : sans PR, la CI ne tourne pas). Pas la dernière partie → dire « Partie k/n faite et sauvegardée. Tape /clear puis /tache lot <N> », ligne `📍`, s'arrêter. Conversation longue au milieu d'une partie : commit, puis « Tape /compact ».
 
 ## 4. Fin du lot (après la dernière partie)
 
-1. **Définition de « fini »** (`05` § 8.2), sécurité comprise, pour chaque tâche du lot : une case non remplie = lot pas fini. `make lint` une fois (sortie filtrée). Pas de suite complète en local (la CI la lance ; jamais un nouveau `make demo` dans un test) ; `make test-e2e` seulement si un parcours Playwright a changé. `.tsx` modifié : `apps/gestion/textes.test.ts` ; docstring de vue modifiée : `make api`.
-2. Skill `verifier` : résultat en quelques lignes, pour la PR.
-3. `docs/05-plan-de-travail.md` : cocher les tâches `- [x]` et barrer la ligne du lot dans § 2 (`~~**Lot N**~~ ✓`).
-4. `docs/06-suivi.md` : « État actuel » (aucun lot en cours, prochain lot, date), bloquants réglés retirés, **journal : 3 à 5 lignes** en haut — `### AAAA-MM-JJ — Lot N : titre` puis fait, tests, décisions, suite.
-5. **Tous les autres `.md`, une fois** (liste de `CLAUDE.md`, « Suivi du projet ») ; pour chacun : « le lot le rend-il faux ou incomplet ? » :
-   - nouvel écran ou API → « Adresses en développement » de `docs/claude/reference.md` **et** `A-FAIRE.md` § 11 ; `make demo` → `reference.md`, `A-FAIRE.md` § 11 **et** `07` § 4 ; commande → `CLAUDE.md` (court) et `reference.md` ;
+1. **Captures du lot, en une passe** : chaque nouvel écran ajouté à `frontend/apercu/ecrans.spec.ts`, puis `make apercu ecran=gestion` (≈ 2 à 4 min, ses propres serveurs à neuf) ; chaque écran à 390 et 1440 px comparé à sa maquette (alignement, débordement, textes bruts), `rapport.json` vide ; corriger dans la même PR.
+2. **Définition de « fini »** (`05` § 8.2), sécurité comprise, pour chaque tâche du lot : une case non remplie = lot pas fini. `make lint` une fois (sortie filtrée). Pas de suite complète en local (la CI la lance ; jamais un nouveau `make demo` dans un test) ; `make test-e2e` seulement si un parcours Playwright a changé. `.tsx` modifié : `apps/gestion/textes.test.ts` ; docstring de vue modifiée : `make api`.
+3. Skill `verifier` : résultat en quelques lignes, pour la PR.
+4. `docs/05-plan-de-travail.md` : cocher les tâches `- [x]` et barrer la ligne du lot dans § 2 (`~~**Lot N**~~ ✓`).
+5. `docs/06-suivi.md` : « État actuel » (aucun lot en cours, prochain lot, date), bloquants réglés retirés, **journal : 3 à 5 lignes** en haut — `### AAAA-MM-JJ — Lot N : titre` puis fait, tests, décisions, suite.
+6. **Tous les autres `.md`, une fois** (liste de `CLAUDE.md`, « Suivi du projet ») ; pour chacun : « le lot le rend-il faux ou incomplet ? » :
+   - nouvel écran ou API → « Adresses en développement » de `docs/claude/reference.md` (seule liste) ; `make demo` → `reference.md` **et** `07` § 4 ; commande → `reference.md` et le tableau de `A-FAIRE.md` § 11 (langage simple) ;
    - action de l'utilisateur nouvelle, faite ou urgente → `A-FAIRE.md` « Maintenant » (et § 8–9) ;
    - décision technique → `03` « Journal des décisions » ; règle ou champ → `02` / `04` ; maquette → `07` § 1 et `maquettes/README.md` ;
    - façon de faire, commande ou helper de test → skills concernées et README du dossier ; à partir du lot 6, un article d'aide par nouvel écran.
    Contrôle : `git diff main --stat -- '*.md'`.
-6. Dernier commit et push, puis PR **unique**, `base: main` : `gh pr create --base main --title "Lot <N> — <titre>" --body-file <fichier>` (modèle ci-dessous). **Ne jamais fusionner.** Corriger la description : `gh api -X PATCH repos/GUELORD-MWENDERWA/mwangaza/pulls/<n> -F body=@<fichier>` (`gh pr edit` échoue).
-7. **Pas d'attente à vide** (une PR ne lance que les contrôles de ses fichiers, `.github/scripts/changes.sh` ; « skipped » est normal) : surveiller la CI **en arrière-plan** — `gh run list --branch <branche> --limit 1` jusqu'à ce que le passage existe, puis `gh run watch <id> --exit-status` — et répondre tout de suite (§ 5). Vert : « ✅ contrôles verts, tu peux fusionner ». Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, le dire.
+7. Dernier commit et push, puis PR **unique**, `base: main` : `gh pr create --base main --title "Lot <N> — <titre>" --body-file <fichier>` (modèle ci-dessous). **Ne jamais fusionner.** Corriger la description : `gh api -X PATCH repos/GUELORD-MWENDERWA/mwangaza/pulls/<n> -F body=@<fichier>` (`gh pr edit` échoue).
+8. **Pas d'attente à vide** (une PR ne lance que les contrôles de ses fichiers, `.github/scripts/changes.sh` ; « skipped » est normal) : surveiller la CI **en arrière-plan** — `gh run list --branch <branche> --limit 1` jusqu'à ce que le passage existe, puis `gh run watch <id> --exit-status` — et répondre tout de suite (§ 5). Vert : « ✅ contrôles verts, tu peux fusionner ». Rouge : `gh run view <id> --log-failed | tail -40`, corriger, pousser, le dire.
 
 ### Modèle de description de PR
 
