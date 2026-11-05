@@ -8,10 +8,10 @@ import { mkdirSync } from "node:fs";
 import { type Browser, type Page, test } from "@playwright/test";
 
 import { allowCodeAgain, closeCashSessions, manage, unpaidStudent } from "../e2e/django";
-import { enterCode, enterPassword, ITIG } from "../e2e/helpers";
+import { enterCode, enterPassword } from "../e2e/helpers";
+import { ITIG, PORTAL } from "./adresses";
 
 const OUT = new URL("./captures/produit/", import.meta.url).pathname;
-const PORTAL = "http://localhost:5174/";
 const DESKTOP = { width: 1440, height: 900 };
 const MOBILE = { width: 390, height: 844 };
 const TABLET = { width: 820, height: 1180 };

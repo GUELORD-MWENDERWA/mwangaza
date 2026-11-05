@@ -64,6 +64,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 
 ## Journal
 
+### 2026-11-06 — Méthode plus rapide, fiche d'accès en production
+- Bug en production : la fiche d'accès d'une démonstration (console) répondait 404 par lien ou dans l'aperçu (en-tête du mode absent) ; corrigé dans la PR séparée #431, CI verte, à déployer.
+- Méthode acceptée par l'utilisateur : 3 parties au plus par lot, captures en une passe en fin de lot, `CLAUDE.md` plus court, une seule liste des écrans et API (`reference.md`). Outillage : `make apercu` fiable (ses serveurs à neuf, 15 s par action ; un écran en 1,8 min au lieu d'un blocage de 10 min), `make dev-local` migre au démarrage.
+- Lot 8 : partie ⑤ faite (écran des remplaçants, import Excel des points).
+- Audit senior (PR « méthode et sécurité ») : PR du lot en brouillon dès la partie 1 ; dépendances signalées mises à jour (aucune en production) ; à faire par toi : protéger `main`, imposer la CSP (`A-FAIRE.md`).
+
 ### 2026-11-05 — Lot 7 : Finances et caisse complètes
 - Fait : dépenses (FIN.1), sorties de caisse en ligne et hors ligne (FIN.2), inscription d'un élève sans réseau (HL.1), budget, comptes et rapports (FIN.3), Impayés et tableau de bord calculés par la base (PERF.7 : +63 → +11 Mo par travailleur), procédure de passage à 4 Go (OPS.5 : `A-FAIRE.md` § 9 ter, tableau « Capacité » de `03`, skill `deployer`).
 - Tests : isolation, droits, argent, audit, idempotence de synchro, Playwright réseau coupé (inscrire, encaisser, rétablir) ; CI à surveiller.

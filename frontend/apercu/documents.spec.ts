@@ -7,7 +7,8 @@ import { mkdirSync } from "node:fs";
 import { test } from "@playwright/test";
 
 import { allowCodeAgain, manage } from "../e2e/django";
-import { enterCode, enterPassword, ITIG } from "../e2e/helpers";
+import { enterCode, enterPassword } from "../e2e/helpers";
+import { ITIG, ITIG_API } from "./adresses";
 
 const OUT = new URL("./captures/documents/", import.meta.url).pathname;
 const ONLY = process.env.APERCU ?? "";
@@ -80,6 +81,6 @@ test("documents imprimables", async ({ browser }) => {
     await head.goto(`${ITIG.replace("/app/", "")}${path}`);
     await head.screenshot({ path: `${OUT}${name}.png`, fullPage: true });
   }
-  await head.goto(`http://itig-demo.localhost:8000/v/${id.payment}`);
+  await head.goto(`${ITIG_API}v/${id.payment}`);
   await head.screenshot({ path: `${OUT}verification-recu.png`, fullPage: true });
 });
