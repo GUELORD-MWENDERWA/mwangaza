@@ -23,6 +23,8 @@ Tâches : 8.1.2a (#309), 8.1.2b (#310), 8.2.5 (#311), 8.2.4 (#303), HL.2 (#340).
 - ⑤ : écran « Remplaçants » (`/grade-validation/substitutes`, lien depuis « À valider » ; personnes possibles : `/api/course-substitutes/candidates/`, classes et cours lus dans `/api/grading/validation/`) ; « Mes notes » : « · remplacement » dans le choix du cours, bandeau, fiche encore chez l'enseignant, boîte du motif sur `reason_required` (genre `correct`). Import (8.2.4) : `GET/POST /api/courses/<id>/terms/<t>/grades/import/` (modèle protégé, notes remplies ; contrôle sans écriture, élève par matricule ou nom exact, case vide = rien) ; l'écran enregistre par la saisie (`sendSave` : file hors ligne, motif, journal) ; `/grades/import`. Pour ⑦ : `reference.md`, `07` § 1, `maquettes/README.md`, aide (2 articles), À valider (case vide ne vide pas la note).
 - HL.2 réutilise la file et Dexie de 8.2.3 (`grades/offline.ts`) : pas de nouveau mécanisme.
 
+- 2026-11-06 (méthode) : plus de capture pendant les parties ; toutes les captures du lot (cours communs, fiche commune, charges, remplaçants, import) en une passe à ⑦. Lots suivants : 3 parties au plus.
+
 ## Hors périmètre
 Notes par élève communes à deux classes, bulletin commun, emploi du temps calculé (lot 9).
 
