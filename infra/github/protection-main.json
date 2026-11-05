@@ -1,0 +1,16 @@
+{
+  "required_status_checks": {
+    "strict": false,
+    "contexts": [
+      "Fichiers changés",
+      "Backend (ruff, pytest, OpenAPI)",
+      "Frontend (ESLint, Prettier, types, Vitest, build)",
+      "Parcours dans le navigateur (Playwright)"
+    ]
+  },
+  "enforce_admins": false,
+  "required_pull_request_reviews": { "required_approving_review_count": 0 },
+  "restrictions": null,
+  "allow_force_pushes": false,
+  "allow_deletions": false
+}
