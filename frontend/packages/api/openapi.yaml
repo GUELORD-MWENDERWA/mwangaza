@@ -25681,8 +25681,8 @@ components:
     CashClosingDetail:
       type: object
       description: |-
-        Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
-        encaissés hors ligne arrivés après la clôture (hors de l'attendu figé).
+        Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements et
+        sorties de caisse faits hors ligne arrivés après la clôture (hors de l'attendu figé).
       properties:
         session:
           $ref: '#/components/schemas/CashSession'
@@ -25733,6 +25733,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LatePayment'
+        late_cash_outs:
+          type: array
+          items:
+            $ref: '#/components/schemas/LateCashOut'
       required:
       - session
       - currencies
@@ -25746,6 +25750,7 @@ components:
       - closing
       - state
       - late_payments
+      - late_cash_outs
     CashClosingLine:
       type: object
       properties:
@@ -33906,6 +33911,46 @@ components:
       - paid_at
       - received_amount_minor
       - received_currency
+    LateCashOut:
+      type: object
+      description: Sortie de caisse faite hors ligne, arrivée après la clôture (FIN.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+          description: Numéro du bon de sortie.
+        expense_number:
+          type: string
+        beneficiary:
+          type: string
+        received_by:
+          type: string
+        amount_minor:
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        paid_at:
+          type: string
+          format: date-time
+        received_at:
+          type: string
+          format: date-time
+          description: Arrivée au serveur.
+        cancelled:
+          type: boolean
+      required:
+      - id
+      - number
+      - expense_number
+      - beneficiary
+      - received_by
+      - amount_minor
+      - currency
+      - paid_at
+      - received_at
+      - cancelled
     LatePayment:
       type: object
       properties:
@@ -43814,10 +43859,16 @@ components:
           type: integer
           readOnly: true
           title: Last receipt number
+        last_cash_out_seq:
+          type: integer
+          readOnly: true
+          description: Dernière séquence de bon de sortie de caisse donnée par l'appareil
+            (FIN.2).
       required:
       - id
       - prefix
       - last_receipt_seq
+      - last_cash_out_seq
     SyncEnrollment:
       type: object
       description: |-

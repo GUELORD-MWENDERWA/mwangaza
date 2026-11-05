@@ -8687,8 +8687,8 @@ export interface components {
             received_at: string;
         };
         /**
-         * @description Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
-         *     encaissés hors ligne arrivés après la clôture (hors de l'attendu figé).
+         * @description Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements et
+         *     sorties de caisse faits hors ligne arrivés après la clôture (hors de l'attendu figé).
          */
         CashClosingDetail: {
             session: components["schemas"]["CashSession"];
@@ -8714,6 +8714,7 @@ export interface components {
              */
             state: components["schemas"]["ClosingStateEnum"];
             late_payments: components["schemas"]["LatePayment"][];
+            late_cash_outs: components["schemas"]["LateCashOut"][];
         };
         CashClosingLine: {
             currency: components["schemas"]["CurrencyEnum"];
@@ -12341,6 +12342,26 @@ export interface components {
             paid_at: string;
             received_amount_minor: number;
             received_currency: components["schemas"]["CurrencyEnum"];
+        };
+        /** @description Sortie de caisse faite hors ligne, arrivée après la clôture (FIN.2). */
+        LateCashOut: {
+            /** Format: uuid */
+            id: string;
+            /** @description Numéro du bon de sortie. */
+            number: string;
+            expense_number: string;
+            beneficiary: string;
+            received_by: string;
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"];
+            /** Format: date-time */
+            paid_at: string;
+            /**
+             * Format: date-time
+             * @description Arrivée au serveur.
+             */
+            received_at: string;
+            cancelled: boolean;
         };
         LatePayment: {
             /** Format: uuid */
@@ -17152,6 +17173,8 @@ export interface components {
             readonly prefix: string;
             /** Last receipt number */
             readonly last_receipt_seq: number;
+            /** @description Dernière séquence de bon de sortie de caisse donnée par l'appareil (FIN.2). */
+            readonly last_cash_out_seq: number;
         };
         /**
          * @description Entité `enrollment` : l'élève, sa classe, ses frais dus, ses paiements et ses crédits à

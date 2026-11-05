@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from apps.accounts.console_serializers import ConsoleSchoolRefSerializer
 from apps.core.errors import ErrorSerializer
+from apps.finance import cash_outs
 from apps.finance.models import CreditAllocation, FeeType
 from apps.finance.serializers import (
     CashRegisterSerializer,
@@ -75,10 +76,17 @@ class DeviceRegisterSerializer(serializers.Serializer):
 
 
 class SyncDeviceSerializer(serializers.ModelSerializer):
+    last_cash_out_seq = serializers.SerializerMethodField(
+        help_text="Dernière séquence de bon de sortie de caisse donnée par l'appareil (FIN.2)."
+    )
+
     class Meta:
         model = Device
-        fields = ["id", "prefix", "last_receipt_seq"]
+        fields = ["id", "prefix", "last_receipt_seq", "last_cash_out_seq"]
         read_only_fields = fields
+
+    def get_last_cash_out_seq(self, device: Device) -> int:
+        return cash_outs.device_sequence(device)
 
 
 class SyncYearSerializer(serializers.ModelSerializer):

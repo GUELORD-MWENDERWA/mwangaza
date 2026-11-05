@@ -545,12 +545,20 @@ class LatePaymentSerializer(serializers.ModelSerializer):
         ]
 
 
+class LateCashOutSerializer(ClosingCashOutSerializer):
+    """Sortie de caisse faite hors ligne, arrivée après la clôture (FIN.2)."""
+
+    received_at = serializers.DateTimeField(source="created_at", help_text="Arrivée au serveur.")
+    cancelled = serializers.BooleanField()
+
+
 class CashClosingDetailSerializer(CashClosingSummarySerializer):
-    """Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements
-    encaissés hors ligne arrivés après la clôture (hors de l'attendu figé)."""
+    """Clôture d'une session vue par le comptable : le bordereau, l'état, et les paiements et
+    sorties de caisse faits hors ligne arrivés après la clôture (hors de l'attendu figé)."""
 
     state = serializers.ChoiceField(choices=CLOSING_STATES, help_text=STATE_HELP)
     late_payments = LatePaymentSerializer(many=True)
+    late_cash_outs = LateCashOutSerializer(many=True)
 
 
 class CountedSerializer(serializers.Serializer):

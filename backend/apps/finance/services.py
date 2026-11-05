@@ -47,6 +47,7 @@ from apps.finance.models import (
     CancellationRequest,
     CashClosing,
     CashOut,
+    CashOutCancellation,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -2399,17 +2400,28 @@ def closings_summary(month: date, cash_register: CashRegister | None = None) -> 
 
 def closing_detail(session: CashSession) -> dict:
     """La clôture de la session vue par le comptable : `closing_summary` (ce qu'imprime le
-    bordereau), son état et les paiements arrivés après la clôture, annulés compris."""
+    bordereau), son état et les paiements et sorties de caisse (FIN.2) arrivés après la
+    clôture, annulés compris : faits hors ligne, ils ne sont pas dans l'attendu figé."""
     [session] = with_closings([session])
     summary = closing_summary(session)
-    late = []
+    late, late_outs = [], []
     if summary["closing"]:
+        after = summary["closing"]["received_at"]
         late = list(
-            Payment.objects.filter(
-                cash_session=session, created_at__gt=summary["closing"]["received_at"]
-            )
+            Payment.objects.filter(cash_session=session, created_at__gt=after)
             .select_related("enrollment__student")
             .annotate(cancelled=Exists(PaymentCancellation.objects.filter(payment=OuterRef("pk"))))
             .order_by("paid_at", "receipt_number")
         )
-    return {**summary, "state": session.state, "late_payments": late}
+        late_outs = list(
+            CashOut.objects.filter(cash_session=session, created_at__gt=after)
+            .select_related("expense")
+            .annotate(cancelled=Exists(CashOutCancellation.objects.filter(cash_out=OuterRef("pk"))))
+            .order_by("paid_at", "number")
+        )
+    return {
+        **summary,
+        "state": session.state,
+        "late_payments": late,
+        "late_cash_outs": late_outs,
+    }

@@ -3,8 +3,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
-caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), feuille de notes
-(8.2.3). Une opération hors
+caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), sortie de caisse
+(FIN.2), feuille de notes (8.2.3). Une opération hors
 ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
 donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
 jours (`purge`)."""
@@ -37,8 +37,9 @@ from apps.accounts.roles import (
 )
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.core.tenancy import use_all_schools
+from apps.finance import cash_outs
 from apps.finance import services as finance
-from apps.finance.models import CashRegister, CashSession, Payment, StudentCredit
+from apps.finance.models import CashRegister, CashSession, Expense, Payment, StudentCredit
 from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
 from apps.schools.models import Term
 from apps.sync.models import Device, SyncOperation
@@ -120,6 +121,37 @@ def _close_session(data: dict, device: Device, actor: User) -> dict:
     session = data.pop("session")
     finance.close_cash_session(session, actor=actor, device=device, **data)
     return {"cash_session": str(session.pk)}
+
+
+class OfflineCashOutSerializer(serializers.Serializer):
+    """Sortie de caisse hors ligne (FIN.2) : l'argent est sorti, le bon signé sur l'appareil."""
+
+    id = serializers.UUIDField(help_text="UUID v7 donné par l'appareil.")
+    expense = serializers.PrimaryKeyRelatedField(queryset=Expense.objects)
+    cash_session = serializers.UUIDField(help_text="Session ouverte du caissier.")
+    number = serializers.CharField(max_length=40, help_text="`ITIG-P1-26-S0003`.")
+    received_by = serializers.CharField(max_length=120)
+    paid_at = serializers.DateTimeField(help_text="Heure de l'appareil à la sortie.")
+
+    def to_service(self) -> dict:
+        return dict(self.validated_data)
+
+
+def _create_cash_out(data: dict, device: Device, actor: User) -> dict:
+    offline = cash_outs.OfflineCashOut(
+        device=device,
+        cash_session_id=data["cash_session"],
+        number=data["number"],
+        paid_at=data["paid_at"],
+    )
+    cash_out, _created = cash_outs.record_cash_out(
+        actor=actor,
+        expense=data["expense"],
+        received_by=data["received_by"],
+        cash_out_id=data["id"],
+        offline=offline,
+    )
+    return {"cash_out": str(cash_out.pk), "number": cash_out.number}
 
 
 class OfflineReprintSerializer(serializers.Serializer):
@@ -238,6 +270,9 @@ OPERATIONS = {
     ),
     "cash_session.close": OperationType(
         FINANCE_COLLECT_PAYMENT, OfflineClosingSerializer, _close_session
+    ),
+    "cash_out.create": OperationType(
+        FINANCE_COLLECT_PAYMENT, OfflineCashOutSerializer, _create_cash_out
     ),
     "payment.reprint": OperationType(FINANCE_COLLECT_PAYMENT, OfflineReprintSerializer, _reprint),
     "credit.use": OperationType(FINANCE_COLLECT_PAYMENT, OfflineCreditSerializer, _use_credit),

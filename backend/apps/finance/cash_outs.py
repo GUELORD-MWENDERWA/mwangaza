@@ -6,7 +6,17 @@ n'est converti (skill `argent`).
 En ligne, l'argent doit être dans la caisse : une sortie ne dépasse pas ce que la session a reçu
 dans cette devise (il n'y a pas de fond de caisse). Rien ne s'efface : annuler écrit une
 `CashOutCancellation`, seulement tant que la session est ouverte (le caissier remet l'argent
-dans sa caisse) ; la dépense redevient « à payer »."""
+dans sa caisse) ; la dépense redevient « à payer ».
+
+Hors ligne (`OfflineCashOut`, opération `cash_out.create`) : l'argent est déjà sorti et le bon
+signé, avec le numéro de l'appareil (`ITIG-P1-26-S0003`). Rien n'est refusé pour l'argent de la
+caisse (l'attendu peut devenir négatif), une session clôturée depuis ou une dépense payée ou
+annulée entre-temps : la sortie est gardée, et l'écart noté au journal (`conflict`)."""
+
+import re
+from dataclasses import dataclass
+from datetime import datetime
+from uuid import UUID
 
 from django.db import transaction
 from django.utils import timezone
@@ -29,6 +39,7 @@ from apps.finance.models import (
 )
 from apps.schools import organisation
 from apps.schools.models import School
+from apps.sync.models import Device
 
 CASH_OUT_ID_TAKEN = ApiError(
     "cash_out_id_taken", _("This identifier belongs to another cash-out."), 409
@@ -50,6 +61,26 @@ CASH_OUT_SESSION_CLOSED = ApiError(
     _("The cash session is closed: this cash-out can no longer be cancelled."),
     409,
 )
+OFFLINE_SESSION_UNKNOWN = ApiError(
+    "cash_out_session_unknown", _("This cash-out comes from a session that is not yours."), 409
+)
+NUMBER_INVALID = ApiError(
+    "cash_out_number_invalid", _("This slip number was not given by this device."), 409
+)
+NUMBER_TAKEN = ApiError(
+    "cash_out_number_taken", _("Another cash-out already has this slip number."), 409
+)
+
+
+@dataclass(frozen=True)
+class OfflineCashOut:
+    """Sortie faite sur l'appareil, arrivée par la synchronisation : session, numéro du bon et
+    heure de l'appareil."""
+
+    device: Device
+    cash_session_id: UUID
+    number: str
+    paid_at: datetime
 
 
 def cash_outs():
@@ -92,11 +123,53 @@ def _next_number(school: School, register: CashRegister) -> str:
     return f"{prefix}{count + 1:04d}"
 
 
+def _offline_number(school: School, offline: OfflineCashOut) -> str:
+    """Numéro donné par l'appareil : école, préfixe de l'appareil (jamais le code d'une caisse),
+    année, « S » et la séquence de l'appareil ; jamais celui d'une autre sortie."""
+    prefix = re.escape(f"{school.code.upper()}-{offline.device.prefix}-")
+    if not re.fullmatch(rf"{prefix}[0-9]{{2}}-S[0-9]{{4,}}", offline.number):
+        raise BusinessError(NUMBER_INVALID)
+    if CashOut.objects.filter(number=offline.number).exists():
+        raise BusinessError(NUMBER_TAKEN)
+    return offline.number
+
+
+def device_sequence(device: Device) -> int:
+    """Dernière séquence de bon donnée par l'appareil, rendue à l'instantané : un appareil
+    réinstallé ne redonne pas un numéro que le serveur connaît (les opérations arrivent dans
+    l'ordre : la dernière reçue a le plus grand)."""
+    last = (
+        CashOut.objects.filter(device=device)
+        .order_by("-created_at")
+        .values_list("number", flat=True)
+        .first()
+    )
+    return int(last.rsplit("S", 1)[1]) if last else 0
+
+
+def _conflict(expense: Expense, cancelled: bool) -> str | None:
+    """Ce qui aurait refusé la sortie en ligne : gardée hors ligne, l'argent est parti."""
+    if cancelled:
+        return "expense_cancelled"
+    if expense.status == Expense.Status.PAID:
+        return "already_paid"
+    if expense.status != Expense.Status.APPROVED or expense.account != Expense.Account.CASH:
+        return "not_payable"
+    return None
+
+
 def record_cash_out(
-    *, actor: User, expense: Expense, received_by: str, cash_out_id=None
+    *,
+    actor: User,
+    expense: Expense,
+    received_by: str,
+    cash_out_id=None,
+    offline: OfflineCashOut | None = None,
 ) -> tuple[CashOut, bool]:
     """Payer en espèces une dépense validée, depuis la session ouverte du caissier. Rejouer le
-    même `cash_out_id` rend la sortie déjà enregistrée (`created` faux)."""
+    même `cash_out_id` rend la sortie déjà enregistrée (`created` faux). Hors ligne
+    (`offline`) : la session, le numéro et l'heure de l'appareil, jamais refusée pour l'argent
+    (voir le module)."""
     school = require_current_school()
     with transaction.atomic():
         if cash_out_id is not None:
@@ -105,29 +178,42 @@ def record_cash_out(
                 if existing.created_by_id != actor.pk or existing.expense_id != expense.pk:
                     raise BusinessError(CASH_OUT_ID_TAKEN)
                 return existing, False
-        session = services.open_session_of(actor)
-        if session is None:
-            raise BusinessError(services.NO_OPEN_SESSION)
+        if offline is not None:
+            # Même clôturée depuis : l'argent est sorti, la clôture le montre à part.
+            session = CashSession.objects.filter(pk=offline.cash_session_id, cashier=actor).first()
+            if session is None:
+                raise BusinessError(OFFLINE_SESSION_UNKNOWN)
+        else:
+            session = services.open_session_of(actor)
+            if session is None:
+                raise BusinessError(services.NO_OPEN_SESSION)
         # Même ordre de verrous que l'encaissement (la caisse) puis la clôture (la session).
         register = CashRegister.objects.select_for_update().get(pk=session.cash_register_id)
         session = CashSession.objects.select_for_update().get(pk=session.pk)
-        if session.closed_at is not None:
-            raise BusinessError(services.SESSION_CLOSED)
         expense = Expense.objects.select_for_update(of=("self",)).get(pk=expense.pk)
-        if ExpenseCancellation.objects.filter(expense=expense).exists():
-            raise BusinessError(EXPENSE_CANCELLED)
-        if expense.account != Expense.Account.CASH:
-            raise BusinessError(NOT_PAYABLE_IN_CASH)
-        if expense.status == Expense.Status.PAID:
-            raise BusinessError(EXPENSE_ALREADY_PAID)
-        if expense.status != Expense.Status.APPROVED:
-            raise BusinessError(NOT_PAYABLE_IN_CASH)
-        if services.till(session).get(expense.currency, 0) < expense.amount_minor:
-            raise BusinessError(NOT_ENOUGH_CASH)
+        cancelled = ExpenseCancellation.objects.filter(expense=expense).exists()
+        conflict = None
+        if offline is not None:
+            conflict = _conflict(expense, cancelled)
+            number = _offline_number(school, offline)
+        else:
+            if session.closed_at is not None:
+                raise BusinessError(services.SESSION_CLOSED)
+            if cancelled:
+                raise BusinessError(EXPENSE_CANCELLED)
+            if expense.account != Expense.Account.CASH:
+                raise BusinessError(NOT_PAYABLE_IN_CASH)
+            if expense.status == Expense.Status.PAID:
+                raise BusinessError(EXPENSE_ALREADY_PAID)
+            if expense.status != Expense.Status.APPROVED:
+                raise BusinessError(NOT_PAYABLE_IN_CASH)
+            if services.till(session).get(expense.currency, 0) < expense.amount_minor:
+                raise BusinessError(NOT_ENOUGH_CASH)
+            number = _next_number(school, register)
         cash_out = CashOut(
             expense=expense,
             cash_session=session,
-            number=_next_number(school, register),
+            number=number,
             amount_minor=expense.amount_minor,
             currency=expense.currency,
             received_by=received_by,
@@ -135,16 +221,20 @@ def record_cash_out(
         )
         if cash_out_id is not None:
             cash_out.pk = cash_out_id
+        if offline is not None:
+            cash_out.paid_at, cash_out.device = offline.paid_at, offline.device
         cash_out.save()
-        expense.status = Expense.Status.PAID
-        expense.paid_at = cash_out.paid_at
-        expense.save(update_fields=["status", "paid_at", "updated_at"])
+        if conflict is None:
+            expense.status = Expense.Status.PAID
+            expense.paid_at = cash_out.paid_at
+            expense.save(update_fields=["status", "paid_at", "updated_at"])
         audit.record(
             Action.FINANCE_CASH_OUT_RECORDED,
             cash_out,
             actor=actor,
-            after=_data(cash_out),
+            after={**_data(cash_out), **({"conflict": conflict} if conflict else {})},
             label=f"{cash_out.number} · {expense.number}",
+            device_time=offline.paid_at if offline else None,
         )
     return cash_outs().get(pk=cash_out.pk), True
 
