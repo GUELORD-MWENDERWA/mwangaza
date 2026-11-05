@@ -162,6 +162,7 @@ def test_each_account_only_sets_the_kinds_it_can_receive_in_that_school(
         "cancellation_request",
         "cash_difference",
         "register_open",
+        "possible_duplicate",
         "parent_message",
         "ai_credits",
         "subscription",

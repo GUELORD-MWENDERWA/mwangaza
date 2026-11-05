@@ -12770,9 +12770,10 @@ export interface components {
          *     * `timetable_published` - New timetable
          *     * `ai_credits` - AI credits running low
          *     * `support_reply` - Reply from support
+         *     * `possible_duplicate` - Possible duplicate student
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply" | "possible_duplicate";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -17152,6 +17153,7 @@ export interface components {
             cash_registers: components["schemas"]["CashRegister"][] | null;
             /** @description Taux des encaissements. */
             exchange_rate: components["schemas"]["ExchangeRate"] | null;
+            fee_rules: components["schemas"]["SyncFeeRule"][] | null;
         };
         /**
          * @description Part d'un crédit utilisée sur un frais dû : payée depuis `created_at`, jusqu'à
@@ -17205,6 +17207,19 @@ export interface components {
             readonly credits: components["schemas"]["StudentCredit"][] | null;
             readonly credit_uses: components["schemas"]["SyncCreditUse"][] | null;
         };
+        /**
+         * @description Barème de l'année et les classes où il s'applique (le plus précis de son type de frais) :
+         *     l'appareil en tire les frais dus d'un élève inscrit sans réseau (HL.1).
+         */
+        SyncFeeRule: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly fee_type: string;
+            readonly currency: components["schemas"]["CurrencyEnum"];
+            readonly installments: components["schemas"]["SyncInstallment"][];
+            readonly class_groups: string[];
+        };
         SyncFeeType: {
             /** Format: uuid */
             readonly id: string;
@@ -17213,9 +17228,24 @@ export interface components {
             /** Active */
             readonly is_active: boolean;
         };
+        SyncInstallment: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly label: string;
+            /** Amount */
+            readonly amount_minor: number;
+            /**
+             * Due date
+             * Format: date
+             */
+            readonly due_on: string;
+            readonly order: number;
+        };
         SyncStudent: {
             /** Format: uuid */
             readonly id: string;
+            /** Format: uuid */
+            readonly family: string;
             /** Student number */
             readonly matricule: string;
             readonly last_name: string;

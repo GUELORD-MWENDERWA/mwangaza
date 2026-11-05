@@ -34841,6 +34841,7 @@ components:
       - timetable_published
       - ai_credits
       - support_reply
+      - possible_duplicate
       type: string
       description: |-
         * `test` - Test notification
@@ -34873,6 +34874,7 @@ components:
         * `timetable_published` - New timetable
         * `ai_credits` - AI credits running low
         * `support_reply` - Reply from support
+        * `possible_duplicate` - Possible duplicate student
     NotificationPreferences:
       type: object
       properties:
@@ -43810,6 +43812,11 @@ components:
           - $ref: '#/components/schemas/ExchangeRate'
           nullable: true
           description: Taux des encaissements.
+        fee_rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncFeeRule'
+          nullable: true
       required:
       - school
       - academic_year
@@ -43817,6 +43824,7 @@ components:
       - fee_types
       - cash_registers
       - exchange_rate
+      - fee_rules
     SyncCreditUse:
       type: object
       description: |-
@@ -43943,6 +43951,41 @@ components:
       - payments
       - credits
       - credit_uses
+    SyncFeeRule:
+      type: object
+      description: |-
+        Barème de l'année et les classes où il s'applique (le plus précis de son type de frais) :
+        l'appareil en tire les frais dus d'un élève inscrit sans réseau (HL.1).
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        fee_type:
+          type: string
+          format: uuid
+          readOnly: true
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          readOnly: true
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SyncInstallment'
+          readOnly: true
+        class_groups:
+          type: array
+          items:
+            type: string
+            format: uuid
+          readOnly: true
+      required:
+      - id
+      - fee_type
+      - currency
+      - installments
+      - class_groups
     SyncFeeType:
       type: object
       properties:
@@ -43966,10 +44009,42 @@ components:
       - name
       - category
       - is_active
+    SyncInstallment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        label:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          readOnly: true
+          title: Amount
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+          title: Due date
+        order:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - label
+      - amount_minor
+      - due_on
+      - order
     SyncStudent:
       type: object
       properties:
         id:
+          type: string
+          format: uuid
+          readOnly: true
+        family:
           type: string
           format: uuid
           readOnly: true
@@ -44001,6 +44076,7 @@ components:
           readOnly: true
       required:
       - id
+      - family
       - matricule
       - last_name
       - middle_name

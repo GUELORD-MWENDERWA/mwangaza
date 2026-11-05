@@ -37,6 +37,7 @@ from apps.finance.models import (
     CashRegister,
     CreditAllocation,
     ExchangeRate,
+    FeeRule,
     FeeType,
     Payment,
     StudentCredit,
@@ -234,6 +235,7 @@ class Config:
     fee_types: list[FeeType] | None
     cash_registers: list[CashRegister] | None
     exchange_rate: ExchangeRate | None
+    fee_rules: list[FeeRule] | None = None
 
 
 @dataclass
@@ -264,14 +266,19 @@ class Pull:
 
 def config(reader: Reader, school: School) -> Config:
     year = organisation.current_year()
-    groups = ClassGroup.objects.filter(academic_year=year).select_related("level", "track")
+    groups = sorted(
+        ClassGroup.objects.filter(academic_year=year).select_related("level", "track"),
+        key=lambda group: (group.level.order, group.name),
+    )
+    finance_rules = reader.finance and year is not None
     return Config(
         school=school,
         academic_year=year,
-        class_groups=sorted(groups, key=lambda group: (group.level.order, group.name)),
+        class_groups=groups,
         fee_types=list(FeeType.objects.order_by("name")) if reader.finance else None,
         cash_registers=list(CashRegister.objects.order_by("code")) if reader.finance else None,
         exchange_rate=(finance.payment_rate()[0] if reader.finance and year is not None else None),
+        fee_rules=finance.fee_rules_by_class(year, groups) if finance_rules else None,
     )
 
 

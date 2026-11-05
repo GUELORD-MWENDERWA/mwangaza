@@ -283,6 +283,9 @@ class Notification(TenantModel):
         AI_CREDITS = "ai_credits", _("AI credits running low")
         # Demande d'aide (SUP.1) : la réponse de la plateforme, à l'auteur de la demande.
         SUPPORT_REPLY = "support_reply", _("Reply from support")
+        # Inscription hors ligne (HL.1) : élève aux mêmes noms et date de naissance qu'un autre, à
+        # ceux qui modifient les élèves ; jamais fusionnés seuls.
+        POSSIBLE_DUPLICATE = "possible_duplicate", _("Possible duplicate student")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

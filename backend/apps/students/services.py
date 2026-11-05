@@ -22,6 +22,8 @@ from apps.core.errors import ApiError, BusinessError
 from apps.core.ids import uuid7
 from apps.core.tenancy import require_current_school, use_all_schools
 from apps.finance import services as finance
+from apps.finance.models import StudentCharge
+from apps.notifications import events
 from apps.schools import matricule
 from apps.schools.models import AcademicYear, ClassGroup, School
 from apps.students.models import (
@@ -131,10 +133,22 @@ def _write_guardians(family: Family, guardians: list[dict], *, actor: User) -> N
     family.guardians.exclude(pk__in=kept).delete()
 
 
-def create_family(*, actor: User, guardians: list[dict]) -> Family:
+def _check_id_free(model, pk: UUID | None) -> None:
+    """Identifiant donné par l'appareil : jamais celui d'une ligne d'une autre école."""
+    if pk is None:
+        return
+    with use_all_schools():
+        taken = model.all_schools.filter(pk=pk).exists()
+    if taken:
+        raise BusinessError(ID_TAKEN)
+
+
+def create_family(*, actor: User, guardians: list[dict], family_id: UUID | None = None) -> Family:
     require_current_school()
+    _check_id_free(Family, family_id)
     with transaction.atomic():
-        family = Family.objects.create(code=new_family_code(), created_by=actor)
+        extra = {"id": family_id} if family_id else {}
+        family = Family.objects.create(code=new_family_code(), created_by=actor, **extra)
         _write_guardians(family, guardians, actor=actor)
         audit.record(
             Action.STUDENTS_FAMILY_CREATED,
@@ -234,6 +248,7 @@ def create_student(
     guardians: list[dict] | None = None,
     allow_duplicate: bool = False,
     student_id: UUID | None = None,
+    family_id: UUID | None = None,
     **fields,
 ) -> tuple[Student, bool]:
     """Élève avec sa famille : une famille existante, ou une nouvelle avec `guardians`.
@@ -243,10 +258,7 @@ def create_student(
         replayed = Student.objects.filter(pk=student_id).first()
         if replayed is not None:
             return replayed, False
-        with use_all_schools():
-            taken = Student.all_schools.filter(pk=student_id).exists()
-        if taken:
-            raise BusinessError(ID_TAKEN)
+        _check_id_free(Student, student_id)
     fields = _clean(fields)
     duplicates = [] if allow_duplicate else list(possible_duplicates(fields)[:5])
     if duplicates:
@@ -265,7 +277,7 @@ def create_student(
         )
     with transaction.atomic():
         if family is None:
-            family = create_family(actor=actor, guardians=guardians or [])
+            family = create_family(actor=actor, guardians=guardians or [], family_id=family_id)
         extra = {"id": student_id} if student_id else {}
         student = Student.objects.create(family=family, created_by=actor, **extra, **fields)
         audit.record(
@@ -403,18 +415,17 @@ def enroll(
     class_group: ClassGroup,
     enrolled_on: date | None = None,
     enrollment_id: UUID | None = None,
+    charge_ids: dict | None = None,
 ) -> tuple[Enrollment, bool]:
     """Inscrit l'élève pour l'année de la classe (D3), avec les frais dus d'après les barèmes. Sa
     première inscription dans l'école lui donne son matricule (si l'école en attribue, C5) ; il
-    le garde ensuite. Renvoie `(inscription, créée)`."""
+    le garde ensuite. `charge_ids` : `{tranche: id}` des frais dus créés par l'appareil (HL.1).
+    Renvoie `(inscription, créée)`."""
     if enrollment_id is not None:
         replayed = Enrollment.objects.filter(pk=enrollment_id).first()
         if replayed is not None:
             return replayed, False
-        with use_all_schools():
-            taken = Enrollment.all_schools.filter(pk=enrollment_id).exists()
-        if taken:
-            raise BusinessError(ID_TAKEN)
+        _check_id_free(Enrollment, enrollment_id)
     year = class_group.academic_year
     with transaction.atomic():
         if Enrollment.objects.filter(student=student, academic_year=year).exists():
@@ -437,8 +448,53 @@ def enroll(
             actor=actor,
             after={**_enrollment_data(enrollment), "matricule": student.matricule},
         )
-        finance.sync_charges(Enrollment.objects.filter(pk=enrollment.pk), actor=actor)
+        finance.sync_charges(
+            Enrollment.objects.filter(pk=enrollment.pk), actor=actor, charge_ids=charge_ids
+        )
     return enrollment, True
+
+
+def enroll_offline(
+    *,
+    actor: User,
+    id: UUID,
+    enrollment_id: UUID,
+    class_group: ClassGroup,
+    enrolled_on: date,
+    charges: list[dict] = (),
+    distinct_from: list[UUID] = (),
+    **fields,
+) -> tuple[Student, Enrollment, list[Student]]:
+    """Élève inscrit sur un appareil sans réseau (HL.1) : famille nouvelle ou existante, élève,
+    inscription et frais dus aux identifiants de l'appareil ; matricule et code famille donnés
+    ici. Jamais refusé pour un doublon possible (l'élève a pu payer) : ceux que l'appareil n'a
+    pas déjà dits différents sont signalés au secrétariat, jamais fusionnés. Renvoie `(élève,
+    inscription, doublons signalés)` ; rejoué, rien n'est signalé de nouveau."""
+    with transaction.atomic():
+        duplicates = list(possible_duplicates(_clean(fields)).exclude(pk__in=distinct_from)[:5])
+        student, created = create_student(
+            actor=actor, student_id=id, allow_duplicate=True, **fields
+        )
+        wanted = {charge["installment_template"]: charge["id"] for charge in charges}
+        with use_all_schools():
+            taken = set(
+                StudentCharge.all_schools.filter(pk__in=wanted.values()).values_list(
+                    "pk", flat=True
+                )
+            )
+        enrollment, _enrolled = enroll(
+            student,
+            actor=actor,
+            class_group=class_group,
+            enrolled_on=enrolled_on,
+            enrollment_id=enrollment_id,
+            charge_ids={tpl: pk for tpl, pk in wanted.items() if pk not in taken},
+        )
+        if not created:
+            return student, enrollment, []
+        if duplicates:
+            events.possible_duplicate(student, duplicates, actor)
+    return student, enrollment, duplicates
 
 
 def enroll_many(places: list[tuple[Student, ClassGroup]], *, actor: User) -> list[Enrollment]:

@@ -140,6 +140,7 @@ def test_muted_kind_stays_in_the_center_and_expired_browser_is_dropped(
             "cancellation_request",
             "cash_difference",
             "register_open",
+            "possible_duplicate",
             "parent_message",
             "ai_credits",
             "subscription",

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from apps.accounts.console_serializers import ConsoleSchoolRefSerializer
 from apps.core.errors import ErrorSerializer
 from apps.finance import cash_outs
-from apps.finance.models import CreditAllocation, FeeType
+from apps.finance.models import CreditAllocation, FeeRule, FeeType, InstallmentTemplate
 from apps.finance.serializers import (
     CashRegisterSerializer,
     ExchangeRateSerializer,
@@ -112,6 +112,28 @@ class SyncFeeTypeSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class SyncInstallmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InstallmentTemplate
+        fields = ["id", "label", "amount_minor", "due_on", "order"]
+        read_only_fields = fields
+
+
+class SyncFeeRuleSerializer(serializers.ModelSerializer):
+    """Barème de l'année et les classes où il s'applique (le plus précis de son type de frais) :
+    l'appareil en tire les frais dus d'un élève inscrit sans réseau (HL.1)."""
+
+    installments = SyncInstallmentSerializer(many=True, read_only=True)
+    class_groups = serializers.ListField(
+        source="class_group_ids", child=serializers.UUIDField(), read_only=True
+    )
+
+    class Meta:
+        model = FeeRule
+        fields = ["id", "fee_type", "currency", "installments", "class_groups"]
+        read_only_fields = fields
+
+
 class SyncConfigSerializer(serializers.Serializer):
     """Entité `config` : ce qui se modifie en ligne seulement. Frais, caisses et taux : null
     sans droit sur les finances."""
@@ -122,6 +144,7 @@ class SyncConfigSerializer(serializers.Serializer):
     fee_types = SyncFeeTypeSerializer(many=True, allow_null=True)
     cash_registers = CashRegisterSerializer(many=True, allow_null=True)
     exchange_rate = ExchangeRateSerializer(allow_null=True, help_text="Taux des encaissements.")
+    fee_rules = SyncFeeRuleSerializer(many=True, allow_null=True)
 
 
 class SyncStudentSerializer(serializers.ModelSerializer):
@@ -131,6 +154,7 @@ class SyncStudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = [
             "id",
+            "family",
             "matricule",
             "last_name",
             "middle_name",

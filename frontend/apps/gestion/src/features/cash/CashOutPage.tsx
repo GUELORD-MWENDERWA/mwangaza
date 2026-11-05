@@ -56,7 +56,9 @@ import "./receipt.css";
 const money = (minor: number, currency: string) => formatAmount(minor, currency as Currency);
 
 type Session = NonNullable<Schemas["CurrentCashSession"]["session"]>;
-type Save = (id: string, expense: PayableExpense, receivedBy: string) => Promise<CashOut>;
+type Save = {
+  (id: string, expense: PayableExpense, receivedBy: string): Promise<CashOut>;
+};
 
 export function CashOutPage() {
   const { db, prefix, persisted } = useSyncStatus();

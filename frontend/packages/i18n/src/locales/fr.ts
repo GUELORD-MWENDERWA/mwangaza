@@ -5223,6 +5223,7 @@ export const fr = {
       discipline_incident: "Conduite",
       place_offered: "Place de l'année suivante",
       sensitive_rights: "Droits sensibles",
+      possible_duplicate: "Doublon possible",
       grades_sent: "Fiche de cotes reçue",
       grades_returned: "Fiche de cotes renvoyée",
       grades_reminder: "Fiches de cotes attendues",
@@ -5255,6 +5256,8 @@ export const fr = {
       discipline_incident: "Dès que l'école écrit une faute de conduite de l'un de vos enfants",
       place_offered: "Quand l'école garde une place à l'un de vos enfants pour l'année suivante",
       sensitive_rights: "Un compte reçoit le droit de gérer les rôles ou un droit sur l'argent",
+      possible_duplicate:
+        "Un élève inscrit sans réseau a les mêmes noms et date de naissance qu'un autre",
       grades_sent: "Un enseignant envoie et signe la fiche de cotes d'un cours",
       grades_returned: "Le directeur des études vous renvoie une fiche avec ses remarques",
       grades_reminder: "Le directeur des études vous rappelle les fiches de cotes attendues",

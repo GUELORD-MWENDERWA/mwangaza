@@ -489,8 +489,30 @@ def _wanted(rules: list[FeeRule], group: ClassGroup) -> dict:
     }
 
 
+def fee_rules_by_class(year: AcademicYear, groups: list[ClassGroup]) -> list[FeeRule]:
+    """Barèmes de l'année envoyés aux appareils (HL.1), chacun avec `class_group_ids` : les
+    classes où il est le plus précis pour son type de frais (comme `sync_charges`). L'appareil
+    en tire les frais dus d'un élève inscrit sans réseau. Deux requêtes."""
+    rules = list(
+        FeeRule.objects.filter(academic_year=year)
+        .order_by("fee_type__name", "pk")
+        .prefetch_related("installments")
+    )
+    by_id = {rule.pk: rule for rule in rules}
+    for rule in rules:
+        rule.class_group_ids = []
+    for group in groups:
+        for rule_id in {rule.pk for rule, _template in _wanted(rules, group).values()}:
+            by_id[rule_id].class_group_ids.append(group.pk)
+    return [rule for rule in rules if rule.class_group_ids]
+
+
 def sync_charges(
-    enrollments: QuerySet[Enrollment], *, actor: User | None, fee_type: FeeType | None = None
+    enrollments: QuerySet[Enrollment],
+    *,
+    actor: User | None,
+    fee_type: FeeType | None = None,
+    charge_ids: dict | None = None,
 ) -> int:
     """Remet les frais dus des inscriptions actives de `enrollments` d'accord avec les barèmes de
     leur année (tous, ou ceux de `fee_type`) : une ligne par tranche du barème le plus précis,
@@ -499,7 +521,10 @@ def sync_charges(
     comme un type de frais sous échéancier particulier (E4). Un frais déjà payé, même en partie,
     ne bouge plus ; s'il ne s'applique plus (changement de classe), il tient la place de la
     tranche de même rang et de même devise, qui n'est pas ajoutée. En quelques requêtes, quel
-    que soit le nombre d'élèves. Renvoie le nombre d'élèves dont les frais ont changé."""
+    que soit le nombre d'élèves. Renvoie le nombre d'élèves dont les frais ont changé.
+    `charge_ids` (`{tranche: id}`) : identifiants des frais à créer, donnés par un appareil qui
+    a inscrit l'élève sans réseau (HL.1) ; un seul élève alors."""
+    charge_ids = charge_ids or {}
     with transaction.atomic():
         enrollments = list(
             enrollments.filter(status=Enrollment.Status.ACTIVE)
@@ -573,8 +598,10 @@ def sync_charges(
                     and (enrollment.pk, rule.fee_type_id) not in custom
                     and _slot(rule, template) not in held
                 ):
+                    extra = {"id": charge_ids[template_id]} if template_id in charge_ids else {}
                     to_create.append(
                         StudentCharge(
+                            **extra,
                             enrollment=enrollment,
                             fee_type=rule.fee_type,
                             label=template.label,
