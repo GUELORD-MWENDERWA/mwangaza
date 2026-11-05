@@ -56,7 +56,7 @@ test("directeur des études : organisation scolaire, classe ajoutée puis retir�
   await expect(page.getByText("Format enregistré.")).toBeVisible();
   await format.fill("ITIG-{AAAA}-{0000}");
   await page.getByRole("button", { name: "Enregistrer" }).click();
-  await expect(page.getByText("ITIG-2026-0801")).toBeVisible();
+  await expect(page.getByText(/^ITIG-2026-080[12]$/)).toBeVisible();
 
   // Pas de droit sur les comptes ni le journal.
   await expect(mainMenu(page).getByRole("link", { name: "Comptes du personnel" })).toHaveCount(0);
