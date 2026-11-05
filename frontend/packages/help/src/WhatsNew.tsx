@@ -39,9 +39,11 @@ export function WhatsNew({
   const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith("en") ? "en" : "fr";
   const [dismissed, setDismissed] = useState(false);
+  // Les parcours Playwright (navigateur neuf à chaque fois) coupent le dialogue : il gênerait les clics.
+  const off = (import.meta as { env?: Record<string, string> }).env?.VITE_NO_WHATS_NEW === "1";
   const news = useQuery({
     queryKey: ["help", "whats-new", app, lang],
-    enabled,
+    enabled: enabled && !off,
     retry: false,
     staleTime: 3_600_000,
     queryFn: () => call(api.GET("/api/help/whats-new/", { params: { query: { app, lang } } })),

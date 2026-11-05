@@ -24,6 +24,7 @@ TASK_ROUTES = {
     "apps.ai.tasks.purge": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.deliver": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.alert_console": {"queue": FAST_QUEUE},
+    "apps.notifications.tasks.email_support_request": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.tick": {"queue": FAST_QUEUE},
     "apps.notifications.tasks.purge": {"queue": FAST_QUEUE},
     "apps.core.tasks.purge_print_jobs": {"queue": FAST_QUEUE},

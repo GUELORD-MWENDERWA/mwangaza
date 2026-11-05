@@ -40,7 +40,7 @@ export default defineConfig({
       // En IPv4, comme Django : sur la CI, `localhost` désigne d'abord `::1`.
       command: "./node_modules/.bin/vite --port 5173 --host 127.0.0.1",
       cwd: new URL("apps/gestion", import.meta.url).pathname,
-      env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
+      env: { VITE_API_TARGET: "http://127.0.0.1:8000", VITE_NO_WHATS_NEW: "1" },
       url: "http://127.0.0.1:5173/app/",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
@@ -49,7 +49,7 @@ export default defineConfig({
       // Portail des parents (parcours « école neuve » : le parent voit son reçu).
       command: "./node_modules/.bin/vite --port 5174 --host 127.0.0.1",
       cwd: new URL("apps/portail", import.meta.url).pathname,
-      env: { VITE_API_TARGET: "http://127.0.0.1:8000" },
+      env: { VITE_API_TARGET: "http://127.0.0.1:8000", VITE_NO_WHATS_NEW: "1" },
       url: "http://127.0.0.1:5174/",
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
