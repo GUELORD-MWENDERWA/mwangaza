@@ -22,6 +22,7 @@ export const keys = {
   homeroomCandidates: ["homeroom-candidates"],
   courses: ["courses"],
   courseGroups: ["course-groups"],
+  courseSubstitutes: ["course-substitutes"],
   courseTemplates: ["course-templates"],
   teachingLoads: ["teaching-loads"],
   grading: ["grading"],

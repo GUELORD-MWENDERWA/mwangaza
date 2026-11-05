@@ -100,7 +100,7 @@ export function ReasonDialog({
   onClose,
   onConfirm,
 }: {
-  kind: "edit" | "reopen";
+  kind: "edit" | "correct" | "reopen";
   pending: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;

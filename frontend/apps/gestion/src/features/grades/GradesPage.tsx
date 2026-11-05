@@ -167,7 +167,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const [editing, setEditing] = useState<Editing | null>(null);
   const [leaving, setLeaving] = useState<Choice | null>(null);
   const [notice, setNotice] = useState<"saved" | "submit" | null>(null);
-  const [reasonFor, setReasonFor] = useState<"edit" | null>(null);
+  const [reasonFor, setReasonFor] = useState<"edit" | "correct" | null>(null);
   const [signing, setSigning] = useState(false);
   const [pendingSave, setPendingSave] = useState<SaveBody | null>(null);
   const [invalid, setInvalid] = useState(false);
@@ -202,6 +202,14 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
       setCells({});
       setReasonFor(null);
       setNotice("saved");
+    },
+    // Notes saisies par une autre personne, changées par qui n'est pas l'enseignant (8.2.5) :
+    // le motif est demandé, puis le même envoi repart.
+    onError: (error, body) => {
+      if (error instanceof ApiError && error.code === "reason_required" && !body.reason) {
+        setPendingSave(body);
+        setReasonFor("correct");
+      }
     },
   });
   // Envoyée et signée : la feuille revient à jour.
@@ -247,7 +255,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           .find((item) => item.id === groupId)
           ?.courses.map((item) => (
             <option key={item.id} value={item.id}>
-              {item.name}
+              {item.replacing ? t("grades.replacing.option", { course: item.name }) : item.name}
             </option>
           ))}
       </Select>
@@ -280,6 +288,15 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
             </Link>
           </Button>
         </div>
+      </>
+    );
+  }
+  // Remplaçant (8.2.5) : la fiche commencée par l'enseignant lui reste tant qu'il ne l'a pas envoyée.
+  if (sheet.error instanceof ApiError && sheet.error.code === "sheet_with_teacher") {
+    return (
+      <>
+        <PageHeader title={t("grades.title")} actions={pickers} />
+        <Banner tone="info">{t("grades.replacing.withTeacher")}</Banner>
       </>
     );
   }
@@ -379,6 +396,11 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           timeZone={school.timezone}
         />
       </div>
+      {course.replacing && (
+        <div className="mb-4">
+          <Banner tone="info">{t("grades.replacing.banner")}</Banner>
+        </div>
+      )}
       {course.course_group && course.access === "notebook" && (
         <div className="mb-4">
           <Banner
@@ -423,7 +445,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           </Banner>
         </div>
       )}
-      {(invalid || save.isError || act.isError) && (
+      {(invalid || (save.isError && !reasonFor) || act.isError) && (
         <div className="mb-4">
           <Banner tone="due">
             {invalid ? t("grades.invalidCells") : firstErrorMessage(save.error ?? act.error, t)}
@@ -433,7 +455,17 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
       <Card>
         <CardHeader>
           <CardTitle>{t("grades.students", { count: data.students.length })}</CardTitle>
-          {dirty && <StatusPill tone="warn">{t("grades.unsaved")}</StatusPill>}
+          <div className="flex flex-wrap items-center gap-2">
+            {dirty && <StatusPill tone="warn">{t("grades.unsaved")}</StatusPill>}
+            {!locked && !dirty && columns.length > 0 && data.students.length > 0 && (
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/grades/import?course=${course.id}&term=${term.id}`}>
+                  <Icon name="upload" size={14} />
+                  {t("grades.import.open")}
+                </Link>
+              </Button>
+            )}
+          </div>
         </CardHeader>
         {!totalsOnly && (
           <div className="flex flex-wrap items-center gap-2 border-b border-line-soft px-5 py-3">

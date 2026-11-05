@@ -260,6 +260,42 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
     // Fiche de cotes commune (8.1.2a) : sa mathématique des 1HT Électricité A et B, 2e période.
     await visit(teacher, `${ITIG}grades/joint`, "gestion", "grades-joint");
+    // Import des points (8.2.4) : un classeur avec une note trop haute et un matricule inconnu.
+    const grading = await json<{
+      terms: { id: string; kind: string; starts_on: string | null }[];
+      classes: { courses: { id: string; access: string | null }[] }[];
+    }>(teacher, "/api/grading/");
+    const mine = grading.classes.flatMap((g) => g.courses).find((c) => c.access === "notebook");
+    const today = new Date().toISOString().slice(0, 10);
+    const period = grading.terms
+      .filter((term) => term.kind === "period" && (term.starts_on ?? "") <= today)
+      .at(-1);
+    if (mine && period) {
+      const importUrl = `${ITIG}grades/import?course=${mine.id}&term=${period.id}`;
+      const sheet = await json<{
+        evaluations: { name: string; max_score: number }[];
+        students: { matricule: string; full_name: string }[];
+      }>(teacher, `/api/courses/${mine.id}/terms/${period.id}/grades/`);
+      const column = sheet.evaluations[0];
+      await visit(teacher, importUrl, "gestion", "grades-import");
+      if (column) {
+        await visit(teacher, importUrl, "gestion", "grades-import-check", async (page) => {
+          const rows = [
+            `MATRICULE;NOM;${column.name} /${column.max_score}`,
+            ...sheet.students.slice(0, 6).map((s, i) => `${s.matricule};${s.full_name};${i}`),
+            `${sheet.students[6]?.matricule ?? ""};;${column.max_score + 2}`,
+            "XX-0000;MUKE Inconnu;7",
+          ];
+          await page.getByLabel("Classeur").setInputFiles({
+            name: "points.csv",
+            mimeType: "text/csv",
+            buffer: Buffer.from(rows.join("\n")),
+          });
+          await page.getByRole("button", { name: "Contrôler" }).click();
+          await page.getByText("2. Contrôle", { exact: true }).waitFor();
+        });
+      }
+    }
     // Ma classe (NB.3) : le titulaire, dans la classe qui attend une dernière fiche.
     const own = await json<{ classes: { id: string; name: string }[] }>(teacher, "/api/homeroom/");
     const titular = own.classes.find((item) => item.name === "3HT ÉLECTRICITÉ A") ?? own.classes[0];
@@ -269,6 +305,13 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Suivi des notes (8.2.2, NB.2) : la directrice des études (double authentification).
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
+    // Remplaçants (8.2.5) : la liste, puis la boîte « Désigner un remplaçant ».
+    const substitutes = `${ITIG}grade-validation/substitutes`;
+    await visit(director, substitutes, "gestion", "substitutes");
+    await visit(director, substitutes, "gestion", "substitutes-dialog", async (page) => {
+      await page.getByRole("button", { name: "Désigner un remplaçant" }).click();
+      await page.getByLabel(/Remplaçant/).waitFor();
+    });
     await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
     await visit(director, `${ITIG}grade-sheets`, "gestion", "grade-sheets");
     // Fiche de cotes (NB.1) : la première envoyée, lue par la directrice des études ; palmarès

@@ -59,6 +59,11 @@ urlpatterns = [
         name="course-substitutes",
     ),
     path(
+        "course-substitutes/candidates/",
+        substitute_views.SubstituteCandidatesView.as_view(),
+        name="course-substitute-candidates",
+    ),
+    path(
         "course-substitutes/<uuid:pk>/",
         substitute_views.CourseSubstituteView.as_view(),
         name="course-substitute",

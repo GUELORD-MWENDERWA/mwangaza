@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.academics import substitutes
+from apps.academics.courses import active_staff
 from apps.academics.models import Course, CourseSubstitute
 from apps.academics.serializers import (
     CourseSubstituteCreateSerializer,
@@ -20,6 +21,7 @@ from apps.academics.views import ERRORS
 from apps.accounts.permissions import HasSchoolPermission
 from apps.accounts.roles import GRADES_VALIDATE
 from apps.core.errors import ErrorSerializer
+from apps.schools.serializers import PersonSerializer
 
 
 def _present(row: CourseSubstitute) -> CourseSubstitute:
@@ -74,6 +76,14 @@ class CourseSubstitutesView(_SubstitutesView):
         return Response(
             CourseSubstituteSerializer(_present(fresh)).data, status=status.HTTP_201_CREATED
         )
+
+
+@extend_schema(tags=["grades"])
+class SubstituteCandidatesView(_SubstitutesView):
+    @extend_schema(responses={200: PersonSerializer(many=True), **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Personnes qu'on peut désigner : le personnel actif de l'école, par nom."""
+        return Response(PersonSerializer(active_staff(), many=True).data)
 
 
 @extend_schema(tags=["grades"])

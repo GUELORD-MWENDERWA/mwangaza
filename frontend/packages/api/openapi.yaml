@@ -11166,6 +11166,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/course-substitutes/candidates/:
+    get:
+      operationId: course_substitutes_candidates_list
+      description: 'Personnes qu''on peut désigner : le personnel actif de l''école,
+        par nom.'
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/course-templates/:
     get:
       operationId: course_templates_list

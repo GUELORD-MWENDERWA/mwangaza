@@ -64,6 +64,7 @@ def test_the_director_of_studies_alone_designates_and_removes_a_substitute(
     # Ni l'enseignant ni le préfet (sans `grades.validate`).
     assert designate(api(people["teacher"]), physics, sub).status_code == 403
     assert api(head).get(SUBSTITUTES).status_code == 403
+    assert api(people["teacher"]).get(f"{SUBSTITUTES}candidates/").status_code == 403
     assert field_error(designate(director, physics, people["teacher"]), "substitute_id") == (
         "is_teacher"
     )
@@ -190,6 +191,11 @@ def test_another_school_can_neither_see_nor_change_the_substitutes(
     foreign = MembershipFactory(school=other_school, roles=["study_director"]).user
     beta = api(foreign, host="beta.localhost")
     assert beta.get(SUBSTITUTES).json() == []
+    # Personnes qu'on peut désigner : seulement celles de son école.
+    assert str(foreign.pk) in {p["id"] for p in beta.get(f"{SUBSTITUTES}candidates/").json()}
+    assert str(people["teacher"].pk) not in {
+        p["id"] for p in beta.get(f"{SUBSTITUTES}candidates/").json()
+    }
     assert beta.delete(f"{SUBSTITUTES}{row['id']}/").status_code == 404
     assert designate(beta, data["physics"], foreign).status_code == 404
     # Un compte d'une autre école ne remplace pas ici.
