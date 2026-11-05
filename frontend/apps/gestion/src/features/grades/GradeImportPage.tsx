@@ -23,14 +23,16 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
-import { keys } from "../../lib/queries";
+import { can } from "../../lib/permissions";
+import { keys, useCurrentMe } from "../../lib/queries";
+import { useCurrentSchool } from "../../lib/school";
 import { useSyncStatus } from "../../lib/sync/session";
 import { termLabels } from "../../lib/terms";
 import { LoadError } from "../status/StatusPages";
 import { useGrading, useSheet } from "./data";
 import { gradableTerms } from "./GradesPage";
 import { remember, sendSave, sheetId } from "./offline";
-import { ReasonDialog } from "./SheetControl";
+import { ControlBanner, isLocked, ReasonDialog, todayIn } from "./SheetControl";
 
 type Result = Schemas["GradeImport"];
 type Line = Result["lines"][number];
@@ -79,6 +81,10 @@ function ImportSheet({ courseId, termId, title, sheet }: Props) {
   const { t, i18n } = useTranslation();
   const queryClient = useQueryClient();
   const { db } = useSyncStatus();
+  const me = useCurrentMe();
+  const school = useCurrentSchool();
+  // Même fermeture que la saisie : fiche validée, ou date limite passée sans renvoi.
+  const locked = isLocked(sheet, can(me, ["grades.validate"]), todayIn(school.timezone));
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<Result | null>(null);
   const [reasonFor, setReasonFor] = useState<"edit" | "correct" | null>(null);
@@ -162,7 +168,14 @@ function ImportSheet({ courseId, termId, title, sheet }: Props) {
         }
       />
       {error && <Banner tone="due">{firstErrorMessage(error, t)}</Banner>}
-      {save.isSuccess ? (
+      {locked ? (
+        <ControlBanner
+          sheet={sheet}
+          locked={locked}
+          language={i18n.language}
+          timeZone={school.timezone}
+        />
+      ) : save.isSuccess ? (
         <Banner
           tone="ok"
           action={

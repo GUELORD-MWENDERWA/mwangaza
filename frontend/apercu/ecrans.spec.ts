@@ -73,6 +73,8 @@ async function visit(
   await shoot(page, app, name);
 }
 
+type Term = { id: string; kind: string; starts_on: string | null; children?: Term[] };
+
 async function skipGuide(page: Page) {
   const skip = page.getByRole("dialog").getByRole("button", { name: "Passer le guide" });
   if (await skip.isVisible().catch(() => false)) await skip.click();
@@ -260,41 +262,59 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
     // Fiche de cotes commune (8.1.2a) : sa mathématique des 1HT Électricité A et B, 2e période.
     await visit(teacher, `${ITIG}grades/joint`, "gestion", "grades-joint");
-    // Import des points (8.2.4) : un classeur avec une note trop haute et un matricule inconnu.
+    // Import des points (8.2.4) : une fiche encore ouverte de l'enseignant ; un classeur avec une
+    // note trop haute et un matricule inconnu.
     const grading = await json<{
-      terms: { id: string; kind: string; starts_on: string | null }[];
+      terms: Term[];
       classes: { courses: { id: string; access: string | null }[] }[];
     }>(teacher, "/api/grading/");
-    const mine = grading.classes.flatMap((g) => g.courses).find((c) => c.access === "notebook");
     const today = new Date().toISOString().slice(0, 10);
-    const period = grading.terms
+    const flat = (list: Term[]): Term[] =>
+      list.flatMap((term) => [term, ...flat(term.children ?? [])]);
+    const period = flat(grading.terms)
       .filter((term) => term.kind === "period" && (term.starts_on ?? "") <= today)
       .at(-1);
-    if (mine && period) {
-      const importUrl = `${ITIG}grades/import?course=${mine.id}&term=${period.id}`;
-      const sheet = await json<{
-        evaluations: { name: string; max_score: number }[];
-        students: { matricule: string; full_name: string }[];
-      }>(teacher, `/api/courses/${mine.id}/terms/${period.id}/grades/`);
-      const column = sheet.evaluations[0];
-      await visit(teacher, importUrl, "gestion", "grades-import");
-      if (column) {
-        await visit(teacher, importUrl, "gestion", "grades-import-check", async (page) => {
-          const rows = [
-            `MATRICULE;NOM;${column.name} /${column.max_score}`,
-            ...sheet.students.slice(0, 6).map((s, i) => `${s.matricule};${s.full_name};${i}`),
-            `${sheet.students[6]?.matricule ?? ""};;${column.max_score + 2}`,
-            "XX-0000;MUKE Inconnu;7",
-          ];
-          await page.getByLabel("Classeur").setInputFiles({
-            name: "points.csv",
-            mimeType: "text/csv",
-            buffer: Buffer.from(rows.join("\n")),
-          });
-          await page.getByRole("button", { name: "Contrôler" }).click();
-          await page.getByText("2. Contrôle", { exact: true }).waitFor();
-        });
+    type OpenSheet = {
+      status: string;
+      evaluations: { name: string; max_score: number }[];
+      students: { matricule: string; full_name: string }[];
+    };
+    let open: { id: string; sheet: OpenSheet } | undefined;
+    for (const course of grading.classes.flatMap((g) => g.courses)) {
+      if (!period || course.access !== "notebook") continue;
+      const url = `/api/courses/${course.id}/terms/${period.id}/grades/`;
+      const sheet = await json<OpenSheet>(teacher, url);
+      if (sheet.status === "draft" && sheet.evaluations.length > 0) {
+        open = { id: course.id, sheet };
+        break;
       }
+    }
+    if (open && period) {
+      const { sheet } = open;
+      const column = sheet.evaluations[0]!;
+      const importUrl = `${ITIG}grades/import?course=${open.id}&term=${period.id}`;
+      const noGuide = (page: Page) =>
+        page
+          .getByRole("button", { name: "Passer le guide" })
+          .click({ timeout: 3_000 })
+          .catch(() => {});
+      await visit(teacher, importUrl, "gestion", "grades-import", noGuide);
+      await visit(teacher, importUrl, "gestion", "grades-import-check", async (page) => {
+        await noGuide(page);
+        const rows = [
+          `MATRICULE;NOM;${column.name} /${column.max_score}`,
+          ...sheet.students.slice(0, 6).map((s, i) => `${s.matricule};${s.full_name};${i}`),
+          `${sheet.students[6]?.matricule ?? ""};;${column.max_score + 2}`,
+          "XX-0000;MUKE Inconnu;7",
+        ];
+        await page.getByLabel("Classeur").setInputFiles({
+          name: "points.csv",
+          mimeType: "text/csv",
+          buffer: Buffer.from(rows.join("\n")),
+        });
+        await page.getByRole("button", { name: "Contrôler" }).click();
+        await page.getByText("2. Contrôle", { exact: true }).waitFor({ timeout: 15_000 });
+      });
     }
     // Ma classe (NB.3) : le titulaire, dans la classe qui attend une dernière fiche.
     const own = await json<{ classes: { id: string; name: string }[] }>(teacher, "/api/homeroom/");
