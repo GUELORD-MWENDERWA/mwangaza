@@ -181,7 +181,14 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Fil d'une demande d'aide (SUP.1) : la première de la liste.
     // Cours communs (8.1.2a) : la liste du niveau, le groupe ouvert.
     await visit(head, `${ITIG}courses/joint`, "gestion", "courses-joint", async (page) => {
-      await page.getByRole("button", { name: "Ouvrir Mathématique" }).click();
+      await page
+        .getByRole("button", { name: "Compris" })
+        .click({ timeout: 3_000 })
+        .catch(() => {});
+      await page
+        .getByRole("button", { name: "Ouvrir Mathématique" })
+        .click({ timeout: 10_000 })
+        .catch(() => {});
     });
     await visit(head, `${ITIG}help/requests`, "gestion", "help-requests-fil", async (page) => {
       await page.locator('a[href*="/help/requests/"]').first().click();

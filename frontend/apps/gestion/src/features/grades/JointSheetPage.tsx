@@ -13,6 +13,7 @@ import {
   CardHeader,
   CardTitle,
   ConfirmDialog,
+  DESKTOP,
   Icon,
   Input,
   PageHeader,
@@ -22,6 +23,7 @@ import {
   StatusPill,
   Table,
   cn,
+  useMediaQuery,
 } from "@mwangaza/ui";
 import { useMutation, useQueries, useQueryClient } from "@tanstack/react-query";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
@@ -160,6 +162,8 @@ function JointSheet({ groups, group, entries, term, terms, onChoose }: SheetProp
   // Saisie « total » : identifiant de l'unique évaluation tant qu'aucune classe n'en a.
   const [totalId] = useState(uuidv7);
   const [mint] = useState(() => minter(uuidv7));
+  // Filtre de classe : des boutons sur un grand écran, une liste au téléphone (noms longs).
+  const wide = useMediaQuery(DESKTOP);
 
   const sheetKey = (course: string) => [...keys.gradeSheet, course, term.id];
   const keep = (course: string, saved: Sheet) => {
@@ -449,7 +453,7 @@ function JointSheet({ groups, group, entries, term, terms, onChoose }: SheetProp
         <CardHeader className="flex-wrap gap-3">
           <CardTitle>{t("grades.students", { count: students })}</CardTitle>
           {dirty && <StatusPill tone="warn">{t("grades.unsaved")}</StatusPill>}
-          {parts.length <= 3 ? (
+          {wide && parts.length <= 3 ? (
             <Segmented
               label={filterLabel}
               value={filter}
