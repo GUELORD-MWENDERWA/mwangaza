@@ -72,7 +72,10 @@ def test_a_demonstration_space_is_filled_shown_on_its_sheet_and_reset_without_th
         codes = set(Family.objects.values_list("code", flat=True))
 
     # Fiche d'accès : un mot de passe qui ouvre vraiment ses comptes, et rien de l'autre espace.
-    page = sheet(console, school_id)
+    # Ouverte par un lien ou dans un cadre, sans l'en-tête du mode : la même fiche (bug du
+    # 2026-11-06 : 404 en production).
+    page = sheet(api(platform_admin, host=CONSOLE), school_id)
+    assert page == sheet(console, school_id)
     password = demonstrations.access_sheet(vitrine)["password"]
     head = authenticate(username="0004002001", password=password)
     assert head is not None and password in page and "0004002001" in page
@@ -130,9 +133,8 @@ def test_only_a_ready_console_demonstration_has_a_sheet_and_a_reset(
 ):
     console = api(platform_admin, host=CONSOLE, headers=DEMO)
     live = api(platform_admin, host=CONSOLE)
-    # Ni un espace réel, ni un espace de `make demo` (sans ligne `Demonstration`).
-    for action in (live.get(f"{SCHOOLS}{school.pk}/access-sheet/", output="html"),):
-        assert (action.status_code, action.json()["code"]) == (409, "not_a_console_demo")
+    # Ni un espace réel (introuvable ici), ni un espace de `make demo` (sans `Demonstration`).
+    assert live.get(f"{SCHOOLS}{school.pk}/access-sheet/", output="html").status_code == 404
     refused = live.post(f"{SCHOOLS}{school.pk}/reset/", {"confirm": "alpha"})
     assert (refused.status_code, refused.json()["code"]) == (409, "not_a_console_demo")
     # Une démonstration ne se crée qu'en mode démonstration.
