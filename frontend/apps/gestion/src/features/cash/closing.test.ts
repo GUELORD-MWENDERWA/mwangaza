@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { closingOnDevice, differences } from "./closing";
+import type { SessionCashOut } from "./localData";
 import type { SessionPayment } from "./offline";
 
 type Payment = SessionPayment["payment"];
@@ -30,8 +31,22 @@ const row = (
   error: null,
 });
 
+const cashOut = (number: string, amount: number, sync: SessionCashOut["sync"]): SessionCashOut => ({
+  out: {
+    id: number,
+    number,
+    expense_number: "DEP-26-0041",
+    beneficiary: "Quincaillerie Mapendo",
+    received_by: "Kahindo",
+    amount_minor: amount,
+    currency: "USD",
+    paid_at: "2026-10-19T10:00:00Z",
+  } as SessionCashOut["out"],
+  sync,
+});
+
 describe("clôture sur l'appareil", () => {
-  it("attend les paiements gardés par devise, le trop-perçu à part, jamais les annulés ni les refusés", () => {
+  it("attend les paiements gardés moins les sorties par devise, le trop-perçu à part, jamais les annulés ni les refusés", () => {
     const rows = [
       row("P1-3", 15000, "USD", [["Minerval", 12000]]), // 30,00 $ de trop-perçu hors ligne
       row("C1-1", 4500, "USD", [["Frais d'atelier", 4500]], { cancellation_pending: true }),
@@ -40,16 +55,18 @@ describe("clôture sur l'appareil", () => {
       row("P1-5", 25000, "CDF", [["Fonctionnement", 25000]], {}, "pending"),
     ];
 
-    const data = closingOnDevice(rows, ["USD", "CDF"]);
+    const outs = [cashOut("P1-S0001", 4000, "pending"), cashOut("P1-S0002", 2000, "rejected")];
+
+    const data = closingOnDevice(rows, ["USD", "CDF"], outs);
 
     expect(data.currencies).toEqual([
       {
         currency: "USD",
         received_minor: 19500,
-        paid_out_minor: 0,
-        expected_minor: 19500,
+        paid_out_minor: 4000,
+        expected_minor: 15500,
         count: 2,
-        cash_outs_count: 0,
+        cash_outs_count: 1,
       },
       {
         currency: "CDF",
@@ -73,9 +90,12 @@ describe("clôture sur l'appareil", () => {
     ]);
     expect(data.cancelled).toEqual([{ currency: "USD", amount_minor: 5000, count: 1 }]);
     expect(data.cancellations_pending).toBe(1);
+    expect(data.cash_outs.map((out) => [out.number, out.amount_minor])).toEqual([
+      ["P1-S0001", 4000],
+    ]);
 
-    expect(differences(data, { USD: 19000 })).toEqual([
-      { currency: "USD", expected_minor: 19500, counted_minor: 19000, difference_minor: -500 },
+    expect(differences(data, { USD: 15000 })).toEqual([
+      { currency: "USD", expected_minor: 15500, counted_minor: 15000, difference_minor: -500 },
       { currency: "CDF", expected_minor: 25000, counted_minor: null, difference_minor: null },
     ]);
   });

@@ -2,8 +2,11 @@
 // des caisses se lit aussi avec `finance.configure_fees` (carte « Caisses » des paramètres).
 import { api, call, type Schemas } from "@mwangaza/api";
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 import { keys } from "../../lib/queries";
+import type { LocalDb } from "../../lib/sync/db";
+import { readOrKept } from "../../lib/sync/reads";
 
 export type CashRegister = Schemas["CashRegisterState"];
 export type CurrentSession = Schemas["CurrentCashSession"];
@@ -61,6 +64,26 @@ export function usePayableExpenses() {
     queryKey: [...keys.cashOuts, "payable"],
     queryFn: () => call(api.GET("/api/cash-outs/payable/")),
   });
+}
+
+const PAYABLE_ID = "cash-outs|payable";
+const devicePayableKey = [...keys.cashOuts, "payable", "device"] as const;
+const readPayable = (db: LocalDb) =>
+  readOrKept(db.reads, PAYABLE_ID, () => call(api.GET("/api/cash-outs/payable/")));
+
+/** Sur un appareil mémorisé : les dépenses à payer lues en ligne et gardées, pour la sortie de
+ *  caisse sans réseau (`keptAt` : heure de la copie montrée, vide pour une lecture fraîche). */
+export function useDevicePayable(db: LocalDb) {
+  return useQuery({ queryKey: devicePayableKey, queryFn: () => readPayable(db) });
+}
+
+/** À l'ouverture de la caisse de l'appareil : la liste part sur l'appareil sans attendre qu'on
+ *  ouvre la sortie de caisse (une lecture par visite). */
+export function useKeepPayable(db: LocalDb) {
+  const client = useQueryClient();
+  useEffect(() => {
+    void client.prefetchQuery({ queryKey: devicePayableKey, queryFn: () => readPayable(db) });
+  }, [db, client]);
 }
 
 /** Sortir l'argent d'une dépense de la session ouverte. `id` vient de l'appareil (UUID v7) : un

@@ -1,14 +1,14 @@
 // Caisse d'un appareil mémorisé (F5, 3.5) : la base de l'appareil lue en direct (chaque
 // synchronisation et chaque encaissement mettent l'écran à jour) ; ouverture, encaissement,
-// réimpression, crédit utilisé (3.6.2), demande d'annulation (3.8.1) et clôture (3.8.2)
-// s'écrivent dans la file d'opérations, avec ou sans réseau, puis partent au serveur tout de
-// suite s'il y en a un.
+// réimpression, crédit utilisé (3.6.2), demande d'annulation (3.8.1), sortie de caisse (FIN.2)
+// et clôture (3.8.2) s'écrivent dans la file d'opérations, avec ou sans réseau, puis partent au
+// serveur tout de suite s'il y en a un.
 import type { Schemas } from "@mwangaza/api";
 import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
 
 import { uuidv7 } from "../../lib/ids";
-import type { LocalDb, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
+import type { LocalCashOut, LocalDb, LocalEnrollment, QueuedOperation } from "../../lib/sync/db";
 import type { Config } from "../../lib/sync/engine";
 import { syncNow } from "../../lib/sync/session";
 import type { Line } from "./allocation";
@@ -40,19 +40,23 @@ export type LocalCash = {
   saved: Schemas["CurrentCashSession"] | null;
   /** Opérations de la file, dans l'ordre. */
   queued: QueuedOperation[];
+  /** Sorties de caisse faites ici, des sessions pas encore clôturées au serveur (FIN.2). */
+  cashOuts: LocalCashOut[];
 };
 
 const readState = async (db: LocalDb) => {
-  const [enrollments, config, saved] = await Promise.all([
+  const [enrollments, config, saved, cashOuts] = await Promise.all([
     db.enrollments.toArray(),
     db.config.get("config"),
     db.cash.get("session"),
+    db.cashOuts.toArray(),
   ]);
   return {
     enrollments,
     byId: new Map(enrollments.map((item) => [item.id, item])),
     config: config?.value ?? null,
     saved: saved?.value ?? null,
+    cashOuts,
   };
 };
 
@@ -80,6 +84,21 @@ export async function saveSession(
     const saved = await db.cash.get("session");
     if ((saved?.readAt ?? 0) <= readAt) await db.cash.put({ id: "session", value, readAt });
   });
+}
+
+/** Session de la caisse de l'appareil : celle gardée (lue en ligne, ou ouverture acceptée),
+ *  sinon celle ouverte ici et pas encore acceptée ; jamais une session clôturée ici (3.8.2). */
+export function deviceSession(
+  known: Schemas["CurrentCashSession"],
+  queued: QueuedOperation[],
+): { session: Schemas["CashSession"] | undefined; opening: QueuedOperation | undefined } {
+  const opening = queued.filter((op) => op.type === "cash_session.open").at(-1);
+  const refused = opening?.status === "rejected";
+  const closed = closedHere(queued);
+  const session = [known.session, refused ? undefined : opening?.session].find(
+    (item) => item && !closed.has(item.id),
+  );
+  return { session: session ?? undefined, opening };
 }
 
 /** Ouverture de caisse sur l'appareil (M13), avec ou sans réseau : l'opération porte la session
@@ -137,6 +156,78 @@ export async function queueClosing(db: LocalDb, closing: OfflineClosing) {
     });
   });
   void syncNow();
+}
+
+/** Sortie de caisse d'une session sur l'appareil : `pending` pas encore envoyée, `rejected`
+ *  refusée par le serveur (plus déduite), `recorded` enregistrée. */
+export type SessionCashOut = { out: Schemas["CashOut"]; sync: "recorded" | "pending" | "rejected" };
+
+export function sessionCashOuts(local: LocalCash, session: string): SessionCashOut[] {
+  const ops = new Map(
+    local.queued.filter((op) => op.type === "cash_out.create").map((op) => [op.op_id, op]),
+  );
+  return local.cashOuts
+    .filter((row) => row.session === session)
+    .map((row) => {
+      const status = ops.get(row.id)?.status;
+      const sync =
+        status === "pending" ? "pending" : status === "rejected" ? "rejected" : "recorded";
+      return { out: row.out, sync } as const;
+    })
+    .sort((a, b) => a.out.paid_at.localeCompare(b.out.paid_at));
+}
+
+/** Contenu de l'opération `cash_out.create` (serveur : `OfflineCashOutSerializer`). */
+export type OfflineCashOut = {
+  id: string;
+  expense: string;
+  cash_session: string;
+  number: string;
+  received_by: string;
+  paid_at: string;
+};
+
+/** Bon de sortie donné par l'appareil : `ITIG-P1-26-S0003` (école, appareil, année scolaire,
+ *  « S » et la séquence de l'appareil), celui que le serveur vérifie. */
+export function cashOutNumber(school: string, prefix: string, yearStartsOn: string, seq: number) {
+  return `${school.toUpperCase()}-${prefix}-${yearStartsOn.slice(2, 4)}-S${String(seq).padStart(4, "0")}`;
+}
+
+/** Sortie de caisse sur l'appareil (FIN.2), avec ou sans réseau : bon suivant de l'appareil,
+ *  sortie gardée et opération de la file dans une seule transaction. Le même `id` deux fois
+ *  (double appui) rend le premier bon. Puis envoi aussitôt. */
+export async function recordCashOutOffline(
+  db: LocalDb,
+  id: string,
+  build: (seq: number) => Schemas["CashOut"],
+): Promise<Schemas["CashOut"]> {
+  const out = await db.transaction("rw", [db.meta, db.outbox, db.cashOuts], async () => {
+    const already = await db.cashOuts.get(id);
+    if (already) return already.out;
+    const seq = ((await db.meta.get("sync"))?.cashOutSeq ?? 0) + 1;
+    const made = build(seq);
+    const payload: OfflineCashOut = {
+      id,
+      expense: made.expense,
+      cash_session: made.cash_session,
+      number: made.number,
+      received_by: made.received_by,
+      paid_at: made.paid_at,
+    };
+    await db.meta.update("sync", { cashOutSeq: seq });
+    await db.outbox.add({
+      op_id: id,
+      type: "cash_out.create",
+      payload,
+      created_at: made.paid_at,
+      status: "pending",
+      error: null,
+    });
+    await db.cashOuts.add({ id, session: made.cash_session, out: made });
+    return made;
+  });
+  void syncNow();
+  return out;
 }
 
 /** Duplicata imprimé sur l'appareil (F6) : noté au journal du serveur par la file. */

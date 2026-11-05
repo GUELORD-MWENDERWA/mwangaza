@@ -4259,7 +4259,9 @@ export const fr = {
       back: "Retour à la caisse",
       done: "Sortie {{number}} enregistrée : {{amount}}. Faites signer le bon.",
       offline:
-        "La sortie de caisse demande le réseau. Sans réseau, notez-la et faites-la plus tard.",
+        "Sans réseau, la sortie est gardée sur l'appareil et envoyée au retour du réseau, comme un paiement.",
+      onlineOnly:
+        "Sur cet ordinateur, la sortie de caisse demande le réseau. Sans réseau, notez-la et faites-la plus tard.",
       slip: {
         title: "Bon de sortie de caisse · {{number}}",
         register: "Caisse",
@@ -5065,6 +5067,11 @@ export const fr = {
       late_other:
         "{{count}} paiements encaissés hors ligne sont arrivés après la clôture : ils ne sont pas dans l'attendu. Leur argent était peut-être dans la caisse comptée.",
       lateLine: "encaissé à {{paid}} · reçu au serveur le {{received}}",
+      lateOuts_one:
+        "{{count}} sortie de caisse faite hors ligne est arrivée après la clôture : elle n'est pas déduite de l'attendu. Son argent était peut-être déjà sorti de la caisse comptée.",
+      lateOuts_other:
+        "{{count}} sorties de caisse faites hors ligne sont arrivées après la clôture : elles ne sont pas déduites de l'attendu. Leur argent était peut-être déjà sorti de la caisse comptée.",
+      lateOutLine: "sortie à {{paid}} · reçue au serveur le {{received}}",
       slip: "Bordereau",
       payments: "Voir les paiements",
       hidePayments: "Masquer les paiements",

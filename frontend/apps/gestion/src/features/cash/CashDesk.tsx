@@ -177,14 +177,12 @@ export function CashDesk({
                 {t("cash.rate", { rate: formatRate(current.rate) })}
               </span>
             )}
-            {!device && (
-              <Button variant="outline" asChild>
-                <Link to="/cash/out">
-                  <Icon name="wallet" size={18} />
-                  {t("cash.out.open")}
-                </Link>
-              </Button>
-            )}
+            <Button variant="outline" asChild>
+              <Link to="/cash/out">
+                <Icon name="wallet" size={18} />
+                {t("cash.out.open")}
+              </Link>
+            </Button>
             <Button data-guide="cash-close" variant="outline" onClick={() => setClosing(true)}>
               <Icon name="lock" size={18} />
               {t("cash.closing.open")}

@@ -77,6 +77,20 @@ const detail = {
       cancelled: false,
     },
   ],
+  late_cash_outs: [
+    {
+      id: id(302),
+      number: "ITIG-P2-26-S0001",
+      expense_number: "DEP-26-0041",
+      beneficiary: "Quincaillerie Mapendo",
+      received_by: "Kahindo",
+      amount_minor: 4500,
+      currency: "USD",
+      paid_at: "2026-10-19T13:30:00Z",
+      received_at: "2026-10-19T16:02:00Z",
+      cancelled: false,
+    },
+  ],
 };
 
 function routes(): Routes {
@@ -116,6 +130,7 @@ describe("Clôtures de caisse (M16)", () => {
     within(card).getByText("ITIG-C1-26-000144 → 000184");
     within(card).getByText("16:51, hors-ligne · reçue au serveur à 17:20");
     within(card).getByText(/1 paiement encaissé hors ligne est arrivé après la clôture/);
+    within(card).getByText(/1 sortie de caisse faite hors ligne est arrivée après la clôture/);
     within(card).getByText("ITIG-P2-26-000012 · SAFARI BIRINGANINE Patrick");
     screen.getByRole("button", { name: "Bordereau" });
     screen.getByText("1 arrivé après la clôture");

@@ -4,6 +4,7 @@
 import type { Schemas } from "@mwangaza/api";
 import { CURRENCIES, type Currency } from "@mwangaza/money";
 
+import type { SessionCashOut } from "./localData";
 import type { SessionPayment } from "./offline";
 
 export type ClosingData = Omit<Schemas["CashClosingSummary"], "session" | "closing">;
@@ -11,9 +12,16 @@ export type ClosingData = Omit<Schemas["CashClosingSummary"], "session" | "closi
 /** Montant compté par devise, `null` tant qu'il n'est pas saisi. */
 export type Counted = Partial<Record<string, number | null>>;
 
-/** Résumé de la session d'après ses paiements sur l'appareil : attendu = pas annulés, pas
- *  refusés ; par type de frais dans la devise reçue, le trop-perçu (crédit de l'élève) à part. */
-export function closingOnDevice(rows: SessionPayment[], enabled: string[]): ClosingData {
+/** Résumé de la session d'après ses paiements et ses sorties de caisse sur l'appareil : attendu
+ *  = reçu (pas annulé, pas refusé) − sorti (pas refusé) ; par type de frais dans la devise
+ *  reçue, le trop-perçu (crédit de l'élève) à part. Les sorties faites ailleurs pendant la même
+ *  session ne sont pas connues ici : le serveur les compte à l'arrivée de la clôture. */
+export function closingOnDevice(
+  rows: SessionPayment[],
+  enabled: string[],
+  cashOuts: SessionCashOut[] = [],
+): ClosingData {
+  const outs = cashOuts.filter((row) => row.sync !== "rejected").map((row) => row.out);
   const kept = rows.filter((row) => row.sync !== "rejected").map((row) => row.payment);
   const counting = kept.filter((payment) => !payment.cancelled);
   const total = (items: typeof kept, currency: Currency) => {
@@ -36,17 +44,18 @@ export function closingOnDevice(rows: SessionPayment[], enabled: string[]): Clos
   }
   const feeTypes = [...fees.values()].sort((a, b) => a.fee_type!.localeCompare(b.fee_type!));
   const currencies = CURRENCIES.filter(
-    (c) => enabled.includes(c) || used(counting).includes(c),
+    (c) => enabled.includes(c) || used(counting).includes(c) || outs.some((o) => o.currency === c),
   ).map((c) => {
     const { amount_minor, count } = total(counting, c);
-    // Les sorties de caisse (FIN.2) ne sont pas encore gardées sur l'appareil : rien de sorti.
+    const mine = outs.filter((out) => out.currency === c);
+    const paidOut = mine.reduce((sum, out) => sum + out.amount_minor, 0);
     return {
       currency: c,
       received_minor: amount_minor,
-      paid_out_minor: 0,
-      expected_minor: amount_minor,
+      paid_out_minor: paidOut,
+      expected_minor: amount_minor - paidOut,
       count,
-      cash_outs_count: 0,
+      cash_outs_count: mine.length,
     };
   });
   for (const { currency, received_minor } of currencies) {
@@ -68,7 +77,16 @@ export function closingOnDevice(rows: SessionPayment[], enabled: string[]): Clos
     last_receipt: receipts.at(-1) ?? null,
     cancelled: used(cancelled).map((c) => total(cancelled, c)),
     cancellations_pending: counting.filter((payment) => payment.cancellation_pending).length,
-    cash_outs: [],
+    cash_outs: outs.map((out) => ({
+      id: out.id,
+      number: out.number,
+      expense_number: out.expense_number,
+      beneficiary: out.beneficiary,
+      received_by: out.received_by,
+      amount_minor: out.amount_minor,
+      currency: out.currency,
+      paid_at: out.paid_at,
+    })),
   };
 }
 

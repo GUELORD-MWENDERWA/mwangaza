@@ -35,7 +35,7 @@ import { headerLines } from "../settings/ReceiptCard";
 import type { DeviceCash } from "./CashDesk";
 import { type ClosingData, type Counted, closingOnDevice, differences } from "./closing";
 import { useSessionClosing } from "./data";
-import { queueClosing } from "./localData";
+import { queueClosing, sessionCashOuts } from "./localData";
 import { schoolDay, sessionPayments } from "./offline";
 import { ReceiptPages, usePrintArea } from "./Receipt";
 import { SignatureMark, signatureOf } from "./signatures";
@@ -86,6 +86,7 @@ export function ClosingPanel({
     closingOnDevice(
       sessionPayments(device.local.enrollments, device.local.queued, session.id),
       school.enabled_currencies,
+      sessionCashOuts(device.local, session.id),
     );
   const data: ClosingData | undefined = local ?? online.data;
   if (!device && online.error)

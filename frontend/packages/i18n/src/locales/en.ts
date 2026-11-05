@@ -4222,7 +4222,10 @@ export const en: Messages<typeof fr> = {
       reprint: "Print the voucher again",
       back: "Back to the cash register",
       done: "Cash out {{number}} recorded: {{amount}}. Have the voucher signed.",
-      offline: "A cash out needs the network. Without it, write it down and do it later.",
+      offline:
+        "Without the network, the cash-out is kept on the device and sent when the network is back, like a payment.",
+      onlineOnly:
+        "On this computer, a cash out needs the network. Without it, write it down and do it later.",
       slip: {
         title: "Cash-out voucher · {{number}}",
         register: "Cash register",
@@ -5020,6 +5023,11 @@ export const en: Messages<typeof fr> = {
       late_other:
         "{{count}} payments collected offline arrived after the closing: they are not in the expected amount. Their money may have been in the cash counted.",
       lateLine: "collected at {{paid}} · received by the server on {{received}}",
+      lateOuts_one:
+        "{{count}} cash-out made offline arrived after the closing: it is not deducted from the expected amount. Its money may already have left the cash counted.",
+      lateOuts_other:
+        "{{count}} cash-outs made offline arrived after the closing: they are not deducted from the expected amount. Their money may already have left the cash counted.",
+      lateOutLine: "paid out at {{paid}} · received by the server on {{received}}",
       slip: "Closing slip",
       payments: "See the payments",
       hidePayments: "Hide the payments",
