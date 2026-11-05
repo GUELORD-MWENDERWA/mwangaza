@@ -13,7 +13,7 @@
 - [x] ④a FIN.3 serveur : budget par catégorie, comptes (solde de départ, virements), rapports en SQL, Excel, droit `finance.manage_budget`, audit, démo, tests — **Opus**
 - [x] ④b FIN.3 écran « Budget et rapports » (maquette complétée : saisie du budget, virement), article d'aide, 390/1440 px — Sonnet
 - [x] ④c PERF.7 « Impayés » et tableau de bord en SQL, mesure avant/après (`make perf`) — **Opus**
-- [ ] ④d OPS.5 (tableau Capacité, procédure 4 Go) ; fin du lot (docs, vérification, PR) — Sonnet
+- [x] ④d OPS.5 (tableau Capacité, procédure 4 Go) ; fin du lot (docs, vérification, PR) — Sonnet
 
 ## Décisions (regard senior)
 - Dépense = enregistrement immuable comme un paiement : annulation = nouvel enregistrement lié (motif, permission, audit). Montants entiers + devise + taux.

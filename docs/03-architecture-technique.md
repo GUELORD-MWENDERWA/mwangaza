@@ -219,8 +219,10 @@ Depuis : saisie des notes (8.2.3) et code PIN proposé (L.6). Ce qui doit marche
 | Machine | Écoles réelles actives | Impression d'une classe de 45 | Quand changer |
 |---|---|---|---|
 | Lightsail 2 vCPU / 2 Go (aujourd'hui) | ≈ 1 à 2 (estimation, 0 aujourd'hui) | ≈ 1 à 3 min, une à la fois | 2 écoles réelles ou attente > 10 min |
-| 2 vCPU / 4 Go (24 $/mois) | ≈ 6 | idem | 6 écoles réelles |
+| 2 vCPU / 4 Go (24 $/mois) | ≈ 6 | idem | 6 écoles réelles ; **procédure prête (OPS.5)** : `A-FAIRE.md` § 9 ter « Passer à 4 Go » |
 | 2 vCPU / 8 Go (44 $/mois, prix à revérifier) | ≈ 15 à 20 | deux impressions en parallèle | — |
+
+Prix Lightsail du 2026-11-05 (2 Go = 12 $, 4 Go = 24 $, avec IPv4) ; **les seuils de la carte Santé ne changent pas** : ils se calculent en pourcentage de la mémoire de la machine et de la limite de chaque conteneur (`core/health.py`), donc la même alerte (85 %) dit « grossir » sur 2 Go et sur 4 Go. Sur 4 Go, les limites des conteneurs (`infra/docker-compose.yml`, ≈ 1,73 Go au total) sont gardées telles quelles au début : ne les monter (Django 576 → 768 Mo, `db` 512 → 1 Go) que si la carte les montre en orange. **On reste sur 2 Go** (décision du 2026-10-17) : on grossit à 2 écoles réelles ou sur alerte, pas avant.
 
 Estimations tirées de `docs/claude/recherches/perf-impression-capacite-2026-10-16.md` ; à remplacer par les mesures de `make perf` sur le vrai serveur dès la première école réelle. Règle : toute fonction lourde annonce son coût (secondes de processeur, Mo) dans son plan.
 - **Export école** : archive téléchargeable (Excel + PDF) de toutes les données de l'école.

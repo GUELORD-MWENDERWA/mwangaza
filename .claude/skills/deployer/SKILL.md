@@ -51,6 +51,7 @@ Deux chemins, pas à pas pour l'utilisateur : `A-FAIRE.md` § 9 ter, « Serveur 
 - **(b) Backblaze** (compte bloqué, région en panne ; ≈ 1 h) : serveur neuf, `SERVEUR` et DNS Cloudflare mis à jour, `make deploy-setup`, `make deploy`, `make deploy-backup cmd=fetch`, `cmd="restore --remplacer"`.
 - Ancienne encore joignable en SSH : `make deploy-backup` avant la bascule, puis `fetch` et `restore --remplacer` sur la nouvelle (rien de perdu depuis la nuit).
 - Une copie qui tourne lance aussi la sauvegarde de 0 h 30 et le planificateur (relances) : un essai se fait de jour et la copie est supprimée dans l'heure.
+- **Passer à 4 Go (OPS.5)** : même chemin (a) avec un instantané manuel `avant-4go` et le plan 4 GB (24 $/mois) ; pas à pas dans `A-FAIRE.md` § 9 ter ; limites des conteneurs gardées, seuils de la carte Santé inchangés (pourcentages) ; ancienne instance gardée 48 h. On ne grossit qu'à 2 écoles réelles ou sur alerte.
 - Le jour où le pare-feu est limité à Cloudflare (`A-FAIRE.md` 5 ter) : revoir l'étape du 443 et `check ip=` (depuis la machine, le 443 serait refusé).
 
 Après une mise en ligne ou une panne réglée : `/noter` (journal de `docs/06-suivi.md`) et `A-FAIRE.md` si l'utilisateur a quelque chose à faire.
