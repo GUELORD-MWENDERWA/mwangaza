@@ -1,7 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 // Guide de la version en PDF (`make guide`, I5) : captures des écrans de chaque rôle sur les
-// données de `make demo` (remises à zéro avant et après), puis `guide.html` imprimé en PDF par
+// données de `make demo` (remises à zéro avant et après), puis `presentation.html` imprimé en PDF par
 // Chromium. Pas dans la CI : lancé à la fin de chaque version. Des serveurs déjà lancés
 // (`make dev-local`) sont réutilisés.
 const backend = new URL("../../backend", import.meta.url).pathname;

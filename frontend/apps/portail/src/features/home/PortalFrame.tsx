@@ -20,6 +20,7 @@ import { useFamilies } from "../../lib/families";
 import { useOfflineSince } from "../../lib/offline";
 import { disablePush } from "../../lib/push";
 import { NotificationBell } from "../notifications/NotificationBell";
+import { PortalHelp, PortalNews } from "./PortalHelp";
 
 /** Pages du compte (maquettes `accueil`, `enfant-paiements`, `annonces`) : en-tête sombre avec
  *  la marque et la déconnexion, ou, sur la page d'un enfant (`title`), le retour à l'accueil et
@@ -59,6 +60,7 @@ export function PortalFrame({
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      <PortalNews />
       {space && (
         <Banner tone="warn" className="rounded-none" role="note">
           <b>{t(`space.${space.school_environment as "demo" | "test"}`)}</b>
@@ -90,12 +92,16 @@ export function PortalFrame({
                 <PlatformMark inverse />
                 <h1 className="text-lg text-night-ink">{heading}</h1>
               </div>
-              <NotificationBell />
+              <div className="flex items-center gap-1">
+                <PortalHelp />
+                <NotificationBell />
+              </div>
             </>
           ) : title === undefined ? (
             <>
               <Brand inverse className="text-xl" />
               <div className="flex items-center gap-1">
+                <PortalHelp />
                 <NotificationBell />
                 <Button
                   variant="ghost"
@@ -180,6 +186,7 @@ function DesktopBar({
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-1">
+          <PortalHelp />
           <NotificationBell />
           <Button
             variant="ghost"

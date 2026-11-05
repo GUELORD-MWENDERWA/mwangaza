@@ -35,7 +35,7 @@ from PIL import Image
 
 from apps.accounts.modules import DEPENDENCIES, MODULES
 from apps.accounts.phone import format_phone
-from apps.core import demo_requests, share, site_content
+from apps.core import demo_requests, help_center, share, site_content
 from apps.core.http import client_ip
 from apps.core.models import PlatformSettings, SiteEntry, SitePlan
 from apps.core.money import format_amount
@@ -51,6 +51,8 @@ PAGES = {
     "find": {"fr": "/trouver-mon-ecole/", "en": "/en/find-my-school/"},
     "news": {"fr": site_content.NEWS_PATHS["fr"], "en": site_content.NEWS_PATHS["en"]},
     "legal": {"fr": "/mentions-legales/", "en": "/en/legal/"},
+    # Centre d'aide (AIDE.1) : ses pages et leurs routes sont dans `help_views.py`.
+    "help": help_center.HOME,
 }
 # Adresse courte de la confidentialité : mène à sa section de la page des mentions.
 PRIVACY = {"fr": "/confidentialite/", "en": "/en/privacy/"}
@@ -77,6 +79,7 @@ SHARE_CAPTURES = {
     "find": "gestion-tableau-de-bord",
     "news": None,
     "legal": None,
+    "help": "gestion-caisse-encaissement",
 }
 # Images montrées par chaque page (`static/core/site/`) : `sitemap.xml`, et celles de l'accueil
 # comme captures du logiciel dans les données structurées.
@@ -108,8 +111,9 @@ PAGE_IMAGES = {
     "find": (),
     "news": (),
     "legal": (),
+    "help": (),
 }
-# Vue de chaque page (`config/urls.py`).
+# Vue de chaque page (`config/urls.py`) ; le centre d'aide a les siennes (`help_views.py`).
 VIEWS = {
     "home": "home",
     "schools": "schools",
@@ -272,6 +276,7 @@ def _crumb(key: str) -> str:
         "find": _("Find my school"),
         "news": _("News"),
         "legal": _("Legal notice and privacy"),
+        "help": _("Help centre"),
     }[key]
 
 
@@ -460,6 +465,13 @@ def _meta(key: str, name: str) -> tuple[str, str]:
         "legal": (
             _("Legal notice and privacy | %(name)s") % values,
             _("Who publishes %(name)s, where the data is kept and what we do with it.") % values,
+        ),
+        "help": (
+            _("Help centre | %(name)s") % values,
+            _(
+                "Short answers, screen by screen, for school staff and parents: collecting a "
+                "payment, report cards, the parent space, working without internet."
+            ),
         ),
     }[key]
 
@@ -858,7 +870,8 @@ def school_space(request: HttpRequest) -> HttpResponse:
 @public
 def robots_txt(request: HttpRequest) -> HttpResponse:
     body = (
-        "User-agent: *\nAllow: /\nDisallow: /ecole/\nDisallow: /*?code=\n\n"
+        "User-agent: *\nAllow: /\nDisallow: /ecole/\nDisallow: /*?code=\n"
+        f"Disallow: {help_center.SEARCH['fr']}\nDisallow: {help_center.SEARCH['en']}\n\n"
         f"Sitemap: {_site(request)}/sitemap.xml\n"
     )
     return HttpResponse(body, content_type="text/plain; charset=utf-8")
@@ -884,10 +897,29 @@ def sitemap_xml(request: HttpRequest) -> HttpResponse:
                 for key, paths in PAGES.items()
             ],
             "articles": [row for lang in ("fr", "en") for row in site_content.news(lang)],
+            "help": _help_sitemap(),
             "lastmod": max(platform.updated_at.date(), LEGAL_UPDATED).isoformat(),
         },
         content_type="application/xml; charset=utf-8",
     )
+
+
+def _help_sitemap() -> list[dict]:
+    """Articles du centre d'aide (Gestion, Portail), avec l'autre langue."""
+    rows = []
+    for article in (a for lang in help_center.LANGS for a in help_center.articles(lang)):
+        other = help_center.counterpart(article)
+        rows.append(
+            {
+                "path": article.path,
+                "updated": article.updated,
+                "alternates": {
+                    article.lang: article.path,
+                    **({other.lang: other.path} if other else {}),
+                },
+            }
+        )
+    return rows
 
 
 @require_GET
@@ -907,6 +939,7 @@ def llms_txt(request: HttpRequest) -> HttpResponse:
                 "pages": PAGES,
                 "texts": texts,
                 "faq": site_content.entries(SiteEntry.Kind.HOME_QUESTION, "fr"),
+                "help": help_center.groups("fr"),
                 "portal_url": settings.PORTAL_URL,
                 "author": settings.SOFTWARE_AUTHOR,
                 "author_url": settings.SOFTWARE_AUTHOR_URL,
@@ -929,6 +962,7 @@ def _headline(key: str, name: str) -> str:
         "find": lambda: _("Find my school"),
         "news": lambda: _("What is changing in %(name)s") % {"name": name},
         "legal": lambda: _("Legal notice and privacy"),
+        "help": lambda: _("How can we help you?"),
     }[key]()
 
 

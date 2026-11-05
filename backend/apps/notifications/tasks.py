@@ -4,7 +4,7 @@ passages du planificateur (5.6.2, `CELERY_BEAT_SCHEDULE`)."""
 from celery import shared_task
 
 from apps.core import health
-from apps.notifications import console, push, scheduled
+from apps.notifications import console, push, scheduled, support
 
 
 # Limites (secondes, PERF.5a) : douce puis dure. Un envoi de 200 notifications, un passage du
@@ -28,3 +28,8 @@ def tick() -> None:
 @shared_task(ignore_result=True, soft_time_limit=300, time_limit=360)
 def purge() -> None:
     scheduled.purge()
+
+
+@shared_task(ignore_result=True, soft_time_limit=60, time_limit=90)
+def email_support_request(request_id: str) -> None:
+    support.send_email(request_id)

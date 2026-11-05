@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Aucun : lot 5 — Console finie, PR ouverte (à fusionner) |
-| Prochain lot | Lot 6 — Aide, guide et support ; reste du lot 4 : mesure PERF.6 |
+| Lot en cours | Aucun : le lot 6 est fini (PR ouverte, #426) |
+| Prochain lot | Lot 7 — Finances et caisse complètes ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #423 (lot 5 ; une par lot, jalon « V1 complète ») |
-| Branche | `lot/5-console` (PR ouverte) |
-| Dernière mise à jour | 2026-11-04 (lot 5 fini, PR ouverte) |
+| Issue GitHub | #426 (lot 6, à fermer par la PR) |
+| Branche | `lot/6-aide` |
+| Dernière mise à jour | 2026-11-04 (lot 6 fini) |
 
 ## Avancement
 
@@ -25,7 +25,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 3 — Vendre : contrats, abonnements, factures | 5 ✓ | 5 |
 | 4 — Bulletins aux parents | 4 ✓ | 4 |
 | 5 — Console finie | 7 ✓ | 7 |
-| 6 — Aide, guide et support | 0 | 2 |
+| 6 — Aide, guide et support | 5 ✓ | 5 |
 | 7 — Finances et caisse complètes | 0 | 3 |
 | 8 — Cours communs et notes | 0 | 2 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **3 lots sur 17** | **49** |
+| **V1 complète** | **6 lots sur 17** | **49** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -65,6 +65,12 @@ Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). 
 ## Journal
 
 Entrées jusqu'au 2026-10-19 : `archives/06-journal-jusqua-2026-10-19.md`.
+
+### 2026-11-04 — Lot 6 : Aide, guide et support
+- Fait : centre d'aide sur le site (`/aide/`) et articles fr + en des trois applications, guides PDF tirés des mêmes textes, bouton « Aide » et panneau, « Quoi de neuf », guides de première connexion ; **SUP.1** : l'école écrit au support (sujet, message, écran et version joints), suit ses demandes (`/app/help/requests`), la console les traite (`/support` : onglets, responsable, réponse, fermeture, nombre à traiter dans le menu).
+- Tests : propriété des demandes (collègue, autre école), 10 par jour, console 403 sans droit et mode réel / démonstration, notification de réponse, réouverture sous 30 jours, e-mail de la plateforme ; scénario de `make demo` ; un test Vitest du fil.
+- Décisions : `03` (SUP.1). Écarts : pas d'e-mail à l'auteur (un compte n'a pas d'adresse), formulaire en dialogue, pas de rôle du demandeur ni de filtre « École » en console.
+- Suite : lot 7 (finances et caisse).
 
 ### 2026-11-04 — Lot 5 : Console finie
 Fait : tableau de bord des affaires et fiche d'école avec cycle de vie et export complet (CON.1, CON.2), prospects (CON.3), console réelle / démonstration refaite comme la Gestion, console de l'IA et crédits (IA.1.2), alertes de sécurité (S.8), et MOD.1 : registre `FEATURES` des champs, réglages, étapes et rôles par module, forfaits de départ = offres de la facturation + « Sur mesure ».

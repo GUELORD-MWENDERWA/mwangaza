@@ -111,7 +111,10 @@ export function DashboardPage() {
       />
       <SetupChecklist />
       <Alerts alerts={data.alerts} open={open} />
-      <div className="grid gap-4 min-[560px]:grid-cols-2 min-[1000px]:grid-cols-4">
+      <div
+        data-guide="dashboard-kpis"
+        className="grid gap-4 min-[560px]:grid-cols-2 min-[1000px]:grid-cols-4"
+      >
         <Kpi
           icon="cash"
           label={t("dashboard.kpi.today")}

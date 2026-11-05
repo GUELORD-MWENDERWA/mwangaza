@@ -1,0 +1,1 @@
+{% load i18n site_tags %}<form class="hsearch" action="{{ help_search }}" role="search">{% icon "search" %}<input name="q" value="{{ query|default:'' }}" maxlength="100" placeholder="{% translate 'E.g. collect, report card, password' %}" aria-label="{% translate 'Search the help' %}"><button class="btn primary">{% translate "Search" %}</button></form>

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mwangaza\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-04 17:57+0200\n"
+"POT-Creation-Date: 2026-11-04 21:24+0200\n"
 "PO-Revision-Date: 2026-10-02 18:00+0200\n"
 "Last-Translator: Mwangaza\n"
 "Language-Team: Français\n"
@@ -370,7 +370,7 @@ msgid "Give the reason for changing grades that are already sent."
 msgstr "Donnez le motif de la modification de notes déjà envoyées."
 
 #: apps/academics/grades.py:228 apps/notifications/models.py:82
-#: apps/schools/models.py:438
+#: apps/schools/models.py:445
 msgid "Exams"
 msgstr "Examens"
 
@@ -425,7 +425,7 @@ msgstr "Seul le titulaire de cette classe ouvre son espace."
 
 #: apps/academics/models.py:33 apps/academics/models.py:457
 #: apps/academics/models.py:546 apps/academics/models.py:693
-#: apps/notifications/models.py:129 apps/schools/models.py:628
+#: apps/notifications/models.py:129 apps/schools/models.py:635
 #: apps/students/models.py:173
 msgid "class"
 msgstr "classe"
@@ -434,9 +434,9 @@ msgstr "classe"
 #: apps/accounts/models.py:162 apps/billing/models.py:27
 #: apps/core/models.py:139 apps/core/models.py:525 apps/core/models.py:652
 #: apps/finance/models.py:35 apps/finance/models.py:371
-#: apps/schools/models.py:109 apps/schools/models.py:399
-#: apps/schools/models.py:457 apps/schools/models.py:496
-#: apps/schools/models.py:533 apps/sync/models.py:27
+#: apps/schools/models.py:109 apps/schools/models.py:406
+#: apps/schools/models.py:464 apps/schools/models.py:503
+#: apps/schools/models.py:540 apps/sync/models.py:27
 #: apps/timetable/models.py:34 apps/timetable/models.py:119
 #: apps/timetable/models.py:257
 msgid "name"
@@ -500,7 +500,7 @@ msgstr "enseignant"
 
 #: apps/academics/models.py:85 apps/academics/models.py:160
 #: apps/academics/models.py:285 apps/finance/models.py:130
-#: apps/schools/models.py:456 apps/schools/models.py:498
+#: apps/schools/models.py:463 apps/schools/models.py:505
 msgid "order"
 msgstr "ordre"
 
@@ -549,7 +549,7 @@ msgstr "cours"
 #: apps/academics/models.py:154 apps/academics/models.py:222
 #: apps/academics/models.py:263 apps/academics/models.py:332
 #: apps/academics/models.py:392 apps/academics/models.py:427
-#: apps/academics/models.py:460 apps/schools/models.py:463
+#: apps/academics/models.py:460 apps/schools/models.py:470
 msgid "term"
 msgstr "période"
 
@@ -603,7 +603,7 @@ msgstr "Validée"
 #: apps/academics/models.py:696 apps/billing/models.py:77
 #: apps/billing/models.py:242 apps/core/models.py:703
 #: apps/finance/models.py:190 apps/finance/models.py:638
-#: apps/schools/models.py:209 apps/schools/models.py:404
+#: apps/schools/models.py:209 apps/schools/models.py:411
 #: apps/students/models.py:176 apps/students/models.py:242
 #: apps/students/models.py:290 apps/sync/models.py:74
 #: apps/timetable/models.py:259 apps/timetable/models.py:377
@@ -1424,7 +1424,7 @@ msgstr "Provisoire : des notes ne sont pas encore validées."
 #: apps/finance/documents.py:144 apps/finance/documents.py:399
 #: apps/finance/templates/finance/statement.html:24
 #: apps/portal/templates/portal/receipt.html:24 apps/students/documents.py:225
-#: apps/students/imports.py:86
+#: apps/students/imports.py:97
 #: apps/students/templates/students/class_list.html:17
 #: apps/students/templates/students/registration_form.html:30
 msgid "Student number"
@@ -1934,7 +1934,7 @@ msgstr "Lauréat de l'école :"
 #: apps/finance/templates/finance/statement.html:25
 #: apps/finance/templates/finance/unpaid.html:27
 #: apps/portal/templates/portal/receipt.html:25 apps/schools/exports.py:96
-#: apps/students/imports.py:85
+#: apps/students/imports.py:96
 #: apps/students/templates/students/registration_form.html:30
 #: apps/timetable/templates/timetable/sheet.html:22
 msgid "Class"
@@ -2020,7 +2020,7 @@ msgstr "Cette dérogation est déjà levée."
 msgid "This school has no fee module."
 msgstr "Cette école n'a pas le module des frais."
 
-#: apps/accounts/admin.py:75 apps/core/templates/core/site/base.html:90
+#: apps/accounts/admin.py:75 apps/core/templates/core/site/base.html:91
 msgid "Access"
 msgstr "Accès"
 
@@ -2241,8 +2241,8 @@ msgstr "rôle"
 #: apps/accounts/models.py:200 apps/core/models.py:53 apps/core/models.py:312
 #: apps/core/models.py:527 apps/core/models.py:569
 #: apps/notifications/models.py:362 apps/schools/admin.py:59
-#: apps/schools/models.py:239 apps/schools/models.py:363
-#: apps/schools/models.py:668
+#: apps/schools/models.py:239 apps/schools/models.py:370
+#: apps/schools/models.py:675
 msgid "school"
 msgstr "école"
 
@@ -2311,7 +2311,7 @@ msgstr "Emploi du temps"
 msgid "AI assistance"
 msgstr "Assistance par l’IA"
 
-#: apps/accounts/modules.py:48 apps/core/site.py:207
+#: apps/accounts/modules.py:48 apps/core/site.py:211
 #: apps/notifications/models.py:232 apps/portal/apps.py:10
 msgid "Parent portal"
 msgstr "Portail des parents"
@@ -2324,7 +2324,7 @@ msgstr "Notifications et relances"
 msgid "Offline work and synchronisation"
 msgstr "Travail hors-ligne et synchronisation"
 
-#: apps/accounts/modules.py:82
+#: apps/accounts/modules.py:149
 #, python-format
 msgid "%(module)s is still needed by %(by)s."
 msgstr "« %(module)s » est encore nécessaire à « %(by)s »."
@@ -2605,16 +2605,17 @@ msgstr "Promoteur"
 msgid "Teacher"
 msgstr "Enseignant"
 
-#: apps/accounts/roles.py:228 apps/core/templates/core/site/home.html:74
+#: apps/accounts/roles.py:228 apps/core/templates/core/site/help.html:20
+#: apps/core/templates/core/site/home.html:74
 #: apps/schools/templates/schools/access_sheet.html:36
 msgid "Parent"
 msgstr "Parent"
 
-#: apps/accounts/serializers.py:354
+#: apps/accounts/serializers.py:359
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
-#: apps/accounts/serializers.py:439
+#: apps/accounts/serializers.py:444
 #, python-format
 msgid "Choose between 1 and %(max)s people."
 msgstr "Choisissez entre 1 et %(max)s personnes."
@@ -2798,6 +2799,7 @@ msgid "YOUR ACCESS TO %(name)s"
 msgstr "VOTRE ACCÈS À %(name)s"
 
 #: apps/accounts/templates/accounts/access_letters.html:28
+#: apps/core/templates/core/site/help_article.html:9
 msgid "For"
 msgstr "Pour"
 
@@ -2910,11 +2912,11 @@ msgstr ""
 msgid "Give a temporary password"
 msgstr "Donner un mot de passe provisoire"
 
-#: apps/accounts/views.py:80
+#: apps/accounts/views.py:89
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
-#: apps/accounts/views.py:122
+#: apps/accounts/views.py:131
 msgid "Only the staff of the school can sign its documents."
 msgstr "Seul le personnel de l'école peut signer ses documents."
 
@@ -2990,8 +2992,8 @@ msgstr "Terminé"
 msgid "Refused"
 msgstr "Refusé"
 
-#: apps/ai/models.py:103 apps/core/models.py:754 apps/schools/models.py:360
-#: apps/schools/models.py:664 apps/students/models.py:227
+#: apps/ai/models.py:103 apps/core/models.py:754 apps/schools/models.py:367
+#: apps/schools/models.py:671 apps/students/models.py:227
 #: apps/timetable/models.py:356
 msgid "Failed"
 msgstr "Échec"
@@ -4110,7 +4112,7 @@ msgid "Per school year"
 msgstr "Par année scolaire"
 
 #: apps/billing/models.py:26 apps/finance/models.py:373
-#: apps/schools/models.py:93 apps/schools/models.py:535
+#: apps/schools/models.py:93 apps/schools/models.py:542
 msgid "code"
 msgstr "code"
 
@@ -4210,7 +4212,7 @@ msgstr "Registre des traitements"
 #: apps/billing/models.py:127 apps/billing/models.py:172
 #: apps/core/models.py:365 apps/finance/models.py:247
 #: apps/notifications/models.py:93 apps/notifications/models.py:291
-#: apps/schools/models.py:446 apps/sync/models.py:26
+#: apps/schools/models.py:453 apps/sync/models.py:26
 #: apps/timetable/models.py:81 apps/timetable/models.py:120
 #: apps/timetable/models.py:209 apps/timetable/models.py:463
 msgid "kind"
@@ -4290,7 +4292,7 @@ msgid "paid on"
 msgstr "payé le"
 
 #: apps/billing/models.py:236 apps/finance/documents.py:35
-#: apps/schools/models.py:395
+#: apps/schools/models.py:402
 msgid "Open"
 msgstr "Ouverte"
 
@@ -4532,7 +4534,7 @@ msgstr "Comment payer"
 msgid "To change it: Identity screen of the platform console."
 msgstr "Pour la modifier : écran « Identité de la plateforme » de la console."
 
-#: apps/core/apps.py:12
+#: apps/core/apps.py:13
 msgid "Core"
 msgstr "Socle"
 
@@ -4541,9 +4543,9 @@ msgid "Tick the box so that we may call you back."
 msgstr "Cochez la case pour que nous puissions vous rappeler."
 
 #: apps/core/demo_requests.py:144 apps/core/demo_requests.py:152
-#: apps/core/site.py:271 apps/core/templates/core/site/_menu.html:1
-#: apps/core/templates/core/site/base.html:102
-#: apps/core/templates/core/site/llms.txt:39 apps/schools/business.py:179
+#: apps/core/site.py:275 apps/core/templates/core/site/_menu.html:1
+#: apps/core/templates/core/site/base.html:103
+#: apps/core/templates/core/site/llms.txt:47 apps/schools/business.py:179
 msgid "Contact"
 msgstr "Contact"
 
@@ -4559,7 +4561,7 @@ msgstr "Message du chat : %(name)s"
 
 #: apps/core/demo_requests.py:154 apps/core/templates/core/site/contact.html:37
 #: apps/core/templates/core/site/contact.html:62
-#: apps/core/templates/core/site/llms.txt:42 apps/schools/business.py:181
+#: apps/core/templates/core/site/llms.txt:50 apps/schools/business.py:181
 #: apps/schools/exports.py:112
 msgid "Email"
 msgstr "E-mail"
@@ -4589,6 +4591,95 @@ msgstr "Cette école est suspendue. Contactez le support de la plateforme."
 #: apps/core/errors.py:102
 msgid "This space is stopped: it is no longer open."
 msgstr "Cet espace est arrêté : il n'est plus ouvert."
+
+#: apps/core/help_center.py:39
+msgctxt "application"
+msgid "Management"
+msgstr "Gestion"
+
+#: apps/core/help_center.py:40 apps/core/templates/core/site/base.html:56
+#: apps/core/templates/core/site/base.html:94
+#: apps/core/templates/core/site/llms.txt:45
+#: apps/core/templates/core/site/parents.html:6
+msgid "Parent space"
+msgstr "Espace parents"
+
+#: apps/core/help_center.py:41 apps/core/help_center.py:53
+#: apps/notifications/models.py:347
+msgid "Platform console"
+msgstr "Console de la plateforme"
+
+#: apps/core/help_center.py:47
+msgid "First steps"
+msgstr "Premiers pas"
+
+#: apps/core/help_center.py:47
+msgid "Signing in, choosing your school, working offline."
+msgstr "Se connecter, choisir son école, travailler sans internet."
+
+#: apps/core/help_center.py:48 apps/core/templates/core/site/home.html:136
+#: apps/core/templates/core/site/schools.html:11
+#: apps/notifications/templates/notifications/circular.html:11
+#: apps/notifications/templates/notifications/summons.html:15
+msgid "Management"
+msgstr "Direction"
+
+#: apps/core/help_center.py:48
+msgid "Head of studies, director of studies, promoter."
+msgstr "Préfet, directeur des études, promoteur."
+
+#: apps/core/help_center.py:49
+#: apps/students/templates/students/class_list.html:8
+#: apps/students/templates/students/registration_form.html:14
+msgid "Secretariat"
+msgstr "Secrétariat"
+
+#: apps/core/help_center.py:49
+msgid "Students, families, enrolments and documents."
+msgstr "Élèves, familles, inscriptions et documents."
+
+#: apps/core/help_center.py:50
+msgid "Cash desk and accounting"
+msgstr "Caisse et comptabilité"
+
+#: apps/core/help_center.py:50
+msgid "Collecting, closing, following what is owed."
+msgstr "Encaisser, clôturer, suivre ce qui reste dû."
+
+#: apps/core/help_center.py:51
+msgid "Teachers"
+msgstr "Enseignants"
+
+#: apps/core/help_center.py:51
+msgid "Timetable, marks, mark sheets."
+msgstr "Horaire, notes, fiches de cotes."
+
+#: apps/core/help_center.py:52 apps/core/models.py:485 apps/core/site.py:239
+#: apps/core/site.py:272 apps/core/templates/core/site/_menu.html:1
+msgid "Parents"
+msgstr "Parents"
+
+#: apps/core/help_center.py:52
+msgid "The parent space on the phone."
+msgstr "L'espace parents sur le téléphone."
+
+#: apps/core/help_center.py:53
+msgid "Schools, billing, site and support."
+msgstr "Écoles, facturation, site et support."
+
+#: apps/core/help_center.py:130
+msgid "Everyone"
+msgstr "Tous"
+
+#: apps/core/help_views.py:83
+#, python-format
+msgid "Search the help: %(query)s"
+msgstr "Chercher dans l'aide : %(query)s"
+
+#: apps/core/help_views.py:147
+#, python-format
+msgid "What's new | %(name)s"
+msgstr "Quoi de neuf | %(name)s"
 
 #: apps/core/images.py:23
 msgid "The image must not exceed 1 MB."
@@ -4629,6 +4720,11 @@ msgstr "Le fichier ne doit pas dépasser 5 Mo."
 #: apps/core/images.py:209
 msgid "The consent must be a PDF, or a JPEG or PNG photo of the letter."
 msgstr "L'accord doit être un PDF, ou une photo JPEG ou PNG de la lettre."
+
+#: apps/core/management/commands/help_guides.py:65
+#, python-format
+msgid "User guide: %(app)s"
+msgstr "Guide d'utilisation : %(app)s"
 
 #: apps/core/models.py:24
 msgid "created at"
@@ -5007,17 +5103,12 @@ msgstr "photo du site"
 msgid "site photos"
 msgstr "photos du site"
 
-#: apps/core/models.py:484 apps/core/site.py:267
+#: apps/core/models.py:484 apps/core/site.py:271
 #: apps/core/templates/core/site/_menu.html:1 apps/schools/apps.py:10
 msgid "Schools"
 msgstr "Écoles"
 
-#: apps/core/models.py:485 apps/core/site.py:235 apps/core/site.py:268
-#: apps/core/templates/core/site/_menu.html:1
-msgid "Parents"
-msgstr "Parents"
-
-#: apps/core/models.py:486 apps/core/site.py:273
+#: apps/core/models.py:486 apps/core/site.py:277
 #: apps/core/templates/core/site/_menu.html:1
 #: apps/core/templates/core/site/article.html:6
 #: apps/core/templates/core/site/base.html:85
@@ -5032,7 +5123,8 @@ msgstr "Actualités"
 msgid "Demo"
 msgstr "Démo"
 
-#: apps/core/models.py:492 apps/core/templates/core/print_base.html:13
+#: apps/core/models.py:492 apps/core/templates/core/help/guide.html:38
+#: apps/core/templates/core/print_base.html:13
 msgid "page"
 msgstr "page"
 
@@ -5185,6 +5277,7 @@ msgid "French"
 msgstr "Français"
 
 #: apps/core/models.py:686 apps/core/templates/core/site/llms.txt:7
+#: apps/core/templates/core/site/llms.txt:29
 msgid "English"
 msgstr "Anglais"
 
@@ -5394,12 +5487,12 @@ msgstr "La langue d'un article publié ne change plus."
 msgid "File the written consent of the parents and the school."
 msgstr "Déposez l'accord écrit des parents et de l'école."
 
-#: apps/core/site.py:152
+#: apps/core/site.py:156
 #, python-format
 msgid "%(name)s | school management software in Goma, DRC"
 msgstr "%(name)s | logiciel de gestion scolaire à Goma, RDC"
 
-#: apps/core/site.py:154
+#: apps/core/site.py:158
 msgid ""
 "School management software for DRC schools: students, fees in USD and FC, "
 "cash desk and receipts, unpaid fees, report cards, parent space. Works "
@@ -5409,15 +5502,15 @@ msgstr ""
 "USD et FC, caisse et reçus, impayés, bulletins, espace parents. Marche sans "
 "internet."
 
-#: apps/core/site.py:157
+#: apps/core/site.py:161
 msgid "For schools in the DRC · made in Goma"
 msgstr "Pour les écoles de la RDC · conçu à Goma"
 
-#: apps/core/site.py:158 apps/core/site.py:924
+#: apps/core/site.py:162 apps/core/site.py:957
 msgid "The whole school in one app, even without internet"
 msgstr "Toute l'école dans une application, même sans internet"
 
-#: apps/core/site.py:160
+#: apps/core/site.py:164
 msgid ""
 "Students, fees in dollars and francs, cash desk and receipts, unpaid fees, "
 "marks and report cards, and a space for parents. The cash desk keeps going "
@@ -5428,11 +5521,11 @@ msgstr ""
 "bulletins, et un espace pour les parents. La caisse continue quand internet "
 "coupe ; tout part dès que le réseau revient."
 
-#: apps/core/site.py:167
+#: apps/core/site.py:171
 msgid "Students and enrolment"
 msgstr "Élèves et inscriptions"
 
-#: apps/core/site.py:169
+#: apps/core/site.py:173
 msgid ""
 "Excel import with an error report, registration form with the family code, "
 "families and siblings, class lists in PDF and Excel."
@@ -5440,11 +5533,11 @@ msgstr ""
 "Import Excel avec rapport d'erreurs, fiche d'inscription avec le code "
 "famille, familles et fratries, listes de classe en PDF et Excel."
 
-#: apps/core/site.py:175
+#: apps/core/site.py:179
 msgid "Fees in dollars and francs"
 msgstr "Frais en dollars et en francs"
 
-#: apps/core/site.py:177
+#: apps/core/site.py:181
 msgid ""
 "Fee scales by level, option or class, in USD or FC, split into instalments; "
 "discounts with a reason; the exchange rate of the school year."
@@ -5452,11 +5545,11 @@ msgstr ""
 "Barèmes par niveau, option ou classe, en USD ou en FC, découpés en "
 "tranches ; réductions avec motif ; taux de change de l'année scolaire."
 
-#: apps/core/site.py:183
+#: apps/core/site.py:187
 msgid "Cash desk and receipts"
 msgstr "Caisse et reçus"
 
-#: apps/core/site.py:185
+#: apps/core/site.py:189
 msgid ""
 "Full or partial payments, a receipt printed at once (58 or 80 mm thermal, or "
 "A4) with a verification QR code, and a daily cash count with its difference."
@@ -5465,11 +5558,11 @@ msgstr ""
 "A4) avec un QR code de vérification, et clôture de caisse chaque soir avec "
 "l'écart."
 
-#: apps/core/site.py:191 apps/core/templates/core/site/home.html:33
+#: apps/core/site.py:195 apps/core/templates/core/site/home.html:33
 msgid "Even without internet"
 msgstr "Même sans internet"
 
-#: apps/core/site.py:193
+#: apps/core/site.py:197
 msgid ""
 "The cash desk and student search work offline; payments sync by themselves "
 "when the network is back, never twice."
@@ -5477,11 +5570,11 @@ msgstr ""
 "La caisse et la recherche d'élèves fonctionnent hors ligne ; les paiements "
 "se synchronisent seuls au retour du réseau, jamais en double."
 
-#: apps/core/site.py:199
+#: apps/core/site.py:203
 msgid "Unpaid fees and dashboard"
 msgstr "Impayés et tableau de bord"
 
-#: apps/core/site.py:201
+#: apps/core/site.py:205
 msgid ""
 "Late payments by class, fee and instalment, printable statements, today's "
 "takings and the collection rate of each class."
@@ -5489,7 +5582,7 @@ msgstr ""
 "Retards par classe, frais et tranche, situations financières imprimables, "
 "encaissé du jour et taux de recouvrement de chaque classe."
 
-#: apps/core/site.py:209
+#: apps/core/site.py:213
 msgid ""
 "On their phone, parents follow the payments, receipts, due dates, notices "
 "and summons of each child, even in different schools."
@@ -5498,11 +5591,11 @@ msgstr ""
 "échéances, les annonces et les convocations de chaque enfant, même dans des "
 "écoles différentes."
 
-#: apps/core/site.py:215
+#: apps/core/site.py:219
 msgid "Roles, security and audit"
 msgstr "Rôles, sécurité et traçabilité"
 
-#: apps/core/site.py:217
+#: apps/core/site.py:221
 msgid ""
 "School roles and custom roles, two-factor sign-in for money, an audit log; a "
 "payment is never deleted, only cancelled with a reason."
@@ -5511,11 +5604,11 @@ msgstr ""
 "l'argent, journal d'audit ; un paiement n'est jamais supprimé, seulement "
 "annulé avec motif."
 
-#: apps/core/site.py:223
+#: apps/core/site.py:227
 msgid "School communication"
 msgstr "Communication de l'école"
 
-#: apps/core/site.py:225
+#: apps/core/site.py:229
 msgid ""
 "Notices to families and staff, the school calendar, parent summons and "
 "notifications on the phone screen."
@@ -5523,111 +5616,121 @@ msgstr ""
 "Annonces aux familles et au personnel, calendrier de l'école, convocations "
 "des parents et notifications sur l'écran du téléphone."
 
-#: apps/core/site.py:231
+#: apps/core/site.py:235
 msgid "Promoters and heads"
 msgstr "Promoteurs et directeurs"
 
-#: apps/core/site.py:231
+#: apps/core/site.py:235
 msgid "follow takings, unpaid fees and cash desks live."
 msgstr "suivent l'encaissé, les impayés et les caisses en temps réel."
 
-#: apps/core/site.py:232
+#: apps/core/site.py:236
 msgid "Accountants"
 msgstr "Comptables"
 
-#: apps/core/site.py:232
+#: apps/core/site.py:236
 msgid "set fee scales, discounts, cancellations and cash counts."
 msgstr "règlent barèmes, réductions, annulations et clôtures de caisse."
 
-#: apps/core/site.py:233
+#: apps/core/site.py:237
 msgid "Cashiers"
 msgstr "Caissiers"
 
-#: apps/core/site.py:233
+#: apps/core/site.py:237
 msgid "take a payment and print the receipt in seconds."
 msgstr "encaissent et impriment le reçu en quelques secondes."
 
-#: apps/core/site.py:234
+#: apps/core/site.py:238
 msgid "Secretaries"
 msgstr "Secrétariat"
 
-#: apps/core/site.py:234
+#: apps/core/site.py:238
 msgid "enrol students, manage families, print forms and lists."
 msgstr "inscrit les élèves, tient les familles, imprime fiches et listes."
 
-#: apps/core/site.py:235
+#: apps/core/site.py:239
 msgid "see payments, receipts and school news on their phone."
 msgstr "voient paiements, reçus et nouvelles de l'école sur leur téléphone."
 
-#: apps/core/site.py:238
+#: apps/core/site.py:242
 msgid ""
 "Two currencies, the US dollar and the Congolese franc, with the year's rate."
 msgstr ""
 "Deux devises, le dollar américain et le franc congolais, avec le taux de "
 "l'année."
 
-#: apps/core/site.py:239
+#: apps/core/site.py:243
 msgid "Weak or no internet: the app stays usable and light."
 msgstr "Internet faible ou coupé : l'application reste utilisable et légère."
 
-#: apps/core/site.py:240
+#: apps/core/site.py:244
 msgid "A phone, a tablet or an old computer is enough; no app store needed."
 msgstr ""
 "Un téléphone, une tablette ou un vieil ordinateur suffisent ; pas besoin de "
 "magasin d'applications."
 
-#: apps/core/site.py:241
+#: apps/core/site.py:245
 msgid "Each school has its own address, logo, fees, receipts and roles."
 msgstr ""
 "Chaque école a son adresse, son logo, ses frais, ses reçus et ses rôles."
 
-#: apps/core/site.py:242
+#: apps/core/site.py:246
 msgid "Each school's data is kept apart; encrypted backups every night."
 msgstr ""
 "Les données de chaque école sont séparées ; sauvegardes chiffrées chaque "
 "nuit."
 
-#: apps/core/site.py:243
+#: apps/core/site.py:247
 msgid "In French and English."
 msgstr "En français et en anglais."
 
-#: apps/core/site.py:269 apps/core/templates/core/site/_menu.html:1
+#: apps/core/site.py:273 apps/core/templates/core/site/_menu.html:1
 #: apps/core/templates/core/site/pricing.html:5
 msgid "Prices"
 msgstr "Tarifs"
 
-#: apps/core/site.py:270 apps/core/templates/core/site/_menu.html:1
+#: apps/core/site.py:274 apps/core/templates/core/site/_menu.html:1
 #: apps/core/templates/core/site/base.html:84
-#: apps/core/templates/core/site/llms.txt:33
+#: apps/core/templates/core/site/llms.txt:41
 #: apps/core/templates/core/site/modules.html:6
 msgid "Modules"
 msgstr "Modules"
 
-#: apps/core/site.py:272 apps/core/site.py:929
+#: apps/core/site.py:276 apps/core/site.py:962
 #: apps/core/templates/core/site/base.html:49
 #: apps/core/templates/core/site/base.html:55
-#: apps/core/templates/core/site/base.html:92
+#: apps/core/templates/core/site/base.html:93
 #: apps/core/templates/core/site/find.html:8
-#: apps/core/templates/core/site/llms.txt:35
+#: apps/core/templates/core/site/llms.txt:43
 msgid "Find my school"
 msgstr "Trouver mon école"
 
-#: apps/core/site.py:274 apps/core/site.py:931
+#: apps/core/site.py:278 apps/core/site.py:964
 #: apps/core/templates/core/site/legal.html:6
-#: apps/core/templates/core/site/llms.txt:36
+#: apps/core/templates/core/site/llms.txt:44
 msgid "Legal notice and privacy"
 msgstr "Mentions légales et confidentialité"
 
-#: apps/core/site.py:363
+#: apps/core/site.py:279 apps/core/templates/core/help/guide.html:50
+#: apps/core/templates/core/site/base.html:86
+#: apps/core/templates/core/site/help.html:4
+#: apps/core/templates/core/site/help_article.html:6
+#: apps/core/templates/core/site/help_news.html:4
+#: apps/core/templates/core/site/help_search.html:5
+#: apps/core/templates/core/site/llms.txt:27
+msgid "Help centre"
+msgstr "Centre d'aide"
+
+#: apps/core/site.py:368
 msgid "School management"
 msgstr "Gestion scolaire"
 
-#: apps/core/site.py:416
+#: apps/core/site.py:421
 #, python-format
 msgid "School management: fees, cash desk, marks | %(name)s"
 msgstr "Gestion d'école : frais, caisse, notes | %(name)s"
 
-#: apps/core/site.py:418
+#: apps/core/site.py:423
 msgid ""
 "Management, accountant, cashier and teacher each work on their own screen, "
 "with the same figures, up to date. Start even in the middle of the year."
@@ -5635,12 +5738,12 @@ msgstr ""
 "Direction, comptable, caissier et enseignant travaillent chacun sur leur "
 "écran, avec les mêmes chiffres, à jour. On peut commencer en cours d'année."
 
-#: apps/core/site.py:423
+#: apps/core/site.py:428
 #, python-format
 msgid "Parent space | %(name)s"
 msgstr "Espace parents | %(name)s"
 
-#: apps/core/site.py:425
+#: apps/core/site.py:430
 msgid ""
 "Follow your children's school on your phone: payments, receipts, what is "
 "left to pay, notices and summons. Activate your account with the family code."
@@ -5648,12 +5751,12 @@ msgstr ""
 "Suivez l'école de vos enfants sur votre téléphone : paiements, reçus, reste "
 "à payer, annonces et convocations. Activez votre compte avec le code famille."
 
-#: apps/core/site.py:430
+#: apps/core/site.py:435
 #, python-format
 msgid "Prices and plans | %(name)s"
 msgstr "Tarifs et formules | %(name)s"
 
-#: apps/core/site.py:432
+#: apps/core/site.py:437
 msgid ""
 "Three plans for DRC schools, from a small school to a network: students, "
 "fees and cash desk, report cards and parent space. Prices in dollars, per "
@@ -5663,12 +5766,12 @@ msgstr ""
 "élèves, frais et caisse, bulletins et espace parents. Prix en dollars, par "
 "mois."
 
-#: apps/core/site.py:437
+#: apps/core/site.py:442
 #, python-format
 msgid "School management modules | %(name)s"
 msgstr "Modules de gestion scolaire | %(name)s"
 
-#: apps/core/site.py:439
+#: apps/core/site.py:444
 msgid ""
 "Each school chooses its modules: students, fees and cash desk, marks and "
 "report cards, parent space, notices, notifications, work without internet."
@@ -5676,12 +5779,12 @@ msgstr ""
 "Chaque école choisit ses modules : élèves, frais et caisse, notes et "
 "bulletins, espace parents, annonces, notifications, travail sans internet."
 
-#: apps/core/site.py:444
+#: apps/core/site.py:449
 #, python-format
 msgid "Request a demo | %(name)s"
 msgstr "Demander une démonstration | %(name)s"
 
-#: apps/core/site.py:446
+#: apps/core/site.py:451
 #, python-format
 msgid ""
 "See %(name)s with your school's classes and fees, online or at your school "
@@ -5690,22 +5793,22 @@ msgstr ""
 "Voyez %(name)s avec les classes et les frais de votre école, en ligne ou "
 "chez vous à Goma. Écrivez-nous sur WhatsApp, par téléphone ou par e-mail."
 
-#: apps/core/site.py:452
+#: apps/core/site.py:457
 #, python-format
 msgid "Find my school | %(name)s"
 msgstr "Trouver mon école | %(name)s"
 
-#: apps/core/site.py:453
+#: apps/core/site.py:458
 msgid "School staff: type your school's code to open its space."
 msgstr ""
 "Personnel de l'école : tapez le code de votre école pour ouvrir son espace."
 
-#: apps/core/site.py:456
+#: apps/core/site.py:461
 #, python-format
 msgid "News | %(name)s"
 msgstr "Actualités | %(name)s"
 
-#: apps/core/site.py:457 apps/core/templates/core/site/news.html:8
+#: apps/core/site.py:462 apps/core/templates/core/site/news.html:8
 #, python-format
 msgid ""
 "New features, tips for the new school year and life of the schools using "
@@ -5714,77 +5817,92 @@ msgstr ""
 "Nouvelles fonctions, conseils pour la rentrée et vie des écoles qui "
 "utilisent %(name)s."
 
-#: apps/core/site.py:461
+#: apps/core/site.py:466
 #, python-format
 msgid "Legal notice and privacy | %(name)s"
 msgstr "Mentions légales et confidentialité | %(name)s"
 
-#: apps/core/site.py:462
+#: apps/core/site.py:467
 #, python-format
 msgid "Who publishes %(name)s, where the data is kept and what we do with it."
 msgstr "Qui édite %(name)s, où sont les données et ce que nous en faisons."
 
-#: apps/core/site.py:480
+#: apps/core/site.py:470
+#, python-format
+msgid "Help centre | %(name)s"
+msgstr "Centre d'aide | %(name)s"
+
+#: apps/core/site.py:472
+msgid ""
+"Short answers, screen by screen, for school staff and parents: collecting a "
+"payment, report cards, the parent space, working without internet."
+msgstr "Des réponses courtes, écran par écran, pour le personnel des écoles et les parents : encaisser, bulletins, espace parents, travail sans internet."
+
+#: apps/core/site.py:492
 msgid "DRC"
 msgstr "RDC"
 
-#: apps/core/site.py:602 apps/core/site.py:617 apps/notifications/models.py:172
+#: apps/core/site.py:614 apps/core/site.py:629 apps/notifications/models.py:172
 #: apps/schools/models.py:240
 msgid "schools"
 msgstr "écoles"
 
-#: apps/core/site.py:603 apps/core/site.py:618
+#: apps/core/site.py:615 apps/core/site.py:630
 msgid "students followed"
 msgstr "élèves suivis"
 
-#: apps/core/site.py:604
+#: apps/core/site.py:616
 msgid "receipts this year"
 msgstr "reçus cette année"
 
-#: apps/core/site.py:605
+#: apps/core/site.py:617
 msgid "families on the parent space"
 msgstr "familles sur l'espace parents"
 
-#: apps/core/site.py:619
+#: apps/core/site.py:631
 msgid "towns"
 msgstr "villes"
 
-#: apps/core/site.py:710
+#: apps/core/site.py:722
 msgid "per enrolled student, per term"
 msgstr "par élève inscrit, par période"
 
-#: apps/core/site.py:711
+#: apps/core/site.py:723
 msgid "per enrolled student, per school year"
 msgstr "par élève inscrit, par année scolaire"
 
-#: apps/core/site.py:775
+#: apps/core/site.py:787
 #, python-format
 msgid "the %(name)s team"
 msgstr "l'équipe %(name)s"
 
-#: apps/core/site.py:925 apps/core/templates/core/site/schools.html:7
+#: apps/core/site.py:958 apps/core/templates/core/site/schools.html:7
 msgid "Fees, cash desk, marks and parents, in one app"
 msgstr ""
 "Les frais, la caisse, les notes et les parents, dans une seule application"
 
-#: apps/core/site.py:926 apps/core/templates/core/site/parents.html:7
+#: apps/core/site.py:959 apps/core/templates/core/site/parents.html:7
 msgid "Follow your children's school on your phone"
 msgstr "Suivez l'école de vos enfants sur votre téléphone"
 
-#: apps/core/site.py:927 apps/core/templates/core/site/modules.html:7
+#: apps/core/site.py:960 apps/core/templates/core/site/modules.html:7
 msgid "Each school chooses its modules"
 msgstr "Chaque école choisit ses modules"
 
-#: apps/core/site.py:928 apps/core/templates/core/site/contact.html:6
+#: apps/core/site.py:961 apps/core/templates/core/site/contact.html:6
 #, python-format
 msgid "See %(name)s with your school"
 msgstr "Voyez %(name)s avec votre école"
 
-#: apps/core/site.py:930 apps/core/templates/core/site/home.html:232
+#: apps/core/site.py:963 apps/core/templates/core/site/home.html:232
 #: apps/core/templates/core/site/news.html:7
 #, python-format
 msgid "What is changing in %(name)s"
 msgstr "Ce qui change dans %(name)s"
+
+#: apps/core/site.py:965 apps/core/templates/core/site/help.html:5
+msgid "How can we help you?"
+msgstr "Comment pouvons-nous vous aider ?"
 
 #: apps/core/site_content.py:365
 msgid "Excel import with an error report"
@@ -5907,6 +6025,15 @@ msgstr "fondée"
 msgid "Democratic Republic of the Congo"
 msgstr "République Démocratique du Congo"
 
+#: apps/core/templates/core/help/guide.html:49
+msgid "Short answers, screen by screen."
+msgstr "Des réponses courtes, écran par écran."
+
+#: apps/core/templates/core/help/guide.html:52
+#: apps/core/templates/core/site/legal.html:14
+msgid "Contents"
+msgstr "Sommaire"
+
 #: apps/core/templates/core/print_wait.html:17
 #, python-format
 msgid "%(done)s of %(total)s pages ready."
@@ -5994,10 +6121,10 @@ msgstr ""
 
 #: apps/core/templates/core/site/_cta.html:5
 #: apps/core/templates/core/site/base.html:50
-#: apps/core/templates/core/site/base.html:94
+#: apps/core/templates/core/site/base.html:95
 #: apps/core/templates/core/site/contact.html:23
 #: apps/core/templates/core/site/home.html:10
-#: apps/core/templates/core/site/llms.txt:34
+#: apps/core/templates/core/site/llms.txt:42
 #: apps/core/templates/core/site/modules.html:9
 #: apps/core/templates/core/site/modules.html:44
 #: apps/core/templates/core/site/pricing.html:20
@@ -6019,6 +6146,18 @@ msgstr "facultatif"
 msgid "Choose…"
 msgstr "Choisir…"
 
+#: apps/core/templates/core/site/_help_search.html:1
+msgid "E.g. collect, report card, password"
+msgstr "Ex. : encaisser, bulletin, mot de passe"
+
+#: apps/core/templates/core/site/_help_search.html:1
+msgid "Search the help"
+msgstr "Chercher dans l'aide"
+
+#: apps/core/templates/core/site/_help_search.html:1
+msgid "Search"
+msgstr "Chercher"
+
 #: apps/core/templates/core/site/_sync.html:1
 msgid "Offline · 2 payments waiting"
 msgstr "Hors ligne · 2 paiements en attente"
@@ -6032,6 +6171,9 @@ msgid "Online · up to date"
 msgstr "En ligne · à jour"
 
 #: apps/core/templates/core/site/article.html:6
+#: apps/core/templates/core/site/help_article.html:6
+#: apps/core/templates/core/site/help_news.html:4
+#: apps/core/templates/core/site/help_search.html:5
 msgid "Breadcrumb"
 msgstr "Fil d'Ariane"
 
@@ -6088,13 +6230,6 @@ msgstr "Menu principal"
 msgid "Open the menu"
 msgstr "Ouvrir le menu"
 
-#: apps/core/templates/core/site/base.html:56
-#: apps/core/templates/core/site/base.html:93
-#: apps/core/templates/core/site/llms.txt:37
-#: apps/core/templates/core/site/parents.html:6
-msgid "Parent space"
-msgstr "Espace parents"
-
 #: apps/core/templates/core/site/base.html:71
 msgid "School management software for schools in the DRC, made in Goma."
 msgstr "Logiciel de gestion scolaire pour les écoles de la RDC, conçu à Goma."
@@ -6108,39 +6243,39 @@ msgid "The software"
 msgstr "Le logiciel"
 
 #: apps/core/templates/core/site/base.html:82
-#: apps/core/templates/core/site/llms.txt:31
+#: apps/core/templates/core/site/llms.txt:39
 #: apps/core/templates/core/site/schools.html:6
 msgid "For schools"
 msgstr "Pour les écoles"
 
 #: apps/core/templates/core/site/base.html:83
-#: apps/core/templates/core/site/llms.txt:32
+#: apps/core/templates/core/site/llms.txt:40
 msgid "For parents"
 msgstr "Pour les parents"
 
-#: apps/core/templates/core/site/base.html:86
+#: apps/core/templates/core/site/base.html:87
 #: apps/core/templates/core/site/home.html:240
 #: apps/core/templates/core/site/llms.txt:21
 msgid "Frequently asked questions"
 msgstr "Questions fréquentes"
 
-#: apps/core/templates/core/site/base.html:98
+#: apps/core/templates/core/site/base.html:99
 #: apps/core/templates/core/site/legal.html:5
 msgid "Information"
 msgstr "Informations"
 
-#: apps/core/templates/core/site/base.html:100
+#: apps/core/templates/core/site/base.html:101
 #: apps/core/templates/core/site/legal.html:15
 #: apps/core/templates/core/site/legal.html:26
 msgid "Legal notice"
 msgstr "Mentions légales"
 
-#: apps/core/templates/core/site/base.html:101
+#: apps/core/templates/core/site/base.html:102
 #: apps/core/templates/core/site/legal.html:8
 msgid "Privacy"
 msgstr "Confidentialité"
 
-#: apps/core/templates/core/site/base.html:108
+#: apps/core/templates/core/site/base.html:109
 msgid "All rights reserved."
 msgstr "Tous droits réservés."
 
@@ -6248,7 +6383,7 @@ msgstr "Nous joindre directement"
 
 #: apps/core/templates/core/site/contact.html:63
 #: apps/core/templates/core/site/llms.txt:7
-#: apps/core/templates/core/site/llms.txt:43
+#: apps/core/templates/core/site/llms.txt:51
 #: apps/students/templates/students/registration_form.html:25
 msgid "Address"
 msgstr "Adresse"
@@ -6302,6 +6437,121 @@ msgstr "Pas besoin de code d'école : un seul espace pour tous vos enfants."
 #: apps/core/templates/core/site/parents.html:75
 msgid "Open the parent space"
 msgstr "Ouvrir l'espace parents"
+
+#: apps/core/templates/core/site/help.html:6
+msgid "Short answers, screen by screen, for school staff and for parents."
+msgstr "Des réponses courtes, écran par écran, pour le personnel des écoles et pour les parents."
+
+#: apps/core/templates/core/site/help.html:8
+msgid "Often searched:"
+msgstr "Souvent cherché :"
+
+#: apps/core/templates/core/site/help.html:12
+#, python-format
+msgid "%(n)s min"
+msgstr "%(n)s min"
+
+#: apps/core/templates/core/site/help.html:14
+#: apps/core/templates/core/site/help_news.html:5
+msgid "What's new"
+msgstr "Quoi de neuf"
+
+#: apps/core/templates/core/site/help.html:14
+msgid "What changes with each release."
+msgstr "Les nouveautés de chaque mise en ligne."
+
+#
+#: apps/core/templates/core/site/help.html:15
+msgid "All that's new"
+msgstr "Toutes les nouveautés"
+
+#: apps/core/templates/core/site/help.html:17
+msgid "No answer?"
+msgstr "Pas de réponse ?"
+
+#: apps/core/templates/core/site/help.html:17
+msgid "Depending on who you are."
+msgstr "Selon qui vous êtes."
+
+#: apps/core/templates/core/site/help.html:19
+msgid "School staff"
+msgstr "Personnel d'une école"
+
+#: apps/core/templates/core/site/help.html:19
+msgid "“Help” button, then “Write to support”, in the app."
+msgstr "Bouton « Aide », puis « Écrire au support », dans l'application."
+
+#: apps/core/templates/core/site/help.html:20
+msgid "Call your child's school: it manages your account."
+msgstr "Appelez l'école de votre enfant : elle gère votre compte."
+
+#: apps/core/templates/core/site/help.html:21
+msgid "Not a client yet"
+msgstr "Pas encore client"
+
+#: apps/core/templates/core/site/help.html:21
+msgid "Request a demo."
+msgstr "Demandez une démonstration."
+
+#: apps/core/templates/core/site/help_article.html:11
+msgid "Related articles"
+msgstr "Articles liés"
+
+#: apps/core/templates/core/site/help_article.html:12
+#, python-format
+msgid "Updated on %(date)s."
+msgstr "Mis à jour le %(date)s."
+
+#: apps/core/templates/core/site/help_article.html:12
+msgid ""
+"In the app, the “Help” button at the top of each screen opens its article."
+msgstr "Dans l'application, le bouton « Aide » en haut de chaque écran ouvre son article."
+
+#: apps/core/templates/core/site/help_news.html:6
+#, python-format
+msgid "What changes with each release of %(name)s."
+msgstr "Ce qui change à chaque mise en ligne de %(name)s."
+
+#: apps/core/templates/core/site/help_news.html:10
+msgid "Nothing yet. Come back soon."
+msgstr "Rien pour l'instant. Revenez bientôt."
+
+#: apps/core/templates/core/site/help_news.html:11
+msgid "Pages"
+msgstr "Pages"
+
+#
+#: apps/core/templates/core/site/help_news.html:12
+#: apps/core/templates/core/site/news.html:19
+msgid "More recent"
+msgstr "Plus récents"
+
+#: apps/core/templates/core/site/help_news.html:13
+#: apps/core/templates/core/site/news.html:20
+#, python-format
+msgid "Page %(n)s of %(total)s"
+msgstr "Page %(n)s sur %(total)s"
+
+#: apps/core/templates/core/site/help_news.html:14
+#: apps/core/templates/core/site/news.html:21
+msgid "Older"
+msgstr "Plus anciens"
+
+#: apps/core/templates/core/site/help_search.html:6
+#, python-format
+msgid "%(n)s article for “%(q)s”"
+msgid_plural "%(n)s articles for “%(q)s”"
+msgstr[0] "%(n)s article pour « %(q)s »"
+msgstr[1] "%(n)s articles pour « %(q)s »"
+
+#: apps/core/templates/core/site/help_search.html:6
+#, python-format
+msgid "No article for “%(q)s”"
+msgstr "Aucun article pour « %(q)s »"
+
+#: apps/core/templates/core/site/help_search.html:11
+msgid "Try another word, or start here:"
+msgstr "Essayez un autre mot, ou commencez ici :"
 
 #: apps/core/templates/core/site/home.html:11
 msgid "See how it works"
@@ -6637,13 +6887,6 @@ msgstr ""
 "secrétaire. Elle peut aussi créer ses propres rôles."
 
 #: apps/core/templates/core/site/home.html:136
-#: apps/core/templates/core/site/schools.html:11
-#: apps/notifications/templates/notifications/circular.html:11
-#: apps/notifications/templates/notifications/summons.html:15
-msgid "Management"
-msgstr "Direction"
-
-#: apps/core/templates/core/site/home.html:136
 msgid "Takings, unpaid fees and today's cash desks, class results."
 msgstr "Recettes, impayés et caisses du jour, résultats des classes."
 
@@ -6827,10 +7070,6 @@ msgstr ""
 #: apps/core/templates/core/site/schools.html:10
 msgid "On this page"
 msgstr "Dans cette page"
-
-#: apps/core/templates/core/site/legal.html:14
-msgid "Contents"
-msgstr "Sommaire"
 
 #: apps/core/templates/core/site/legal.html:16
 msgid "Who is responsible for the data"
@@ -7063,27 +7302,27 @@ msgstr "Pour chacun à l'école"
 msgid "Made for the DRC"
 msgstr "Pensé pour la RDC"
 
-#: apps/core/templates/core/site/llms.txt:27
+#: apps/core/templates/core/site/llms.txt:35
 msgid "Links"
 msgstr "Liens"
 
-#: apps/core/templates/core/site/llms.txt:29
+#: apps/core/templates/core/site/llms.txt:37
 msgid "Presentation (French)"
 msgstr "Présentation (français)"
 
-#: apps/core/templates/core/site/llms.txt:30
+#: apps/core/templates/core/site/llms.txt:38
 msgid "Presentation (English)"
 msgstr "Présentation (anglais)"
 
-#: apps/core/templates/core/site/llms.txt:41
+#: apps/core/templates/core/site/llms.txt:49
 msgid "Phone and WhatsApp"
 msgstr "Téléphone et WhatsApp"
 
-#: apps/core/templates/core/site/llms.txt:46
+#: apps/core/templates/core/site/llms.txt:54
 msgid "Author"
 msgstr "Auteur"
 
-#: apps/core/templates/core/site/llms.txt:48
+#: apps/core/templates/core/site/llms.txt:56
 #, python-format
 msgid ""
 "Author: %(author)s (%(author_url)s). © %(copyright)s, all rights reserved."
@@ -7157,20 +7396,6 @@ msgstr "Pas encore d'actualité. Revenez bientôt."
 #: apps/core/templates/core/site/news.html:18
 msgid "News pages"
 msgstr "Pages des actualités"
-
-#
-#: apps/core/templates/core/site/news.html:19
-msgid "More recent"
-msgstr "Plus récents"
-
-#: apps/core/templates/core/site/news.html:20
-#, python-format
-msgid "Page %(n)s of %(total)s"
-msgstr "Page %(n)s sur %(total)s"
-
-#: apps/core/templates/core/site/news.html:21
-msgid "Older"
-msgstr "Plus anciens"
 
 #: apps/core/templates/core/site/parents.html:8
 msgid ""
@@ -9081,7 +9306,7 @@ msgstr "Personnel"
 msgid "recipients"
 msgstr "destinataires"
 
-#: apps/notifications/models.py:27 apps/schools/models.py:629
+#: apps/notifications/models.py:27 apps/schools/models.py:636
 msgid "classes"
 msgstr "classes"
 
@@ -9142,14 +9367,14 @@ msgstr "détails"
 msgid "shown to"
 msgstr "montré à"
 
-#: apps/notifications/models.py:97 apps/schools/models.py:400
-#: apps/schools/models.py:458 apps/timetable/models.py:79
+#: apps/notifications/models.py:97 apps/schools/models.py:407
+#: apps/schools/models.py:465 apps/timetable/models.py:79
 #: apps/timetable/models.py:465
 msgid "start"
 msgstr "début"
 
-#: apps/notifications/models.py:98 apps/schools/models.py:401
-#: apps/schools/models.py:459 apps/timetable/models.py:80
+#: apps/notifications/models.py:98 apps/schools/models.py:408
+#: apps/schools/models.py:466 apps/timetable/models.py:80
 #: apps/timetable/models.py:466
 msgid "end"
 msgstr "fin"
@@ -9363,10 +9588,6 @@ msgstr "passage du planificateur"
 #: apps/notifications/models.py:326
 msgid "scheduled runs"
 msgstr "passages du planificateur"
-
-#: apps/notifications/models.py:347
-msgid "Platform console"
-msgstr "Console de la plateforme"
 
 #: apps/notifications/models.py:364
 msgid "endpoint"
@@ -9826,7 +10047,7 @@ msgstr "Sexe"
 msgid "Date of birth"
 msgstr "Date de naissance"
 
-#: apps/schools/exports.py:85 apps/students/imports.py:84
+#: apps/schools/exports.py:85 apps/students/imports.py:95
 msgid "Place of birth"
 msgstr "Lieu de naissance"
 
@@ -10206,214 +10427,214 @@ msgstr "La devise principale doit faire partie des devises de l'école."
 msgid "A currency used by a fee rule cannot be removed."
 msgstr "Une devise utilisée par un barème ne peut pas être retirée."
 
-#: apps/schools/models.py:354
+#: apps/schools/models.py:361
 msgid "Small school"
 msgstr "Petite école"
 
-#: apps/schools/models.py:355
+#: apps/schools/models.py:362
 msgid "Large school"
 msgstr "Grande école"
 
-#: apps/schools/models.py:358
+#: apps/schools/models.py:365
 msgid "Being filled"
 msgstr "Remplissage en cours"
 
-#: apps/schools/models.py:359 apps/schools/models.py:663
+#: apps/schools/models.py:366 apps/schools/models.py:670
 msgid "Ready"
 msgstr "Prêt"
 
-#: apps/schools/models.py:365
+#: apps/schools/models.py:372
 msgid "profile"
 msgstr "profil"
 
-#: apps/schools/models.py:367
+#: apps/schools/models.py:374
 msgid "block of numbers"
 msgstr "bloc de numéros"
 
-#: apps/schools/models.py:369
+#: apps/schools/models.py:376
 msgid "password"
 msgstr "mot de passe"
 
-#: apps/schools/models.py:371 apps/schools/models.py:670
+#: apps/schools/models.py:378 apps/schools/models.py:677
 msgid "state"
 msgstr "état"
 
-#: apps/schools/models.py:373
+#: apps/schools/models.py:380
 msgid "steps done"
 msgstr "étapes faites"
 
-#: apps/schools/models.py:374
+#: apps/schools/models.py:381
 msgid "steps"
 msgstr "étapes"
 
-#: apps/schools/models.py:376
+#: apps/schools/models.py:383
 msgid "reset requested"
 msgstr "remise à zéro demandée"
 
-#: apps/schools/models.py:379
+#: apps/schools/models.py:386
 msgid "demonstration space"
 msgstr "espace de démonstration"
 
-#: apps/schools/models.py:380
+#: apps/schools/models.py:387
 msgid "demonstration spaces"
 msgstr "espaces de démonstration"
 
-#: apps/schools/models.py:397
+#: apps/schools/models.py:404
 msgid "Closed"
 msgstr "Clôturée"
 
-#: apps/schools/models.py:402
+#: apps/schools/models.py:409
 msgid "current year"
 msgstr "année en cours"
 
-#: apps/schools/models.py:409 apps/schools/models.py:444
-#: apps/schools/models.py:572 apps/students/models.py:170
+#: apps/schools/models.py:416 apps/schools/models.py:451
+#: apps/schools/models.py:579 apps/students/models.py:170
 #: apps/students/models.py:205 apps/students/models.py:231
 #: apps/timetable/models.py:255
 msgid "school year"
 msgstr "année scolaire"
 
-#: apps/schools/models.py:410
+#: apps/schools/models.py:417
 msgid "school years"
 msgstr "années scolaires"
 
-#: apps/schools/models.py:435
+#: apps/schools/models.py:442
 msgid "Semester"
 msgstr "Semestre"
 
-#: apps/schools/models.py:436
+#: apps/schools/models.py:443
 msgid "Term (trimester)"
 msgstr "Trimestre"
 
-#: apps/schools/models.py:437
+#: apps/schools/models.py:444
 msgid "Period"
 msgstr "Période"
 
-#: apps/schools/models.py:453
+#: apps/schools/models.py:460
 msgid "semester or term"
 msgstr "semestre ou trimestre"
 
-#: apps/schools/models.py:464
+#: apps/schools/models.py:471
 msgid "terms"
 msgstr "périodes"
 
-#: apps/schools/models.py:489
+#: apps/schools/models.py:496
 msgid "Primary"
 msgstr "Primaire"
 
-#: apps/schools/models.py:490
+#: apps/schools/models.py:497
 msgid "Basic education (7th-8th)"
 msgstr "Éducation de base (7e-8e)"
 
-#: apps/schools/models.py:491
+#: apps/schools/models.py:498
 msgid "General secondary"
 msgstr "Humanités générales"
 
-#: apps/schools/models.py:492
+#: apps/schools/models.py:499
 msgid "Technical and vocational secondary"
 msgstr "Humanités techniques et professionnelles"
 
-#: apps/schools/models.py:493
+#: apps/schools/models.py:500
 msgid "Higher education"
 msgstr "Supérieur"
 
-#: apps/schools/models.py:494
+#: apps/schools/models.py:501
 msgid "Short vocational training"
 msgstr "Formation professionnelle courte"
 
-#: apps/schools/models.py:497
+#: apps/schools/models.py:504
 msgid "cycle"
 msgstr "cycle"
 
-#: apps/schools/models.py:501
+#: apps/schools/models.py:508
 msgid "report card title"
 msgstr "titre du bulletin"
 
-#: apps/schools/models.py:504
+#: apps/schools/models.py:511
 msgid "ends with the state exam"
 msgstr "finit par l'Examen d'État"
 
-#: apps/schools/models.py:506
+#: apps/schools/models.py:513
 msgid "The report card shows the state exam block instead of the resit exam."
 msgstr ""
 "Le bulletin montre le bloc de l'Examen d'État à la place de l'examen de "
 "repêchage."
 
-#: apps/schools/models.py:511
+#: apps/schools/models.py:518
 msgid "passing rules"
 msgstr "règles de réussite"
 
-#: apps/schools/models.py:515 apps/schools/models.py:575
+#: apps/schools/models.py:522 apps/schools/models.py:582
 msgid "level"
 msgstr "niveau"
 
-#: apps/schools/models.py:516
+#: apps/schools/models.py:523
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:539 apps/schools/serializers.py:530
+#: apps/schools/models.py:546 apps/schools/serializers.py:551
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
-#: apps/schools/models.py:542
+#: apps/schools/models.py:549
 #, python-brace-format
 msgid "Used in the student number ({OPT}), e.g. ELEC."
 msgstr "Sert dans le matricule ({OPT}), ex. ELEC."
 
-#: apps/schools/models.py:547 apps/schools/models.py:583
+#: apps/schools/models.py:554 apps/schools/models.py:590
 msgid "track"
 msgstr "option"
 
-#: apps/schools/models.py:548
+#: apps/schools/models.py:555
 msgid "tracks"
 msgstr "options"
 
-#: apps/schools/models.py:585
+#: apps/schools/models.py:592
 msgid "section"
 msgstr "section"
 
-#: apps/schools/models.py:587
+#: apps/schools/models.py:594
 msgid "capacity"
 msgstr "capacité"
 
-#: apps/schools/models.py:597 apps/timetable/models.py:44
+#: apps/schools/models.py:604 apps/timetable/models.py:44
 #: apps/timetable/models.py:72
 msgid "time grid"
 msgstr "grille horaire"
 
-#: apps/schools/models.py:605
+#: apps/schools/models.py:612
 msgid "home room"
 msgstr "salle habituelle"
 
-#: apps/schools/models.py:613
+#: apps/schools/models.py:620
 msgid "homeroom teacher"
 msgstr "titulaire"
 
-#: apps/schools/models.py:623
+#: apps/schools/models.py:630
 msgid "co-homeroom teacher"
 msgstr "cotitulaire"
 
-#: apps/schools/models.py:662
+#: apps/schools/models.py:669
 msgid "Being prepared"
 msgstr "En préparation"
 
-#: apps/schools/models.py:665
+#: apps/schools/models.py:672
 msgid "Expired"
 msgstr "Expiré"
 
-#: apps/schools/models.py:671
+#: apps/schools/models.py:678
 msgid "file"
 msgstr "fichier"
 
-#: apps/schools/models.py:672
+#: apps/schools/models.py:679
 msgid "expires at"
 msgstr "expire le"
 
-#: apps/schools/models.py:676
+#: apps/schools/models.py:683
 msgid "school export"
 msgstr "export d'école"
 
-#: apps/schools/models.py:677
+#: apps/schools/models.py:684
 msgid "school exports"
 msgstr "exports d'école"
 
@@ -10529,7 +10750,7 @@ msgstr "Au plus %(count)d lignes d'en-tête."
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:449
+#: apps/schools/serializers.py:470
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 
@@ -10547,7 +10768,7 @@ msgstr ""
 msgid "This space is being deleted: it can no longer be changed."
 msgstr "Cet espace est en cours de suppression : il ne peut plus être modifié."
 
-#: apps/schools/services.py:286
+#: apps/schools/services.py:289
 msgid "Type the code of the space to confirm."
 msgstr "Tapez le code de l'espace pour confirmer."
 
@@ -10689,150 +10910,150 @@ msgstr "Aucun élève de cet import ne peut être retiré."
 msgid "A student of this import has just changed: try again."
 msgstr "Un élève de cet import vient de changer : réessayez."
 
-#: apps/students/imports.py:79
+#: apps/students/imports.py:90
 msgid "Last name"
 msgstr "Nom"
 
-#: apps/students/imports.py:80
+#: apps/students/imports.py:91
 msgid "Middle name"
 msgstr "Post-nom"
 
-#: apps/students/imports.py:81
+#: apps/students/imports.py:92
 msgid "First name"
 msgstr "Prénom"
 
-#: apps/students/imports.py:82
+#: apps/students/imports.py:93
 msgid "Sex (M/F)"
 msgstr "Sexe (M/F)"
 
-#: apps/students/imports.py:83
+#: apps/students/imports.py:94
 msgid "Date of birth (DD/MM/YYYY)"
 msgstr "Date de naissance (JJ/MM/AAAA)"
 
-#: apps/students/imports.py:87
+#: apps/students/imports.py:98
 msgid "National ID number"
 msgstr "N° ID national"
 
-#: apps/students/imports.py:88
+#: apps/students/imports.py:99
 msgid "Permanent number"
 msgstr "N° permanent"
 
-#: apps/students/imports.py:89
+#: apps/students/imports.py:100
 msgid "Guardian name"
 msgstr "Nom du tuteur"
 
-#: apps/students/imports.py:90
+#: apps/students/imports.py:101
 msgid "Guardian phone"
 msgstr "Téléphone du tuteur"
 
-#: apps/students/imports.py:177
+#: apps/students/imports.py:188
 msgid "Last name missing"
 msgstr "Nom manquant"
 
-#: apps/students/imports.py:178
+#: apps/students/imports.py:189
 msgid "Sex missing or unknown (M or F)"
 msgstr "Sexe manquant ou inconnu (M ou F)"
 
-#: apps/students/imports.py:179
+#: apps/students/imports.py:190
 msgid "Invalid date of birth"
 msgstr "Date de naissance invalide"
 
-#: apps/students/imports.py:180
+#: apps/students/imports.py:191
 msgid "Class missing"
 msgstr "Classe manquante"
 
-#: apps/students/imports.py:181
+#: apps/students/imports.py:192
 msgid "Unknown class"
 msgstr "Classe inconnue"
 
-#: apps/students/imports.py:182
+#: apps/students/imports.py:193
 msgid "Student number already used in the school"
 msgstr "Matricule déjà utilisé dans l'école"
 
-#: apps/students/imports.py:183
+#: apps/students/imports.py:194
 #, python-format
 msgid "Student number repeated (line %(line)s)"
 msgstr "Matricule répété (ligne %(line)s)"
 
-#: apps/students/imports.py:184
+#: apps/students/imports.py:195
 msgid "Already in the school (same names and date of birth)"
 msgstr "Déjà dans l'école (mêmes noms et date de naissance)"
 
-#: apps/students/imports.py:185
+#: apps/students/imports.py:196
 #, python-format
 msgid "Possible duplicate (line %(line)s)"
 msgstr "Doublon possible (ligne %(line)s)"
 
-#: apps/students/imports.py:186
+#: apps/students/imports.py:197
 msgid "Date of birth missing"
 msgstr "Date de naissance manquante"
 
-#: apps/students/imports.py:187
+#: apps/students/imports.py:198
 msgid "Unreadable phone number: guardian kept without phone"
 msgstr "Téléphone illisible : tuteur gardé sans téléphone"
 
-#: apps/students/imports.py:188
+#: apps/students/imports.py:199
 msgid "Phone without guardian name: not kept"
 msgstr "Téléphone sans nom de tuteur : pas gardé"
 
-#: apps/students/imports.py:189
+#: apps/students/imports.py:200
 #, python-format
 msgid "Same family as line %(line)s"
 msgstr "Même famille que la ligne %(line)s"
 
-#: apps/students/imports.py:192
+#: apps/students/imports.py:203
 msgid "The file is larger than 5 MB."
 msgstr "Le fichier dépasse 5 Mo."
 
-#: apps/students/imports.py:194
+#: apps/students/imports.py:205
 msgid "Old Excel file (.xls): save it as .xlsx in Excel, then try again."
 msgstr ""
 "Ancien fichier Excel (.xls) : enregistrez-le en .xlsx dans Excel, puis "
 "réessayez."
 
-#: apps/students/imports.py:197
+#: apps/students/imports.py:208
 msgid "This file cannot be read: send an Excel (.xlsx) or CSV file."
 msgstr ""
 "Ce fichier ne peut pas être lu : envoyez un fichier Excel (.xlsx) ou CSV."
 
-#: apps/students/imports.py:199
+#: apps/students/imports.py:210
 msgid "The file has no student rows."
 msgstr "Le fichier n'a aucune ligne d'élève."
 
-#: apps/students/imports.py:200
+#: apps/students/imports.py:211
 msgid "The file has more than 5,000 rows."
 msgstr "Le fichier a plus de 5 000 lignes."
 
-#: apps/students/imports.py:201
+#: apps/students/imports.py:212
 msgid "This import has already been started."
 msgstr "Cet import a déjà été lancé."
 
-#: apps/students/imports.py:202
+#: apps/students/imports.py:213
 msgid "No row can be imported."
 msgstr "Aucune ligne ne peut être importée."
 
-#: apps/students/imports.py:555
+#: apps/students/imports.py:566
 msgid "Invalid column mapping."
 msgstr "Correspondance des colonnes non valide."
 
-#: apps/students/imports.py:557
+#: apps/students/imports.py:568
 msgid "Unknown column."
 msgstr "Colonne inconnue."
 
-#: apps/students/imports.py:569
+#: apps/students/imports.py:585
 msgid "Choose a class of this school year."
 msgstr "Choisissez une classe de cette année scolaire."
 
-#: apps/students/imports.py:748
+#: apps/students/imports.py:764
 #, python-format
 msgid "%(title)s (optional)"
 msgstr "%(title)s (facultatif)"
 
-#: apps/students/imports.py:764
+#: apps/students/imports.py:780
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:764
+#: apps/students/imports.py:780
 msgid "Problems"
 msgstr "Problèmes"
 
@@ -11128,11 +11349,11 @@ msgstr "changement de coordonnées"
 msgid "contact details changes"
 msgstr "changements de coordonnées"
 
-#: apps/students/serializers.py:332
+#: apps/students/serializers.py:343
 msgid "Either an existing family or new guardians, not both."
 msgstr "Soit une famille existante, soit de nouveaux tuteurs, pas les deux."
 
-#: apps/students/serializers.py:615
+#: apps/students/serializers.py:626
 msgid "Give the name and the phone number."
 msgstr "Donnez le nom et le numéro de téléphone."
 
@@ -11175,11 +11396,6 @@ msgstr "Tuteur inconnu pour cette famille."
 #: apps/students/templates/students/class_list.html:2
 msgid "Class list"
 msgstr "Liste de classe"
-
-#: apps/students/templates/students/class_list.html:8
-#: apps/students/templates/students/registration_form.html:14
-msgid "Secretariat"
-msgstr "Secrétariat"
 
 #: apps/students/templates/students/class_list.html:11
 #, python-format

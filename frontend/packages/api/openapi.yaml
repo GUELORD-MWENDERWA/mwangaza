@@ -5655,6 +5655,7 @@ paths:
           - school
           - security
           - site
+          - support
           - team
           type: string
           minLength: 1
@@ -5669,6 +5670,7 @@ paths:
           * `school` - school
           * `security` - security
           * `site` - site
+          * `support` - support
           * `team` - team
       - name: page
         required: false
@@ -6735,6 +6737,63 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/help/:
+    get:
+      operationId: console_help_list
+      description: Articles d'aide de la console ; avec `search`, ceux qui contiennent
+        tous les mots.
+      parameters:
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Deux lettres au moins.
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpList'
+          description: ''
+  /api/console/help/{key}/:
+    get:
+      operationId: console_help_article
+      description: Un article d'aide de la console.
+      parameters:
+      - in: path
+        name: key
+        schema:
+          type: string
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpArticle'
           description: ''
   /api/console/platform/:
     get:
@@ -9470,6 +9529,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/console/support/:
+    get:
+      operationId: console_support_list
+      description: |-
+        Demandes d'aide de toutes les écoles du mode de la console (réel : espaces réels et essais ;
+        démonstration : démonstrations). « À traiter » : la plus ancienne en attente d'abord.
+      parameters:
+      - in: query
+        name: mine
+        schema:
+          type: boolean
+        description: Seulement celles qui me sont confiées.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Numéro, sujet ou école.
+      - in: query
+        name: school
+        schema:
+          type: string
+        description: Code de l'école.
+      - in: query
+        name: state
+        schema:
+          type: string
+          enum:
+          - all
+          - closed
+          - todo
+          - waiting
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedConsoleSupportRequestList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/console/support-sessions/:
     get:
       operationId: console_support_sessions_list
@@ -9512,6 +9649,338 @@ paths:
                 $ref: '#/components/schemas/Error'
           description: ''
         '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support/{id}/:
+    get:
+      operationId: console_support_retrieve
+      description: |-
+        Demandes d'aide de toutes les écoles du mode de la console (réel : espaces réels et essais ;
+        démonstration : démonstrations). « À traiter » : la plus ancienne en attente d'abord.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSupportRequestDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support/{id}/assign/:
+    post:
+      operationId: console_support_assign_create
+      description: Confie la demande à un membre de l'équipe (ou la libère avec `null`).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportAssignRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportAssignRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportAssignRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSupportRequest'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support/{id}/close/:
+    post:
+      operationId: console_support_close_create
+      description: |-
+        Demandes d'aide de toutes les écoles du mode de la console (réel : espaces réels et essais ;
+        démonstration : démonstrations). « À traiter » : la plus ancienne en attente d'abord.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsoleSupportRequest'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support/{id}/reply/:
+    post:
+      operationId: console_support_reply_create
+      description: 'Répond à l''auteur : « en attente de l''école », avec une notification.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - console
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportReplyCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportReplyCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportReplyCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportReply'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support/assignees/:
+    get:
+      operationId: console_support_assignees_list
+      description: Membres de l'équipe à qui confier une demande.
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SupportAssignee'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/console/support/counts/:
+    get:
+      operationId: console_support_counts_retrieve
+      description: Nombre de demandes par état (compteur du menu et des onglets).
+      tags:
+      - console
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportCounts'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
           content:
             application/json:
               schema:
@@ -12812,6 +13281,399 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Health'
+          description: ''
+  /api/help/{app}/:
+    get:
+      operationId: help_list
+      description: |-
+        Articles d'aide de la Gestion ou du Portail ; avec `search`, ceux qui contiennent tous les
+        mots (20 au plus, titre d'abord).
+      parameters:
+      - in: path
+        name: app
+        schema:
+          type: string
+          pattern: ^gestion|portail$
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Deux lettres au moins.
+      tags:
+      - help
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpList'
+          description: ''
+  /api/help/{app}/{key}/:
+    get:
+      operationId: help_article
+      description: Un article d'aide (clé commune aux deux langues), son texte et
+        ceux de sa rubrique.
+      parameters:
+      - in: path
+        name: app
+        schema:
+          type: string
+          pattern: ^gestion|portail$
+        required: true
+      - in: path
+        name: key
+        schema:
+          type: string
+          pattern: ^[a-z0-9-]+$
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      tags:
+      - help
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HelpArticle'
+          description: ''
+  /api/help/requests/:
+    get:
+      operationId: help_requests_list
+      description: |-
+        Mes demandes d'aide à la plateforme, l'activité la plus récente d'abord (SUP.1). Tout
+        membre du personnel écrit ; il ne voit jamais celles d'un collègue. Ouvert aussi quand
+        l'école est en lecture seule (c'est justement là qu'on a besoin d'aide) ; fermé pendant une
+        session support (aucun compte propre).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSupportRequestList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: help_requests_create
+      description: Envoie une demande (10 par jour et par compte) ; la plateforme
+        en est prévenue.
+      tags:
+      - help
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportRequestCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportRequestCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportRequestCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequestDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/help/requests/{id}/:
+    get:
+      operationId: help_requests_retrieve
+      description: |-
+        Mes demandes d'aide à la plateforme, l'activité la plus récente d'abord (SUP.1). Tout
+        membre du personnel écrit ; il ne voit jamais celles d'un collègue. Ouvert aussi quand
+        l'école est en lecture seule (c'est justement là qu'on a besoin d'aide) ; fermé pendant une
+        session support (aucun compte propre).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequestDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/help/requests/{id}/close/:
+    post:
+      operationId: help_requests_close_create
+      description: '« C''est réglé » : ferme la demande.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - help
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportRequest'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/help/requests/{id}/reply/:
+    post:
+      operationId: help_requests_reply_create
+      description: Répond dans le fil ; rouvre une demande fermée depuis moins de
+        30 jours.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this support request.
+        required: true
+      tags:
+      - help
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SupportReplyCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SupportReplyCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SupportReplyCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupportReply'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/help/whats-new/:
+    get:
+      operationId: help_whats_new_retrieve
+      description: 'La dernière mise en ligne qui a des nouveautés pour cette application
+        ; aucune : 404.'
+      parameters:
+      - in: query
+        name: app
+        schema:
+          type: string
+          enum:
+          - gestion
+          - portail
+        required: true
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - en
+          - fr
+      tags:
+      - help
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhatsNew'
           description: ''
   /api/homeroom/:
     get:
@@ -27266,6 +28128,168 @@ components:
       - linkedin_url
       - youtube_url
       - tiktok_url
+    ConsoleSupportRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        subject:
+          type: string
+          readOnly: true
+        screen:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SupportStatusEnum'
+          readOnly: true
+        last_activity_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Last activity
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        school:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          readOnly: true
+        school_id:
+          type: string
+          format: uuid
+          readOnly: true
+        school_name:
+          type: string
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        assignee:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        assignee_name:
+          type: string
+          readOnly: true
+      required:
+      - assignee
+      - assignee_name
+      - author_name
+      - closed_at
+      - created_at
+      - id
+      - last_activity_at
+      - number
+      - school
+      - school_id
+      - school_name
+      - screen
+      - status
+      - subject
+    ConsoleSupportRequestDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        subject:
+          type: string
+          readOnly: true
+        screen:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SupportStatusEnum'
+          readOnly: true
+        last_activity_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Last activity
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        school:
+          type: string
+          description: 'Subdomain of the school: {code}.mwangaza.school. Changed by
+            the platform only: the old address stops working.'
+          readOnly: true
+        school_id:
+          type: string
+          format: uuid
+          readOnly: true
+        school_name:
+          type: string
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        assignee:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        assignee_name:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          readOnly: true
+        app_version:
+          type: string
+          readOnly: true
+        device:
+          type: string
+          readOnly: true
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportReply'
+          readOnly: true
+      required:
+      - id
+      - number
+      - subject
+      - screen
+      - status
+      - last_activity_at
+      - created_at
+      - closed_at
+      - school
+      - school_id
+      - school_name
+      - author_name
+      - assignee
+      - assignee_name
+      - phone
+      - app_version
+      - device
+      - replies
     ConsoleSupportSession:
       type: object
       description: |-
@@ -30465,6 +31489,90 @@ components:
         * `warning` - warning
         * `error` - error
         * `off` - off
+    HelpArticle:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        group:
+          type: string
+        group_label:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        minutes:
+          type: integer
+        updated:
+          type: string
+          format: date
+          nullable: true
+        html:
+          type: string
+          description: Texte de l'article, rendu par le serveur.
+        url:
+          type: string
+        related:
+          type: array
+          items:
+            $ref: '#/components/schemas/HelpItem'
+      required:
+      - key
+      - title
+      - summary
+      - group
+      - group_label
+      - roles
+      - minutes
+      - updated
+      - html
+      - url
+      - related
+    HelpItem:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+        group:
+          type: string
+        group_label:
+          type: string
+        title_html:
+          type: string
+          description: Titre échappé, mots cherchés dans <mark>.
+        excerpt_html:
+          type: string
+          description: Résumé ou passage du texte, échappé.
+        url:
+          type: string
+          description: Adresse sur le site ; vide pour la console.
+      required:
+      - key
+      - title
+      - summary
+      - group
+      - group_label
+      - title_html
+      - excerpt_html
+      - url
+    HelpList:
+      type: object
+      properties:
+        articles:
+          type: array
+          items:
+            $ref: '#/components/schemas/HelpItem'
+      required:
+      - articles
     HistoryEntry:
       type: object
       properties:
@@ -32291,6 +33399,7 @@ components:
       - school_reply
       - timetable_published
       - ai_credits
+      - support_reply
       type: string
       description: |-
         * `test` - Test notification
@@ -32322,6 +33431,7 @@ components:
         * `school_reply` - Reply from the school
         * `timetable_published` - New timetable
         * `ai_credits` - AI credits running low
+        * `support_reply` - Reply from support
     NotificationPreferences:
       type: object
       properties:
@@ -32817,6 +33927,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsoleSitePhoto'
+    PaginatedConsoleSupportRequestList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsoleSupportRequest'
     PaginatedConsoleSupportSessionList:
       type: object
       required:
@@ -33542,6 +34677,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Summons'
+    PaginatedSupportRequestList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportRequest'
     PaginatedTeamMemberList:
       type: object
       required:
@@ -35882,6 +37042,9 @@ components:
       - billing.invoice_payment
       - billing.invoice_payment_reversed
       - billing.module_request_handled
+      - support.replied
+      - support.closed
+      - support.assigned
       - school.created
       - school.updated
       - school.suspended
@@ -35955,6 +37118,9 @@ components:
         * `billing.invoice_payment` - Invoice payment recorded
         * `billing.invoice_payment_reversed` - Invoice payment cancelled
         * `billing.module_request_handled` - Module request handled
+        * `support.replied` - Help request answered
+        * `support.closed` - Help request closed
+        * `support.assigned` - Help request assigned
         * `school.created` - School created
         * `school.updated` - School or subscription changed
         * `school.suspended` - School suspended
@@ -40750,6 +41916,202 @@ components:
       - id
       - full_name
       - matricule
+    SupportAssignRequest:
+      type: object
+      properties:
+        assignee:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - assignee
+    SupportAssignee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
+    SupportCounts:
+      type: object
+      properties:
+        todo:
+          type: integer
+        waiting:
+          type: integer
+        closed:
+          type: integer
+      required:
+      - todo
+      - waiting
+      - closed
+    SupportReply:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        from_platform:
+          type: boolean
+          readOnly: true
+          title: From the platform team
+        author_name:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+          title: Message
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - from_platform
+      - author_name
+      - body
+      - created_at
+    SupportReplyCreateRequest:
+      type: object
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+      required:
+      - body
+    SupportRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        subject:
+          type: string
+          readOnly: true
+        screen:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SupportStatusEnum'
+          readOnly: true
+        last_activity_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Last activity
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - closed_at
+      - created_at
+      - id
+      - last_activity_at
+      - number
+      - screen
+      - status
+      - subject
+    SupportRequestCreateRequest:
+      type: object
+      properties:
+        subject:
+          type: string
+          minLength: 1
+          maxLength: 120
+        body:
+          type: string
+          minLength: 1
+          maxLength: 5000
+        screen:
+          type: string
+          default: ''
+          maxLength: 120
+        app_version:
+          type: string
+          default: ''
+          maxLength: 20
+        device:
+          type: string
+          default: ''
+          maxLength: 120
+      required:
+      - body
+      - subject
+    SupportRequestDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        subject:
+          type: string
+          readOnly: true
+        screen:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/SupportStatusEnum'
+          readOnly: true
+        last_activity_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Last activity
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        closed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        app_version:
+          type: string
+          readOnly: true
+        device:
+          type: string
+          readOnly: true
+        replies:
+          type: array
+          items:
+            $ref: '#/components/schemas/SupportReply'
+          readOnly: true
+      required:
+      - id
+      - number
+      - subject
+      - screen
+      - status
+      - last_activity_at
+      - created_at
+      - closed_at
+      - app_version
+      - device
+      - replies
     SupportSession:
       type: object
       description: 'Session support en cours (A3) : l''interface affiche un bandeau
@@ -40791,6 +42153,16 @@ components:
           maxLength: 200
       required:
       - reason
+    SupportStatusEnum:
+      enum:
+      - open
+      - answered
+      - closed
+      type: string
+      description: |-
+        * `open` - To handle
+        * `answered` - Waiting for the school
+        * `closed` - Closed
     SwapRequest:
       type: object
       properties:
@@ -42416,6 +43788,25 @@ components:
       - published_at
       - published_by
       - hours
+    WhatsNew:
+      type: object
+      properties:
+        day:
+          type: string
+          format: date
+        summary:
+          type: string
+        html:
+          type: string
+          description: Liste des nouveautés de cette application.
+        url:
+          type: string
+          description: Page « Quoi de neuf » du centre d'aide.
+      required:
+      - day
+      - summary
+      - html
+      - url
     Year:
       type: object
       properties:

@@ -96,7 +96,7 @@ export function ImportStudentsPage() {
           </Button>
         }
       />
-      <Card>
+      <Card data-guide="import-upload">
         <CardContent>
           <Steps
             steps={STEPS.map((step, index) => ({

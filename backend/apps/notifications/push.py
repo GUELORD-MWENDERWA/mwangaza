@@ -70,6 +70,7 @@ ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})
 PREFERENCE_KINDS = {
     App.GESTION: [
         Kind.PLATFORM_NEWS,
+        Kind.SUPPORT_REPLY,
         Kind.STAFF_ANNOUNCEMENT,
         *(kind for kind in STAFF_KINDS if kind not in ALWAYS_SENT),
     ],

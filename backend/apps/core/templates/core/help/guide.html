@@ -1,0 +1,59 @@
+{% load i18n %}<!doctype html>
+<html lang="{{ lang }}"><head><meta charset="utf-8"><title>{{ title }}</title>
+<style>
+/* Guide PDF (AIDE.1, maquettes/gestion/guide-pdf.html) : A4, polices de la marque (printing.py). */
+@page { size: A4; margin: 22mm 18mm 20mm; font-family: "Atkinson Hyperlegible Next", sans-serif;
+  @top-left { content: string(guide); font-size: 8pt; color: #5B6472 }
+  @top-right { content: string(chapter); font-size: 8pt; color: #5B6472 }
+  @bottom-left { content: string(site); font-size: 8pt; color: #5B6472 }
+  @bottom-right { content: counter(page); font-size: 8pt; color: #5B6472 } }
+@page :first { margin: 0; @top-left { content: none } @top-right { content: none }
+  @bottom-left { content: none } @bottom-right { content: none } }
+* { box-sizing: border-box }
+body { margin: 0; font-family: "Atkinson Hyperlegible Next", sans-serif; font-size: 10.5pt; line-height: 1.5; color: #1F2733 }
+.cover { position: relative; height: 297mm; padding: 34mm 22mm 0; border-top: 10mm solid {{ platform.primary_color }} }
+.cover img { display: block; max-height: 22mm; max-width: 70mm }
+.cover .name { font-weight: 800; font-size: 16pt; margin-top: 8mm; color: {{ platform.primary_color }} }
+.cover h1 { font-size: 30pt; line-height: 1.15; margin: 40mm 0 0; string-set: guide content() }
+.cover .lead { font-size: 13pt; color: #3D4654; margin-top: 6mm; string-set: site attr(data-site) }
+.cover .foot { position: absolute; left: 22mm; right: 22mm; bottom: 26mm; border-top: 2pt solid {{ platform.accent_color }}; padding-top: 4mm; color: #3D4654 }
+.toc { break-before: page }
+.toc h2 { font-size: 18pt; margin: 0 0 6mm; color: {{ platform.primary_color }} }
+.toc p { margin: 0; display: flex }
+.toc .c { font-weight: 700; margin-top: 4mm }
+.toc .a { padding-left: 6mm }
+.toc a { color: inherit; text-decoration: none; flex: 1 }
+.toc a::after { content: leader('.') target-counter(attr(href), page) }
+h1.chapter { break-before: page; string-set: chapter content(); font-size: 20pt; margin: 0 0 6mm; padding-bottom: 3mm; border-bottom: 2pt solid {{ platform.primary_color }}; color: {{ platform.primary_color }} }
+article { margin-bottom: 9mm }
+article > h2 { font-size: 14pt; margin: 0; break-after: avoid }
+article > .lead { color: #3D4654; margin: 1mm 0 3mm; break-after: avoid }
+.body h2 { font-size: 11pt; margin: 4mm 0 1mm; break-after: avoid }
+.body h3 { font-size: 10.5pt; margin: 3mm 0 1mm; break-after: avoid }
+.body p { margin: 2mm 0 0 }
+.body ol, .body ul { margin: 1mm 0 0; padding-left: 6mm; break-inside: avoid }
+.body li { margin-top: 1mm }
+.body a { color: inherit; text-decoration: none }
+.body a[data-help]::after { content: " ({% translate 'page' %} " target-counter(attr(href), page) ")"; color: #5B6472 }
+.tip { margin-top: 3mm; padding: 2.5mm 4mm; border-left: 1.2mm solid {{ platform.primary_color }}; background: #EEF2FA; break-inside: avoid }
+figure { margin: 4mm 0 0; break-inside: avoid }
+figure img { max-width: 100%; max-height: 110mm; border: 0.3mm solid #D5DAE3 }
+figcaption { font-size: 8.5pt; color: #5B6472; margin-top: 1mm }
+</style></head>
+<body>
+<section class="cover">
+  {% if logo %}<img src="{{ logo }}" alt="">{% endif %}
+  <div class="name">{{ platform.name }}</div>
+  <h1>{{ title }}</h1>
+  <p class="lead" data-site="{{ help_url }}">{% translate "Short answers, screen by screen." %}</p>
+  <div class="foot">{% translate "Help centre" %} : {{ help_url }}<br>{{ today|date:"F Y" }}</div>
+</section>
+<nav class="toc"><h2>{% translate "Contents" %}</h2>
+  {% for chapter in chapters %}<p class="c"><a href="#g-{{ chapter.key }}">{{ chapter.label }}</a></p>
+  {% for item in chapter.articles %}<p class="a"><a href="#{{ item.article.key }}">{{ item.article.title }}</a></p>{% endfor %}{% endfor %}
+</nav>
+{% for chapter in chapters %}<section>
+  <h1 class="chapter" id="g-{{ chapter.key }}">{{ chapter.label }}</h1>
+  {% for item in chapter.articles %}<article id="{{ item.article.key }}"><h2>{{ item.article.title }}</h2><p class="lead">{{ item.article.summary }}</p><div class="body">{{ item.html }}</div></article>{% endfor %}
+</section>{% endfor %}
+</body></html>

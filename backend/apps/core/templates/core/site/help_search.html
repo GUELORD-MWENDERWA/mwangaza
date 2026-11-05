@@ -1,0 +1,15 @@
+{% extends "core/site/base.html" %}{% load i18n %}
+{% block robots %}noindex, follow{% endblock %}
+{% block main %}
+<section class="hhero hhero-s"><div class="wrap">
+  <nav class="crumbs" aria-label="{% translate 'Breadcrumb' %}"><a href="{{ help_home }}">{% translate "Help centre" %}</a></nav>
+  <h1 class="display">{% if results %}{% blocktranslate trimmed with q=query count n=results|length %}{{ n }} article for “{{ q }}”{% plural %}{{ n }} articles for “{{ q }}”{% endblocktranslate %}{% else %}{% blocktranslate with q=query %}No article for “{{ q }}”{% endblocktranslate %}{% endif %}</h1>
+  {% include "core/site/_help_search.html" %}
+</div></section>
+<section class="sec hres-sec"><div class="wrap">
+  {% if results %}<ol class="hres">{% for row in results %}<li><a href="{{ row.article.path }}">{{ row.title }}</a><span class="path">{{ row.article.app_label }}{% if row.article.group != "parents" %} · {{ row.article.group_label }}{% endif %}</span><p>{{ row.excerpt }}</p></li>{% endfor %}</ol>
+  {% else %}<p class="lead">{% translate "Try another word, or start here:" %}</p>
+    {% if start %}<ul class="hlist" style="margin-top:16px">{% for item in start %}<li><a href="{{ item.path }}">{{ item.title }}<small>{{ item.summary }}</small></a></li>{% endfor %}</ul>{% endif %}
+  {% endif %}
+</div></section>
+{% endblock %}

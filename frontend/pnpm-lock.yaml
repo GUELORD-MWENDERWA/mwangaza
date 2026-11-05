@@ -214,6 +214,9 @@ importers:
       '@mwangaza/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@mwangaza/help':
+        specifier: workspace:*
+        version: link:../../packages/help
       '@mwangaza/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -272,6 +275,9 @@ importers:
       '@mwangaza/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@mwangaza/help':
+        specifier: workspace:*
+        version: link:../../packages/help
       '@mwangaza/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -339,6 +345,9 @@ importers:
       '@mwangaza/api':
         specifier: workspace:*
         version: link:../../packages/api
+      '@mwangaza/help':
+        specifier: workspace:*
+        version: link:../../packages/help
       '@mwangaza/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n
@@ -404,6 +413,37 @@ importers:
       typescript:
         specifier: ~6.0.3
         version: 6.0.3
+
+  packages/help:
+    dependencies:
+      '@mwangaza/api':
+        specifier: workspace:*
+        version: link:../api
+      '@mwangaza/i18n':
+        specifier: workspace:*
+        version: link:../i18n
+      '@mwangaza/ui':
+        specifier: workspace:*
+        version: link:../ui
+      '@tanstack/react-query':
+        specifier: ^5.105.0
+        version: 5.105.0(@types/react@19.3.0)(react@19.3.1)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.3.0
+        version: 19.3.0
+      '@types/react-dom':
+        specifier: ^19.3.0
+        version: 19.3.0(@types/react@19.3.0)
+      react:
+        specifier: ^19.3.1
+        version: 19.3.1
+      react-dom:
+        specifier: ^19.3.1
+        version: 19.3.1(react@19.3.1)
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
 
   packages/i18n:
     dependencies:

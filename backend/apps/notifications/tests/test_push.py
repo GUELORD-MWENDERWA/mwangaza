@@ -135,6 +135,7 @@ def test_muted_kind_stays_in_the_center_and_expired_browser_is_dropped(
         "vapid_public_key": "public-key",
         "kinds": [
             "platform_news",
+            "support_reply",
             "staff_announcement",
             "cancellation_request",
             "cash_difference",

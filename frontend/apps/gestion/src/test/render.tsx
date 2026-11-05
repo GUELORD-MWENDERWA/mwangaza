@@ -12,7 +12,7 @@ import { me } from "./fixtures";
 export function renderApp(path = "/", { guide = false } = {}) {
   // Guides de première connexion déjà vus, sauf pour les tests du guide.
   if (!guide) {
-    for (const key of ["cashier", "accountant"] as const) {
+    for (const key of ["cashier", "accountant", "teacher", "secretary", "direction"] as const) {
       saveProgress(me().id, key, { step: 0, done: true });
     }
   }

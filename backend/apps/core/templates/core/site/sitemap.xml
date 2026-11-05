@@ -8,6 +8,12 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="{{ site }}{{ page.paths.fr }}"/>{% for image in page.images %}
     <image:image><image:loc>{{ image }}</image:loc></image:image>{% endfor %}
   </url>{% endfor %}{% endfor %}
+{% for item in help %}
+  <url>
+    <loc>{{ site }}{{ item.path }}</loc>{% if item.updated %}
+    <lastmod>{{ item.updated|date:"Y-m-d" }}</lastmod>{% endif %}{% for lang, path in item.alternates.items %}
+    <xhtml:link rel="alternate" hreflang="{{ lang }}" href="{{ site }}{{ path }}"/>{% endfor %}
+  </url>{% endfor %}
 {% for item in articles %}
   <url>
     <loc>{{ site }}{{ item.path }}</loc>

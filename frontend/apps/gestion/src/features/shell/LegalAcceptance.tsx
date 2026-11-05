@@ -14,7 +14,7 @@ import type { Me } from "../../lib/queries";
 type Doc = Schemas["LegalDocument"];
 const KEY = ["legal", "pending"];
 
-export function LegalAcceptance({ me }: { me: Me }) {
+function usePendingDocs(me: Me) {
   // Une session support n'accepte jamais au nom de l'école.
   const allowed = can(me, ["roles.manage"]) && !me.support;
   const pending = useQuery({
@@ -24,6 +24,18 @@ export function LegalAcceptance({ me }: { me: Me }) {
     retry: false,
     staleTime: Infinity,
   });
+  return { allowed, pending };
+}
+
+/** Des conditions attendent l'administrateur (ou la réponse n'est pas encore là) : les autres
+ *  fenêtres d'accueil, comme « Quoi de neuf », attendent leur tour. */
+export function useLegalPending(me: Me) {
+  const { allowed, pending } = usePendingDocs(me);
+  return allowed && (pending.isPending || (pending.data?.length ?? 0) > 0);
+}
+
+export function LegalAcceptance({ me }: { me: Me }) {
+  const { allowed, pending } = usePendingDocs(me);
   const [later, setLater] = useState(false);
   if (!allowed || later || !pending.data?.length) return null;
   return <Dialog docs={pending.data} onLater={() => setLater(true)} />;

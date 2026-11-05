@@ -32,6 +32,8 @@ from apps.notifications.models import (
     ScheduledRun,
     SchoolEvent,
     Summons,
+    SupportReply,
+    SupportRequest,
     Thread,
 )
 from apps.schools.demo import DemoSpace
@@ -437,3 +439,85 @@ def _publish_platform(schools: dict[str, School]) -> None:
         PlatformAnnouncement.objects.filter(pk=announcement.pk).update(
             published_at=max(now - timedelta(days=days), start)
         )
+
+
+# (sujet, message, écran, réponse de la plateforme ou vide, fermée) : demandes fictives.
+SUPPORT_REQUESTS = {
+    "itig-demo": [
+        (
+            "Le reçu ne s'imprime plus",
+            "Depuis ce matin, quand j'encaisse, le reçu ne sort pas. L'imprimante est allumée.",
+            "/app/cash",
+            "Le format des reçus a été changé hier. Choisissez « Thermique 80 mm » dans "
+            "Paramètres de l'école, rubrique Reçus, puis réessayez.",
+            False,
+        ),
+        (
+            "Je ne vois pas ma classe de 4e B",
+            "Dans « Notes et bulletins », ma classe de 4e B n'apparaît pas dans la liste.",
+            "/app/grades",
+            "",
+            False,
+        ),
+        (
+            "Mot de passe d'un enseignant",
+            "Comment donner un nouveau mot de passe à un enseignant qui l'a oublié ?",
+            "/app/staff",
+            "Ouvrez sa fiche dans « Comptes du personnel » et choisissez "
+            "« Mot de passe provisoire ».",
+            True,
+        ),
+    ],
+    "volcans": [
+        (
+            "La place n'apparaît pas sur les bulletins",
+            "La place de l'élève dans la classe n'est pas imprimée sur le bulletin.",
+            "/app/report-cards",
+            "",
+            False,
+        ),
+    ],
+}
+
+
+def create_demo_support(spaces: list[DemoSpace]) -> None:
+    """Demandes d'aide fictives (SUP.1), l'une avec la réponse de la plateforme, une fermée :
+    développement seulement (`make demo`). Pas d'e-mail en développement (aucune boîte d'envoi)."""
+    from apps.notifications import support
+
+    admin = User.objects.get(phone=PLATFORM_ADMIN_PHONE)
+    now = timezone.now()
+    for space in spaces:
+        with use_school(space.school):
+            if SupportRequest.objects.exists():
+                continue
+            scripts = SUPPORT_REQUESTS.get(space.school.code, [])
+            members = (
+                Membership.objects.filter(
+                    school=space.school, is_active=True, user__phone__startswith="+24300"
+                )
+                .select_related("user")
+                .order_by("user__phone")[: len(scripts)]
+            )
+            for hours, (member, script) in enumerate(zip(members, scripts, strict=False), start=2):
+                subject, body, screen, answer, closed = script
+                request = support.open_request(
+                    space.school,
+                    user=member.user,
+                    subject=subject,
+                    body=body,
+                    screen=screen,
+                    app_version="1.14",
+                    device="Chrome sur Android",
+                )
+                if answer:
+                    support.reply_as_platform(request, actor=admin, body=answer)
+                if closed:
+                    support.close_as_school(request)
+                stamp = now - timedelta(hours=hours)
+                SupportRequest.objects.filter(pk=request.pk).update(
+                    created_at=stamp, last_activity_at=stamp if not answer else now
+                )
+                SupportReply.objects.filter(request=request, from_platform=False).update(
+                    created_at=stamp
+                )

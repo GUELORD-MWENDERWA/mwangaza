@@ -1,0 +1,25 @@
+{% extends "core/site/base.html" %}{% load i18n %}
+{% block main %}
+<section class="hhero"><div class="wrap">
+  <span class="eyebrow">{% translate "Help centre" %}</span>
+  <h1 class="display" style="margin-top:14px">{% translate "How can we help you?" %}</h1>
+  <p class="lead">{% translate "Short answers, screen by screen, for school staff and for parents." %}</p>
+  {% include "core/site/_help_search.html" %}
+  {% if popular %}<p class="hpop">{% translate "Often searched:" %} {% for item in popular %}<a href="{{ item.path }}">{{ item.title }}</a>{% endfor %}</p>{% endif %}
+</div></section>
+<section class="sec"><div class="wrap">
+  {% for group in groups %}<div class="hgroup" id="{{ group.key }}"><div><h2>{{ group.label }}</h2><p>{{ group.text }}</p></div>
+    <ul class="hlist">{% for item in group.articles %}<li><a href="{{ item.path }}">{{ item.title }}<small>{% if group.key == "start" %}{{ item.audience }} · {% endif %}{% blocktranslate with n=item.minutes %}{{ n }} min{% endblocktranslate %}</small></a></li>{% endfor %}</ul>
+  </div>{% endfor %}
+  {% if latest %}<div class="hgroup"><div><h2>{% translate "What's new" %}</h2><p>{% translate "What changes with each release." %}</p></div>
+    <div><p><b>{{ latest.day|date:"j F Y" }}.</b> {{ latest.summary }}</p><p style="margin-top:10px"><a href="{{ help_news }}">{% translate "All that's new" %}</a></p></div>
+  </div>{% endif %}
+  <div class="hgroup"><div><h2>{% translate "No answer?" %}</h2><p>{% translate "Depending on who you are." %}</p></div>
+    <ul class="hlist">
+      <li><a href="{{ links.find }}">{% translate "School staff" %}<small>{% translate "“Help” button, then “Write to support”, in the app." %}</small></a></li>
+      <li><a href="{{ links.find }}">{% translate "Parent" %}<small>{% translate "Call your child's school: it manages your account." %}</small></a></li>
+      <li><a href="{{ links.contact }}">{% translate "Not a client yet" %}<small>{% translate "Request a demo." %}</small></a></li>
+    </ul>
+  </div>
+</div></section>
+{% endblock %}

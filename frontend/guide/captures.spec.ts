@@ -15,10 +15,9 @@ const { version: appVersion } = JSON.parse(
 const VERSION = appVersion.split(".").slice(0, 2).join(".");
 
 const CAPTURES = new URL("captures/", import.meta.url).pathname;
-// Deux documents, mêmes captures : le guide de la version (pour les écoles) et le guide de
-// présentation (pour la personne qui montre la plateforme : commandes, comptes, déroulé).
+// Le guide de présentation (pour la personne qui montre la plateforme : commandes, comptes,
+// déroulé). Les guides des écoles viennent des articles d'aide (`help_guides`).
 const DOCUMENTS = [
-  { html: "guide.html", pdf: "guide", title: "guide de la version" },
   { html: "presentation.html", pdf: "presentation", title: "guide de présentation, version" },
 ];
 // Domaine du vrai serveur, écrit dans le guide de présentation.

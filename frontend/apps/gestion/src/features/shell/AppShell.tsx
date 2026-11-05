@@ -1,5 +1,6 @@
 // Coquille de la Gestion (maquettes `tableau-de-bord` et `menu-mobile`, M7) : menu latéral, barre
 // du haut avec l'état du réseau et le compte, menu tiroir sous 900 px, bandeau de session support.
+import { articleForPath, HelpButton, WhatsNew } from "@mwangaza/help";
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Avatar,
@@ -13,7 +14,7 @@ import {
   SheetTrigger,
 } from "@mwangaza/ui";
 import { useEffect, useState } from "react";
-import { Link, Navigate, Outlet } from "react-router";
+import { Link, Navigate, Outlet, useLocation } from "react-router";
 
 import { keepForOfflineStart } from "../../lib/device";
 import { errorMessage } from "../../lib/errors";
@@ -23,6 +24,8 @@ import { useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { GuideProvider, useGuide } from "../guide/Guide";
+import { SupportDialog } from "../support/SupportDialog";
+import { HELP_SCREENS } from "./helpScreens";
 import { NotificationBell } from "../notifications/NotificationBell";
 import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
 import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
@@ -30,7 +33,7 @@ import { useKeepMyTimetable } from "../timetable/mine";
 import { SearchPalette } from "./SearchPalette";
 import { PinBanner } from "./PinBanner";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
-import { LegalAcceptance } from "./LegalAcceptance";
+import { LegalAcceptance, useLegalPending } from "./LegalAcceptance";
 import { ReadOnlyBanner } from "./ReadOnlyBanner";
 import { SpaceBanner } from "./SpaceBanner";
 import { SupportBanner } from "./SupportBanner";
@@ -63,6 +66,7 @@ export function AppShell() {
             <PinBanner me={me} />
             <Outlet />
             <LegalAcceptance me={me} />
+            <NewsDialog me={me} />
           </main>
         </div>
       </div>
@@ -85,6 +89,7 @@ function TopBar({ me }: { me: Me }) {
       {can(me, ["students.view"]) && <SearchPalette />}
       <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-xs" />
       <NotificationBell />
+      <HelpMenu />
       <Link
         to="/account"
         className="flex items-center gap-2.5 text-sm text-ink no-underline"
@@ -99,6 +104,66 @@ function TopBar({ me }: { me: Me }) {
       </Link>
     </header>
   );
+}
+
+/** Bouton « Aide » (AIDE.2) : l'article de l'écran ouvert ; en bas, écrire au support (SUP.1,
+ *  sauf en session support), mes demandes, revoir le guide. */
+function HelpMenu() {
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const { restart } = useGuide();
+  const inSupportSession = Boolean(useCurrentMe().support);
+  const [writing, setWriting] = useState(false);
+  const link = "cursor-pointer self-start text-sm font-semibold text-lake";
+  return (
+    <>
+      <HelpButton
+        app="gestion"
+        screen={articleForPath(HELP_SCREENS, pathname)}
+        footer={(close) => (
+          <>
+            {!inSupportSession && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    close();
+                    setWriting(true);
+                  }}
+                  className={link}
+                >
+                  {t("helpRequests.write")}
+                </button>
+                <Link to="/help/requests" onClick={close} className={link}>
+                  {t("helpRequests.title")}
+                </Link>
+              </>
+            )}
+            {restart && (
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  restart();
+                }}
+                className={link}
+              >
+                {t("guide.help")}
+              </button>
+            )}
+          </>
+        )}
+      />
+      <SupportDialog open={writing} onClose={() => setWriting(false)} />
+    </>
+  );
+}
+
+/** « Quoi de neuf » : jamais pendant un guide ni en session support. */
+function NewsDialog({ me }: { me: Me }) {
+  const { active } = useGuide();
+  const legal = useLegalPending(me);
+  return <WhatsNew app="gestion" userId={me.id} enabled={!active && !me.support && !legal} />;
 }
 
 /** Menu tiroir (M7) : se ferme en touchant à côté, avec Échap, ou après un choix. */

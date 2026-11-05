@@ -116,6 +116,7 @@ test("école neuve de bout en bout : espace créé dans la console, mise en rout
     await enterPassword(head, HEAD, temporary);
     await choosePassword(head, NEW_PASSWORD);
     await activateTwoFactor(head);
+    await skipGuide(head); // guide de la direction (lot 6)
     const setup = head.locator("section", {
       has: head.getByRole("heading", { name: "Mise en route" }),
     });

@@ -4,7 +4,7 @@ from django.urls import include, path, re_path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.academics.verification import verify_report_card
-from apps.core import site, site_content
+from apps.core import help_center, help_views, site, site_content
 from apps.core import urls as core_urls
 from apps.finance.verification import verify_receipt, verify_statement
 from apps.schools.views import (
@@ -35,6 +35,26 @@ urlpatterns = [
             name=f"site-{key}-{lang}",
         )
         for key, paths in site.PAGES.items()
+        if key in site.VIEWS
+        for lang in ("fr", "en")
+    ],
+    # Centre d'aide (AIDE.1, `apps/core/help_views.py`) : accueil, recherche, nouveautés, articles.
+    *[
+        path(paths[lang][1:], view, {"lang": lang}, name=f"site-help-{name}-{lang}")
+        for name, view, paths in (
+            ("home", help_views.home, help_center.HOME),
+            ("search", help_views.search, help_center.SEARCH),
+            ("news", help_views.news, help_center.NEWS),
+        )
+        for lang in ("fr", "en")
+    ],
+    *[
+        path(
+            f"{help_center.HOME[lang][1:]}<slug:slug>/",
+            help_views.article,
+            {"lang": lang},
+            name=f"site-help-article-{lang}",
+        )
         for lang in ("fr", "en")
     ],
     *[

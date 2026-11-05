@@ -25,6 +25,7 @@ BILLING_MANAGE = "platform.billing.manage"
 IDENTITY_EDIT = "platform.identity.edit"
 TEAM_MANAGE = "platform.team.manage"
 AI_MANAGE = "platform.ai.manage"
+SUPPORT_HANDLE = "platform.support.handle"
 
 PLATFORM_PERMISSIONS: dict[str, Promise] = {
     SCHOOLS_VIEW: _("View the schools and the dashboard"),
@@ -41,6 +42,7 @@ PLATFORM_PERMISSIONS: dict[str, Promise] = {
     IDENTITY_EDIT: _("Change the identity of the platform"),
     TEAM_MANAGE: _("Manage the platform team"),
     AI_MANAGE: _("Manage the AI assistance: switch, cap, prices, uses and credits of schools"),
+    SUPPORT_HANDLE: _("Answer the help requests of the schools"),
 }
 
 OWNER = "owner"
@@ -52,7 +54,7 @@ PLATFORM_ROLES: dict[str, tuple[Promise, frozenset[str]]] = {
     "technical": (_("Technical"), frozenset({HEALTH_VIEW, AUDIT_VIEW, SCHOOLS_VIEW, AI_MANAGE})),
     "support": (
         _("Support"),
-        frozenset({SCHOOLS_VIEW, ACCOUNTS_SUPPORT, DEMOS_MANAGE}),
+        frozenset({SCHOOLS_VIEW, ACCOUNTS_SUPPORT, DEMOS_MANAGE, SUPPORT_HANDLE}),
     ),
     # Ni la liste des espaces réels ni leurs données : seulement les essais et démonstrations.
     "commercial": (_("Sales"), frozenset({LEADS_MANAGE, DEMOS_MANAGE})),

@@ -350,7 +350,7 @@ function IdentityCard({ form, code }: CardProps & { code: string }) {
   const timezone = form.watch("timezone");
   const zones = useMemo(() => otherZones(timezone), [timezone]);
   return (
-    <Card>
+    <Card data-guide="settings-identity">
       <CardHeader>
         <CardTitle>{t("settings.identity.title")}</CardTitle>
       </CardHeader>

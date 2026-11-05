@@ -134,7 +134,7 @@ export function StudentsPage() {
               </Link>
             </Button>
             {can(me, ["students.import"]) && (
-              <Button asChild variant="outline">
+              <Button asChild variant="outline" data-guide="students-import">
                 <Link to="/students/import">
                   <Icon name="upload" size={16} />
                   {t("students.list.importExcel")}
@@ -142,7 +142,7 @@ export function StudentsPage() {
               </Button>
             )}
             {can(me, ["students.edit"]) && (
-              <Button asChild>
+              <Button asChild data-guide="students-new">
                 <Link to="/students/new">
                   <Icon name="plus" size={16} />
                   {t("students.list.newStudent")}
