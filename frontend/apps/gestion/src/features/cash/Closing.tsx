@@ -290,6 +290,7 @@ function ClosingForm({
             </CardContent>
           </Card>
           <FeeTypes data={data} />
+          <CashOuts data={data} />
         </div>
         <div className="flex flex-col gap-4">
           <Card>
@@ -379,6 +380,40 @@ function FeeTypes({ data }: { data: ClosingData }) {
   );
 }
 
+/** Sorties de caisse de la session (FIN.2) : déjà déduites de l'attendu. */
+function CashOuts({ data }: { data: ClosingData }) {
+  const { t } = useTranslation();
+  if (data.cash_outs.length === 0) return null;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{t("cash.closing.outsTitle")}</CardTitle>
+      </CardHeader>
+      <Table>
+        <thead>
+          <tr>
+            <th>{t("cash.closing.outNumber")}</th>
+            <th>{t("cash.closing.outBeneficiary")}</th>
+            <th className="text-right">{t("cash.closing.outAmount")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.cash_outs.map((out) => (
+            <tr key={out.id}>
+              <td>
+                {out.number}
+                <span className="block text-xs text-ink-3">{out.expense_number}</span>
+              </td>
+              <td>{out.beneficiary}</td>
+              <td className="text-right tabular-nums">− {money(out.amount_minor, out.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </Card>
+  );
+}
+
 function Summary({ data, unsynced }: { data: ClosingData; unsynced?: number }) {
   const { t } = useTranslation();
   const cancelled = data.cancelled.reduce((sum, row) => sum + row.count, 0);
@@ -404,6 +439,25 @@ function Summary({ data, unsynced }: { data: ClosingData; unsynced?: number }) {
             : 0}
         </b>
       </div>
+      {data.currencies.map(
+        (row) =>
+          row.cash_outs_count > 0 && (
+            <div key={row.currency}>
+              <span>
+                {t("cash.closing.cashOuts", {
+                  count: row.cash_outs_count,
+                  currency: currencyName(row.currency),
+                })}
+              </span>
+              <b className="tabular-nums">
+                {t("cash.closing.receivedOut", {
+                  received: money(row.received_minor, row.currency),
+                  out: money(row.paid_out_minor, row.currency),
+                })}
+              </b>
+            </div>
+          ),
+      )}
       <div>
         <span>{t("cash.closing.pending")}</span>
         <b className={data.cancellations_pending ? "text-warn" : undefined}>
@@ -463,6 +517,23 @@ function SlipCopy({ slip }: { slip: Slip }) {
           <dd>{cancelled}</dd>
         </div>
       </dl>
+      {slip.data.cash_outs.length > 0 && (
+        <table className="receipt__lines">
+          <tbody>
+            {slip.data.cash_outs.map((out) => (
+              <tr key={out.id}>
+                <td>
+                  {t("cash.closing.slip.out", {
+                    number: out.number,
+                    beneficiary: out.beneficiary,
+                  })}
+                </td>
+                <td>− {money(out.amount_minor, out.currency)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
       <table className="receipt__lines">
         <tbody>
           {slip.lines.map((line) => (

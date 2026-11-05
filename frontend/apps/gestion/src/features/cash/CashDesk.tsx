@@ -26,6 +26,7 @@ import {
 } from "@mwangaza/ui";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router";
 
 import { firstErrorMessage } from "../../lib/errors";
 import { fullName, studentName } from "../../lib/people";
@@ -175,6 +176,14 @@ export function CashDesk({
               >
                 {t("cash.rate", { rate: formatRate(current.rate) })}
               </span>
+            )}
+            {!device && (
+              <Button variant="outline" asChild>
+                <Link to="/cash/out">
+                  <Icon name="wallet" size={18} />
+                  {t("cash.out.open")}
+                </Link>
+              </Button>
             )}
             <Button data-guide="cash-close" variant="outline" onClick={() => setClosing(true)}>
               <Icon name="lock" size={18} />

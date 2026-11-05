@@ -52,6 +52,7 @@ export const keys = {
   credits: ["student-credits"],
   unpaid: ["unpaid"],
   expenses: ["expenses"],
+  cashOuts: ["cash-outs"],
   expenseCategories: ["expense-categories"],
   dashboard: ["dashboard"],
   setup: ["school-setup"],

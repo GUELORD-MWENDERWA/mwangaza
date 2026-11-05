@@ -18,6 +18,7 @@ import { LoginLayout } from "./features/auth/LoginLayout";
 import { LoginPage } from "./features/auth/LoginPage";
 import { LoginTwoFactorPage } from "./features/auth/LoginTwoFactorPage";
 import { NewPasswordPage } from "./features/auth/NewPasswordPage";
+import { CashOutPage } from "./features/cash/CashOutPage";
 import { CashPage } from "./features/cash/CashPage";
 import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
@@ -143,6 +144,11 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     path: "expenses/new",
     item: { ...menuItem("expenses"), permissions: ["finance.record_expense"] },
     element: <NewExpensePage />,
+  },
+  {
+    path: "cash/out",
+    item: { ...menuItem("cash"), permissions: ["finance.collect_payment"] },
+    element: <CashOutPage />,
   },
   {
     path: "fees/prior-payments",

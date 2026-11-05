@@ -6,7 +6,7 @@
 - [x] ① Maquettes du lot (6, dans `maquettes/gestion/`) ; FIN.1 serveur : modèles, migration, services, API, droits, audit, démo, tests
 - [x] ②a FIN.1 écran « Dépenses » (liste, filtres, saisie avec justificatif, validation, annulation, seuil et catégories, article d'aide) — à regarder à 390/1440 px avant la PR
 - [x] ②b1 FIN.2 serveur : payer une dépense en espèces depuis une `CashSession`, clôture et bordereau qui la déduisent, audit, tests (argent, isolation) — **Opus**
-- [ ] ②b2 FIN.2 écrans en ligne : sortie de caisse, bon de sortie imprimé, ligne « sorties » dans la clôture — Sonnet
+- [x] ②b2 FIN.2 écrans en ligne : sortie de caisse, bon de sortie imprimé, ligne « sorties » dans la clôture — Sonnet
 - [ ] ②b3 FIN.2 hors ligne : sortie en file d'attente, synchro idempotente, Playwright réseau coupé — **Opus**
 - [ ] ③ HL.1 (inscription hors ligne, doublons signalés, Playwright réseau coupé)
 - [ ] ④ FIN.3 (budget, réalisé/prévu, entrées/sorties, comptes, Excel) ; PERF.7 ; OPS.5 ; fin du lot (docs, vérification, PR)
