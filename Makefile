@@ -66,7 +66,8 @@ reset-db: ## Effacer la base de développement (et celle des tests), puis la rec
 # ferait ignorer), puis attend qu'ils aient fini. Vite lancé app par app : `pnpm dev` signalerait
 # à tort un échec (« Failed », ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL) à chaque arrêt.
 dev-local: SHELL := /bin/bash
-dev-local: db-up ## Lancer Django et Vite sur la machine (base décrite dans .env) ; Ctrl+C pour arrêter
+dev-local: db-up ## Lancer Django et Vite sur la machine (base décrite dans .env, migrations appliquées) ; Ctrl+C pour arrêter
+	@$(MANAGE) migrate --noinput -v 0
 	@(cd backend && exec uv run python manage.py runserver) & \
 	(cd frontend/apps/gestion && exec pnpm exec vite) & \
 	(cd frontend/apps/portail && exec pnpm exec vite) & \
@@ -113,6 +114,7 @@ test-e2e: db-up ## Parcours dans Chromium (Playwright) : Django + Gestion ; reme
 	cd frontend && pnpm exec playwright test
 
 apercu: db-up ## Aperçu de tous les écrans à 390, 820 et 1440 px (frontend/apercu/captures/), avec les débordements ; ecran=gestion/dashboard pour un seul
+	$(MANAGE) migrate --noinput -v 0
 	cd frontend && APERCU=$(ecran) pnpm exec playwright test -c apercu/playwright.config.ts
 
 captures-site: db-up ## Captures du produit pour le site public (WebP dans backend/apps/core/static/core/site/captures/), sur les données de make demo

@@ -5,7 +5,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { type Browser, type Page, test } from "@playwright/test";
 
 import { allowCodeAgain } from "../e2e/django";
-import { enterCode, enterPassword, ITIG } from "../e2e/helpers";
+import { enterCode, enterPassword } from "../e2e/helpers";
+import { CONSOLE, ITIG, PORTAL, SITE } from "./adresses";
 
 const OUT = new URL("./captures/", import.meta.url).pathname;
 const WIDTHS = [
@@ -13,9 +14,6 @@ const WIDTHS = [
   { width: 820, height: 1180 },
   { width: 1440, height: 900 },
 ];
-const PORTAL = "http://localhost:5174/";
-const CONSOLE = "http://admin.localhost:5175/";
-const SITE = "http://localhost:8000/";
 // Une seule application ou un seul écran : `APERCU=gestion` ou `APERCU=gestion/dashboard`.
 const ONLY = process.env.APERCU ?? "";
 const report: Record<string, string[]> = {};
@@ -77,7 +75,7 @@ type Term = { id: string; kind: string; starts_on: string | null; children?: Ter
 
 async function skipGuide(page: Page) {
   const skip = page.getByRole("dialog").getByRole("button", { name: "Passer le guide" });
-  if (await skip.isVisible().catch(() => false)) await skip.click();
+  if (await skip.isVisible().catch(() => false)) await skip.click().catch(() => {});
 }
 
 async function json<T>(page: Page, url: string): Promise<T> {
@@ -92,6 +90,11 @@ async function staff(browser: Browser, phone: string, withCode: boolean) {
   if (withCode) await enterCode(page);
   await page.waitForURL((url) => !url.pathname.includes("login"));
   await page.waitForLoadState("networkidle").catch(() => undefined);
+  // « Quoi de neuf » de la plateforme, par-dessus le guide : fermé d'abord.
+  await page
+    .getByRole("button", { name: "Compris" })
+    .click({ timeout: 5_000 })
+    .catch(() => {});
   await skipGuide(page);
   return page;
 }
