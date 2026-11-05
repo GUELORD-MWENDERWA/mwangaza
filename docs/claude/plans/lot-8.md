@@ -10,7 +10,7 @@ Tâches : 8.1.2a (#309), 8.1.2b (#310), 8.2.5 (#311), 8.2.4 (#303), HL.2 (#340).
 - [x] ④ 8.2.5 serveur : `CourseSubstitute`, accès restreint (total + examen, après envoi), correction avec motif, notification du propriétaire — **Opus**
 - [x] ⑤ 8.2.5 écran « Remplaçant » + 8.2.4 import Excel des points (modèle, erreurs par ligne, confirmation) — Sonnet
 - [x] ⑥ HL.2 conduite et discipline hors ligne (Dexie, file, synchro idempotente, Playwright réseau coupé) — **Opus**
-- [ ] ⑦ Fin du lot : définition de « fini », `/verifier`, tous les `.md`, articles d'aide, PR — Sonnet
+- [x] ⑦ Fin du lot : définition de « fini », `/verifier`, tous les `.md`, articles d'aide, PR — fait dans la conversation de ⑥ (2026-11-05, demandé : pas d'attente)
 
 ## Décisions (regard senior)
 - Les notes restent par cours de classe (`Grade` → `Evaluation` → `Course`) : les bulletins, le repêchage et la délibération ne changent pas. Le groupe ne stocke que le lien et l'enseignant ; la fiche commune lit et écrit les fiches de chaque classe en une page (un envoi par classe, atomique).

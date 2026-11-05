@@ -1,14 +1,14 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-05 17:15+0200\n"
+"POT-Creation-Date: 2026-11-05 20:56+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #: apps/academics/application.py:29
 msgid "This is not an application grade."
 msgstr "Ce n'est pas une cote d'application."
 
-#: apps/academics/application.py:30 apps/academics/discipline.py:53
+#: apps/academics/application.py:30 apps/academics/discipline.py:59
 msgid "Say why the grade is corrected."
 msgstr "Indiquez pourquoi la cote est corrigée."
 
@@ -236,105 +236,109 @@ msgstr "Comportement amélioré après un entretien avec les parents"
 msgid "Very attentive in class, grade raised by the homeroom teacher"
 msgstr "Très attentif en classe, cote relevée par le titulaire"
 
-#: apps/academics/discipline.py:38
+#: apps/academics/discipline.py:41
 msgid "This offence is already in the list."
 msgstr "Cette infraction est déjà dans la liste."
 
-#: apps/academics/discipline.py:40
+#: apps/academics/discipline.py:43
 msgid "The list already has offences: add the missing ones by hand."
 msgstr ""
 "La liste contient déjà des infractions : ajoutez les manquantes à la main."
 
-#: apps/academics/discipline.py:42
+#: apps/academics/discipline.py:45
 msgid "This offence is no longer in the list."
 msgstr "Cette infraction n'est plus dans la liste."
 
-#: apps/academics/discipline.py:44
+#: apps/academics/discipline.py:47
 msgid "This student is no longer enrolled in this class."
 msgstr "Cet élève n'est plus inscrit dans cette classe."
 
-#: apps/academics/discipline.py:46
+#: apps/academics/discipline.py:49
 msgid "The date cannot be in the future."
 msgstr "La date ne peut pas être dans le futur."
 
-#: apps/academics/discipline.py:48
+#: apps/academics/discipline.py:51
 msgid "No period matches this date: choose the period of the offence."
 msgstr ""
 "Aucune période ne correspond à cette date : choisissez la période de "
 "l'infraction."
 
-#: apps/academics/discipline.py:50
+#: apps/academics/discipline.py:53
 msgid "This period does not belong to the student's school year."
 msgstr "Cette période n'appartient pas à l'année scolaire de l'élève."
 
-#: apps/academics/discipline.py:51
+#: apps/academics/discipline.py:55
+msgid "This identifier belongs to another offence."
+msgstr "Cet identifiant appartient à une autre infraction."
+
+#: apps/academics/discipline.py:57
 msgid "This offence is already cancelled."
 msgstr "Cette infraction est déjà annulée."
 
-#: apps/academics/discipline.py:52
+#: apps/academics/discipline.py:58
 msgid "This is not a conduct grade."
 msgstr "Ce n'est pas une cote de conduite."
 
-#: apps/academics/discipline.py:56
+#: apps/academics/discipline.py:62
 msgid "A conduct grade is given for a period, not for a semester or an exam."
 msgstr ""
 "La cote de conduite se donne pour une période, pas pour un semestre ni pour "
 "des examens."
 
-#: apps/academics/discipline.py:60
+#: apps/academics/discipline.py:66
 msgid "The scale must start at 0 point and rise from one grade to the next."
 msgstr ""
 "Les seuils doivent commencer à 0 point et augmenter d'une cote à la suivante."
 
-#: apps/academics/discipline.py:70
+#: apps/academics/discipline.py:76
 msgid "Late arrival"
 msgstr "Retard"
 
-#: apps/academics/discipline.py:71
+#: apps/academics/discipline.py:77
 msgid "Wearing the uniform incorrectly"
 msgstr "Uniforme non respecté"
 
-#: apps/academics/discipline.py:72
+#: apps/academics/discipline.py:78
 msgid "Disturbing the class"
 msgstr "Perturbation du cours"
 
-#: apps/academics/discipline.py:73
+#: apps/academics/discipline.py:79
 msgid "Using a phone in class"
 msgstr "Téléphone utilisé en classe"
 
-#: apps/academics/discipline.py:74
+#: apps/academics/discipline.py:80
 msgid "Leaving class without permission"
 msgstr "Sortie de classe sans autorisation"
 
-#: apps/academics/discipline.py:75
+#: apps/academics/discipline.py:81
 msgid "Skipping a class"
 msgstr "Cours séché"
 
-#: apps/academics/discipline.py:76
+#: apps/academics/discipline.py:82
 msgid "Insulting a classmate or a teacher"
 msgstr "Insulte à un camarade ou à un enseignant"
 
-#: apps/academics/discipline.py:77
+#: apps/academics/discipline.py:83
 msgid "Fighting"
 msgstr "Bagarre"
 
-#: apps/academics/discipline.py:78
+#: apps/academics/discipline.py:84
 msgid "Cheating during a test"
 msgstr "Tricherie pendant une épreuve"
 
-#: apps/academics/discipline.py:79
+#: apps/academics/discipline.py:85
 msgid "Damaging school property"
 msgstr "Dégradation du matériel de l'école"
 
-#: apps/academics/discipline.py:155
+#: apps/academics/discipline.py:161
 msgid "Proposed offence list"
 msgstr "Liste d'infractions proposée"
 
-#: apps/academics/discipline.py:199
+#: apps/academics/discipline.py:205
 msgid "Conduct scale"
 msgstr "Seuils de la conduite"
 
-#: apps/academics/discipline.py:345 apps/academics/grades.py:272
+#: apps/academics/discipline.py:373 apps/academics/grades.py:272
 #, python-format
 msgid "Period %(n)d"
 msgstr "Période %(n)d"
@@ -11512,7 +11516,7 @@ msgstr "Cette école n'a pas de logo."
 msgid "No image."
 msgstr "Aucune image."
 
-#: apps/schools/views.py:808
+#: apps/schools/views.py:813
 msgid "Not available in this console mode."
 msgstr "Indisponible dans ce mode de la console."
 
@@ -12343,7 +12347,7 @@ msgstr "identifiant de l'entité"
 msgid "change"
 msgstr "changement"
 
-#: apps/sync/operations.py:51
+#: apps/sync/operations.py:54
 msgid "This application is out of date: update it."
 msgstr "Cette application n'est plus à jour : mettez-la à jour."
 

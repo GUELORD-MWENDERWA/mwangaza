@@ -350,13 +350,16 @@ export function ConductPage() {
                               {format.format(new Date(item.occurred_on))}
                             </td>
                             <td data-label={t("conduct.columns.offence")} data-wrap>
-                              {item.offence}
-                              <StatusPill tone="warn" className="ml-2">
-                                {t("conduct.offline.pending")}
-                              </StatusPill>
-                              {item.note && (
-                                <span className="block text-xs text-ink-3">{item.note}</span>
-                              )}
+                              {/* Un seul bloc : au téléphone, la cellule est une ligne libellé · valeur. */}
+                              <span className="min-w-0">
+                                {item.offence}
+                                <StatusPill tone="warn" className="ml-2">
+                                  {t("conduct.offline.pending")}
+                                </StatusPill>
+                                {item.note && (
+                                  <span className="block text-xs text-ink-3">{item.note}</span>
+                                )}
+                              </span>
                             </td>
                             <td data-label={t("conduct.columns.points")} className="text-right">
                               {item.points}
@@ -371,17 +374,19 @@ export function ConductPage() {
                               {format.format(new Date(incident.occurred_on))}
                             </td>
                             <td data-label={t("conduct.columns.offence")} data-wrap>
-                              <span className={incident.cancelled ? "line-through" : ""}>
-                                {incident.offence}
+                              <span className="min-w-0">
+                                <span className={incident.cancelled ? "line-through" : ""}>
+                                  {incident.offence}
+                                </span>
+                                {incident.cancelled && (
+                                  <StatusPill tone="due" className="ml-2">
+                                    {t("conduct.cancelled", { reason: incident.cancel_reason })}
+                                  </StatusPill>
+                                )}
+                                {incident.note && (
+                                  <span className="block text-xs text-ink-3">{incident.note}</span>
+                                )}
                               </span>
-                              {incident.cancelled && (
-                                <StatusPill tone="due" className="ml-2">
-                                  {t("conduct.cancelled", { reason: incident.cancel_reason })}
-                                </StatusPill>
-                              )}
-                              {incident.note && (
-                                <span className="block text-xs text-ink-3">{incident.note}</span>
-                              )}
                             </td>
                             <td data-label={t("conduct.columns.points")} className="text-right">
                               {incident.points}

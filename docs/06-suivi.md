@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Lot 8 — Cours communs et notes, partie ⑦ (fin du lot : captures, `/verifier`, documents, PR) |
-| Prochain lot | Lot 9 ; reste du lot 4 : mesure PERF.6 |
+| Lot en cours | Aucun — lot 8 fini, PR en relecture |
+| Prochain lot | Lot 9 (emploi du temps fini et IA) ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #430 (lot 8) |
 | Branche | `lot/8-cours-communs` |
-| Dernière mise à jour | 2026-11-05 (lot 8, partie ⑥ faite) |
+| Dernière mise à jour | 2026-11-05 (lot 8 fini) |
 
 ## Avancement
 
@@ -27,7 +27,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 5 — Console finie | 7 ✓ | 7 |
 | 6 — Aide, guide et support | 5 ✓ | 5 |
 | 7 — Finances et caisse complètes | 4 ✓ | 4 |
-| 8 — Cours communs et notes | 6 | 7 |
+| 8 — Cours communs et notes | 7 ✓ | 7 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |
 | 10 — Carte et présences | 0 | 3 |
 | 11 — Bibliothèque et ateliers | 0 | 3 |
@@ -63,6 +63,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q17.
 
 ## Journal
+
+### 2026-11-05 — Lot 8 : Cours communs et notes
+- Fait : cours communs (un enseignant, une fiche de cotes pour plusieurs classes ; charges et horaire le comptent une fois), remplaçant d'un cours (total et examen seulement, motif pour toute correction), import des points depuis Excel (contrôle ligne par ligne, rien écrit si une ligne est fausse), conduite sans réseau (HL.2 : infraction en file, une seule fois au serveur).
+- Tests : isolation entre écoles, 403, journal, envoi rejoué sans doublon ; Playwright réseau coupé (conduite) ; captures de tous les écrans du lot.
+- Décisions (`03`) : notes toujours par cours de classe ; annuler et corriger une cote de conduite restent en ligne (à valider).
+- Suite : lot 9.
 
 ### 2026-11-06 — Méthode plus rapide, fiche d'accès en production
 - Bug en production : la fiche d'accès d'une démonstration (console) répondait 404 par lien ou dans l'aperçu (en-tête du mode absent) ; corrigé dans la PR séparée #431, CI verte, à déployer.

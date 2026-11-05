@@ -359,6 +359,28 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     );
     // Conduite (8.5.1a) : l'enseignant attribue, le directeur de discipline tient le barème.
     await visit(teacher, `${ITIG}conduct`, "gestion", "conduct");
+    // Sans réseau (HL.2) : un élève lu en ligne, une infraction en attente, annuler et corriger
+    // masqués ; le réseau revient après la capture (l'infraction part).
+    await visit(teacher, `${ITIG}conduct`, "gestion", "conduct-offline", async (page) => {
+      await skipGuide(page);
+      const student = page.getByLabel("Élève");
+      await student.locator("option").nth(1).waitFor({ state: "attached" });
+      await student.selectOption({ index: 1 });
+      // L'appareil doit avoir fini sa première synchronisation (sa base locale existe) : pas
+      // encore enregistré (aperçu d'un seul écran, juste après la connexion), capture en ligne.
+      const synced = page.getByRole("status").filter({ hasText: "En ligne · à jour" });
+      const ready = await synced.waitFor({ timeout: 20_000 }).then(
+        () => true,
+        () => false,
+      );
+      if (!ready) return;
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+      await page.context().setOffline(true);
+      await page.getByLabel("Note (facultative)").fill("Aperçu hors ligne");
+      await page.getByRole("button", { name: "Enregistrer l'infraction" }).click();
+      await page.getByText("En attente du réseau").first().waitFor();
+    });
+    await teacher.context().setOffline(false);
     const discipline = await staff(browser, "0000001003", false);
     await visit(discipline, `${ITIG}conduct-scale`, "gestion", "conduct-scale");
     // Application (8.5.1c) : le directeur des études corrige la cote de n'importe quelle classe.
