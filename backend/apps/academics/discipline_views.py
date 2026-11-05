@@ -175,7 +175,8 @@ class IncidentsView(_DisciplineView):
         responses={201: IncidentSerializer, 400: ErrorSerializer, **ERRORS},
     )
     def post(self, request: Request) -> Response:
-        """Attribue une infraction à un élève."""
+        """Attribue une infraction à un élève ; avec `id` (appareil), un envoi rejoué rend
+        l'incident déjà écrit."""
         data = IncidentCreateSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         incident = discipline.record_incident(
@@ -185,6 +186,7 @@ class IncidentsView(_DisciplineView):
             occurred_on=data.validated_data["occurred_on"],
             note=data.validated_data["note"],
             term=data.validated_data.get("term"),
+            incident_id=data.validated_data.get("id"),
         )
         return Response(IncidentSerializer(incident).data, status=status.HTTP_201_CREATED)
 

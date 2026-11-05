@@ -1267,6 +1267,19 @@ export const en: Messages<typeof fr> = {
     reason: "Reason",
     confirmCancel: "Cancel the offence",
     keep: "Keep",
+    offline: {
+      queued: "Offence kept on this device; it will be sent when the network is back.",
+      waiting_one:
+        "{{count}} offence is waiting for the network: it is kept on this device and will be sent when the network is back.",
+      waiting_other:
+        "{{count}} offences are waiting for the network: they are kept on this device and will be sent when the network is back.",
+      pending: "Waiting for the network",
+      rejected: "An offence was not accepted: {{reason}}",
+      dismiss: "Got it",
+      readOnly:
+        "Offline: the history and grades are those last read on this device; cancelling an incident and correcting a grade need the network.",
+      noHistory: "This student's history has not been read on this device yet.",
+    },
   },
   resits: {
     title: "Resit exams",

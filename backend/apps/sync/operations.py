@@ -4,7 +4,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
 caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), sortie de caisse
-(FIN.2), inscription d'un élève (HL.1), feuille de notes (8.2.3). Une opération hors
+(FIN.2), inscription d'un élève (HL.1), feuille de notes (8.2.3), infraction d'un élève (HL.2).
+Une opération hors
 ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
 donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
 jours (`purge`)."""
@@ -23,11 +24,13 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import APIException, PermissionDenied
 
-from apps.academics import grades
+from apps.academics import discipline, grades
+from apps.academics.discipline_serializers import IncidentCreateSerializer
 from apps.academics.models import Course
 from apps.academics.serializers import SheetUpdateSerializer
 from apps.accounts.models import User
 from apps.accounts.roles import (
+    DISCIPLINE_RECORD,
     FINANCE_COLLECT_PAYMENT,
     FINANCE_REQUEST_CANCELLATION,
     FINANCE_VIEW_REPORTS,
@@ -257,6 +260,23 @@ def _save_grades(data: dict, device: Device, actor: User) -> dict:
     return {"course": str(course.pk), "term": str(term.pk)}
 
 
+class OfflineIncidentSerializer(IncidentCreateSerializer):
+    """Infraction attribuée hors ligne (HL.2) : comme `POST /api/discipline/incidents/`, avec
+    l'identifiant de l'appareil."""
+
+    id = serializers.UUIDField(help_text="UUID v7 de l'incident, donné par l'appareil.")
+
+    def to_service(self) -> dict:
+        data = dict(self.validated_data)
+        return {"incident_id": data.pop("id"), **data}
+
+
+def _record_incident(data: dict, device: Device, actor: User) -> dict:
+    """Mêmes règles qu'en ligne (infraction de la liste, élève inscrit, date passée)."""
+    incident = discipline.record_incident(actor=actor, **data)
+    return {"incident": str(incident.pk)}
+
+
 class OfflineChargeSerializer(serializers.Serializer):
     id = serializers.UUIDField(help_text="UUID v7 du frais dû créé par l'appareil.")
     installment_template = serializers.UUIDField(help_text="Tranche du barème.")
@@ -340,6 +360,9 @@ OPERATIONS = {
     "student.enroll": OperationType(STUDENTS_EDIT, OfflineEnrollmentSerializer, _enroll_student),
     "grades.save": OperationType(
         (GRADES_ENTER, GRADES_ENTER_ANY, GRADES_VALIDATE), OfflineGradesSerializer, _save_grades
+    ),
+    "incident.record": OperationType(
+        DISCIPLINE_RECORD, OfflineIncidentSerializer, _record_incident
     ),
 }
 

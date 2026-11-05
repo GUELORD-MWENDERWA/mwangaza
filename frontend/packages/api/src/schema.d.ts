@@ -3924,7 +3924,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Attribue une infraction à un élève. */
+        /**
+         * @description Attribue une infraction à un élève ; avec `id` (appareil), un envoi rejoué rend
+         *     l'incident déjà écrit.
+         */
         post: operations["discipline_incidents_create"];
         delete?: never;
         options?: never;
@@ -12625,6 +12628,11 @@ export interface components {
             readonly cancel_reason: string;
         };
         IncidentCreateRequest: {
+            /**
+             * Format: uuid
+             * @description UUID v7 donné par l'appareil (HL.2) : un envoi rejoué ne crée rien de plus.
+             */
+            id?: string;
             /** Format: uuid */
             enrollment: string;
             /** Format: uuid */

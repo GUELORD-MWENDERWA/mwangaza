@@ -12094,7 +12094,9 @@ paths:
   /api/discipline/incidents/:
     post:
       operationId: discipline_incidents_create
-      description: Attribue une infraction à un élève.
+      description: |-
+        Attribue une infraction à un élève ; avec `id` (appareil), un envoi rejoué rend
+        l'incident déjà écrit.
       tags:
       - discipline
       requestBody:
@@ -34832,6 +34834,11 @@ components:
     IncidentCreateRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 donné par l''appareil (HL.2) : un envoi rejoué ne
+            crée rien de plus.'
         enrollment:
           type: string
           format: uuid

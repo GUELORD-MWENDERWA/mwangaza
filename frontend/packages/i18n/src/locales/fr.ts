@@ -1273,6 +1273,19 @@ export const fr = {
     reason: "Motif",
     confirmCancel: "Annuler l'infraction",
     keep: "Garder",
+    offline: {
+      queued: "Infraction gardée sur cet appareil ; elle partira au retour du réseau.",
+      waiting_one:
+        "{{count}} infraction attend le réseau : elle est gardée sur cet appareil et partira seule au retour du réseau.",
+      waiting_other:
+        "{{count}} infractions attendent le réseau : elles sont gardées sur cet appareil et partiront seules au retour du réseau.",
+      pending: "En attente du réseau",
+      rejected: "Une infraction n'a pas été acceptée : {{reason}}",
+      dismiss: "Compris",
+      readOnly:
+        "Sans réseau : l'historique et les cotes sont ceux de la dernière lecture sur cet appareil ; annuler un incident et corriger une cote demandent le réseau.",
+      noHistory: "Historique de cet élève pas encore lu sur cet appareil.",
+    },
   },
   resits: {
     title: "Examens de repêchage",
