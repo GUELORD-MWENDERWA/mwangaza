@@ -24,8 +24,10 @@ import { DashboardPage } from "./features/dashboard/DashboardPage";
 import { DevicesPage } from "./features/devices/DevicesPage";
 import { FeesPage } from "./features/fees/FeesPage";
 import { CoursesPage } from "./features/courses/CoursesPage";
+import { JointCoursesPage } from "./features/courses/JointCoursesPage";
 import { TeachingLoadsPage } from "./features/courses/TeachingLoadsPage";
 import { GradesPage } from "./features/grades/GradesPage";
+import { JointSheetPage } from "./features/grades/JointSheetPage";
 import { GradeSheetsPage } from "./features/grades/GradeSheetsPage";
 import { GradeTotalsPage } from "./features/grades/GradeTotalsPage";
 import { ApplicationPage } from "./features/application/ApplicationPage";
@@ -174,6 +176,8 @@ const PAGES: { path: string; item: MenuItem; element: ReactNode }[] = [
     element: <EditStudentPage />,
   },
   { path: "grade-sheets/totals", item: menuItem("gradeSheets"), element: <GradeTotalsPage /> },
+  { path: "courses/joint", item: menuItem("courses"), element: <JointCoursesPage /> },
+  { path: "grades/joint", item: menuItem("grades"), element: <JointSheetPage /> },
   { path: "students/class-list", item: menuItem("students"), element: <ClassListPage /> },
   { path: "students/invitations", item: menuItem("students"), element: <InvitationsPage /> },
   { path: "students/:id/form", item: menuItem("students"), element: <RegistrationFormPage /> },

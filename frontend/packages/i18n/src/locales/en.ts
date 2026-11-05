@@ -2768,6 +2768,36 @@ export const en: Messages<typeof fr> = {
       maxInvalid: "A whole number from 1 to 1000.",
       belowAGrade: "A grade is above this maximum.",
     },
+    joint: {
+      title: "Joint grade sheet",
+      subtitle: "{{group}} · {{term}}",
+      groupChoice: "Joint course",
+      groupOption: "{{course}} · {{classes}}",
+      banner_one:
+        "Joint course: only one of its classes has exams this term ({{students}} students).",
+      banner_other:
+        "Course shared by {{count}} classes ({{students}} students). One sheet: each mark goes to the student and their class; each class keeps its own term maximum.",
+      classState: "{{className}}: {{text}}",
+      classFilter: "Class shown",
+      all: "All",
+      class: "Class",
+      total: "Total",
+      validated: "validated",
+      closed: "closed",
+      footer: "The same assessments for every class · the total is scaled to each class's maximum",
+      maxHelp:
+        "It applies to every class of the joint course; the term mark is scaled to each class's maximum.",
+      signBody_one:
+        "You certify these marks. The class's grade sheet goes to the director of studies and the homeroom teacher.",
+      signBody_other:
+        "You certify these marks. The grade sheet of each of the {{count}} classes goes to the director of studies and the homeroom teacher, who validates it class by class.",
+      submitted:
+        "Grade sheets sent and signed: the director of studies and the homeroom teachers have been notified.",
+      hint: "This course is shared by several classes: you can enter all their marks on a single sheet.",
+      open: "Open the joint sheet",
+      none: "No joint course to grade here: the joint sheet belongs to the teacher of a course taught to several classes together.",
+      back: "Grade entry",
+    },
     leave: {
       title: "Leave without saving?",
       body: "The grades typed in this sheet will be lost.",
@@ -2869,6 +2899,51 @@ export const en: Messages<typeof fr> = {
       title: "Change class without saving?",
       body: "The changes to the courses of {{name}} will be lost.",
       confirm: "Change without saving",
+    },
+    joint: {
+      title: "Joint courses",
+      subtitle: "One course taught to several classes together · {{year}}",
+      subtitleEmpty: "One course taught to several classes together",
+      noLevel:
+        "No level has two classes yet this year: a joint course brings together at least two.",
+      levelChoice: "Level",
+      create: "Create a joint course",
+      createHelp:
+        "Links the courses with the same name in the chosen classes: one teacher, one grade sheet.",
+      confirm: "Create",
+      created: "Joint course “{{name}}” created.",
+      empty: "No joint course in this level.",
+      noName: "No course of this level is taught in two classes: nothing to bring together.",
+      open: "Open",
+      openNamed: "Open {{name}}",
+      columns: {
+        name: "Joint course",
+        classes: "Classes",
+        teacher: "Teacher",
+        students: "Students",
+        class: "Class",
+        periodMax: "Term max.",
+        examMax: "Exam max.",
+      },
+      detail: "{{name}} · {{level}}",
+      detailHelp: "One teacher and one grade sheet for the classes below.",
+      teacher: "Teacher of the group",
+      teacherHelp:
+        "The choice applies to every class of the group. Each class keeps its maxima and its marks.",
+      saved: "Teacher of the joint course saved.",
+      leave: "Leave the group",
+      leaveNamed: "Take {{className}} out of the group",
+      leaveHint: "Taking a class out: its marks stay, its course stands alone again.",
+      leaveTitle: "Take {{className}} out of the joint course?",
+      leaveBody: "Its marks stay; its course stands alone again, with the same teacher.",
+      leaveLast:
+        "Its marks stay. Only one class would be left: the joint course is undone, each class keeps its course and its teacher.",
+      left: "{{className}} has left “{{name}}”.",
+      dissolved: "Joint course “{{name}}” undone: each class keeps its course.",
+      course: "Course",
+      classes: "Classes",
+      alreadyGrouped: "{{className}} (already in a joint course)",
+      withoutCourse: "{{className}} (does not have this course)",
     },
     loads: {
       title: "Teaching loads",
@@ -3143,6 +3218,7 @@ export const en: Messages<typeof fr> = {
       school: "School",
       organisation: "School organisation",
       courses: "Courses",
+      course_group: "Joint courses",
       grades: "Grades",
       discipline: "Conduct",
       application: "Application",
@@ -3224,6 +3300,9 @@ export const en: Messages<typeof fr> = {
       },
       courses: {
         changed: "Courses of a class changed",
+      },
+      course_group: {
+        changed: "Joint course changed",
       },
       grades: {
         changed: "Grades changed",

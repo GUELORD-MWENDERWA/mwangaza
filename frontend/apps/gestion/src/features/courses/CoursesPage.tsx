@@ -329,6 +329,9 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
                 </option>
               ))}
             </Select>
+            <Button asChild variant="outline">
+              <Link to="/courses/joint">{t("courses.joint.title")}</Link>
+            </Button>
             <Button
               variant="outline"
               disabled={dirty || rows.length === 0 || classes.length < 2}

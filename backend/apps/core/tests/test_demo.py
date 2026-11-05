@@ -16,6 +16,7 @@ from django.db.models import Sum
 from apps.academics import board
 from apps.academics.models import (
     Course,
+    CourseGroup,
     Deliberation,
     DisciplineIncident,
     DisciplineRule,
@@ -157,6 +158,13 @@ def created(demo) -> None:
         assert not Course.objects.filter(
             class_group__academic_year__is_current=True, is_taught=True, teacher__isnull=True
         ).exists()
+        # 8.1.2a : la mathématique de l'enseignant de démonstration, commune aux 1HT A et B.
+        joint = CourseGroup.objects.get()
+        assert joint.teacher.phone == "+243000001008"
+        assert sorted(c.class_group.name for c in joint.courses.all()) == [
+            "1HT ÉLECTRICITÉ A",
+            "1HT ÉLECTRICITÉ B",
+        ]
         kept = [entry for entry in draft["entries"] if entry.course_id == locked.course_id]
         assert (1, 2, 6) in {(entry.weekday, entry.first, entry.length) for entry in kept}
         # EDT.5 : l'horaire des épreuves de la 1re période, publié et sans conflit.

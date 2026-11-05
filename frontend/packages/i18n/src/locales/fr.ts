@@ -2798,6 +2798,37 @@ export const fr = {
       maxInvalid: "Un nombre entier de 1 à 1000.",
       belowAGrade: "Une note dépasse ce maximum.",
     },
+    joint: {
+      title: "Fiche de cotes commune",
+      subtitle: "{{group}} · {{term}}",
+      groupChoice: "Cours commun",
+      groupOption: "{{course}} · {{classes}}",
+      banner_one:
+        "Cours commun : une seule de ses classes a des examens dans cette période ({{students}} élèves).",
+      banner_other:
+        "Cours commun à {{count}} classes ({{students}} élèves). Une seule fiche : les notes vont à l'élève et à sa classe ; chaque classe garde son maximum de la période.",
+      classState: "{{className}} : {{text}}",
+      classFilter: "Classe affichée",
+      all: "Toutes",
+      class: "Classe",
+      total: "Total",
+      validated: "validée",
+      closed: "fermée",
+      footer:
+        "Les mêmes évaluations pour toutes les classes · le total est ramené au maximum de chaque classe",
+      maxHelp:
+        "Elle vaut pour toutes les classes du cours commun ; la note de la période est ramenée au maximum de chaque classe.",
+      signBody_one:
+        "Vous certifiez ces notes. La fiche de cotes de la classe part au directeur des études et au titulaire.",
+      signBody_other:
+        "Vous certifiez ces notes. La fiche de cotes de chacune des {{count}} classes part au directeur des études et au titulaire ; il la valide classe par classe.",
+      submitted:
+        "Fiches de cotes envoyées et signées : le directeur des études et les titulaires sont avertis.",
+      hint: "Ce cours est commun à plusieurs classes : vous pouvez saisir toutes leurs notes sur une seule fiche.",
+      open: "Ouvrir la fiche commune",
+      none: "Aucun cours commun à noter ici : la fiche commune est celle de l'enseignant d'un cours donné ensemble à plusieurs classes.",
+      back: "Saisie des notes",
+    },
     leave: {
       title: "Quitter sans enregistrer ?",
       body: "Les notes tapées dans cette feuille seront perdues.",
@@ -2899,6 +2930,51 @@ export const fr = {
       title: "Changer de classe sans enregistrer ?",
       body: "Les changements de la grille de {{name}} seront perdus.",
       confirm: "Changer sans enregistrer",
+    },
+    joint: {
+      title: "Cours communs",
+      subtitle: "Un même cours donné ensemble à plusieurs classes · {{year}}",
+      subtitleEmpty: "Un même cours donné ensemble à plusieurs classes",
+      noLevel:
+        "Aucun niveau n'a encore deux classes cette année : un cours commun en réunit au moins deux.",
+      levelChoice: "Niveau",
+      create: "Créer un cours commun",
+      createHelp:
+        "Relie les cours du même nom des classes choisies : un seul enseignant, une seule fiche de cotes.",
+      confirm: "Créer",
+      created: "Cours commun « {{name}} » créé.",
+      empty: "Aucun cours commun dans ce niveau.",
+      noName: "Aucun cours de ce niveau n'est donné dans deux classes : rien à réunir.",
+      open: "Ouvrir",
+      openNamed: "Ouvrir {{name}}",
+      columns: {
+        name: "Cours commun",
+        classes: "Classes",
+        teacher: "Enseignant",
+        students: "Élèves",
+        class: "Classe",
+        periodMax: "Max. période",
+        examMax: "Max. examen",
+      },
+      detail: "{{name}} · {{level}}",
+      detailHelp: "Un seul enseignant et une seule fiche de cotes pour les classes ci-dessous.",
+      teacher: "Enseignant du groupe",
+      teacherHelp:
+        "Le choix s'applique à toutes les classes du groupe. Chaque classe garde ses maxima et ses notes.",
+      saved: "Enseignant du cours commun enregistré.",
+      leave: "Sortir du groupe",
+      leaveNamed: "Sortir {{className}} du groupe",
+      leaveHint: "Sortir une classe : ses notes restent, son cours redevient seul.",
+      leaveTitle: "Sortir {{className}} du cours commun ?",
+      leaveBody: "Ses notes restent ; son cours redevient seul, avec le même enseignant.",
+      leaveLast:
+        "Ses notes restent. Il ne resterait qu'une classe : le cours commun est défait, chaque classe garde son cours et son enseignant.",
+      left: "{{className}} est sortie de « {{name}} ».",
+      dissolved: "Cours commun « {{name}} » défait : chaque classe garde son cours.",
+      course: "Cours",
+      classes: "Classes",
+      alreadyGrouped: "{{className}} (déjà dans un cours commun)",
+      withoutCourse: "{{className}} (n'a pas ce cours)",
     },
     loads: {
       title: "Charges des enseignants",
@@ -3175,6 +3251,7 @@ export const fr = {
       school: "École",
       organisation: "Organisation scolaire",
       courses: "Cours",
+      course_group: "Cours communs",
       grades: "Notes",
       discipline: "Conduite",
       application: "Application",
@@ -3256,6 +3333,9 @@ export const fr = {
       },
       courses: {
         changed: "Cours d'une classe modifiés",
+      },
+      course_group: {
+        changed: "Cours commun modifié",
       },
       grades: {
         changed: "Notes modifiées",

@@ -138,32 +138,33 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     "category",
                 ],
             )
-            _joint_course(year)
+            _joint_course(
+                year, User.objects.filter(phone=space.numbers.of("+243000001008")).first()
+            )
 
 
-def _joint_course(year) -> None:
-    """Un cours commun (8.1.2a) : le premier cours que partagent deux sections d'un même niveau
-    (un seul enseignant, celui de la première section)."""
+def _joint_course(year, teacher: User | None) -> None:
+    """Un cours commun (8.1.2a) : la mathématique que l'enseignant de démonstration donne dans
+    deux sections d'un même niveau (1HT Électricité A et B à l'ITIG ; aux Volcans, il n'en a
+    qu'une : rien). Il reste l'enseignant du groupe."""
+    if teacher is None:
+        return
     by_level: dict = {}
-    for course in Course.objects.filter(class_group__academic_year=year).select_related(
-        "class_group"
-    ):
-        by_level.setdefault(course.class_group.level_id, {}).setdefault(
-            course.name.casefold(), []
-        ).append(course)
-    for level_id, names in by_level.items():
-        for courses in names.values():
-            if len(courses) >= 2 and courses[0].teacher_id and courses[0].is_taught:
-                group, _ = CourseGroup.objects.get_or_create(
-                    academic_year=year,
-                    level_id=level_id,
-                    name=courses[0].name,
-                    defaults={"teacher": courses[0].teacher},
-                )
-                for course in courses[:2]:
-                    course.course_group, course.teacher = group, group.teacher
-                    course.save(update_fields=["course_group", "teacher"])
-                return
+    for course in Course.objects.filter(
+        class_group__academic_year=year, teacher=teacher, name="Mathématique", is_taught=True
+    ).select_related("class_group"):
+        by_level.setdefault(course.class_group.level_id, []).append(course)
+    for level_id, courses in by_level.items():
+        if len(courses) < 2:
+            continue
+        group, _ = CourseGroup.objects.get_or_create(
+            academic_year=year,
+            level_id=level_id,
+            name=courses[0].name,
+            defaults={"teacher": teacher},
+        )
+        Course.objects.filter(pk__in=[course.pk for course in courses]).update(course_group=group)
+        return
 
 
 # Évaluations de la 1re période : nom et part du maximum du cours.

@@ -33462,6 +33462,13 @@ components:
           oneOf:
           - $ref: '#/components/schemas/AccessEnum'
           - $ref: '#/components/schemas/NullEnum'
+        course_group:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: 'Cours commun à plusieurs classes (8.1.2a) : ses notes se saisissent
+            aussi sur une seule fiche, avec les autres cours du groupe.'
       required:
       - id
       - name
@@ -33469,6 +33476,7 @@ components:
       - has_exam
       - teaches
       - access
+      - course_group
     GradingSettings:
       type: object
       description: Saisie des points de l'école (`grading.py`, 8.4.0).

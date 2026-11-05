@@ -49,26 +49,29 @@ export function useReportStatus(classId: string) {
   });
 }
 
+/** Lecture d'une feuille (ses options : aussi pour plusieurs à la fois, fiche commune 8.1.2a). */
+export const sheetQuery = (db: LocalDb | null, courseId: string, termId: string) => ({
+  queryKey: [...keys.gradeSheet, courseId, termId],
+  queryFn: () =>
+    readOrRecall(
+      db,
+      sheetId(courseId, termId),
+      () =>
+        call(
+          api.GET("/api/courses/{id}/terms/{term}/grades/", {
+            params: { path: { id: courseId, term: termId } },
+          }),
+        ),
+      // Notes saisies ici pas encore reprises par le serveur : la copie de l'appareil est la
+      // plus à jour.
+      async () => (await sheetQueue(db!, courseId, termId)).waiting.length > 0,
+    ),
+  enabled: Boolean(courseId && termId),
+});
+
 export function useSheet(courseId: string, termId: string) {
   const { db } = useSyncStatus();
-  return useQuery({
-    queryKey: [...keys.gradeSheet, courseId, termId],
-    queryFn: () =>
-      readOrRecall(
-        db,
-        sheetId(courseId, termId),
-        () =>
-          call(
-            api.GET("/api/courses/{id}/terms/{term}/grades/", {
-              params: { path: { id: courseId, term: termId } },
-            }),
-          ),
-        // Notes saisies ici pas encore reprises par le serveur : la copie de l'appareil est la
-        // plus à jour.
-        async () => (await sheetQueue(db!, courseId, termId)).waiting.length > 0,
-      ),
-    enabled: Boolean(courseId && termId),
-  });
+  return useQuery(sheetQuery(db, courseId, termId));
 }
 
 /** Fiche de cotes d'un cours (NB.1) : le total de chaque élève, une fois envoyée ; en ligne. */

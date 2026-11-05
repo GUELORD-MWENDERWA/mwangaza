@@ -12067,6 +12067,11 @@ export interface components {
              *     * `total` - total
              */
             access: (components["schemas"]["AccessEnum"] | components["schemas"]["NullEnum"]) | null;
+            /**
+             * Format: uuid
+             * @description Cours commun à plusieurs classes (8.1.2a) : ses notes se saisissent aussi sur une seule fiche, avec les autres cours du groupe.
+             */
+            readonly course_group: string | null;
         };
         /** @description Saisie des points de l'école (`grading.py`, 8.4.0). */
         GradingSettings: {

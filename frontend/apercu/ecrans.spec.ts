@@ -179,6 +179,10 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     for (const path of pages)
       await visit(head, `${ITIG}${path}`, "gestion", path.replace(/\//g, "-") || "accueil");
     // Fil d'une demande d'aide (SUP.1) : la première de la liste.
+    // Cours communs (8.1.2a) : la liste du niveau, le groupe ouvert.
+    await visit(head, `${ITIG}courses/joint`, "gestion", "courses-joint", async (page) => {
+      await page.getByRole("button", { name: "Ouvrir Mathématique" }).click();
+    });
     await visit(head, `${ITIG}help/requests`, "gestion", "help-requests-fil", async (page) => {
       await page.locator('a[href*="/help/requests/"]').first().click();
       await page.waitForLoadState("networkidle").catch(() => undefined);
@@ -247,6 +251,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Saisie des notes (8.2.1) : l'enseignant, sur ses cours.
     const teacher = await staff(browser, "0000001008", false);
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
+    // Fiche de cotes commune (8.1.2a) : sa mathématique des 1HT Électricité A et B, 2e période.
+    await visit(teacher, `${ITIG}grades/joint`, "gestion", "grades-joint");
     // Ma classe (NB.3) : le titulaire, dans la classe qui attend une dernière fiche.
     const own = await json<{ classes: { id: string; name: string }[] }>(teacher, "/api/homeroom/");
     const titular = own.classes.find((item) => item.name === "3HT ÉLECTRICITÉ A") ?? own.classes[0];

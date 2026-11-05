@@ -46,7 +46,9 @@ def create(client, alpha, teacher=None, name="français"):
     )
 
 
-def test_one_teacher_for_the_group_each_class_keeps_its_maximum(ready, alpha, school, teachers):
+def test_one_teacher_for_the_group_each_class_keeps_its_maximum(
+    ready, alpha, api, school, teachers
+):
     response = create(ready, alpha, teachers[0])
     assert response.status_code == 201
     group = response.json()
@@ -67,6 +69,11 @@ def test_one_teacher_for_the_group_each_class_keeps_its_maximum(ready, alpha, sc
     )
     with use_school(school):
         assert {c.teacher_id for c in Course.objects.filter(name="Français")} == {teachers[1].pk}
+    # Ses notes : les deux cours, marqués du groupe (la fiche commune les réunit).
+    mine = api(teachers[1]).get("/api/grading/").json()["classes"]
+    assert [c["course_group"] for k in mine for c in k["courses"] if c["teaches"]] == [
+        group["id"]
+    ] * 2
 
 
 def _grid_of(client, group):

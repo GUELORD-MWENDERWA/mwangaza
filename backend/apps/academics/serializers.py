@@ -254,9 +254,16 @@ class GradingListCourseSerializer(GradingCourseSerializer):
         "titulaire ou cotitulaire de la classe, NB.7 ; refusé si la feuille a des devoirs) ; "
         "vide : fiche de cotes à lire seulement.",
     )
+    course_group = serializers.UUIDField(
+        source="course_group_id",
+        allow_null=True,
+        read_only=True,
+        help_text="Cours commun à plusieurs classes (8.1.2a) : ses notes se saisissent aussi sur "
+        "une seule fiche, avec les autres cours du groupe.",
+    )
 
     class Meta(GradingCourseSerializer.Meta):
-        fields = [*GradingCourseSerializer.Meta.fields, "teaches", "access"]
+        fields = [*GradingCourseSerializer.Meta.fields, "teaches", "access", "course_group"]
         read_only_fields = fields
 
 
