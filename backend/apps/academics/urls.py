@@ -91,6 +91,11 @@ urlpatterns = [
         name="grade-reopen",
     ),
     path(
+        "courses/<uuid:pk>/terms/<uuid:term>/grades/import/",
+        views.GradeImportView.as_view(),
+        name="grade-import",
+    ),
+    path(
         "courses/<uuid:pk>/terms/<uuid:term>/grades/totals/",
         views.GradeTotalsView.as_view(),
         name="grade-totals",

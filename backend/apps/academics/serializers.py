@@ -443,6 +443,51 @@ class GradeInputSerializer(serializers.Serializer):
     )
 
 
+class GradeImportUploadSerializer(serializers.Serializer):
+    file = serializers.FileField(help_text="Classeur .xlsx (ou .csv) rempli avec le modèle.")
+
+
+class GradeImportColumnSerializer(serializers.Serializer):
+    evaluation_id = serializers.UUIDField()
+    name = serializers.CharField()
+    max_score = serializers.IntegerField()
+    new = serializers.BooleanField(help_text="Saisie « total » encore vide : créée avec les notes.")
+
+
+class GradeImportIssueSerializer(serializers.Serializer):
+    code = serializers.ChoiceField(
+        choices=["unknown_student", "duplicate_student", "invalid_score", "above_maximum"]
+    )
+    column = serializers.CharField(required=False, help_text="Titre de la colonne fausse.")
+    value = serializers.CharField(required=False)
+    max = serializers.IntegerField(required=False)
+    line = serializers.IntegerField(required=False, help_text="Ligne où l'élève est déjà.")
+
+
+class GradeImportLineSerializer(serializers.Serializer):
+    number = serializers.IntegerField(help_text="Numéro de la ligne dans le classeur.")
+    matricule = serializers.CharField(allow_blank=True)
+    name = serializers.CharField(allow_blank=True, help_text="Élève reconnu, ou nom du fichier.")
+    values = serializers.ListField(child=serializers.CharField(allow_blank=True))
+    enrollment_id = serializers.UUIDField(allow_null=True)
+    status = serializers.ChoiceField(choices=["ready", "skipped", "error"])
+    issues = GradeImportIssueSerializer(many=True)
+
+
+class GradeImportSerializer(serializers.Serializer):
+    """Contrôle d'un classeur (8.2.4), rien n'est écrit. Sans erreur, `evaluations` et `grades`
+    s'envoient tels quels à la saisie de la feuille (PUT), avec un motif si elle est envoyée."""
+
+    columns = GradeImportColumnSerializer(many=True)
+    lines = GradeImportLineSerializer(many=True)
+    ready_count = serializers.IntegerField()
+    skipped_count = serializers.IntegerField(help_text="Élèves sans aucune note dans le classeur.")
+    error_count = serializers.IntegerField()
+    unchanged_count = serializers.IntegerField(help_text="Notes identiques à celles de la feuille.")
+    evaluations = EvaluationInputSerializer(many=True)
+    grades = GradeInputSerializer(many=True, help_text="Cases qui changent ; vide si erreur.")
+
+
 class SheetUpdateSerializer(serializers.Serializer):
     """Évaluations ajoutées ou modifiées (dans l'ordre ; les autres restent), retirées avec leurs
     notes, et les seules cases changées."""

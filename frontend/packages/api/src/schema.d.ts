@@ -3606,6 +3606,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/courses/{id}/terms/{term}/grades/import/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Modèle Excel de la feuille : matricule et nom de chaque élève (verrouillés), une
+         *     colonne par évaluation (saisie « total » : le total) avec les notes déjà saisies.
+         */
+        get: operations["courses_terms_grades_import_retrieve"];
+        put?: never;
+        /**
+         * @description Contrôle le classeur ligne par ligne, sans rien écrire : élève de la classe reconnu
+         *     par le matricule (à défaut, le nom exact), notes de 0 au maximum, au dixième ; une case
+         *     vide ne change rien. Feuille validée : 409 `sheet_validated`.
+         */
+        post: operations["courses_terms_grades_import_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/courses/{id}/terms/{term}/grades/reopen/": {
         parameters: {
             query?: never;
@@ -11626,6 +11651,15 @@ export interface components {
             /** Maximum */
             readonly max_score: number;
         };
+        EvaluationInput: {
+            /**
+             * Format: uuid
+             * @description Évaluation de la feuille à garder, ou identifiant (UUID v7) d'une nouvelle donné par l'appareil ; absent : nouvelle.
+             */
+            id: string | null;
+            name: string;
+            max_score: number;
+        };
         EvaluationInputRequest: {
             /**
              * Format: uuid
@@ -12086,6 +12120,85 @@ export interface components {
          * @enum {string}
          */
         GradeEntryEnum: "detailed" | "totals";
+        /**
+         * @description Contrôle d'un classeur (8.2.4), rien n'est écrit. Sans erreur, `evaluations` et `grades`
+         *     s'envoient tels quels à la saisie de la feuille (PUT), avec un motif si elle est envoyée.
+         */
+        GradeImport: {
+            columns: components["schemas"]["GradeImportColumn"][];
+            lines: components["schemas"]["GradeImportLine"][];
+            ready_count: number;
+            /** @description Élèves sans aucune note dans le classeur. */
+            skipped_count: number;
+            error_count: number;
+            /** @description Notes identiques à celles de la feuille. */
+            unchanged_count: number;
+            evaluations: components["schemas"]["EvaluationInput"][];
+            /** @description Cases qui changent ; vide si erreur. */
+            grades: components["schemas"]["GradeInput"][];
+        };
+        GradeImportColumn: {
+            /** Format: uuid */
+            evaluation_id: string;
+            name: string;
+            max_score: number;
+            /** @description Saisie « total » encore vide : créée avec les notes. */
+            new: boolean;
+        };
+        GradeImportIssue: {
+            code: components["schemas"]["GradeImportIssueCodeEnum"];
+            /** @description Titre de la colonne fausse. */
+            column: string;
+            value: string;
+            max: number;
+            /** @description Ligne où l'élève est déjà. */
+            line: number;
+        };
+        /**
+         * @description * `unknown_student` - unknown_student
+         *     * `duplicate_student` - duplicate_student
+         *     * `invalid_score` - invalid_score
+         *     * `above_maximum` - above_maximum
+         * @enum {string}
+         */
+        GradeImportIssueCodeEnum: "unknown_student" | "duplicate_student" | "invalid_score" | "above_maximum";
+        GradeImportLine: {
+            /** @description Numéro de la ligne dans le classeur. */
+            number: number;
+            matricule: string;
+            /** @description Élève reconnu, ou nom du fichier. */
+            name: string;
+            values: string[];
+            /** Format: uuid */
+            enrollment_id: string | null;
+            status: components["schemas"]["GradeImportLineStatusEnum"];
+            issues: components["schemas"]["GradeImportIssue"][];
+        };
+        /**
+         * @description * `ready` - ready
+         *     * `skipped` - skipped
+         *     * `error` - error
+         * @enum {string}
+         */
+        GradeImportLineStatusEnum: "ready" | "skipped" | "error";
+        GradeImportUploadRequest: {
+            /**
+             * Format: binary
+             * @description Classeur .xlsx (ou .csv) rempli avec le modèle.
+             */
+            file: string;
+        };
+        GradeInput: {
+            /** Format: uuid */
+            enrollment_id: string;
+            /** Format: uuid */
+            evaluation_id: string;
+            /**
+             * Format: decimal
+             * @description Vide : la case est vidée.
+             */
+            score: string | null;
+        };
         GradeInputRequest: {
             /** Format: uuid */
             enrollment_id: string;
@@ -29199,6 +29312,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Sheet"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    courses_terms_grades_import_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                term: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    courses_terms_grades_import_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                term: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["GradeImportUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradeImport"];
                 };
             };
             400: {

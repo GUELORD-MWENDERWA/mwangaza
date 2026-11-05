@@ -4,6 +4,7 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import PermissionDenied, ValidationError
+from rest_framework.parsers import MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,6 +12,7 @@ from rest_framework.views import APIView
 from apps.academics import (
     board,
     courses,
+    grade_import,
     gradebook,
     grades,
     official,
@@ -26,6 +28,8 @@ from apps.academics.serializers import (
     CourseSerializer,
     CoursesUpdateSerializer,
     DeadlineSerializer,
+    GradeImportSerializer,
+    GradeImportUploadSerializer,
     GradeSheetPrintSerializer,
     GradingFilterSerializer,
     GradingSerializer,
@@ -52,7 +56,14 @@ from apps.accounts.roles import (
 )
 from apps.audit import services as audit
 from apps.audit.actions import Action
-from apps.core.documents import PRINT_RESPONSE, print_options, render
+from apps.core.documents import (
+    PRINT_RESPONSE,
+    XLSX,
+    XLSX_RESPONSE,
+    file_response,
+    print_options,
+    render,
+)
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.core.kept import Keep
 from apps.schools import organisation
@@ -302,6 +313,49 @@ class GradeSheetView(_SheetView):
             **serializer.inputs(),
         )
         return Response(SheetSerializer(saved).data)
+
+
+@extend_schema(tags=["grades"])
+class GradeImportView(_SheetView):
+    """Import des points depuis Excel (8.2.4), mêmes droits que la feuille."""
+
+    parser_classes = [MultiPartParser]
+
+    @extend_schema(responses={**XLSX_RESPONSE, **ERRORS})
+    def get(self, request: Request, pk, term) -> HttpResponse:
+        """Modèle Excel de la feuille : matricule et nom de chaque élève (verrouillés), une
+        colonne par évaluation (saisie « total » : le total) avec les notes déjà saisies."""
+        course, period, total_only = self.objects(pk, term)
+        sheet = grades.sheet(course, period, total_only=total_only)
+        label = grades.term_label(period)
+        return file_response(
+            grade_import.template(sheet, label), XLSX, grade_import.file_name(sheet, label)
+        )
+
+    @extend_schema(
+        request={"multipart/form-data": GradeImportUploadSerializer},
+        responses={200: GradeImportSerializer, 400: ErrorSerializer, **ERRORS},
+    )
+    def post(self, request: Request, pk, term) -> Response:
+        """Contrôle le classeur ligne par ligne, sans rien écrire : élève de la classe reconnu
+        par le matricule (à défaut, le nom exact), notes de 0 au maximum, au dixième ; une case
+        vide ne change rien. Feuille validée : 409 `sheet_validated`."""
+        course, period, total_only = self.objects(pk, term)
+        upload = GradeImportUploadSerializer(data=request.data)
+        upload.is_valid(raise_exception=True)
+        sheet = grades.sheet(course, period, total_only=total_only)
+        result = grade_import.check(upload.validated_data["file"], sheet)
+        body = {
+            "columns": result.columns,
+            "lines": result.lines,
+            "ready_count": result.count(grade_import.READY),
+            "skipped_count": result.count(grade_import.SKIPPED),
+            "error_count": result.count(grade_import.ERROR),
+            "unchanged_count": result.unchanged,
+            "evaluations": result.evaluations if not result.count(grade_import.ERROR) else [],
+            "grades": result.grades,
+        }
+        return Response(GradeImportSerializer(body).data)
 
 
 @extend_schema(tags=["grades"], request=None)

@@ -11304,6 +11304,103 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/courses/{id}/terms/{term}/grades/import/:
+    get:
+      operationId: courses_terms_grades_import_retrieve
+      description: |-
+        Modèle Excel de la feuille : matricule et nom de chaque élève (verrouillés), une
+        colonne par évaluation (saisie « total » : le total) avec les notes déjà saisies.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: courses_terms_grades_import_create
+      description: |-
+        Contrôle le classeur ligne par ligne, sans rien écrire : élève de la classe reconnu
+        par le matricule (à défaut, le nom exact), notes de 0 au maximum, au dixième ; une case
+        vide ne change rien. Feuille validée : 409 `sheet_validated`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GradeImportUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeImport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/courses/{id}/terms/{term}/grades/reopen/:
     post:
       operationId: courses_terms_grades_reopen_create
@@ -32535,6 +32632,26 @@ components:
       - id
       - name
       - max_score
+    EvaluationInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Évaluation de la feuille à garder, ou identifiant (UUID v7)
+            d''une nouvelle donné par l''appareil ; absent : nouvelle.'
+        name:
+          type: string
+          maxLength: 60
+        max_score:
+          type: integer
+          maximum: 1000
+          minimum: 1
+      required:
+      - id
+      - name
+      - max_score
     EvaluationInputRequest:
       type: object
       properties:
@@ -33527,6 +33644,170 @@ components:
       description: |-
         * `detailed` - detailed
         * `totals` - totals
+    GradeImport:
+      type: object
+      description: |-
+        Contrôle d'un classeur (8.2.4), rien n'est écrit. Sans erreur, `evaluations` et `grades`
+        s'envoient tels quels à la saisie de la feuille (PUT), avec un motif si elle est envoyée.
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeImportColumn'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeImportLine'
+        ready_count:
+          type: integer
+        skipped_count:
+          type: integer
+          description: Élèves sans aucune note dans le classeur.
+        error_count:
+          type: integer
+        unchanged_count:
+          type: integer
+          description: Notes identiques à celles de la feuille.
+        evaluations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluationInput'
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeInput'
+          description: Cases qui changent ; vide si erreur.
+      required:
+      - columns
+      - lines
+      - ready_count
+      - skipped_count
+      - error_count
+      - unchanged_count
+      - evaluations
+      - grades
+    GradeImportColumn:
+      type: object
+      properties:
+        evaluation_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        max_score:
+          type: integer
+        new:
+          type: boolean
+          description: 'Saisie « total » encore vide : créée avec les notes.'
+      required:
+      - evaluation_id
+      - name
+      - max_score
+      - new
+    GradeImportIssue:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/GradeImportIssueCodeEnum'
+        column:
+          type: string
+          description: Titre de la colonne fausse.
+        value:
+          type: string
+        max:
+          type: integer
+        line:
+          type: integer
+          description: Ligne où l'élève est déjà.
+      required:
+      - code
+      - column
+      - value
+      - max
+      - line
+    GradeImportIssueCodeEnum:
+      enum:
+      - unknown_student
+      - duplicate_student
+      - invalid_score
+      - above_maximum
+      type: string
+      description: |-
+        * `unknown_student` - unknown_student
+        * `duplicate_student` - duplicate_student
+        * `invalid_score` - invalid_score
+        * `above_maximum` - above_maximum
+    GradeImportLine:
+      type: object
+      properties:
+        number:
+          type: integer
+          description: Numéro de la ligne dans le classeur.
+        matricule:
+          type: string
+        name:
+          type: string
+          description: Élève reconnu, ou nom du fichier.
+        values:
+          type: array
+          items:
+            type: string
+        enrollment_id:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          $ref: '#/components/schemas/GradeImportLineStatusEnum'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeImportIssue'
+      required:
+      - number
+      - matricule
+      - name
+      - values
+      - enrollment_id
+      - status
+      - issues
+    GradeImportLineStatusEnum:
+      enum:
+      - ready
+      - skipped
+      - error
+      type: string
+      description: |-
+        * `ready` - ready
+        * `skipped` - skipped
+        * `error` - error
+    GradeImportUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Classeur .xlsx (ou .csv) rempli avec le modèle.
+      required:
+      - file
+    GradeInput:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        evaluation_id:
+          type: string
+          format: uuid
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: 'Vide : la case est vidée.'
+      required:
+      - enrollment_id
+      - evaluation_id
+      - score
     GradeInputRequest:
       type: object
       properties:

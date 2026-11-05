@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-05 16:40+0200\n"
+"POT-Creation-Date: 2026-11-05 17:15+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
 #: apps/academics/application.py:29
@@ -339,6 +339,39 @@ msgstr "Seuils de la conduite"
 msgid "Period %(n)d"
 msgstr "Période %(n)d"
 
+#: apps/academics/grade_import.py:32
+msgid ""
+"No column of this sheet was found in the file: download the template, fill "
+"it in, then send it again."
+msgstr ""
+"Aucune colonne de cette fiche dans le classeur : téléchargez le modèle, "
+"remplissez-le, puis renvoyez-le."
+
+#: apps/academics/grade_import.py:38
+msgid "The file has more than 300 rows: it is not the sheet of a class."
+msgstr ""
+"Le classeur compte plus de 300 lignes : ce n'est pas la fiche d'une classe."
+
+#: apps/academics/grade_import.py:90
+#: apps/academics/templates/academics/grade_sheet.html:41
+#: apps/academics/templates/academics/grade_sheet.html:74
+#: apps/billing/templates/billing/invoice.html:13
+#: apps/finance/templates/finance/unpaid.html:62 apps/schools/business.py:215
+#: apps/students/templates/students/registration_form.html:50
+#: apps/timetable/templates/timetable/sheet.html:24
+msgid "Total"
+msgstr "Total"
+
+#: apps/academics/grade_import.py:125 apps/academics/prior_results.py:353
+#: apps/finance/prior_payments.py:377
+msgid "STUDENT NUMBER"
+msgstr "MATRICULE"
+
+#: apps/academics/grade_import.py:125 apps/academics/prior_results.py:354
+#: apps/finance/prior_payments.py:378
+msgid "NAME"
+msgstr "NOM"
+
 #: apps/academics/gradebook.py:32
 msgid "T.G."
 msgstr "T.G."
@@ -393,13 +426,17 @@ msgstr ""
 msgid ""
 "Give the reason for this change: the grades are sent, or someone else "
 "entered them."
-msgstr "Donnez le motif de la modification : les notes sont envoyées, ou une autre personne les a saisies."
+msgstr ""
+"Donnez le motif de la modification : les notes sont envoyées, ou une autre "
+"personne les a saisies."
 
 #: apps/academics/grades.py:90
 msgid ""
 "The teacher is still filling in this grade sheet: you will see it once it is "
 "sent."
-msgstr "L'enseignant remplit encore cette fiche de cotes : vous la verrez une fois envoyée."
+msgstr ""
+"L'enseignant remplit encore cette fiche de cotes : vous la verrez une fois "
+"envoyée."
 
 #: apps/academics/grades.py:275 apps/notifications/models.py:83
 #: apps/schools/models.py:445
@@ -1012,14 +1049,6 @@ msgstr ""
 "Le fichier ou les classes ont changé depuis l'aperçu : vérifiez-le de "
 "nouveau."
 
-#: apps/academics/prior_results.py:353 apps/finance/prior_payments.py:377
-msgid "STUDENT NUMBER"
-msgstr "MATRICULE"
-
-#: apps/academics/prior_results.py:354 apps/finance/prior_payments.py:378
-msgid "NAME"
-msgstr "NOM"
-
 #: apps/academics/prior_results.py:355
 #: apps/academics/templates/academics/report_card.html:91
 #: apps/core/templates/core/site/home.html:100
@@ -1523,15 +1552,6 @@ msgstr "Matricule"
 #: apps/students/templates/students/registration_form.html:22
 msgid "Last name, middle name, first name"
 msgstr "Nom, post-nom, prénom"
-
-#: apps/academics/templates/academics/grade_sheet.html:41
-#: apps/academics/templates/academics/grade_sheet.html:74
-#: apps/billing/templates/billing/invoice.html:13
-#: apps/finance/templates/finance/unpaid.html:62 apps/schools/business.py:215
-#: apps/students/templates/students/registration_form.html:50
-#: apps/timetable/templates/timetable/sheet.html:24
-msgid "Total"
-msgstr "Total"
 
 #: apps/academics/templates/academics/grade_sheet.html:43
 msgid "Mention"
@@ -2046,42 +2066,42 @@ msgstr "Toute l'école"
 msgid "Deliberation deviations"
 msgstr "Écarts de délibération"
 
-#: apps/academics/views.py:114
+#: apps/academics/views.py:125
 msgid "Placing courses in the timetable needs the timetable right."
 msgstr ""
 "Placer les cours dans l'horaire demande le droit sur l'emploi du temps."
 
-#: apps/academics/views.py:269
+#: apps/academics/views.py:280
 msgid "Only the teacher of this course sees its evaluations."
 msgstr "Seul l'enseignant de ce cours voit ses évaluations."
 
-#: apps/academics/views.py:337
+#: apps/academics/views.py:391
 msgid "You cannot read the grade sheet of this course."
 msgstr "Vous ne pouvez pas lire la fiche de cotes de ce cours."
 
-#: apps/academics/views.py:419
+#: apps/academics/views.py:473
 msgid "This course does not exist."
 msgstr "Ce cours n'existe pas."
 
-#: apps/academics/views.py:488
+#: apps/academics/views.py:542
 msgid ""
 "Only the homeroom or co-homeroom teacher of this class prints its report "
 "cards."
 msgstr ""
 "Seuls le titulaire et le cotitulaire de la classe impriment ses bulletins."
 
-#: apps/academics/views.py:528
+#: apps/academics/views.py:582
 msgid ""
 "Some courses have no validated grades yet: the report card cannot be printed."
 msgstr ""
 "Des cours n'ont pas encore de notes validées : le bulletin ne peut pas être "
 "imprimé."
 
-#: apps/academics/views.py:638
+#: apps/academics/views.py:692
 msgid "You cannot print the table of this class."
 msgstr "Vous ne pouvez pas imprimer le tableau de cette classe."
 
-#: apps/academics/views.py:644
+#: apps/academics/views.py:698
 msgid "You do not enter the grades of this course."
 msgstr "Vous ne saisissez pas les notes de ce cours."
 
