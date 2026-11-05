@@ -16,10 +16,11 @@ from django.utils import timezone
 from apps.accounts.models import User
 from apps.core.money import Money
 from apps.core.tenancy import use_school
-from apps.finance import expenses, services
+from apps.finance import cash_outs, expenses, services
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
+    CashOut,
     CashRegister,
     CashSession,
     Discount,
@@ -259,6 +260,7 @@ def create_demo_payments(spaces: list[DemoSpace]) -> None:
                 close_cash_session(session, actor=session.cashier, counted=expected)
             if not Payment.objects.exists():
                 _demo_payments(school, registers)
+                _demo_cash_outs(school)
             _demo_closings(school)
 
 
@@ -331,10 +333,51 @@ def _demo_payments(school: School, registers: list[tuple[CashRegister, User]]) -
     PaymentAllocation.objects.bulk_create(allocations, batch_size=1000)
 
 
+def _demo_cash_outs(school: School) -> None:
+    """Sorties de caisse (FIN.2) des dépenses validées en dollars à payer en espèces, sauf la plus
+    récente, laissée à payer pour essayer la caisse (comme celle en francs) : chacune dans la
+    dernière session qui a reçu assez, une heure avant la fin. Écrites comme les paiements de la
+    démo, avant les clôtures qui les déduisent."""
+    payable = cash_outs.payable_expenses().filter(currency="USD").order_by("-spent_on", "-number")
+    for expense in list(payable)[1:]:
+        enough = (
+            Payment.objects.filter(
+                received_currency=expense.currency,
+                cash_session__isnull=False,
+                cancellation__isnull=True,
+            )
+            .values("cash_session")
+            .annotate(total=Sum("received_amount_minor"))
+            .filter(total__gte=expense.amount_minor)
+            .order_by()
+        )
+        session = (
+            CashSession.objects.select_related("cash_register")
+            .filter(pk__in=[row["cash_session"] for row in enough])
+            .order_by("-opened_at")
+            .first()
+        )
+        if session is None:
+            continue
+        cash_out = CashOut.objects.create(
+            expense=expense,
+            cash_session=session,
+            number=cash_outs._next_number(school, session.cash_register),
+            amount_minor=expense.amount_minor,
+            currency=expense.currency,
+            received_by="Mumbere Kasereka",
+            paid_at=session.closed_at - timedelta(hours=1),
+            created_by_id=session.cashier_id,
+        )
+        expense.status, expense.paid_at = expense.Status.PAID, cash_out.paid_at
+        expense.save(update_fields=["status", "paid_at", "updated_at"])
+
+
 def _demo_closings(school: School) -> None:
     """Sessions fermées sans clôture (paiements de la démo, bases d'avant 3.8.2) : clôturées le
-    soir, l'argent compté juste, sauf la plus récente où il manque 5,00 $ (billet refusé),
-    expliqué : l'écart se voit dans le mois en cours (Clôtures de caisse, 3.8.3)."""
+    soir, l'argent compté juste (paiements moins sorties de caisse), sauf la plus récente où il
+    manque 5,00 $ (billet refusé), expliqué : l'écart se voit dans le mois en cours (Clôtures de
+    caisse, 3.8.3)."""
     sessions = list(
         CashSession.objects.filter(closed_at__isnull=False, closings__isnull=True).order_by(
             "opened_at"
@@ -347,6 +390,14 @@ def _demo_closings(school: School) -> None:
         .annotate(amount_minor=Sum("received_amount_minor"))
         .order_by()
     }
+    for row in (
+        CashOut.objects.filter(cash_session__in=sessions, cancellation__isnull=True)
+        .values("cash_session", "currency")
+        .annotate(amount_minor=Sum("amount_minor"))
+        .order_by()
+    ):
+        key = (row["cash_session"], row["currency"])
+        expected[key] = expected.get(key, 0) - row["amount_minor"]
     first = not CashClosing.objects.exclude(difference_minor=0).exists()
     closings = []
     for index, session in enumerate(sessions):
@@ -526,6 +577,8 @@ DEMO_EXPENSES = [
         "",
     ),
     ("Atelier mécanique", "Garage Ndosho", "Moteur d'essai d'occasion", 95000, "USD", "bank", ""),
+    # Payée en espèces, sortie d'une caisse passée (`_demo_cash_outs`, FIN.2).
+    ("Entretien", "Ets Kahindo", "Serrures des ateliers", 4500, "USD", "cash", ""),
 ]
 
 

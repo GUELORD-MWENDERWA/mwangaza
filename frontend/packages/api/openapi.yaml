@@ -874,6 +874,8 @@ paths:
           - finance.expense_approved
           - finance.expense_rejected
           - finance.expense_cancelled
+          - finance.cash_out_recorded
+          - finance.cash_out_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1033,6 +1035,8 @@ paths:
           * `finance.expense_approved` - Expense approved
           * `finance.expense_rejected` - Expense rejected
           * `finance.expense_cancelled` - Expense cancelled
+          * `finance.cash_out_recorded` - Cash paid out for an expense
+          * `finance.cash_out_cancelled` - Cash-out cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -1379,6 +1383,8 @@ paths:
           - finance.expense_approved
           - finance.expense_rejected
           - finance.expense_cancelled
+          - finance.cash_out_recorded
+          - finance.cash_out_cancelled
           - finance.payment_reprinted
           - finance.cancellation_requested
           - finance.payment_cancelled
@@ -1538,6 +1544,8 @@ paths:
           * `finance.expense_approved` - Expense approved
           * `finance.expense_rejected` - Expense rejected
           * `finance.expense_cancelled` - Expense cancelled
+          * `finance.cash_out_recorded` - Cash paid out for an expense
+          * `finance.cash_out_cancelled` - Cash-out cancelled
           * `finance.payment_reprinted` - Receipt reprinted
           * `finance.cancellation_requested` - Payment cancellation requested
           * `finance.payment_cancelled` - Payment cancelled
@@ -2846,6 +2854,253 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/cash-outs/:
+    get:
+      operationId: cash_outs_list
+      description: |-
+        Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+        espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+        les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+        session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+        enregistrée. Une sortie ne s'efface jamais.
+      parameters:
+      - in: query
+        name: cash_session
+        schema:
+          type: string
+          format: uuid
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - cash-outs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCashOutList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: cash_outs_create
+      description: |-
+        Sortir l'argent d'une dépense de la session ouverte du caissier. 409
+        `no_open_session`, `expense_not_payable_in_cash` (pas validée, ou pas en espèces),
+        `expense_already_paid`, `expense_cancelled`, `not_enough_cash` (la session n'a pas reçu
+        assez dans cette devise).
+      tags:
+      - cash-outs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CashOutCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CashOutCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CashOutCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-outs/{id}/:
+    get:
+      operationId: cash_outs_retrieve
+      description: |-
+        Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+        espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+        les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+        session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+        enregistrée. Une sortie ne s'efface jamais.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash-out.
+        required: true
+      tags:
+      - cash-outs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-outs/{id}/cancel/:
+    post:
+      operationId: cash_outs_cancel_create
+      description: |-
+        Annuler une sortie : l'argent revient dans la caisse, la dépense redevient à payer.
+        409 `cash_out_session_closed` après la clôture, `cash_out_cancelled` si déjà fait.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this cash-out.
+        required: true
+      tags:
+      - cash-outs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExpenseCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashOut'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/cash-outs/payable/:
+    get:
+      operationId: cash_outs_payable_list
+      description: |-
+        Dépenses validées à payer en espèces, pas encore sorties de la caisse, les plus
+        anciennes d'abord.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - cash-outs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPayableExpenseList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/cash-registers/:
     get:
       operationId: cash_registers_list
@@ -3142,7 +3397,8 @@ paths:
   /api/cash-sessions/current/:
     get:
       operationId: cash_sessions_current_retrieve
-      description: La caisse ouverte du caissier (ou `null`), ses totaux et le taux
+      description: |-
+        La caisse ouverte du caissier (ou `null`), ses totaux, ses sorties de caisse et le taux
         des encaissements.
       tags:
       - finance
@@ -23758,6 +24014,8 @@ components:
       - finance.expense_approved
       - finance.expense_rejected
       - finance.expense_cancelled
+      - finance.cash_out_recorded
+      - finance.cash_out_cancelled
       - finance.payment_reprinted
       - finance.cancellation_requested
       - finance.payment_cancelled
@@ -23916,6 +24174,8 @@ components:
         * `finance.expense_approved` - Expense approved
         * `finance.expense_rejected` - Expense rejected
         * `finance.expense_cancelled` - Expense cancelled
+        * `finance.cash_out_recorded` - Cash paid out for an expense
+        * `finance.cash_out_cancelled` - Cash-out cancelled
         * `finance.payment_reprinted` - Receipt reprinted
         * `finance.cancellation_requested` - Payment cancellation requested
         * `finance.payment_cancelled` - Payment cancelled
@@ -25450,6 +25710,11 @@ components:
           description: Annulations validées.
         cancellations_pending:
           type: integer
+        cash_outs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingCashOut'
+          description: Sorties de caisse déduites de l'attendu, dans l'ordre.
         closing:
           allOf:
           - $ref: '#/components/schemas/CashClosing'
@@ -25477,6 +25742,7 @@ components:
       - last_receipt
       - cancelled
       - cancellations_pending
+      - cash_outs
       - closing
       - state
       - late_payments
@@ -25538,6 +25804,11 @@ components:
           description: Annulations validées.
         cancellations_pending:
           type: integer
+        cash_outs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClosingCashOut'
+          description: Sorties de caisse déduites de l'attendu, dans l'ordre.
         closing:
           allOf:
           - $ref: '#/components/schemas/CashClosing'
@@ -25551,7 +25822,109 @@ components:
       - last_receipt
       - cancelled
       - cancellations_pending
+      - cash_outs
       - closing
+    CashOut:
+      type: object
+      description: Une sortie de caisse et ce qu'imprime son bon.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 40
+        expense:
+          type: string
+          format: uuid
+        expense_number:
+          type: string
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        beneficiary:
+          type: string
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        received_by:
+          type: string
+          maxLength: 120
+        paid_at:
+          type: string
+          format: date-time
+        cash_session:
+          type: string
+          format: uuid
+          title: Session
+        cash_register_code:
+          type: string
+          readOnly: true
+        cash_register_name:
+          type: string
+          readOnly: true
+        cashier_name:
+          type: string
+          readOnly: true
+        offline:
+          type: boolean
+          readOnly: true
+        cancelled:
+          type: boolean
+          readOnly: true
+        cancellation_reason:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - number
+      - expense
+      - expense_number
+      - category_name
+      - beneficiary
+      - reason
+      - amount_minor
+      - currency
+      - received_by
+      - paid_at
+      - cash_session
+      - cash_register_code
+      - cash_register_name
+      - cashier_name
+      - offline
+      - cancelled
+      - cancellation_reason
+    CashOutCreateRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 de l''appareil : un deuxième envoi rend la même sortie.'
+        expense:
+          type: string
+          format: uuid
+          description: Dépense validée à payer en espèces.
+        received_by:
+          type: string
+          minLength: 1
+          description: Nom de la personne qui reçoit l'argent.
+          maxLength: 120
+      required:
+      - expense
+      - received_by
     CashRegister:
       type: object
       properties:
@@ -26570,20 +26943,64 @@ components:
       - name
       - proclaimed_on
       - counts
+    ClosingCashOut:
+      type: object
+      description: Une sortie de caisse du bordereau (FIN.2).
+      properties:
+        id:
+          type: string
+          format: uuid
+        number:
+          type: string
+          description: Numéro du bon de sortie.
+        expense_number:
+          type: string
+        beneficiary:
+          type: string
+        received_by:
+          type: string
+        amount_minor:
+          type: integer
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        paid_at:
+          type: string
+          format: date-time
+      required:
+      - id
+      - number
+      - expense_number
+      - beneficiary
+      - received_by
+      - amount_minor
+      - currency
+      - paid_at
     ClosingCurrency:
       type: object
       properties:
         currency:
           $ref: '#/components/schemas/CurrencyEnum'
-        expected_minor:
+        received_minor:
           type: integer
           description: Paiements de la session pas annulés à l'heure de clôture.
+        paid_out_minor:
+          type: integer
+          description: Sorties de caisse pas annulées à l'heure de clôture (FIN.2).
+        expected_minor:
+          type: integer
+          description: Reçu moins sorti ; sous zéro si plus d'argent est sorti qu'entré.
         count:
+          type: integer
+          description: Nombre de paiements.
+        cash_outs_count:
           type: integer
       required:
       - currency
+      - received_minor
+      - paid_out_minor
       - expected_minor
       - count
+      - cash_outs_count
     ClosingDifference:
       type: object
       properties:
@@ -30012,6 +30429,11 @@ components:
           items:
             $ref: '#/components/schemas/SessionTotal'
           description: Paiements non annulés de la session, par devise, jamais additionnés.
+        paid_out:
+          type: array
+          items:
+            $ref: '#/components/schemas/SessionTotal'
+          description: Sorties de caisse non annulées de la session, par devise (FIN.2).
         rate:
           type: string
           format: decimal
@@ -30025,6 +30447,7 @@ components:
       required:
       - session
       - totals
+      - paid_out
       - rate
       - rate_is_fallback
     CurrentSchool:
@@ -31483,6 +31906,11 @@ components:
           type: string
           nullable: true
           readOnly: true
+        cash_out_number:
+          type: string
+          readOnly: true
+          nullable: true
+          description: Bon de sortie de caisse qui la paie (FIN.2).
         created_at:
           type: string
           format: date-time
@@ -31507,6 +31935,7 @@ components:
       - paid_at
       - cancelled
       - cancellation_reason
+      - cash_out_number
       - created_at
     ExpenseCancelRequest:
       type: object
@@ -34694,6 +35123,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CancellationRequest'
+    PaginatedCashOutList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashOut'
     PaginatedCashSessionClosingList:
       type: object
       required:
@@ -35219,6 +35673,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Notification'
+    PaginatedPayableExpenseList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PayableExpense'
     PaginatedPaymentList:
       type: object
       required:
@@ -37250,6 +37729,47 @@ components:
           type: string
           minLength: 1
           maxLength: 10
+    PayableExpense:
+      type: object
+      description: Dépense validée à payer en espèces, telle que la voit le caissier.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: string
+          maxLength: 40
+        category_name:
+          type: string
+          readOnly: true
+        beneficiary:
+          type: string
+          maxLength: 120
+        reason:
+          type: string
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          title: Amount
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        spent_on:
+          type: string
+          format: date
+          title: Date
+      required:
+      - id
+      - number
+      - category_name
+      - beneficiary
+      - reason
+      - amount_minor
+      - currency
+      - spent_on
     Payment:
       type: object
       properties:

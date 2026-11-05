@@ -378,6 +378,9 @@ class CurrentCashSessionSerializer(serializers.Serializer):
     totals = SessionTotalSerializer(
         many=True, help_text="Paiements non annulés de la session, par devise, jamais additionnés."
     )
+    paid_out = SessionTotalSerializer(
+        many=True, help_text="Sorties de caisse non annulées de la session, par devise (FIN.2)."
+    )
     rate = serializers.DecimalField(
         max_digits=14, decimal_places=6, allow_null=True, help_text="Francs pour 1 dollar."
     )
@@ -388,10 +391,30 @@ class CurrentCashSessionSerializer(serializers.Serializer):
 
 class ClosingCurrencySerializer(serializers.Serializer):
     currency = serializers.ChoiceField(choices=Currency.choices)
-    expected_minor = serializers.IntegerField(
+    received_minor = serializers.IntegerField(
         help_text="Paiements de la session pas annulés à l'heure de clôture."
     )
-    count = serializers.IntegerField()
+    paid_out_minor = serializers.IntegerField(
+        help_text="Sorties de caisse pas annulées à l'heure de clôture (FIN.2)."
+    )
+    expected_minor = serializers.IntegerField(
+        help_text="Reçu moins sorti ; sous zéro si plus d'argent est sorti qu'entré."
+    )
+    count = serializers.IntegerField(help_text="Nombre de paiements.")
+    cash_outs_count = serializers.IntegerField()
+
+
+class ClosingCashOutSerializer(serializers.Serializer):
+    """Une sortie de caisse du bordereau (FIN.2)."""
+
+    id = serializers.UUIDField()
+    number = serializers.CharField(help_text="Numéro du bon de sortie.")
+    expense_number = serializers.CharField(source="expense.number")
+    beneficiary = serializers.CharField(source="expense.beneficiary")
+    received_by = serializers.CharField()
+    amount_minor = serializers.IntegerField()
+    currency = serializers.ChoiceField(choices=Currency.choices)
+    paid_at = serializers.DateTimeField()
 
 
 class ClosingFeeTypeSerializer(serializers.Serializer):
@@ -428,6 +451,9 @@ class CashClosingSummarySerializer(serializers.Serializer):
     last_receipt = serializers.CharField(allow_null=True)
     cancelled = SessionTotalSerializer(many=True, help_text="Annulations validées.")
     cancellations_pending = serializers.IntegerField()
+    cash_outs = ClosingCashOutSerializer(
+        many=True, help_text="Sorties de caisse déduites de l'attendu, dans l'ordre."
+    )
     closing = CashClosingSerializer(allow_null=True)
 
 

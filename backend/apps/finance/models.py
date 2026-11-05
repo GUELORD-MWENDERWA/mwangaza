@@ -806,7 +806,8 @@ class CreditAllocation(ImmutableModel):
 
 class CashClosing(ImmutableModel):
     """Clôture d'une session de caisse [T] [I], une ligne par devise (jamais additionnées) :
-    l'attendu (paiements de la session pas annulés à l'heure de clôture), le compté par le
+    l'attendu (paiements de la session pas annulés à l'heure de clôture, moins ses sorties de
+    caisse pas annulées, FIN.2), le compté par le
     caissier, l'écart (compté - attendu) et son explication. Faite hors ligne : `device` et
     `closed_at` de l'appareil ; `created_at` est l'arrivée au serveur. Un paiement hors ligne
     arrivé après la clôture n'entre pas dans l'attendu déjà figé."""
@@ -842,9 +843,10 @@ class CashClosing(ImmutableModel):
             models.UniqueConstraint(
                 fields=["cash_session", "currency"], name="cash_closing_one_per_currency"
             ),
+            # L'attendu peut passer sous zéro (FIN.2) : des sorties de caisse arrivées hors
+            # ligne, ou un remboursement validé après une sortie ; l'écart le montre.
             models.CheckConstraint(
-                condition=models.Q(counted_minor__gte=0, expected_minor__gte=0),
-                name="cash_closing_amounts_positive",
+                condition=models.Q(counted_minor__gte=0), name="cash_closing_counted_positive"
             ),
             models.CheckConstraint(
                 condition=models.Q(
@@ -973,3 +975,69 @@ class ExpenseCancellation(ImmutableModel):
     class Meta:
         verbose_name = _("expense cancellation")
         verbose_name_plural = _("expense cancellations")
+
+
+class CashOut(ImmutableModel):
+    """Sortie de caisse [T] [I] (FIN.2) : une dépense validée, payée en espèces depuis la session
+    ouverte du caissier, avec son bon (`number`, `ITIG-C1-26-S0007`). Montant et devise sont ceux
+    de la dépense, copiés : la clôture les additionne sans jointure et les déduit de l'attendu.
+    Annulée par une `CashOutCancellation` tant que la session est ouverte (l'argent revient dans
+    la caisse, la dépense redevient « à payer »). Faite hors ligne : `device` et `paid_at` de
+    l'appareil ; `created_at` est l'arrivée au serveur."""
+
+    expense = models.ForeignKey(
+        Expense, on_delete=models.PROTECT, related_name="cash_outs", verbose_name=_("expense")
+    )
+    cash_session = models.ForeignKey(
+        CashSession, on_delete=models.PROTECT, related_name="cash_outs", verbose_name=_("session")
+    )
+    number = models.CharField(_("number"), max_length=40)
+    amount_minor = models.BigIntegerField(_("amount"))
+    currency = models.CharField(_("currency"), max_length=3, choices=Currency.choices)
+    received_by = models.CharField(_("received by"), max_length=120)
+    paid_at = models.DateTimeField(_("paid at"), default=timezone.now)
+    device = models.ForeignKey(
+        "sync.Device",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("device"),
+    )
+
+    class Meta:
+        ordering = ["-paid_at"]
+        verbose_name = _("cash-out")
+        verbose_name_plural = _("cash-outs")
+        constraints = [
+            models.UniqueConstraint(fields=["school", "number"], name="cash_out_number_unique"),
+            models.CheckConstraint(
+                condition=models.Q(amount_minor__gt=0), name="cash_out_amount_positive"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.number
+
+
+class CashOutCancellation(ImmutableModel):
+    """Annulation d'une sortie de caisse [T] [I] : l'argent rendu à la caisse, motif et auteur."""
+
+    cash_out = models.OneToOneField(
+        CashOut,
+        on_delete=models.PROTECT,
+        related_name="cancellation",
+        verbose_name=_("cash-out"),
+    )
+    reason = models.CharField(_("reason"), max_length=200)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )
+    cancelled_at = models.DateTimeField(_("cancelled at"), default=timezone.now)
+
+    class Meta:
+        verbose_name = _("cash-out cancellation")
+        verbose_name_plural = _("cash-out cancellations")

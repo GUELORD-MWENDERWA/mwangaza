@@ -4,13 +4,13 @@ au-delà d'un seuil, annulation. Montants en entiers (plus petite unité) + devi
 Une dépense se saisit en une étape : sous le seuil de sa devise elle est « validée » tout de
 suite ; au-dessus, elle attend `finance.approve_expense` d'une autre personne que celle qui l'a
 saisie. Une dépense validée est « payée » aussitôt si elle sort de la banque ou du Mobile Money ;
-payée en espèces, elle attend la sortie de caisse (FIN.2). Rien ne s'efface : annuler écrit une
-`ExpenseCancellation` (motif, auteur, audit)."""
+payée en espèces, elle attend la sortie de caisse (`cash_outs.py`, FIN.2). Rien ne s'efface :
+annuler écrit une `ExpenseCancellation` (motif, auteur, audit)."""
 
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import transaction
-from django.db.models import Count, Q, Sum
+from django.db.models import Count, OuterRef, Q, Subquery, Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -21,7 +21,7 @@ from apps.core.errors import ApiError, BusinessError
 from apps.core.images import clean_image
 from apps.core.money import Currency
 from apps.core.tenancy import require_current_school
-from apps.finance.models import Expense, ExpenseCancellation, ExpenseCategory
+from apps.finance.models import CashOut, Expense, ExpenseCancellation, ExpenseCategory
 from apps.schools.models import School
 
 # Seuil de validation par devise, en plus petite unité : 200,00 $ et 500 000 FC (maquette).
@@ -38,6 +38,11 @@ EXPENSE_ID_TAKEN = ApiError(
 EXPENSE_DECIDED = ApiError("expense_decided", _("This expense was already decided."), 409)
 OWN_EXPENSE = ApiError("own_expense", _("Someone else must approve an expense you recorded."), 403)
 EXPENSE_CANCELLED = ApiError("expense_cancelled", _("This expense is cancelled."), 409)
+PAID_FROM_CASH_DESK = ApiError(
+    "expense_paid_from_cash_desk",
+    _("This expense left the cash desk: cancel its cash-out while the session is open."),
+    409,
+)
 CATEGORY_INACTIVE = ApiError(
     "expense_category_inactive", _("This category is no longer in use."), 409
 )
@@ -136,7 +141,13 @@ def clean_voucher(file) -> ContentFile:
 
 
 def expenses():
-    return Expense.objects.select_related("category", "requested_by", "decided_by", "cancellation")
+    """Avec le numéro du bon de sortie qui la paie (`cash_out_number`, FIN.2), une sous-requête."""
+    live_cash_out = CashOut.objects.filter(
+        expense=OuterRef("pk"), cancellation__isnull=True
+    ).order_by("-paid_at")
+    return Expense.objects.select_related(
+        "category", "requested_by", "decided_by", "cancellation"
+    ).annotate(cash_out_number=Subquery(live_cash_out.values("number")[:1]))
 
 
 def _data(expense: Expense) -> dict:
@@ -246,11 +257,14 @@ def decide_expense(expense: Expense, *, actor: User, approve: bool, note: str = 
 
 
 def cancel_expense(expense: Expense, *, actor: User, reason: str) -> ExpenseCancellation:
-    """Annuler : une nouvelle ligne liée, la dépense reste (FIN.1)."""
+    """Annuler : une nouvelle ligne liée, la dépense reste (FIN.1). Sortie de la caisse
+    (FIN.2) : l'argent est parti, seule la sortie s'annule, tant que sa session est ouverte."""
     with transaction.atomic():
         expense = Expense.objects.select_for_update(of=("self",)).get(pk=expense.pk)
         if ExpenseCancellation.objects.filter(expense=expense).exists():
             raise BusinessError(EXPENSE_CANCELLED)
+        if CashOut.objects.filter(expense=expense, cancellation__isnull=True).exists():
+            raise BusinessError(PAID_FROM_CASH_DESK)
         cancellation = ExpenseCancellation.objects.create(
             expense=expense, reason=reason, cancelled_by=actor, created_by=actor
         )

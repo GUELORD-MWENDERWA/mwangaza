@@ -16,6 +16,7 @@ router.register("payments", views.PaymentViewSet, basename="payment")
 router.register("cancellations", views.CancellationViewSet, basename="cancellation")
 router.register("student-credits", views.StudentCreditViewSet, basename="student-credit")
 router.register("expenses", expense_views.ExpenseViewSet, basename="expense")
+router.register("cash-outs", expense_views.CashOutViewSet, basename="cash-out")
 router.register(
     "expense-categories", expense_views.ExpenseCategoryViewSet, basename="expense-category"
 )

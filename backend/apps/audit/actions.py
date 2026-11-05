@@ -226,6 +226,8 @@ class Action(models.TextChoices):
     FINANCE_EXPENSE_APPROVED = "finance.expense_approved", _("Expense approved")
     FINANCE_EXPENSE_REJECTED = "finance.expense_rejected", _("Expense rejected")
     FINANCE_EXPENSE_CANCELLED = "finance.expense_cancelled", _("Expense cancelled")
+    FINANCE_CASH_OUT_RECORDED = "finance.cash_out_recorded", _("Cash paid out for an expense")
+    FINANCE_CASH_OUT_CANCELLED = "finance.cash_out_cancelled", _("Cash-out cancelled")
     FINANCE_PAYMENT_REPRINTED = "finance.payment_reprinted", _("Receipt reprinted")
     # Annulations (F7) : demande, décision, duplicata du reçu d'annulation.
     FINANCE_CANCELLATION_REQUESTED = (

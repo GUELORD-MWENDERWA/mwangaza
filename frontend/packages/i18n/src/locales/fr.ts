@@ -3367,6 +3367,8 @@ export const fr = {
         expense_approved: "Dépense validée",
         expense_rejected: "Dépense refusée",
         expense_cancelled: "Dépense annulée",
+        cash_out_recorded: "Sortie de caisse pour une dépense",
+        cash_out_cancelled: "Sortie de caisse annulée",
         cancellation_requested: "Annulation de paiement demandée",
         payment_cancelled: "Paiement annulé",
         cancellation_rejected: "Annulation de paiement refusée",

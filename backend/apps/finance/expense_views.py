@@ -7,20 +7,26 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.accounts.permissions import HasSchoolPermission
+from apps.accounts.permissions import HasSchoolPermission, school_access
 from apps.accounts.roles import (
     EXPENSES_READ,
     FINANCE_APPROVE_EXPENSE,
     FINANCE_CANCEL_EXPENSE,
+    FINANCE_COLLECT_PAYMENT,
     FINANCE_CONFIGURE_FEES,
     FINANCE_RECORD_EXPENSE,
+    FINANCE_VIEW_REPORTS,
 )
 from apps.accounts.views import SchoolViewSet
 from apps.core.errors import ErrorSerializer
 from apps.core.http import LOGO_TYPES
 from apps.core.tenancy import require_current_school
+from apps.finance import cash_outs
 from apps.finance import expenses as services
 from apps.finance.expense_serializers import (
+    CashOutCreateSerializer,
+    CashOutFilterSerializer,
+    CashOutSerializer,
     ExpenseCancelSerializer,
     ExpenseCategorySerializer,
     ExpenseCategoryWriteSerializer,
@@ -30,8 +36,9 @@ from apps.finance.expense_serializers import (
     ExpenseSerializer,
     ExpenseSettingsSerializer,
     ExpenseSummarySerializer,
+    PayableExpenseSerializer,
 )
-from apps.finance.models import Expense, ExpenseCategory
+from apps.finance.models import CashOut, Expense, ExpenseCategory
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
 INVALID = {400: ErrorSerializer}
@@ -264,3 +271,93 @@ class ExpenseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolVie
         )
         response["Cache-Control"] = "private, max-age=3600"
         return response
+
+
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[CashOutFilterSerializer],
+        responses={200: CashOutSerializer(many=True), **INVALID, **ERRORS},
+    ),
+    retrieve=extend_schema(responses={200: CashOutSerializer, **ERRORS}),
+)
+class CashOutViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, SchoolViewSet):
+    """Sorties de caisse (FIN.2), les plus récentes d'abord : une dépense validée payée en
+    espèces depuis la session ouverte du caissier (`finance.collect_payment`). Le caissier voit
+    les siennes, `finance.view_reports` toutes. Annuler : `finance.cancel_expense`, tant que la
+    session est ouverte. Création : 201, ou 200 si cette sortie (même `id`) était déjà
+    enregistrée. Une sortie ne s'efface jamais."""
+
+    serializer_class = CashOutSerializer
+
+    @property
+    def required_permission(self) -> str | tuple[str, ...]:
+        return {
+            "create": FINANCE_COLLECT_PAYMENT,
+            "payable": FINANCE_COLLECT_PAYMENT,
+            "cancel": FINANCE_CANCEL_EXPENSE,
+        }.get(self.action, (FINANCE_COLLECT_PAYMENT, FINANCE_VIEW_REPORTS))
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return CashOut.all_schools.none()
+        items = cash_outs.cash_outs()
+        if self.action == "cancel":
+            return items
+        if FINANCE_VIEW_REPORTS not in school_access(self.request).permissions:
+            items = items.filter(cash_session__cashier=self.request.user)
+        if self.action == "list":
+            params = CashOutFilterSerializer(data=self.request.query_params)
+            params.is_valid(raise_exception=True)
+            if "cash_session" in params.validated_data:
+                items = items.filter(cash_session_id=params.validated_data["cash_session"])
+        return items
+
+    @extend_schema(responses={200: PayableExpenseSerializer(many=True), **ERRORS})
+    @action(detail=False, methods=["get"])
+    def payable(self, request: Request) -> Response:
+        """Dépenses validées à payer en espèces, pas encore sorties de la caisse, les plus
+        anciennes d'abord."""
+        page = self.paginate_queryset(cash_outs.payable_expenses())
+        return self.get_paginated_response(PayableExpenseSerializer(page, many=True).data)
+
+    @extend_schema(
+        request=CashOutCreateSerializer,
+        responses={201: CashOutSerializer, 200: CashOutSerializer, **INVALID, **CONFLICT, **ERRORS},
+    )
+    def create(self, request: Request) -> Response:
+        """Sortir l'argent d'une dépense de la session ouverte du caissier. 409
+        `no_open_session`, `expense_not_payable_in_cash` (pas validée, ou pas en espèces),
+        `expense_already_paid`, `expense_cancelled`, `not_enough_cash` (la session n'a pas reçu
+        assez dans cette devise)."""
+        serializer = CashOutCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data
+        expense = Expense.objects.filter(pk=data["expense"]).first()
+        if expense is None:
+            raise Http404
+        cash_out, created = cash_outs.record_cash_out(
+            actor=request.user,
+            expense=expense,
+            received_by=data["received_by"],
+            cash_out_id=data.get("id"),
+        )
+        return Response(
+            CashOutSerializer(cash_out).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        request=ExpenseCancelSerializer,
+        responses={200: CashOutSerializer, **INVALID, **CONFLICT, **ERRORS},
+    )
+    @action(detail=True, methods=["post"])
+    def cancel(self, request: Request, pk=None) -> Response:
+        """Annuler une sortie : l'argent revient dans la caisse, la dépense redevient à payer.
+        409 `cash_out_session_closed` après la clôture, `cash_out_cancelled` si déjà fait."""
+        params = ExpenseCancelSerializer(data=request.data)
+        params.is_valid(raise_exception=True)
+        cash_out = self.get_object()
+        cash_outs.cancel_cash_out(
+            cash_out, actor=request.user, reason=params.validated_data["reason"]
+        )
+        return Response(CashOutSerializer(cash_outs.cash_outs().get(pk=cash_out.pk)).data)

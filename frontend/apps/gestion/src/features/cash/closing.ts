@@ -39,14 +39,22 @@ export function closingOnDevice(rows: SessionPayment[], enabled: string[]): Clos
     (c) => enabled.includes(c) || used(counting).includes(c),
   ).map((c) => {
     const { amount_minor, count } = total(counting, c);
-    return { currency: c, expected_minor: amount_minor, count };
+    // Les sorties de caisse (FIN.2) ne sont pas encore gardées sur l'appareil : rien de sorti.
+    return {
+      currency: c,
+      received_minor: amount_minor,
+      paid_out_minor: 0,
+      expected_minor: amount_minor,
+      count,
+      cash_outs_count: 0,
+    };
   });
-  for (const { currency, expected_minor } of currencies) {
+  for (const { currency, received_minor } of currencies) {
     const allocated = feeTypes
       .filter((row) => row.currency === currency)
       .reduce((sum, row) => sum + row.amount_minor, 0);
-    if (expected_minor > allocated)
-      feeTypes.push({ fee_type: null, currency, amount_minor: expected_minor - allocated });
+    if (received_minor > allocated)
+      feeTypes.push({ fee_type: null, currency, amount_minor: received_minor - allocated });
   }
   const receipts = [...kept]
     .sort((a, b) => a.paid_at.localeCompare(b.paid_at))
@@ -60,6 +68,7 @@ export function closingOnDevice(rows: SessionPayment[], enabled: string[]): Clos
     last_receipt: receipts.at(-1) ?? null,
     cancelled: used(cancelled).map((c) => total(cancelled, c)),
     cancellations_pending: counting.filter((payment) => payment.cancellation_pending).length,
+    cash_outs: [],
   };
 }
 

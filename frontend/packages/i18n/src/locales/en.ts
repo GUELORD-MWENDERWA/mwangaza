@@ -3335,6 +3335,8 @@ export const en: Messages<typeof fr> = {
         expense_approved: "Expense approved",
         expense_rejected: "Expense rejected",
         expense_cancelled: "Expense cancelled",
+        cash_out_recorded: "Cash paid out for an expense",
+        cash_out_cancelled: "Cash-out cancelled",
         cancellation_requested: "Payment cancellation requested",
         payment_cancelled: "Payment cancelled",
         cancellation_rejected: "Payment cancellation refused",

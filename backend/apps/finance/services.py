@@ -46,6 +46,7 @@ from apps.core.tenancy import require_current_school, use_school
 from apps.finance.models import (
     CancellationRequest,
     CashClosing,
+    CashOut,
     CashRegister,
     CashSession,
     CreditAllocation,
@@ -1273,6 +1274,29 @@ def session_totals(session: CashSession) -> list[dict]:
     ]
 
 
+def session_paid_out(session: CashSession) -> list[dict]:
+    """Sorties de caisse pas annulées de la session, par devise (FIN.2), dollars d'abord."""
+    rows = {
+        row["currency"]: row
+        for row in CashOut.objects.filter(cash_session=session, cancellation__isnull=True)
+        .values("currency")
+        .annotate(amount_minor=Sum("amount_minor"), count=Count("id"))
+        .order_by()
+    }
+    return [
+        {"currency": currency, **rows[currency]} for currency in Currency.values if currency in rows
+    ]
+
+
+def till(session: CashSession) -> dict[str, int]:
+    """L'argent de la session dans la caisse à cette heure, par devise : paiements pas annulés
+    moins sorties de caisse pas annulées (FIN.2)."""
+    amounts = {row["currency"]: row["amount_minor"] for row in session_totals(session)}
+    for row in session_paid_out(session):
+        amounts[row["currency"]] = amounts.get(row["currency"], 0) - row["amount_minor"]
+    return amounts
+
+
 @dataclass(frozen=True)
 class Part:
     """Part du montant reçu pour un frais dû, dans la devise reçue (ajustement, F2)."""
@@ -2015,10 +2039,16 @@ def _in_till_at(payments: QuerySet[Payment], until: datetime) -> QuerySet[Paymen
     return payments.filter(Q(cancellation__isnull=True) | Q(cancellation__approved_at__gt=until))
 
 
+def _out_at(cash_outs: QuerySet[CashOut], until: datetime) -> QuerySet[CashOut]:
+    """Sorties de caisse encore déduites à `until` : pas annulées, ou annulées après (FIN.2)."""
+    return cash_outs.filter(Q(cancellation__isnull=True) | Q(cancellation__cancelled_at__gt=until))
+
+
 def closing_summary(session: CashSession, *, until: datetime | None = None) -> dict:
     """Ce que montre la clôture (maquette `caisse-cloture`). Par devise (celles de l'école et
     celles des paiements, dollars d'abord, jamais additionnées), l'attendu : paiements de la
-    session pas annulés à `until` (l'heure de clôture, sinon maintenant). Le détail par type de
+    session pas annulés à `until` (l'heure de clôture, sinon maintenant), moins ses sorties de
+    caisse pas annulées à `until` (FIN.2, listées avec leur bon). Le détail par type de
     frais, dans la devise reçue, avec à part le trop-perçu devenu crédit de l'élève (`fee_type`
     vide). Reçus donnés (annulés compris), annulations validées et en attente ; la clôture une
     fois faite."""
@@ -2028,21 +2058,30 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
         CashClosing.objects.filter(cash_session=session).select_related("closed_by", "device")
     )
     payments = Payment.objects.filter(cash_session=session)
+    cash_outs = CashOut.objects.filter(cash_session=session)
     if closings:
-        # Ce que la clôture a compté : les paiements reçus avant elle ; ceux arrivés après
-        # (encaissés hors ligne sur un autre appareil) sont à part (`late_payments`).
+        # Ce que la clôture a compté : les paiements et les sorties reçus avant elle ; ceux
+        # arrivés après (faits hors ligne sur un autre appareil) sont à part (`late_payments`).
         payments = payments.filter(created_at__lte=_received(closings))
+        cash_outs = cash_outs.filter(created_at__lte=_received(closings))
     kept = _in_till_at(payments, until)
-    expected = {
+    received = {
         row["received_currency"]: row
         for row in kept.values("received_currency")
         .annotate(amount_minor=Sum("received_amount_minor"), count=Count("id"))
         .order_by()
     }
+    out = _out_at(cash_outs, until)
+    paid_out = {
+        row["currency"]: row
+        for row in out.values("currency")
+        .annotate(amount_minor=Sum("amount_minor"), count=Count("id"))
+        .order_by()
+    }
     currencies = [
         currency
         for currency in Currency.values
-        if currency in expected or currency in school.enabled_currencies
+        if currency in received or currency in paid_out or currency in school.enabled_currencies
     ]
     fee_rows = (
         PaymentAllocation.objects.filter(payment__in=kept)
@@ -2058,7 +2097,7 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
         }
         for row in fee_rows
     ]
-    for currency, row in expected.items():
+    for currency, row in received.items():
         allocated = sum(item["amount_minor"] for item in fee_types if item["currency"] == currency)
         if row["amount_minor"] > allocated:
             fee_types.append(
@@ -2079,13 +2118,10 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
     return {
         "session": session,
         "currencies": [
-            {
-                "currency": currency,
-                "expected_minor": expected[currency]["amount_minor"] if currency in expected else 0,
-                "count": expected[currency]["count"] if currency in expected else 0,
-            }
+            _closing_currency(currency, received.get(currency), paid_out.get(currency))
             for currency in currencies
         ],
+        "cash_outs": list(out.select_related("expense").order_by("paid_at", "number")),
         "fee_types": fee_types,
         "payments_count": len(receipts),
         "first_receipt": receipts[0][0] if receipts else None,
@@ -2099,6 +2135,20 @@ def closing_summary(session: CashSession, *, until: datetime | None = None) -> d
             payment__in=payments, status=CancellationRequest.Status.PENDING
         ).count(),
         "closing": _closing_data(closings) if closings else None,
+    }
+
+
+def _closing_currency(currency: str, received: dict | None, paid_out: dict | None) -> dict:
+    """Une devise de la clôture : reçu, sorti, attendu (reçu - sorti) et leurs nombres."""
+    received = received or {"amount_minor": 0, "count": 0}
+    paid_out = paid_out or {"amount_minor": 0, "count": 0}
+    return {
+        "currency": currency,
+        "received_minor": received["amount_minor"],
+        "paid_out_minor": paid_out["amount_minor"],
+        "expected_minor": received["amount_minor"] - paid_out["amount_minor"],
+        "count": received["count"],
+        "cash_outs_count": paid_out["count"],
     }
 
 
@@ -2249,8 +2299,9 @@ def _late(sessions: list[CashSession]) -> QuerySet[Payment]:
 
 def with_closings(sessions: list[CashSession]) -> list[CashSession]:
     """Ajoute à chaque session son état, ses lignes par devise (`lines` : attendu, compté et
-    écart figés à la clôture ; session ouverte : attendu à cette heure, rien de compté) et ses
-    paiements arrivés après la clôture par devise (`late`). Trois requêtes pour la page."""
+    écart figés à la clôture ; session ouverte : attendu à cette heure, sorties de caisse
+    déduites, rien de compté) et ses paiements arrivés après la clôture par devise (`late`).
+    Quatre requêtes pour la page."""
     closings: dict[UUID, list[CashClosing]] = defaultdict(list)
     for line in CashClosing.objects.filter(cash_session__in=sessions):
         closings[line.cash_session_id].append(line)
@@ -2265,6 +2316,17 @@ def with_closings(sessions: list[CashSession]) -> list[CashSession]:
         .order_by()
     ):
         live[row["cash_session"]][row["received_currency"]] = row["amount_minor"]
+    for row in (
+        CashOut.objects.filter(
+            cash_session__in=[s for s in sessions if s.pk not in closings],
+            cancellation__isnull=True,
+        )
+        .values("cash_session", "currency")
+        .annotate(amount_minor=Sum("amount_minor"))
+        .order_by()
+    ):
+        amounts = live[row["cash_session"]]
+        amounts[row["currency"]] = amounts.get(row["currency"], 0) - row["amount_minor"]
     late: dict[UUID, list[dict]] = defaultdict(list)
     for row in (
         _late([s for s in sessions if s.pk in closings])

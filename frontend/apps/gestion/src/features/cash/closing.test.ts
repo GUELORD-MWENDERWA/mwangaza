@@ -43,8 +43,22 @@ describe("clôture sur l'appareil", () => {
     const data = closingOnDevice(rows, ["USD", "CDF"]);
 
     expect(data.currencies).toEqual([
-      { currency: "USD", expected_minor: 19500, count: 2 },
-      { currency: "CDF", expected_minor: 25000, count: 1 },
+      {
+        currency: "USD",
+        received_minor: 19500,
+        paid_out_minor: 0,
+        expected_minor: 19500,
+        count: 2,
+        cash_outs_count: 0,
+      },
+      {
+        currency: "CDF",
+        received_minor: 25000,
+        paid_out_minor: 0,
+        expected_minor: 25000,
+        count: 1,
+        cash_outs_count: 0,
+      },
     ]);
     expect(data.fee_types).toEqual([
       { fee_type: "Fonctionnement", currency: "CDF", amount_minor: 25000 },

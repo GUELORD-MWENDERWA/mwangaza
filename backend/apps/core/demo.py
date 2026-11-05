@@ -55,10 +55,11 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_grades,
     create_demo_charges,
     create_demo_discounts,
+    # Avant les paiements : une dépense en espèces sort d'une de leurs sessions (FIN.2).
+    create_demo_expenses,
     create_demo_payments,
     create_demo_credits,
     create_demo_cancellations,
-    create_demo_expenses,
     create_demo_devices,
     create_demo_announcements,
     create_demo_portal,
