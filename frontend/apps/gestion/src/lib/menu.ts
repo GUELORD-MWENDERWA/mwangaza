@@ -240,6 +240,13 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "FIN.1",
       },
       {
+        key: "budget",
+        path: "budget",
+        icon: "chart",
+        permissions: ["finance.view_reports", "finance.manage_budget"],
+        task: "FIN.3",
+      },
+      {
         key: "closings",
         path: "cash-closings",
         icon: "lock",

@@ -152,6 +152,8 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       "fees/prior-payments",
       "cancellations",
       "cash-closings",
+      "expenses",
+      "budget",
       "credits",
       "staff-news",
       "calendar",

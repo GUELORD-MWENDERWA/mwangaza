@@ -16,6 +16,7 @@ export const HELP_SCREENS: ScreenTable = {
   unpaid: "follow-unpaid",
   fees: "set-fees",
   expenses: "record-expense",
+  budget: "follow-budget",
   cancellations: "cancel-payment",
   "cash-closings": "close-cash-register",
   settings: "school-settings",

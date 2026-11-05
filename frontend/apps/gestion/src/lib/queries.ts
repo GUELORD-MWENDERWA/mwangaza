@@ -54,6 +54,8 @@ export const keys = {
   expenses: ["expenses"],
   cashOuts: ["cash-outs"],
   expenseCategories: ["expense-categories"],
+  budget: ["budget"],
+  treasury: ["treasury-movements"],
   dashboard: ["dashboard"],
   setup: ["school-setup"],
   announcements: ["announcements"],

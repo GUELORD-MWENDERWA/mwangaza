@@ -51,6 +51,7 @@ export const PERMISSIONS = {
     "finance.record_expense",
     "finance.approve_expense",
     "finance.cancel_expense",
+    "finance.manage_budget",
     "announcements.publish",
     "grades.waive_fees",
     "audit.view",

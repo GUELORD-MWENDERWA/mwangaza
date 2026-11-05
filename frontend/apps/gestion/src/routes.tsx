@@ -54,6 +54,7 @@ import { ImportStudentsPage } from "./features/students/ImportStudentsPage";
 import { NewStudentPage } from "./features/students/NewStudentPage";
 import { RegistrationFormPage } from "./features/students/RegistrationFormPage";
 import { StudentPage } from "./features/students/StudentPage";
+import { BudgetPage } from "./features/budget/BudgetPage";
 import { ExpensesPage } from "./features/expenses/ExpensesPage";
 import { NewExpensePage } from "./features/expenses/NewExpensePage";
 import { StudentStatementPage, UnpaidStatementsPage } from "./features/students/StatementPage";
@@ -115,6 +116,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   cancellations: <CancellationsPage />,
   closings: <ClosingsPage />,
   expenses: <ExpensesPage />,
+  budget: <BudgetPage />,
   unpaid: <UnpaidPage />,
   fees: <FeesPage />,
   staff: <StaffPage />,
