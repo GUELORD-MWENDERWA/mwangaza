@@ -3309,6 +3309,8 @@ export const en: Messages<typeof fr> = {
         changed: "Grades changed",
         submitted: "Grades sent for validation",
         validated: "Grades validated",
+        substitute_set: "Course substitute designated",
+        substitute_removed: "Course substitute removed",
         reopened: "Grades reopened",
         deadline_set: "Grade entry deadline set",
         reminded: "Teachers reminded of their grade sheets",

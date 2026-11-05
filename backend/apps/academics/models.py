@@ -191,6 +191,62 @@ class CourseGroup(TenantModel):
         return self.name
 
 
+class CourseSubstitute(TenantModel):
+    """Remplaçant d'un cours [T] (8.2.5) : désigné par le directeur des études, avec motif et date
+    de fin facultative (comprise). Un cours commun se remplace pour le groupe entier
+    (`course_group`, sinon `course`) ; défaire le groupe retire son remplaçant. Le remplaçant ne
+    saisit qu'un total par élève, et une feuille commencée par un autre lui reste fermée tant
+    qu'elle n'est pas envoyée (`grades.check_substitute`)."""
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="substitutes",
+        verbose_name=_("course"),
+    )
+    course_group = models.ForeignKey(
+        CourseGroup,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="substitutes",
+        verbose_name=_("joint course"),
+    )
+    substitute = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("substitute"),
+    )
+    reason = models.CharField(_("reason"), max_length=200)
+    ends_on = models.DateField(_("until"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("course substitute")
+        verbose_name_plural = _("course substitutes")
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(course__isnull=True) ^ models.Q(course_group__isnull=True),
+                name="substitute_one_target",
+            ),
+            models.UniqueConstraint(
+                fields=["course"],
+                condition=models.Q(course__isnull=False),
+                name="substitute_course",
+            ),
+            models.UniqueConstraint(
+                fields=["course_group"],
+                condition=models.Q(course_group__isnull=False),
+                name="substitute_course_group",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return str(self.substitute)
+
+
 class Evaluation(TenantModel):
     """Interrogation, devoir, travail pratique ou examen d'un cours dans une période ou des
     examens [T] (8.2.1), avec son maximum, libre : la note de la période est la somme des notes

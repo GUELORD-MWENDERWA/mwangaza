@@ -26,6 +26,11 @@ libre jusqu'à la date limite de la période (`set_deadline`), passée : refusé
 ou droit `grades.validate`. Envoyée : modifier demande un motif, gardé au journal. Validée :
 fermée ; `reopen_sheet` (avec remarques) la renvoie aussi. Tout est dans le journal de la
 feuille (`GradeSheet`), que `sheet()` relit comme historique.
+
+Remplaçant (8.2.5, `substitutes.py`) : un total par élève, comme la direction ; une feuille
+commencée par un autre (l'enseignant) lui reste fermée tant qu'elle n'est pas envoyée
+(`check_substitute`). Toute correction d'une note saisie par un autre, par quelqu'un qui n'est pas
+l'enseignant du cours, demande un motif, même dans un brouillon ; l'enseignant en est averti.
 """
 
 from dataclasses import dataclass, field
@@ -39,6 +44,7 @@ from django.db.models import Exists, OuterRef, Q, QuerySet
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from apps.academics import substitutes
 from apps.academics.models import Course, Evaluation, Grade, GradeDeadline, GradeSheet
 from apps.accounts.models import User
 from apps.accounts.roles import GRADES_ENTER, GRADES_ENTER_ANY
@@ -75,7 +81,14 @@ NOTEBOOK_PRIVATE = ApiError(
     403,
 )
 REASON_REQUIRED = ApiError(
-    "reason_required", _("Give the reason for changing grades that are already sent."), 400
+    "reason_required",
+    _("Give the reason for this change: the grades are sent, or someone else entered them."),
+    400,
+)
+SHEET_WITH_TEACHER = ApiError(
+    "sheet_with_teacher",
+    _("The teacher is still filling in this grade sheet: you will see it once it is sent."),
+    403,
 )
 # Au-delà, c'est une erreur de saisie (une période en compte rarement plus de dix).
 MAX_EVALUATIONS = 30
@@ -139,15 +152,16 @@ class Sheet:
     returned: HistoryEntry | None = None
 
 
-# Accès à la feuille d'un cours (NB.1) : le carnet complet, ou un total par élève.
-NOTEBOOK, TOTAL_ONLY = "notebook", "total"
+# Accès à la feuille d'un cours (NB.1) : le carnet complet, ou un total par élève ; un remplaçant
+# (8.2.5) : un total par élève, sur une feuille qu'il a commencée ou déjà envoyée.
+NOTEBOOK, TOTAL_ONLY, SUBSTITUTE = "notebook", "total", "substitute"
 
 
 def gradable_courses(user: User, permissions) -> QuerySet[Course]:
     """Cours de l'école courante que `user` voit dans les notes (liste, fiche de cotes, fiche
-    imprimée, repêchage) : tous avec `grades.enter_any` ; avec `grades.enter`, ceux qu'il donne et
-    ceux de la classe dont il est titulaire ou cotitulaire (NB.7). Les évaluations d'un cours :
-    `notebook_access`."""
+    imprimée, repêchage) : tous avec `grades.enter_any` ; avec `grades.enter`, ceux qu'il donne,
+    ceux de la classe dont il est titulaire ou cotitulaire (NB.7) et ceux qu'il remplace (8.2.5).
+    Les évaluations d'un cours : `notebook_access`."""
     courses = Course.objects.filter(is_taught=True)
     if GRADES_ENTER_ANY in permissions:
         return courses
@@ -156,17 +170,22 @@ def gradable_courses(user: User, permissions) -> QuerySet[Course]:
             Q(teacher=user)
             | Q(class_group__homeroom_teacher=user)
             | Q(class_group__co_homeroom_teacher=user)
+            | Q(pk__in=substitutes.replaced_courses(user).values("pk"))
         )
     return courses.none()
 
 
-def notebook_access(user: User, permissions, course: Course) -> str | None:
+def notebook_access(
+    user: User, permissions, course: Course, *, replaced: set | None = None
+) -> str | None:
     """Ce que `user` fait dans la feuille de `course` (NB.1) : `NOTEBOOK` pour l'enseignant du
     cours (ses évaluations et leurs notes) ; `TOTAL_ONLY` (un total par élève, pour un enseignant
     qui rend sa fiche sur papier ou n'utilise pas l'application) avec `grades.enter_any`, et pour
     le titulaire ou le cotitulaire de la classe (NB.7) ; sinon `None` : le directeur des études
     sans ce droit, le préfet n'ont que la fiche de cotes. Une feuille qui a des devoirs reste au
-    seul enseignant (`notebook_private`). Un remplaçant passe par la réattribution du cours."""
+    seul enseignant (`notebook_private`). `SUBSTITUTE` : le remplaçant du cours (8.2.5 ; un
+    total par élève, `check_substitute`). `replaced` : cours qu'il remplace, lus une fois pour
+    une liste (sinon, une requête)."""
     if not course.is_taught:
         return None
     if course.teacher_id == user.pk and (
@@ -175,9 +194,37 @@ def notebook_access(user: User, permissions, course: Course) -> str | None:
         return NOTEBOOK
     if GRADES_ENTER_ANY in permissions:
         return TOTAL_ONLY
-    if GRADES_ENTER in permissions and course.class_group.is_homeroom_of(user):
+    if GRADES_ENTER not in permissions:
+        return None
+    if course.class_group.is_homeroom_of(user):
         return TOTAL_ONLY
-    return None
+    if replaced is None:
+        found = substitutes.replaced_courses(user).filter(pk=course.pk)
+        replaced = set(found.values_list("pk", flat=True))
+    return SUBSTITUTE if course.pk in replaced else None
+
+
+def check_substitute(course: Course, term: Term, actor: User) -> None:
+    """Remplaçant (8.2.5) : une feuille commencée par un autre (l'enseignant, en général) lui
+    reste fermée tant qu'elle n'est pas envoyée (403 `sheet_with_teacher`) ; une feuille vide ou
+    qu'il a commencée, ou déjà envoyée, lui est ouverte (un total par élève)."""
+    state = _state(course, term)
+    if state is None:
+        started_by_other = Evaluation.objects.filter(course=course, term=term).exists()
+    else:
+        started_by_other = (
+            state.status == GradeSheet.Status.DRAFT and state.created_by_id != actor.pk
+        )
+    if started_by_other:
+        raise BusinessError(SHEET_WITH_TEACHER)
+
+
+def limited_to_totals(access: str, course: Course, term: Term, actor: User) -> bool:
+    """Pour l'API et la synchronisation : vrai si `access` ne donne qu'un total par élève ; le
+    remplaçant passe d'abord `check_substitute`."""
+    if access == SUBSTITUTE:
+        check_substitute(course, term, actor)
+    return access != NOTEBOOK
 
 
 def _detailed(evaluations: list[Evaluation], maximum: int) -> bool:
@@ -394,9 +441,10 @@ def save_sheet(
     vérifié avant d'écrire. Deux enregistrements de la même feuille passent l'un après l'autre ;
     pour une même case, le dernier gagne. Contrôle (8.2.2) : feuille validée : 409
     `sheet_validated` ; date limite passée : 409 `deadline_passed` (sauf feuille rouverte ou
-    `may_validate`) ; feuille envoyée : `reason` obligatoire (400 `reason_required`) s'il y a un
-    changement. `total_only` (`grades.enter_any`, NB.1) : une feuille qui a des devoirs est
-    refusée (403 `notebook_private`), et on n'y met qu'un total."""
+    `may_validate`) ; `reason` obligatoire (400 `reason_required`) s'il y a un changement dans une
+    feuille envoyée, ou une note d'un autre changée par qui n'est pas l'enseignant (8.2.5).
+    `total_only` (`grades.enter_any`, NB.1) : une feuille qui a des devoirs est refusée (403
+    `notebook_private`), et on n'y met qu'un total."""
     _check_term(course, term)
     with transaction.atomic():
         # Verrou sur le cours : deux envois de la même feuille ne créent pas deux fois une note.
@@ -501,6 +549,8 @@ def save_sheet(
         names = {pk: evaluation.name for pk, evaluation in by_pk.items()}
 
         before_grades, after_grades, to_create, to_update, to_delete = [], [], [], [], []
+        # Une note saisie par un autre, changée ou effacée par qui n'est pas l'enseignant (8.2.5).
+        foreign = False
         students = {
             enrollment.pk: enrollment
             for enrollment in Enrollment.objects.filter(pk__in=enrollment_ids).select_related(
@@ -515,6 +565,7 @@ def save_sheet(
             label = {"student": student, "evaluation": names[evaluation_id]}
             if grade is not None:
                 before_grades.append({**label, "score": str(grade.score)})
+                foreign = foreign or grade.created_by_id != actor.pk
             if score is not None:
                 after_grades.append({**label, "score": str(score)})
             if grade is None:
@@ -534,6 +585,7 @@ def save_sheet(
         # Les notes d'une évaluation retirée partent avec elle.
         for (_enrollment_id, evaluation_id), grade in current.items():
             if evaluation_id in removed_ids:
+                foreign = foreign or grade.created_by_id != actor.pk
                 before_grades.append(
                     {
                         "student": grade.enrollment.student.full_name,
@@ -546,7 +598,8 @@ def save_sheet(
             before_grades or after_grades or before_evaluations or after_evaluations or removed_ids
         )
         sent = state.status == GradeSheet.Status.SUBMITTED
-        if changed and sent and not reason:
+        by_other = foreign and actor.pk != course.teacher_id
+        if changed and (sent or by_other) and not reason:
             raise BusinessError(REASON_REQUIRED)
         try:
             with transaction.atomic():
@@ -565,7 +618,7 @@ def save_sheet(
         before = {key: value for key, value in before.items() if value}
         after = {key: value for key, value in after.items() if value}
         if before or after:
-            if sent:
+            if reason:
                 after = {**after, "reason": reason}
             if state._state.adding:
                 state.save()
@@ -579,7 +632,11 @@ def save_sheet(
             )
             if before_grades or after_grades:
                 events.grades_corrected(
-                    course, term, count=max(len(before_grades), len(after_grades)), actor=actor
+                    course,
+                    term,
+                    count=max(len(before_grades), len(after_grades)),
+                    actor=actor,
+                    reason=reason,
                 )
     return sheet(course, term, total_only=total_only)
 

@@ -16,6 +16,7 @@ from apps.academics import (
     official,
     report_card_documents,
     report_cards,
+    substitutes,
 )
 from apps.academics.models import Course, GradeDeadline
 from apps.academics.serializers import (
@@ -200,8 +201,8 @@ class GradingView(_GradesView):
     )
     def get(self, request: Request) -> Response:
         """Ce que le compte voit dans les notes de l'année : son découpage (périodes, examens) et,
-        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous ;
-        `teaches` : il tient le carnet du cours (ses évaluations)."""
+        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ceux qu'il
+        remplace, ou tous ; `teaches` : il tient le carnet du cours (ses évaluations)."""
         params = GradingFilterSerializer(data=request.query_params)
         params.is_valid(raise_exception=True)
         year = params.validated_data.get("academic_year") or organisation.current_year()
@@ -220,6 +221,7 @@ class GradingView(_GradesView):
                 "order",
             )
         )
+        replaced = set(substitutes.replaced_courses(request.user).values_list("pk", flat=True))
         classes: dict = {}
         for course in listed:
             group = course.class_group
@@ -233,7 +235,9 @@ class GradingView(_GradesView):
                 },
             )
             course.teaches = course.teacher_id == request.user.pk
-            course.access = grades.notebook_access(request.user, permissions, course)
+            access = grades.notebook_access(request.user, permissions, course, replaced=replaced)
+            course.access = grades.TOTAL_ONLY if access == grades.SUBSTITUTE else access
+            course.replacing = course.pk in replaced
             entry["courses"].append(course)
         data = {
             "academic_year": year.pk,
@@ -253,8 +257,8 @@ def _course_and_term(pk, term_pk) -> tuple[Course, Term]:
 
 class _SheetView(_GradesView):
     """Carnet de l'enseignant (NB.1) : l'enseignant du cours ; `grades.enter_any`, le titulaire
-    et le cotitulaire de la classe (NB.7) n'y saisissent qu'un total par élève ; tout autre
-    compte : 403 `not_your_course`, il lit la fiche de cotes."""
+    et le cotitulaire de la classe (NB.7), le remplaçant (8.2.5) n'y saisissent qu'un total par
+    élève ; tout autre compte : 403 `not_your_course`, il lit la fiche de cotes."""
 
     def objects(self, pk, term_pk) -> tuple[Course, Term, bool]:
         course, term = _course_and_term(pk, term_pk)
@@ -264,7 +268,7 @@ class _SheetView(_GradesView):
             raise PermissionDenied(
                 _("Only the teacher of this course sees its evaluations."), code="not_your_course"
             )
-        return course, term, access == grades.TOTAL_ONLY
+        return course, term, grades.limited_to_totals(access, course, term, self.request.user)
 
 
 @extend_schema(tags=["grades"])

@@ -3342,6 +3342,8 @@ export const fr = {
         changed: "Notes modifiées",
         submitted: "Notes envoyées pour validation",
         validated: "Notes validées",
+        substitute_set: "Remplaçant d'un cours désigné",
+        substitute_removed: "Remplaçant d'un cours retiré",
         reopened: "Notes rouvertes",
         deadline_set: "Date limite de saisie fixée",
         reminded: "Enseignants rappelés pour leurs fiches de cotes",

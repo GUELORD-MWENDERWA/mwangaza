@@ -259,6 +259,10 @@ class GradingListCourseSerializer(GradingCourseSerializer):
         "titulaire ou cotitulaire de la classe, NB.7 ; refusé si la feuille a des devoirs) ; "
         "vide : fiche de cotes à lire seulement.",
     )
+    replacing = serializers.BooleanField(
+        help_text="Le compte remplace l'enseignant de ce cours (8.2.5) : un total par élève, sur "
+        "une feuille vide, qu'il a commencée ou déjà envoyée (sinon 403 `sheet_with_teacher`)."
+    )
     course_group = serializers.UUIDField(
         source="course_group_id",
         allow_null=True,
@@ -268,7 +272,13 @@ class GradingListCourseSerializer(GradingCourseSerializer):
     )
 
     class Meta(GradingCourseSerializer.Meta):
-        fields = [*GradingCourseSerializer.Meta.fields, "teaches", "access", "course_group"]
+        fields = [
+            *GradingCourseSerializer.Meta.fields,
+            "teaches",
+            "access",
+            "replacing",
+            "course_group",
+        ]
         read_only_fields = fields
 
 
@@ -649,3 +659,34 @@ class CourseGroupUpdateSerializer(serializers.Serializer):
 
 class CourseGroupRemoveClassSerializer(serializers.Serializer):
     class_group = serializers.UUIDField()
+
+
+class CourseSubstituteSerializer(serializers.Serializer):
+    """Remplaçant d'un cours (8.2.5), désignation en cours."""
+
+    id = serializers.UUIDField()
+    course = serializers.UUIDField(
+        source="course_id", allow_null=True, help_text="Cours d'une classe (vide : cours commun)."
+    )
+    course_group = serializers.UUIDField(
+        source="course_group_id",
+        allow_null=True,
+        help_text="Cours commun (8.1.2a) : remplacé pour toutes ses classes.",
+    )
+    label = serializers.CharField(help_text="« Électrotechnique · 3e Électricité A ».")
+    teacher = PersonSerializer(allow_null=True, help_text="Enseignant remplacé.")
+    substitute = PersonSerializer()
+    reason = serializers.CharField()
+    since = serializers.DateField(help_text="Jour de la désignation.")
+    ends_on = serializers.DateField(allow_null=True, help_text="Dernier jour ; vide : sans fin.")
+
+
+class CourseSubstituteFilterSerializer(serializers.Serializer):
+    academic_year = serializers.UUIDField(required=False)
+
+
+class CourseSubstituteCreateSerializer(serializers.Serializer):
+    course = serializers.UUIDField(help_text="Cours remplacé ; s'il est commun, tout son groupe.")
+    substitute_id = serializers.UUIDField()
+    reason = serializers.CharField(max_length=200)
+    ends_on = serializers.DateField(required=False, allow_null=True, default=None)

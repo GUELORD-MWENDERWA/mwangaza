@@ -789,6 +789,8 @@ paths:
           - grades.changed
           - grades.submitted
           - grades.validated
+          - grades.substitute_set
+          - grades.substitute_removed
           - grades.reopened
           - grades.deadline_set
           - grades.reminded
@@ -954,6 +956,8 @@ paths:
           * `grades.changed` - Grades changed
           * `grades.submitted` - Grades sent for validation
           * `grades.validated` - Grades validated
+          * `grades.substitute_set` - Course substitute designated
+          * `grades.substitute_removed` - Course substitute removed
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.reminded` - Teachers reminded of their grade sheets
@@ -1308,6 +1312,8 @@ paths:
           - grades.changed
           - grades.submitted
           - grades.validated
+          - grades.substitute_set
+          - grades.substitute_removed
           - grades.reopened
           - grades.deadline_set
           - grades.reminded
@@ -1473,6 +1479,8 @@ paths:
           * `grades.changed` - Grades changed
           * `grades.submitted` - Grades sent for validation
           * `grades.validated` - Grades validated
+          * `grades.substitute_set` - Course substitute designated
+          * `grades.substitute_removed` - Course substitute removed
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.reminded` - Teachers reminded of their grade sheets
@@ -11045,6 +11053,119 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/course-substitutes/:
+    get:
+      operationId: course_substitutes_list
+      description: Remplaçants en cours (date de fin pas encore passée), d'une année
+        au choix.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseSubstitute'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: course_substitutes_create
+      description: |-
+        Désigne le remplaçant d'un cours (de tout son groupe s'il est commun), avec motif et
+        date de fin facultative ; un remplaçant déjà en cours : 409 `substitute_exists`.
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseSubstituteCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseSubstituteCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseSubstituteCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSubstitute'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-substitutes/{id}/:
+    delete:
+      operationId: course_substitutes_destroy
+      description: 'Retire le remplaçant : il perd l''accès au cours, les notes qu''il
+        a saisies restent.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/course-templates/:
     get:
       operationId: course_templates_list
@@ -14453,8 +14574,8 @@ paths:
       operationId: grading_retrieve
       description: |-
         Ce que le compte voit dans les notes de l'année : son découpage (périodes, examens) et,
-        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous ;
-        `teaches` : il tient le carnet du cours (ses évaluations).
+        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ceux qu'il
+        remplace, ou tous ; `teaches` : il tient le carnet du cours (ses évaluations).
       parameters:
       - in: query
         name: academic_year
@@ -24521,6 +24642,8 @@ components:
       - grades.changed
       - grades.submitted
       - grades.validated
+      - grades.substitute_set
+      - grades.substitute_removed
       - grades.reopened
       - grades.deadline_set
       - grades.reminded
@@ -24685,6 +24808,8 @@ components:
         * `grades.changed` - Grades changed
         * `grades.submitted` - Grades sent for validation
         * `grades.validated` - Grades validated
+        * `grades.substitute_set` - Course substitute designated
+        * `grades.substitute_removed` - Course substitute removed
         * `grades.reopened` - Grades reopened
         * `grades.deadline_set` - Grade entry deadline set
         * `grades.reminded` - Teachers reminded of their grade sheets
@@ -30993,6 +31118,76 @@ components:
           allOf:
           - $ref: '#/components/schemas/PreferredPartEnum'
           default: any
+    CourseSubstitute:
+      type: object
+      description: Remplaçant d'un cours (8.2.5), désignation en cours.
+      properties:
+        id:
+          type: string
+          format: uuid
+        course:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours d''une classe (vide : cours commun).'
+        course_group:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours commun (8.1.2a) : remplacé pour toutes ses classes.'
+        label:
+          type: string
+          description: « Électrotechnique · 3e Électricité A ».
+        teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          nullable: true
+          description: Enseignant remplacé.
+        substitute:
+          $ref: '#/components/schemas/Person'
+        reason:
+          type: string
+        since:
+          type: string
+          format: date
+          description: Jour de la désignation.
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Dernier jour ; vide : sans fin.'
+      required:
+      - id
+      - course
+      - course_group
+      - label
+      - teacher
+      - substitute
+      - reason
+      - since
+      - ends_on
+    CourseSubstituteCreateRequest:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+          description: Cours remplacé ; s'il est commun, tout son groupe.
+        substitute_id:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - course
+      - reason
+      - substitute_id
     CoursesCopied:
       type: object
       properties:
@@ -33462,6 +33657,11 @@ components:
           oneOf:
           - $ref: '#/components/schemas/AccessEnum'
           - $ref: '#/components/schemas/NullEnum'
+        replacing:
+          type: boolean
+          description: 'Le compte remplace l''enseignant de ce cours (8.2.5) : un
+            total par élève, sur une feuille vide, qu''il a commencée ou déjà envoyée
+            (sinon 403 `sheet_with_teacher`).'
         course_group:
           type: string
           format: uuid
@@ -33476,6 +33676,7 @@ components:
       - has_exam
       - teaches
       - access
+      - replacing
       - course_group
     GradingSettings:
       type: object

@@ -31,6 +31,7 @@ from apps.academics.models import (
     ConductGrade,
     Course,
     CourseGroup,
+    CourseSubstitute,
     Deliberation,
     DeliberationDecision,
     DeliberationSnapshot,
@@ -138,9 +139,9 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     "category",
                 ],
             )
-            _joint_course(
-                year, User.objects.filter(phone=space.numbers.of("+243000001008")).first()
-            )
+            demo_teacher = User.objects.filter(phone=space.numbers.of("+243000001008")).first()
+            _joint_course(year, demo_teacher)
+            _substitute(year, demo_teacher, _validator(space))
 
 
 def _joint_course(year, teacher: User | None) -> None:
@@ -165,6 +166,39 @@ def _joint_course(year, teacher: User | None) -> None:
         )
         Course.objects.filter(pk__in=[course.pk for course in courses]).update(course_group=group)
         return
+
+
+def _substitute(year, substitute: User | None, director: User | None) -> None:
+    """Un remplacement (8.2.5) : l'enseignant de démonstration remplace, sans date de fin, un
+    collègue dans une classe où il donne déjà cours (« remplacement » dans ses notes)."""
+    if substitute is None or director is None:
+        return
+    # Deux requêtes simples : une jointure de plus est lente sur une base neuve.
+    classes = set(
+        Course.objects.filter(class_group__academic_year=year, teacher=substitute).values_list(
+            "class_group_id", flat=True
+        )
+    )
+    course = (
+        Course.objects.filter(
+            class_group_id__in=classes,
+            is_taught=True,
+            teacher__isnull=False,
+            course_group__isnull=True,
+        )
+        .exclude(teacher=substitute)
+        .order_by("class_group_id", "order")
+        .first()
+    )
+    if course is not None:
+        CourseSubstitute.objects.get_or_create(
+            course=course,
+            defaults={
+                "substitute": substitute,
+                "reason": "Congé de maladie de l'enseignant",
+                "created_by": director,
+            },
+        )
 
 
 # Évaluations de la 1re période : nom et part du maximum du cours.

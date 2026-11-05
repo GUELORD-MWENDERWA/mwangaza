@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Lot 8 — Cours communs et notes, partie ④ (remplaçant d'un enseignant, serveur) |
+| Lot en cours | Lot 8 — Cours communs et notes, partie ⑤ (écran « Remplaçants » et import Excel des points) |
 | Prochain lot | Lot 9 ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #430 (lot 8) |
 | Branche | `lot/8-cours-communs` |
-| Dernière mise à jour | 2026-11-05 (lot 8, partie ③ faite) |
+| Dernière mise à jour | 2026-11-05 (lot 8, partie ④ faite) |
 
 ## Avancement
 
@@ -27,7 +27,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 5 — Console finie | 7 ✓ | 7 |
 | 6 — Aide, guide et support | 5 ✓ | 5 |
 | 7 — Finances et caisse complètes | 4 ✓ | 4 |
-| 8 — Cours communs et notes | 3 | 7 |
+| 8 — Cours communs et notes | 4 | 7 |
 | 9 — Emploi du temps fini et IA | 0 | 2 |
 | 10 — Carte et présences | 0 | 3 |
 | 11 — Bibliothèque et ateliers | 0 | 3 |

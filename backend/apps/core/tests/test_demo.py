@@ -17,6 +17,7 @@ from apps.academics import board
 from apps.academics.models import (
     Course,
     CourseGroup,
+    CourseSubstitute,
     Deliberation,
     DisciplineIncident,
     DisciplineRule,
@@ -170,6 +171,10 @@ def created(demo) -> None:
             "1HT ÉLECTRICITÉ A",
             "1HT ÉLECTRICITÉ B",
         ]
+        # 8.2.5 : l'enseignant de démonstration remplace un collègue dans une de ses classes.
+        replacement = CourseSubstitute.objects.select_related("course").get()
+        assert replacement.substitute.phone == "+243000001008"
+        assert replacement.course.teacher.phone != "+243000001008"
         kept = [entry for entry in draft["entries"] if entry.course_id == locked.course_id]
         assert (1, 2, 6) in {(entry.weekday, entry.first, entry.length) for entry in kept}
         # EDT.5 : l'horaire des épreuves de la 1re période, publié et sans conflit.

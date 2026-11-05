@@ -7,6 +7,7 @@ from apps.academics import (
     promotion_views,
     resits_views,
     situation_views,
+    substitute_views,
     views,
     waiver_views,
 )
@@ -51,6 +52,16 @@ urlpatterns = [
         "course-groups/<uuid:pk>/remove-class/",
         course_group_views.CourseGroupRemoveClassView.as_view(),
         name="course-group-remove-class",
+    ),
+    path(
+        "course-substitutes/",
+        substitute_views.CourseSubstitutesView.as_view(),
+        name="course-substitutes",
+    ),
+    path(
+        "course-substitutes/<uuid:pk>/",
+        substitute_views.CourseSubstituteView.as_view(),
+        name="course-substitute",
     ),
     path("course-templates/", views.OfficialGridsView.as_view(), name="course-templates"),
     path("teaching-loads/", views.TeachingLoadsView.as_view(), name="teaching-loads"),
