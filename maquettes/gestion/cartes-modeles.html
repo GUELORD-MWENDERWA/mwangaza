@@ -5,8 +5,9 @@
 <style>
 /* Cartes au format ISO/IEC 7810 ID-1 (85,60 × 53,98 mm, coins de 3,18 mm) : celui de la carte
    blanche MIFARE du kit RC522, des imprimantes à cartes et des pochettes à plastifier. Tout est
-   en millimètres : le gabarit WeasyPrint reprend ces règles telles quelles. Seule couleur : celle
-   de l'école (--c, `card.color` ou `primary_color`), éclaircie par color-mix. */
+   en millimètres : le gabarit WeasyPrint reprend ces règles telles quelles. Couleur : le bleu de
+   la plateforme (`PlatformSettings`, bleu Mwangaza) avec son relief blanc ; une école peut choisir
+   la sienne (`card.color`). Éclaircie par color-mix pour les fonds. */
 @font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600}
 .sheet{max-width:1240px;margin:0 auto;padding:28px 16px 48px}
 .sheet h1{font-size:1.6rem;margin:0 0 4px}
@@ -21,7 +22,7 @@
 @media (max-width:599px){.zoom{zoom:1.05}.pair{gap:18px}}
 .real{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
 
-.idc{--c:#003C6C;--on:#FFFFFF;--tint:color-mix(in srgb,var(--c) 10%,#fff);--soft:color-mix(in srgb,var(--c) 22%,#fff);
+.idc{--c:#1A2F80;--relief:url(../assets/relief.svg);--on:#FFFFFF;--tint:color-mix(in srgb,var(--c) 10%,#fff);--soft:color-mix(in srgb,var(--c) 22%,#fff);
   position:relative;width:85.6mm;height:53.98mm;border-radius:3.18mm;overflow:hidden;background:#fff;color:#101828;
   font-family:"Atkinson Hyperlegible Next",Arial,sans-serif;font-size:6.4pt;line-height:1.25;box-shadow:0 1px 2px rgba(16,24,40,.12),0 6px 18px rgba(16,24,40,.10);flex:none}
 .idc.portrait{width:53.98mm;height:85.6mm}
@@ -38,7 +39,7 @@
 .sig{width:16mm;height:5mm}
 
 /* Élève, recto (paysage) */
-.st .band{position:absolute;left:0;right:0;top:0;height:14mm;background:var(--c);color:var(--on);display:flex;gap:2mm;align-items:center;padding:0 3.2mm 2.2mm}
+.st .band{position:absolute;left:0;right:0;top:0;height:14mm;background:var(--c) var(--relief) center/cover;color:var(--on);display:flex;gap:2mm;align-items:center;padding:0 3.2mm 2.2mm}
 .st .band .hl{flex:1;min-width:0}
 .st .band small{display:block;font-size:4.3pt;letter-spacing:.07em;text-transform:uppercase;opacity:.85}
 .st .band b{display:block;font-size:7.6pt;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -66,12 +67,12 @@
 .back h4{margin:0;font-size:6.6pt;color:var(--c);text-transform:uppercase;letter-spacing:.05em}
 .back p{margin:0;font-size:5.6pt;color:#344054}
 .back .contact{margin-top:auto;font-size:5.4pt;color:#101828;line-height:1.35}
-.back .k-bar{position:absolute;left:0;right:0;bottom:0;height:7.6mm;background:var(--c);color:var(--on);display:flex;align-items:center;justify-content:space-between;padding:0 3.2mm}
+.back .k-bar{position:absolute;left:0;right:0;bottom:0;height:7.6mm;background:var(--c) var(--relief) center/cover;color:var(--on);display:flex;align-items:center;justify-content:space-between;padding:0 3.2mm}
 .back .k-bar .mz{font-size:7pt}
 .back .k-bar small{font-size:4.4pt;opacity:.85;text-align:right;line-height:1.2}
 
 /* Personnel, recto (portrait) : fond plein de la couleur de l'école, bande « PERSONNEL ». */
-.sf{background:var(--c);color:var(--on)}
+.sf{background:var(--c) var(--relief) center/cover;color:var(--on)}
 .slot{position:absolute;left:50%;top:2.6mm;width:13mm;height:3.2mm;transform:translateX(-50%);border:.25mm dashed rgba(255,255,255,.55);border-radius:1.6mm}
 .sf .hd{position:absolute;left:3mm;right:3mm;top:7.6mm;display:flex;align-items:center;gap:1.8mm}
 .sf .hd .hl{flex:1;min-width:0;line-height:1.15}
@@ -97,7 +98,7 @@
 .sb h4{margin:0;font-size:6.2pt;color:var(--c);text-transform:uppercase;letter-spacing:.05em}
 .sb p{margin:0;font-size:5.3pt;color:#344054}
 .sb .signed{margin-top:auto;display:flex;flex-direction:column;align-items:center;font-size:4.6pt;color:#475467}
-.sb .k-bar{position:absolute;left:0;right:0;bottom:0;height:8mm;background:var(--c);color:var(--on);display:flex;align-items:center;justify-content:center;gap:2mm}
+.sb .k-bar{position:absolute;left:0;right:0;bottom:0;height:8mm;background:var(--c) var(--relief) center/cover;color:var(--on);display:flex;align-items:center;justify-content:center;gap:2mm}
 .sb .k-bar .mz{font-size:6.4pt}
 .sb .k-bar small{font-size:4.2pt;opacity:.85}
 
@@ -108,7 +109,7 @@
 <body>
 <main class="sheet">
   <h1>Cartes de l'école</h1>
-  <p class="lead">Format ID-1, 85,6 × 54 mm, le même que la carte MIFARE du kit RC522. Élève en largeur, personnel en hauteur (portée au cordon) : on les distingue à trois mètres. Couleur, logo, textes et signature viennent des paramètres de l'école.</p>
+  <p class="lead">Format ID-1, 85,6 × 54 mm, le même que la carte MIFARE du kit RC522. Élève en largeur, personnel en hauteur (portée au cordon) : on les distingue à trois mètres. Bleu Mwangaza et son motif en relief ; logo, nom, textes et signature viennent des paramètres de l'école (qui peut aussi choisir sa couleur).</p>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -159,7 +160,7 @@
   </div>
 
   <h2>Carte du personnel</h2>
-  <p class="lead">Fond plein de la couleur de l'école, bande sombre « Personnel » et fonction en clair : l'enseignant ne se confond jamais avec un élève. Le haut reste vide pour la fente du cordon.</p>
+  <p class="lead">Fond bleu plein avec le relief, bande sombre « Personnel » et fonction en clair : l'enseignant ne se confond jamais avec un élève. Le haut reste vide pour la fente du cordon.</p>
   <div class="pair zoom">
     <figure>
       <div class="idc portrait sf">
@@ -199,14 +200,14 @@
   <h2>Taille réelle</h2>
   <p class="lead">Sur un écran réglé à 96 points par pouce, ces cartes ont leur taille d'impression.</p>
   <div class="real">
-    <div class="idc st" style="--c:#7A1F2B">
+    <div class="idc st">
       <div class="band"><span class="logo">IV</span><div class="hl"><small>République démocratique du Congo · EPST</small><b>Institut Les Volcans</b></div><svg class="flag"><use href="#drc"/></svg></div>
       <div class="arch"></div>
       <div class="body"><div class="photo" style="color:var(--c)"><svg><use href="#silhouette"/></svg></div><div class="k-who"><span class="k-tag">Carte d'élève · 2026-2027</span><div class="name">Mapendo Rukara</div><div class="first">Amina</div><dl class="kv"><dt>Classe</dt><dd>6e Pédagogie B</dd><dt>Matricule</dt><dd class="mat">VOL-26-0117</dd></dl></div></div>
       <div class="foot"><span class="valid">Valable jusqu'au <b>31/08/2027</b></span><span class="signed">Le Préfet<svg class="sig"><use href="#signature"/></svg></span></div>
       <div class="stripe"></div>
     </div>
-    <div class="idc portrait sf" style="--c:#7A1F2B">
+    <div class="idc portrait sf">
       <div class="slot"></div>
       <div class="hd"><span class="logo">IV</span><div class="hl"><small>RD Congo · EPST</small><b>Institut Les Volcans</b></div></div>
       <div class="kind">Carte de service</div><div class="white"></div>
@@ -222,6 +223,6 @@
     <div><b>Impression</b>Imprimante à cartes (une face par page) ou planche A4 à découper et plastifier ; la carte MIFARE du kit reçoit l'autocollant ou l'impression directe.</div>
   </div>
 
-  <div class="note">Règles : format ID-1 85,6 × 53,98 mm, coins 3,18 mm, marges intérieures ≥ 3 mm ; élève en paysage, personnel en portrait avec 7 mm libres en haut (fente) ; une seule couleur, celle de l'école, éclaircie pour les fonds ; texte jamais sous 4 pt ; matricule en grand ; pas de téléphone du parent ni d'adresse de l'élève sur la carte (carte perdue = données lues par n'importe qui) : seul le contact de l'école ; date de naissance seulement si l'école le choisit (paramètre) ; mention « Carte émise avec Mwangaza » au verso, discrète ; la fonction du personnel vient de sa fiche (`Membership.title`), sinon de son premier rôle.</div>
+  <div class="note">Règles : format ID-1 85,6 × 53,98 mm, coins 3,18 mm, marges intérieures ≥ 3 mm ; élève en paysage, personnel en portrait avec 7 mm libres en haut (fente) ; bleu de la plateforme et son relief blanc (une école peut choisir sa couleur, `card.color`), éclairci pour les fonds ; une carte n'est émise qu'avec la photo officielle si l'école l'exige (`card.require_photo`, oui par défaut) : sinon, séance photo de la classe ; texte jamais sous 4 pt ; matricule en grand ; pas de téléphone du parent ni d'adresse de l'élève sur la carte (carte perdue = données lues par n'importe qui) : seul le contact de l'école ; date de naissance seulement si l'école le choisit (paramètre) ; mention « Carte émise avec Mwangaza » au verso, discrète ; la fonction du personnel vient de sa fiche (`Membership.title`), sinon de son premier rôle.</div>
 </main>
 </body></html>
