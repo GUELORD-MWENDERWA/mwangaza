@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.core.documents import PrintOptionsSerializer
 from apps.timetable.models import ExamSchedule, ExamSitting
 
 
@@ -62,3 +63,15 @@ class ExamScheduleSerializer(serializers.Serializer):
     errors = serializers.IntegerField(help_text="Conflits : bloquent la publication.")
     warnings = serializers.IntegerField()
     issues = ExamIssueSerializer(many=True)
+
+
+class ExamPrintQuerySerializer(PrintOptionsSerializer):
+    """Impression de l'horaire des épreuves (EDT.5b) ; sens habituel : portrait."""
+
+    kind = serializers.ChoiceField(
+        choices=["class", "general"],
+        default="class",
+        help_text="`class` : une page par classe ; `general` : toutes les classes, par jour.",
+    )
+    subject = serializers.UUIDField(required=False, help_text="Une seule classe.")
+    output = serializers.ChoiceField(choices=["pdf", "html"], default="pdf")

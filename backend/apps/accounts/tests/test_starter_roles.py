@@ -61,6 +61,7 @@ TABLE = {
     "finance.manage_budget": "✔ . . ✔ . . . .",
     "timetable.manage": "✔ ✔ . . . . . .",
     "timetable.publish": "✔ ✔ . . . . . .",
+    "timetable.record_exceptions": "✔ ✔ ✔ . . . . .",
     "ai.use": ". . . . . . . .",
     "announcements.publish": "✔ ✔ ✔ . . ✔ . .",
     "audit.view": "✔ . . . . . ✔ .",

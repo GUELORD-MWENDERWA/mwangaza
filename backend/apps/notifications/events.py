@@ -654,60 +654,105 @@ def report_cards_ready(group, term, *, actor: User) -> None:
 # Emploi du temps (EDT.4b)
 
 
-def timetable_published(timetable, *, teachers: set, class_groups: set, actor: User | None) -> int:
-    """Horaire publié : une notification par personne touchée, même avec plusieurs classes ou
-    plusieurs enfants. Les enseignants dont les séances changent ouvrent « Mon horaire » (Gestion,
-    sauf l'auteur) ; les parents des classes touchées, la page de l'enfant (l'accueil s'ils en ont
-    plusieurs). Quatre requêtes, jointures courtes (une classe de 800 élèves reste rapide)."""
+def _class_notice(*, year_id, teachers: set, class_groups: set, actor, staff, parents) -> int:
+    """Une notification par personne touchée, même avec plusieurs classes ou plusieurs enfants :
+    les enseignants (Gestion, sauf l'auteur) et les parents des classes (Portail, page de l'enfant ;
+    l'accueil s'ils en ont plusieurs). `staff()` et `parents(prénoms)` rendent (titre, texte, lien)
+    dans la langue de chacun. Quatre requêtes, jointures courtes."""
     school = require_current_school()
     if not school.has_module("notifications"):
         return 0
     rows = Enrollment.objects.filter(
-        academic_year_id=timetable.academic_year_id,
+        academic_year_id=year_id,
         status=Enrollment.Status.ACTIVE,
         class_group_id__in=class_groups,
     ).values_list("student__family_id", "student_id", "student__first_name")
     children: dict = defaultdict(list)
     for family_id, student_id, first_name in rows:
         children[family_id].append((student_id, first_name))
-    parents = dict(
+    accounts = dict(
         Family.objects.filter(
             pk__in=children, portal_suspended_at__isnull=True, primary_user__isnull=False
         ).values_list("primary_user_id", "pk")
     )
-    teachers = {pk for pk in teachers if not actor or pk != actor.pk}
-    users = User.objects.filter(is_active=True, pk__in=[*parents, *teachers])
+    teachers = {pk for pk in teachers if pk and (not actor or pk != actor.pk)}
+    users = User.objects.filter(is_active=True, pk__in=[*accounts, *teachers])
     member_ids = set(_members(*teachers).values_list("pk", flat=True))
     drafts = []
     for user in users:
         with translation.override(user.language):
-            when = date_format(timetable.valid_from, "j F Y")
             if user.pk in member_ids:
+                title, body, url = staff()
                 drafts.append(
                     push.draft(
                         user,
                         app=App.GESTION,
                         kind=Kind.TIMETABLE_PUBLISHED,
-                        title=_("New timetable"),
-                        body=_("Your lessons change from %(date)s.") % {"date": when},
-                        url="/my-timetable",
+                        title=title,
+                        body=body,
+                        url=url,
                     )
                 )
-            if user.pk in parents:
-                mine = children[parents[user.pk]]
-                names = ", ".join(name for _pk, name in mine)
+            if user.pk in accounts:
+                mine = children[accounts[user.pk]]
+                title, body = parents(", ".join(name for _pk, name in mine))
                 drafts.append(
                     push.draft(
                         user,
                         app=App.PORTAIL,
                         kind=Kind.TIMETABLE_PUBLISHED,
-                        title=_("New class timetable"),
-                        body=_("Timetable of %(children)s from %(date)s.")
-                        % {"children": names, "date": when},
+                        title=title,
+                        body=body,
                         url=f"/children/{mine[0][0]}" if len(mine) == 1 else "/",
                     )
                 )
     return len(push.create(school, drafts))
+
+
+def timetable_published(timetable, *, teachers: set, class_groups: set, actor: User | None) -> int:
+    """Horaire publié (EDT.4b) : les enseignants dont les séances changent ouvrent « Mon
+    horaire » ; les parents des classes touchées, la page de l'enfant."""
+
+    def when() -> str:
+        return date_format(timetable.valid_from, "j F Y")
+
+    return _class_notice(
+        year_id=timetable.academic_year_id,
+        teachers=teachers,
+        class_groups=class_groups,
+        actor=actor,
+        staff=lambda: (
+            _("New timetable"),
+            _("Your lessons change from %(date)s.") % {"date": when()},
+            "/my-timetable",
+        ),
+        parents=lambda names: (
+            _("New class timetable"),
+            _("Timetable of %(children)s from %(date)s.") % {"children": names, "date": when()},
+        ),
+    )
+
+
+def exam_timetable_published(schedule, sittings, *, actor: User | None) -> int:
+    """Horaire des épreuves publié (EDT.5b) : les enseignants des cours et les surveillants
+    (« Mon horaire »), les parents des classes qui ont une épreuve. Même sorte que l'horaire des
+    cours : qui a coupé l'un ne veut pas l'autre."""
+    term = schedule.term
+    return _class_notice(
+        year_id=term.academic_year_id,
+        teachers={s.course.teacher_id for s in sittings} | {s.invigilator_id for s in sittings},
+        class_groups={s.course.class_group_id for s in sittings},
+        actor=actor,
+        staff=lambda: (
+            _("Exam timetable published"),
+            _("%(term)s: your exams and invigilation duties.") % {"term": term},
+            "/my-timetable",
+        ),
+        parents=lambda names: (
+            _("Exam timetable published"),
+            _("%(term)s: exam dates for %(children)s.") % {"term": term, "children": names},
+        ),
+    )
 
 
 # IA (IA.1.1)

@@ -14,7 +14,11 @@ from apps.notifications.serializers import NotificationSerializer
 from apps.portal import children, families
 from apps.schools.models import School
 from apps.students.serializers import ContactDetailsSerializer
-from apps.timetable.serializers import PublishedTimetableSerializer, ScheduleLessonSerializer
+from apps.timetable.serializers import (
+    PublishedTimetableSerializer,
+    ScheduleLessonSerializer,
+    UpcomingExamSerializer,
+)
 
 _PASSWORD = {"max_length": 128, "trim_whitespace": False, "style": {"input_type": "password"}}
 _REMEMBER = {
@@ -270,6 +274,7 @@ class ChildTimetableSerializer(serializers.Serializer):
         allow_null=True, help_text="Vide : l'école n'a pas encore publié son horaire."
     )
     lessons = ScheduleLessonSerializer(many=True)
+    exams = UpcomingExamSerializer(many=True, help_text="Épreuves publiées à venir de la classe.")
 
 
 class ChildConductSerializer(serializers.Serializer):

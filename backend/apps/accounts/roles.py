@@ -49,6 +49,9 @@ PERMISSIONS: dict[str, Promise] = {
     ),
     "timetable.manage": _("Configure the timetable: time grids, rooms and rules"),
     "timetable.publish": _("Publish the timetable"),
+    "timetable.record_exceptions": _(
+        "Record lessons not given, replacements and extra lessons (hours worked)"
+    ),
     "ai.use": _("Use the AI assistance"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
@@ -86,6 +89,8 @@ ROLES_MANAGE = "roles.manage"
 TIMETABLE_MANAGE = "timetable.manage"
 # Publier un brouillon de l'horaire : il devient celui de l'école, l'ancien est archivé (EDT.4a).
 TIMETABLE_PUBLISH = "timetable.publish"
+# Noter les heures non données, les remplacements et les heures en plus ; fiche du mois (EDT.6).
+TIMETABLE_RECORD_EXCEPTIONS = "timetable.record_exceptions"
 ANNOUNCEMENTS_PUBLISH = "announcements.publish"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
@@ -176,6 +181,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "finance.manage_budget",
             "timetable.manage",
             "timetable.publish",
+            "timetable.record_exceptions",
             "announcements.publish",
             "audit.view",
             "billing.view",
@@ -193,6 +199,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "students.edit",
             "timetable.manage",
             "timetable.publish",
+            "timetable.record_exceptions",
             "announcements.publish",
         ),
     ),
@@ -203,6 +210,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "discipline.record",
             "discipline.override",
             "students.view",
+            "timetable.record_exceptions",
             "announcements.publish",
         ),
     ),
