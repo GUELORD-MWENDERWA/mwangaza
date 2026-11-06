@@ -133,3 +133,32 @@ with use_school(School.objects.get(code="itig-demo")):
   );
   return output.trim().split("\n").at(-1)!.split("|");
 }
+
+/** Deux élèves inscrits de l'ITIG de démonstration, sans pointage aujourd'hui (pointage à l'entrée). */
+export function studentsToScan(): string[] {
+  const output = manage(
+    "shell",
+    "-c",
+    `from django.utils import timezone
+from apps.core.tenancy import use_school
+from apps.schools.models import School
+from apps.students.models import Enrollment
+with use_school(School.objects.get(code="itig-demo")):
+    rows = (Enrollment.objects.filter(status="active").exclude(student__attendance_records__session__date=timezone.localdate())
+            .select_related("student").order_by("-student__matricule")[:2])
+    print("|".join(e.student.matricule for e in rows))`,
+  );
+  return output.trim().split("\n").at(-1)!.split("|");
+}
+
+/** Nombre de pointages d'un élève aujourd'hui, côté serveur. */
+export function scansToday(matricule: string): number {
+  const output = manage(
+    "shell",
+    "-c",
+    `from django.utils import timezone
+from apps.attendance.models import AttendanceRecord
+print(AttendanceRecord.all_schools.filter(student__matricule="${matricule}", session__date=timezone.localdate()).count())`,
+  );
+  return Number(output.trim().split("\n").at(-1));
+}
