@@ -103,7 +103,8 @@ MENU = [
     ("Scolarité", [
         ("eleves-liste.html", "Élèves", "students", None),
         ("notes-saisie.html", "Notes et bulletins", "book", "V1.2"),
-        ("presences-pointage-qr.html", "Présences", "clock", "V1.1"),
+        ("cartes.html", "Cartes", "card", None),
+        ("presences-pointage-qr.html", "Présences", "clock", None),
     ]),
     ("Finances", [
         ("caisse-encaissement.html", "Caisse", "cash", None),
@@ -191,6 +192,8 @@ ACTIVE_FOR = {
     "mon-horaire.html": "notes-saisie.html",
     "impression-emploi-du-temps.html": "notes-saisie.html",
     "horaire-epreuves.html": "notes-saisie.html",
+    "cartes-impression.html": "cartes.html",
+    "presences-suivi.html": "presences-pointage-qr.html",
     "heures-prestees.html": "notes-saisie.html",
     "grille-depuis-bulletin.html": "notes-saisie.html",
     "assistant-questions.html": "tableau-de-bord.html",
@@ -391,7 +394,10 @@ GESTION = [
     ("superadmin-ecoles", "Super-admin — écoles", "V1.0", "Plateforme · A1–A3", False),
     ("session-support", "Session support « en tant qu'école »", "V1.0", "Plateforme · A3", False),
     ("paie", "Paie mensuelle", "V1.1", "Plus tard · 5.3", False),
-    ("presences-pointage-qr", "Pointage QR à l'entrée", "V1.1", "Plus tard · 5.5", False),
+    ("cartes", "Cartes de l'élève et du personnel", "V1.5", "Lot 10 · 6.1 · A.5", True),
+    ("cartes-impression", "Imprimer les cartes (planche A4)", "V1.5", "Lot 10 · 6.1", True),
+    ("presences-pointage-qr", "Pointage à l'entrée (caméra, borne)", "V1.5", "Lot 10 · 6.3", True),
+    ("presences-suivi", "Suivi des présences", "V1.5", "Lot 10 · 6.5", True),
     ("notes-saisie", "Saisie des notes", "V1.2", "Plus tard · 6.2", False),
     ("notes-validation", "Suivi des notes (directeur des études)", "V1.2", "Plus tard · 8.2.2, NB.2", True),
     ("notes-fiches", "Fiches de cotes", "V1.2", "Plus tard · 8.3.6", True),
@@ -450,6 +456,7 @@ PORTAIL = [
     ("verification-recu", "Vérification publique d'un reçu", "V1.0", "F4", False),
     ("enfant-scolarite", "Scolarité d'un enfant", "V1.2", "6.8", False),
     ("enfant-horaire", "Horaire de la classe d'un enfant", "V1.2", "EDT.4b", True),
+    ("enfant-presences", "Présences d'un enfant et justification", "V1.5", "Lot 10 · 6.6", True),
     ("enfant-bulletin", "Notes, bulletin et message à l'école", "V1.7", "8.8", True),
 ]
 

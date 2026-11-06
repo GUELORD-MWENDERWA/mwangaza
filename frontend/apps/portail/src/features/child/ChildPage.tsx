@@ -30,6 +30,7 @@ import {
   useChildConduct,
 } from "../../lib/families";
 import { PortalFrame } from "../home/PortalFrame";
+import { ChildAttendance } from "./ChildAttendance";
 import { ChildAvatar } from "./ChildAvatar";
 import { ChildResults, ChildThread } from "./ChildSchooling";
 import { ChildTimetable } from "./ChildTimetable";
@@ -69,6 +70,7 @@ export function ChildPage() {
         </div>
       )}
       {data && <Payments child={data} />}
+      {data && <ChildAttendance id={id} />}
       {data && <Conduct id={id} />}
       {data && (
         <div className="mt-4 flex flex-col gap-4">

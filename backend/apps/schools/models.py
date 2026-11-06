@@ -16,6 +16,7 @@ from apps.core.money import Currency
 from apps.core.tenancy import RESERVED_SUBDOMAINS
 from apps.schools import (
     alerts,
+    attendance,
     colors,
     grading,
     matricule,
@@ -342,6 +343,16 @@ class School(BaseModel):
     def portal(self) -> dict:
         """Ce que le portail montre aux parents, valeurs par défaut comprises (`portal.py`)."""
         return portal.portal_settings(self.settings)
+
+    @property
+    def card(self) -> dict:
+        """Modèle de carte : couleur, texte du verso, validité (`attendance.py`, lot 10)."""
+        return attendance.card_settings(self.settings)
+
+    @property
+    def attendance(self) -> dict:
+        """Présences : heure limite d'arrivée (`attendance.py`, lot 10)."""
+        return attendance.attendance_settings(self.settings)
 
     @property
     def text_color(self) -> str:

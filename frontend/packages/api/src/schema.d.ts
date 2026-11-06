@@ -334,6 +334,334 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/attendance/absences/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Absents d'un jour (par classe et nom), avec leurs absences non justifiées de l'année ;
+         *     filtres `class_group` et `state`.
+         */
+        get: operations["attendance_absences_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/cards/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Carte perdue ou départ : refusée à tous les pointages dès maintenant (au journal). */
+        post: operations["attendance_cards_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/cards/print/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Émet une carte pour chaque personne choisie (l'ancienne est remplacée) et prépare le
+         *     PDF à ouvrir aussitôt à `url` : le jeton du QR n'existe que dans ce PDF, jamais gardé
+         *     en clair. Au plus 100 cartes à la fois ; planches A4 (10 élèves, 9 membres du
+         *     personnel) ou une carte par page. Photo exigée par l'école : les personnes sans photo
+         *     officielle sont laissées de côté (`without_photo`), 409 si plus personne ne reste.
+         */
+        post: operations["attendance_cards_print_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/cards/print/{batch}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description PDF des cartes que l'on vient d'émettre : servi par l'impression en tâche de fond
+         *     (page d'attente puis PDF) dans les 10 minutes ; ensuite, ou pour un autre compte, 410.
+         */
+        get: operations["attendance_cards_print_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/cards/staff/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Personnel actif de l'école avec sa carte (filtres `search` et `card`). */
+        get: operations["attendance_cards_staff_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/cards/students/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Élèves inscrits de l'année avec leur carte active et leur dernière carte révoquée. */
+        get: operations["attendance_cards_students_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/cards/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Compteurs de l'écran « Cartes » : actives, élèves sans carte, perdues cette année,
+         *     cartes à réimprimer.
+         */
+        get: operations["attendance_cards_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/corrections/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Journal des corrections, plus récentes d'abord (filtres `date_from`, `date_to`). */
+        get: operations["attendance_corrections_list"];
+        put?: never;
+        /**
+         * @description Corrige la présence d'une personne un jour de classe (« présent, carte oubliée ») :
+         *     une ligne de plus au journal, jamais une modification du passage ; au journal d'audit.
+         */
+        post: operations["attendance_corrections_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/day/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Un jour à l'entrée (aujourd'hui par défaut) : présents, retards, absents (justifiés
+         *     ou non), personnel, et chaque classe. Calculé à la demande, rien n'est stocké.
+         */
+        get: operations["attendance_day_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Rapport d'une période (une classe ou toute l'école) : jours de classe, à l'heure,
+         *     retards, absences, justifiées et taux de chaque élève.
+         */
+        get: operations["attendance_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/justifications/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Justifications d'absence, plus récentes d'abord (filtres `status`, `student`) ; l'école
+         *     note celle d'un parent venu avec un mot (acceptée d'emblée).
+         */
+        get: operations["attendance_justifications_list"];
+        put?: never;
+        /**
+         * @description Justifications d'absence, plus récentes d'abord (filtres `status`, `student`) ; l'école
+         *     note celle d'un parent venu avec un mot (acceptée d'emblée).
+         */
+        post: operations["attendance_justifications_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/justifications/{id}/decide/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Accepte ou refuse une justification en attente ; le parent voit la réponse. */
+        post: operations["attendance_justifications_decide_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/justifications/{id}/document/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Le certificat (photo ou PDF), lu seulement par le personnel de l'école. */
+        get: operations["attendance_justifications_document_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/photos/staff/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Photo officielle d'un membre actif du personnel (carte de service). */
+        get: operations["attendance_photos_staff_retrieve"];
+        put?: never;
+        /** @description Photo officielle d'un membre actif du personnel (carte de service). */
+        post: operations["attendance_photos_staff_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/photos/students/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Photo officielle d'un élève de l'école (la même que sur sa fiche). */
+        get: operations["attendance_photos_students_retrieve"];
+        put?: never;
+        /** @description Photo officielle d'un élève de l'école (la même que sur sa fiche). */
+        post: operations["attendance_photos_students_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/roster/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Liste de l'appareil de pointage : élèves inscrits (par pages de 1 000) et personnel,
+         *     avec l'empreinte de leur carte active et leur matricule (saisie à la main). Rien n'est
+         *     envoyé si `version` est celle de l'appareil ; une version changée en cours de pages :
+         *     reprendre depuis la première.
+         */
+        get: operations["attendance_roster_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/staff/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Personnel actif un jour : arrivé, en retard ou absent (corrections comprises). */
+        get: operations["attendance_staff_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audit/": {
         parameters: {
             query?: never;
@@ -5142,8 +5470,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * @description Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
-         *     les matricules déjà donnés ne changent pas.
+         * @description Un seul des champs suffit. Vaut pour les inscriptions et les imports suivants ; les
+         *     matricules déjà donnés ne changent pas. `range` : plage de l'année en cours (MAT.1).
          */
         patch: operations["matricule_format_partial_update"];
         trace?: never;
@@ -5695,6 +6023,46 @@ export interface paths {
         get: operations["portal_children_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/attendance/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Présences de l'année d'un enfant (6.6) : totaux, absences et leur état, justifications
+         *     envoyées ; 404 comme `ChildView`, ou si l'école n'a pas le module des présences.
+         */
+        get: operations["portal_children_attendance_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/children/{id}/attendance/justify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Le parent justifie une absence (maladie, deuil…), certificat en option : en attente
+         *     jusqu'à la réponse de l'école, qui en est prévenue.
+         */
+        post: operations["portal_children_attendance_justify_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8345,6 +8713,30 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Absence: {
+            /** Format: uuid */
+            student_id: string;
+            name: string;
+            matricule: string;
+            class_name: string;
+            state: components["schemas"]["AbsenceStateEnum"];
+            /** @description Absences non justifiées depuis le début de l'année (ce jour compris). */
+            unjustified: number;
+            /** @description Faux : la famille n'a pas de compte du Portail, il faut l'appeler. */
+            parent_on_portal: boolean;
+            /**
+             * Format: uuid
+             * @description Justification qui couvre ce jour (en attente ou acceptée).
+             */
+            justification_id: string | null;
+        };
+        /**
+         * @description * `absent` - Absent
+         *     * `pending` - Justification pending
+         *     * `justified` - Justified
+         * @enum {string}
+         */
+        AbsenceStateEnum: "absent" | "pending" | "justified";
         AcademicYear: {
             /** Format: uuid */
             readonly id: string;
@@ -8437,6 +8829,8 @@ export interface components {
          *     * `staff.reactivated` - Staff member reactivated
          *     * `staff.account_changed` - Staff member's names or phone changed
          *     * `staff.signature_changed` - Staff member's signature changed
+         *     * `staff.photo_changed` - Staff member's official photo changed
+         *     * `staff.title_changed` - Staff member's position changed
          *     * `staff.password_reset` - Temporary password given
          *     * `staff.totp_reset` - Two-factor authentication reset
          *     * `school.created` - School created
@@ -8483,6 +8877,11 @@ export interface components {
          *     * `discipline.incident_recorded` - Offence recorded
          *     * `discipline.incident_cancelled` - Offence cancelled
          *     * `discipline.grade_overridden` - Conduct grade corrected
+         *     * `attendance.card_issued` - Card issued
+         *     * `attendance.card_revoked` - Card revoked
+         *     * `attendance.corrected` - Attendance corrected
+         *     * `attendance.justification_recorded` - Absence justified by the school
+         *     * `attendance.justification_decided` - Absence justification decided
          *     * `timetable.grid_changed` - Time grid changed
          *     * `timetable.grid_deleted` - Time grid deleted
          *     * `timetable.room_changed` - Room changed
@@ -8585,7 +8984,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -8915,6 +9314,36 @@ export interface components {
             rule: components["schemas"]["TimetableRuleWrite"] | null;
             reason: string;
         };
+        /** @description Présences (`attendance.py`, lot 10). Écriture partielle : les autres restent. */
+        AttendanceSettings: {
+            /**
+             * Format: time
+             * @description Heure limite d'arrivée ; un passage après est un retard.
+             */
+            late_after: string;
+            /**
+             * Format: time
+             * @description Heure où les parents des absents du jour sont prévenus (après l'heure limite).
+             */
+            notify_at: string;
+            /** @description Absences non justifiées de l'année avant l'alerte à la direction ; 0 : aucune. */
+            alert_after: number;
+        };
+        /** @description Présences (`attendance.py`, lot 10). Écriture partielle : les autres restent. */
+        AttendanceSettingsRequest: {
+            /**
+             * Format: time
+             * @description Heure limite d'arrivée ; un passage après est un retard.
+             */
+            late_after: string;
+            /**
+             * Format: time
+             * @description Heure où les parents des absents du jour sont prévenus (après l'heure limite).
+             */
+            notify_at: string;
+            /** @description Absences non justifiées de l'année avant l'alerte à la direction ; 0 : aucune. */
+            alert_after: number;
+        };
         /**
          * @description * `all_families` - All families
          *     * `class_groups` - Some classes
@@ -9222,6 +9651,144 @@ export interface components {
             total: number;
             count: number;
         };
+        /** @description Carte, sans jamais son jeton (le serveur ne l'a pas) : ses 4 derniers signes. */
+        Card: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Card number */
+            readonly number: number;
+            /** Last signs of the token */
+            readonly last4: string;
+            /** Format: date-time */
+            readonly issued_at: string;
+            /** Format: date */
+            readonly valid_until: string;
+            /** Format: date-time */
+            readonly revoked_at: string | null;
+            /** Reason */
+            readonly revoke_reason: components["schemas"]["RevokeReasonEnum"];
+        };
+        /**
+         * @description Une seule façon de choisir : une sélection (`students`, `members`), une classe
+         *     (`class_group`, avec `missing_only`), ou les personnes sans carte (`missing`).
+         */
+        CardPrintRequest: {
+            students?: string[];
+            /** @description Membres du personnel (`member` de la liste du personnel). */
+            members?: string[];
+            /** Format: uuid */
+            class_group?: string;
+            /**
+             * @description Avec `class_group` : seulement les élèves sans carte.
+             * @default false
+             */
+            missing_only: boolean;
+            /**
+             * @description Les 100 premiers sans carte, ou dont la carte est à réimprimer (`reprint`) ; `remaining` : les autres.
+             *
+             *     * `students` - students
+             *     * `staff` - staff
+             *     * `reprint` - reprint
+             */
+            missing?: components["schemas"]["MissingEnum"];
+            /** @default sheet */
+            layout: components["schemas"]["LayoutEnum"];
+        };
+        CardPrintResult: {
+            /** @description Cartes émises (les anciennes sont remplacées). */
+            issued: number;
+            /** @description Personnes encore sans carte (`missing`). */
+            remaining: number;
+            /** @description Laissées de côté : pas de photo officielle alors que l'école l'exige. */
+            without_photo: number;
+            /** @description Adresse du PDF à ouvrir tout de suite (10 minutes). */
+            url: string;
+        };
+        CardRevokeRequest: {
+            reason: components["schemas"]["ReasonEnum"];
+        };
+        /** @description Modèle de carte (`attendance.py`, lot 10). Écriture partielle : les autres restent. */
+        CardSettings: {
+            /** @description Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de la plateforme. */
+            color: string;
+            /** @description Texte du verso ; vide : « Carte personnelle, demandée à l'entrée… ». */
+            back_text: string;
+            /**
+             * Format: date
+             * @description Fin de validité ; vide : dernier jour de l'année en cours.
+             */
+            valid_until: string | null;
+            /** @description Champs facultatifs imprimés ; noms, classe, matricule, N° et année toujours. */
+            printed_fields: components["schemas"]["PrintedFieldsEnum"][];
+            /** @description Formule aux autorités (champ `authorities`) ; vide : la formule habituelle. */
+            authorities_text: string;
+            /** @description Pas de carte sans photo officielle : ces personnes sont laissées de côté. */
+            require_photo: boolean;
+        };
+        /** @description Modèle de carte (`attendance.py`, lot 10). Écriture partielle : les autres restent. */
+        CardSettingsRequest: {
+            /** @description Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de la plateforme. */
+            color: string;
+            /** @description Texte du verso ; vide : « Carte personnelle, demandée à l'entrée… ». */
+            back_text: string;
+            /**
+             * Format: date
+             * @description Fin de validité ; vide : dernier jour de l'année en cours.
+             */
+            valid_until: string | null;
+            /** @description Champs facultatifs imprimés ; noms, classe, matricule, N° et année toujours. */
+            printed_fields: components["schemas"]["PrintedFieldsEnum"][];
+            /** @description Formule aux autorités (champ `authorities`) ; vide : la formule habituelle. */
+            authorities_text: string;
+            /** @description Pas de carte sans photo officielle : ces personnes sont laissées de côté. */
+            require_photo: boolean;
+        };
+        /** @description Membre du personnel et sa carte (onglet Personnel). */
+        CardStaff: {
+            /** @description Carte active ; null sans carte. */
+            readonly card: components["schemas"]["Card"] | null;
+            /** @description Dernière carte révoquée (perdue, remplacée, départ) ; null sinon. */
+            readonly last_revoked: components["schemas"]["Card"] | null;
+            /** Format: uuid */
+            member: string;
+            name: string;
+            readonly roles: string[];
+            /** @description Fonction imprimée ; vide : ses rôles. */
+            title: string;
+            /** @description Photo officielle (celle de la carte). */
+            readonly photo: string | null;
+            readonly needs_reprint: boolean;
+        };
+        /** @description Élève inscrit de l'année et sa carte (écran « Cartes », onglet Élèves). */
+        CardStudent: {
+            /** @description Carte active ; null sans carte. */
+            readonly card: components["schemas"]["Card"] | null;
+            /** @description Dernière carte révoquée (perdue, remplacée, départ) ; null sinon. */
+            readonly last_revoked: components["schemas"]["Card"] | null;
+            /** Format: uuid */
+            student: string;
+            name: string;
+            matricule: string;
+            /** Format: uuid */
+            class_group: string;
+            class_name: string;
+            /** @description Photo officielle (celle de la carte). */
+            readonly photo: string | null;
+            /** @description La carte active n'imprime plus ce qui est vrai (photo, classe, noms…). */
+            readonly needs_reprint: boolean;
+        };
+        CardSummary: {
+            /** @description Élèves inscrits dans l'année en cours. */
+            students: number;
+            /** @description Élèves inscrits qui ont une carte active. */
+            active: number;
+            /** @description Élèves inscrits sans carte. */
+            missing: number;
+            /** @description Cartes perdues depuis la rentrée. */
+            lost_this_year: number;
+            /** @description Cartes actives (élèves et personnel) qui n'impriment plus ce qui est vrai. */
+            to_reprint: number;
+        };
         CashCloseRequest: {
             /** @description Argent compté, par devise. */
             counted: components["schemas"]["CountedRequest"][];
@@ -9510,6 +10077,21 @@ export interface components {
             /** @description Adresse de la photo, seulement avec le consentement du parent. */
             photo: string | null;
         };
+        ChildAbsence: {
+            /** Format: date */
+            date: string;
+            state: components["schemas"]["AbsenceStateEnum"];
+        };
+        /**
+         * @description Présences de l'année d'un enfant : totaux, absences récentes (60 au plus), justifications
+         *     envoyées (20 au plus).
+         */
+        ChildAttendance: {
+            class_group: string;
+            totals: components["schemas"]["ChildTotals"];
+            absences: components["schemas"]["ChildAbsence"][];
+            justifications: components["schemas"]["PortalJustification"][];
+        };
         /** @description Conduite d'un enfant (8.5.1b). */
         ChildConduct: {
             /** Format: uuid */
@@ -9662,6 +10244,16 @@ export interface components {
             lessons: components["schemas"]["ScheduleLesson"][];
             /** @description Épreuves publiées à venir de la classe. */
             exams: components["schemas"]["UpcomingExam"][];
+        };
+        ChildTotals: {
+            /** @description Jours de classe depuis l'inscription. */
+            days: number;
+            present: number;
+            late: number;
+            absent: number;
+            justified: number;
+            pending: number;
+            rate: number | null;
         };
         ClassActivation: {
             /** Format: uuid */
@@ -10301,6 +10893,8 @@ export interface components {
              * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color: string;
+            /** @description Printed under « République démocratique du Congo » on documents and cards. */
+            ministry_line: string;
             /** @description 0970000000 ou +243970000000 ; vide : aucun. */
             support_phone: string;
             support_email: string;
@@ -11105,6 +11699,36 @@ export interface components {
          * @enum {string}
          */
         ContractStatusEnum: "draft" | "active" | "ended";
+        /** @description Ligne du journal des corrections. */
+        Correction: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: date */
+            readonly date: string;
+            /** Format: uuid */
+            student: string | null;
+            /** Format: uuid */
+            member: string | null;
+            readonly name: string;
+            status: components["schemas"]["DayStatusEnum"];
+            /** Status before */
+            readonly previous_status: components["schemas"]["DayStatusEnum"];
+            reason: string;
+            readonly author: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /** @description Une personne (élève ou membre du personnel), un jour de classe, le nouvel état. */
+        CorrectionWriteRequest: {
+            /** Format: date */
+            date: string;
+            /** Format: uuid */
+            student?: string;
+            /** Format: uuid */
+            member?: string;
+            status: components["schemas"]["DayStatusEnum"];
+            reason: string;
+        };
         Council: {
             members: components["schemas"]["Member"][];
             /**
@@ -11622,6 +12246,48 @@ export interface components {
             /** Format: date */
             held_on: string;
         };
+        /** @description Un jour à l'entrée : compteurs de l'école, du personnel et de chaque classe. */
+        Day: {
+            /** Format: date */
+            date: string;
+            /** @description Faux : personne n'a pointé ce jour-là, ou congé ; aucun absent. */
+            school_day: boolean;
+            holiday: boolean;
+            enrolled: number;
+            present: number;
+            late: number;
+            /** @description Absents, justifiés compris. */
+            absent: number;
+            justified: number;
+            /** @description Absents dont la justification est en attente. */
+            pending: number;
+            /** @description Présents et retards, en %. */
+            rate: number | null;
+            /** @description Personnel arrivé (retards compris). */
+            staff_present: number;
+            staff_total: number;
+            /** @description Heure limite d'arrivée de l'école (HH:MM). */
+            late_after: string;
+            /**
+             * Format: date-time
+             * @description Heure où les parents des absents ont été prévenus ce jour-là.
+             */
+            parents_notified_at: string | null;
+            /** @description Seuil d'alerte ; 0 : aucune alerte. */
+            alert_after: number;
+            classes: components["schemas"]["DayClass"][];
+        };
+        DayClass: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            enrolled: number;
+            present: number;
+            late: number;
+            /** @description Absents, justifiés compris. */
+            absent: number;
+            justified: number;
+        };
         DayLesson: {
             /**
              * Format: uuid
@@ -11639,6 +12305,13 @@ export interface components {
             /** @description Exception déjà notée. */
             recorded: string | null;
         };
+        /**
+         * @description * `present` - Arrived
+         *     * `late` - Late
+         *     * `absent` - Absent
+         * @enum {string}
+         */
+        DayStatusEnum: "present" | "late" | "absent";
         Deadline: {
             /**
              * Format: date
@@ -11834,7 +12507,7 @@ export interface components {
             signature: string | null;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "announcements" | "application" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+        DomainEnum: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
         Draft: {
             /** Format: uuid */
             readonly id: string;
@@ -13173,6 +13846,68 @@ export interface components {
             has_exam: boolean;
             students: number;
         };
+        Justification: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly student: string;
+            readonly student_name: string;
+            /**
+             * From
+             * Format: date
+             */
+            readonly starts_on: string;
+            /**
+             * To
+             * Format: date
+             */
+            readonly ends_on: string;
+            readonly reason: string;
+            /** Sent by */
+            readonly source: components["schemas"]["JustificationSourceEnum"];
+            readonly status: components["schemas"]["JustificationStatusEnum"];
+            readonly has_document: boolean;
+            /** Format: date-time */
+            readonly decided_at: string | null;
+            readonly decided_by_name: string;
+            /** Answer to the parent */
+            readonly decision_note: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        JustificationDecisionRequest: {
+            accept: boolean;
+            /**
+             * @description Réponse au parent.
+             * @default
+             */
+            note: string;
+        };
+        /**
+         * @description * `portal` - Sent by the parent
+         *     * `school` - Recorded by the school
+         * @enum {string}
+         */
+        JustificationSourceEnum: "portal" | "school";
+        /**
+         * @description * `pending` - Pending
+         *     * `accepted` - Accepted
+         *     * `refused` - Refused
+         * @enum {string}
+         */
+        JustificationStatusEnum: "pending" | "accepted" | "refused";
+        JustificationWriteRequest: {
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            reason: string;
+            /**
+             * Format: binary
+             * @description Certificat : photo ou PDF, 5 Mo au plus.
+             */
+            document?: string;
+        };
         KeepRequest: {
             /** @description Vrai : mis dans l'écran ; faux : laissé. */
             kept: boolean;
@@ -13225,6 +13960,12 @@ export interface components {
             readonly received_at: string;
             readonly cancelled: boolean;
         };
+        /**
+         * @description * `sheet` - A4 sheet of 10
+         *     * `card` - one card per page
+         * @enum {string}
+         */
+        LayoutEnum: "sheet" | "card";
         Left: {
             /** Format: uuid */
             course: string;
@@ -13470,22 +14211,44 @@ export interface components {
             logo: string;
         };
         MatriculeFormat: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format: string;
             /** @description Prochain matricule : année en cours, première option (C3). */
             example: string;
         };
         MatriculeFormatInputRequest: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format: string;
         };
+        /** @description Plage de numéros de l'année en cours (MAT.1). */
+        MatriculeRange: {
+            /** @description Premier numéro de l'année. */
+            range_start: number;
+            /** @description Dernier numéro permis ; vide : le plus grand que permet le format. */
+            range_end: number | null;
+            /** @description Prochain numéro donné (pour reprendre la numérotation). */
+            next_number: number;
+        };
+        /** @description Plage de numéros de l'année en cours (MAT.1). */
+        MatriculeRangeRequest: {
+            /** @description Premier numéro de l'année. */
+            range_start: number;
+            /** @description Dernier numéro permis ; vide : le plus grand que permet le format. */
+            range_end: number | null;
+            /** @description Prochain numéro donné (pour reprendre la numérotation). */
+            next_number: number;
+        };
         MatriculeSettings: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format: string;
             /** @description Prochain matricule : année en cours, première option (C3). */
             example: string;
             /** @description Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens (importés ou saisis sur la fiche) ou n'en a pas (C5). */
             auto_matricule: boolean;
+            /** @description Plage de l'année en cours ; vide sans année en cours. */
+            range: components["schemas"]["MatriculeRange"] | null;
+            /** @description Plus grand numéro que permettent les chiffres du format. */
+            range_limit: number;
         };
         Me: {
             /** Format: uuid */
@@ -13562,6 +14325,13 @@ export interface components {
             readonly created_at: string;
         };
         /**
+         * @description * `students` - students
+         *     * `staff` - staff
+         *     * `reprint` - reprint
+         * @enum {string}
+         */
+        MissingEnum: "students" | "staff" | "reprint";
+        /**
          * @description * `last_name` - last_name
          *     * `middle_name` - middle_name
          *     * `first_name` - first_name
@@ -13609,13 +14379,14 @@ export interface components {
          *     * `communication` - Announcements
          *     * `academics` - Courses, grades and report cards
          *     * `timetable` - Timetable
+         *     * `attendance` - Cards and attendance
          *     * `ai` - AI assistance
          *     * `portal` - Parent portal
          *     * `notifications` - Notifications and reminders
          *     * `offline` - Offline work and synchronisation
          * @enum {string}
          */
-        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "ai" | "portal" | "notifications" | "offline";
+        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "attendance" | "ai" | "portal" | "notifications" | "offline";
         MonthFlow: {
             /**
              * Format: date
@@ -13688,9 +14459,13 @@ export interface components {
          *     * `ai_credits` - AI credits running low
          *     * `support_reply` - Reply from support
          *     * `possible_duplicate` - Possible duplicate student
+         *     * `absence` - Your child is absent
+         *     * `absence_alert` - Repeated absences
+         *     * `justification_sent` - Absence justification received
+         *     * `justification_decided` - Answer to a justification
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply" | "possible_duplicate";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply" | "possible_duplicate" | "absence" | "absence_alert" | "justification_sent" | "justification_decided";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -13796,6 +14571,21 @@ export interface components {
             grade: components["schemas"]["ConductGradeEnum"];
             reason: string;
         };
+        PaginatedAbsenceList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Absence"][];
+        };
         PaginatedAnnouncementList: {
             /** @example 123 */
             count: number;
@@ -13840,6 +14630,36 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["CancellationRequest"][];
+        };
+        PaginatedCardStaffList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["CardStaff"][];
+        };
+        PaginatedCardStudentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["CardStudent"][];
         };
         PaginatedCashOutList: {
             /** @example 123 */
@@ -14036,6 +14856,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Contract"][];
         };
+        PaginatedCorrectionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Correction"][];
+        };
         PaginatedDayLessonList: {
             /** @example 123 */
             count: number;
@@ -14140,6 +14975,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["Invoice"][];
+        };
+        PaginatedJustificationList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Justification"][];
         };
         PaginatedLegalDocumentList: {
             /** @example 123 */
@@ -14395,6 +15245,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["StaffAnnouncement"][];
+        };
+        PaginatedStaffDayList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["StaffDay"][];
         };
         PaginatedStaffList: {
             /** @example 123 */
@@ -14843,6 +15708,8 @@ export interface components {
              * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color?: string;
+            /** @description Printed under « République démocratique du Congo » on documents and cards. */
+            ministry_line?: string;
             /** @description 0970000000 ou +243970000000 ; vide : aucun. */
             support_phone?: string;
             support_email?: string;
@@ -15129,10 +15996,12 @@ export interface components {
             pass_rules?: components["schemas"]["LevelPassRulesRequest"];
         };
         PatchedMatriculeSettingsInputRequest: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format?: string;
             /** @description Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens (importés ou saisis sur la fiche) ou n'en a pas (C5). */
             auto_matricule?: boolean;
+            /** @description Plage de l'année en cours (il en faut une). */
+            range?: components["schemas"]["MatriculeRangeRequest"];
         };
         PatchedMeUpdateRequest: {
             language?: components["schemas"]["LanguageEnum"];
@@ -15244,6 +16113,8 @@ export interface components {
             portal?: components["schemas"]["PortalSettingsRequest"];
             grading?: components["schemas"]["GradingSettingsRequest"];
             pass_rules?: components["schemas"]["PassRulesSettingsRequest"];
+            card?: components["schemas"]["CardSettingsRequest"];
+            attendance?: components["schemas"]["AttendanceSettingsRequest"];
         };
         /** @description Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`. */
         PatchedStaffUpdateRequest: {
@@ -15253,6 +16124,8 @@ export interface components {
             last_name?: string;
             middle_name?: string;
             first_name?: string;
+            /** @description Fonction en clair sur la carte de service ; vide : ses rôles. */
+            title?: string;
         };
         PatchedStudentImportUpdateRequest: {
             mapping?: components["schemas"]["ImportMappingRequest"];
@@ -15513,19 +16386,27 @@ export interface components {
          *     * `timetable.manage` - Configure the timetable: time grids, rooms and rules
          *     * `timetable.publish` - Publish the timetable
          *     * `timetable.record_exceptions` - Record lessons not given, replacements and extra lessons (hours worked)
+         *     * `attendance.cards` - Issue, print and revoke the cards of students and staff
+         *     * `attendance.scan` - Record arrivals at the entrance (scan the cards)
+         *     * `attendance.view` - View attendance, absences and their reports
+         *     * `attendance.correct` - Correct attendance and accept or refuse absence notes
          *     * `ai.use` - Use the AI assistance
          *     * `announcements.publish` - Publish announcements
          *     * `audit.view` - View the audit log
          *     * `billing.view` - View the subscription, invoices and payments to the platform
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "timetable.record_exceptions" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "timetable.record_exceptions" | "attendance.cards" | "attendance.scan" | "attendance.view" | "attendance.correct" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
             last_name: string;
             middle_name: string;
             first_name: string;
+        };
+        PhotoResult: {
+            /** @description Adresse de la nouvelle photo officielle. */
+            photo: string;
         };
         PhotoUploadRequest: {
             /**
@@ -15638,6 +16519,8 @@ export interface components {
              * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color: string;
+            /** @description Printed under « République démocratique du Congo » on documents and cards. */
+            ministry_line: string;
             support_phone: string;
             support_email: string;
             legal_notice: string;
@@ -15916,6 +16799,26 @@ export interface components {
             /** Format: time */
             start_time: string | null;
         };
+        PortalJustification: {
+            /** Format: uuid */
+            readonly id: string;
+            /**
+             * From
+             * Format: date
+             */
+            readonly starts_on: string;
+            /**
+             * To
+             * Format: date
+             */
+            readonly ends_on: string;
+            readonly reason: string;
+            readonly status: components["schemas"]["JustificationStatusEnum"];
+            /** Answer to the parent */
+            readonly decision_note: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         PortalLoginRequest: {
             /** @description Ex. 0971234567 ou +243971234567. */
             phone: string;
@@ -16040,6 +16943,17 @@ export interface components {
          * @enum {string}
          */
         PreferredPartEnum: "any" | "morning";
+        /**
+         * @description * `birth` - birth
+         *     * `sex` - sex
+         *     * `nationality` - nationality
+         *     * `national_id` - national_id
+         *     * `guardian_phone` - guardian_phone
+         *     * `address` - address
+         *     * `authorities` - authorities
+         * @enum {string}
+         */
+        PrintedFieldsEnum: "birth" | "sex" | "nationality" | "national_id" | "guardian_phone" | "address" | "authorities";
         /**
          * @description * `thermal_58` - thermal_58
          *     * `thermal_80` - thermal_80
@@ -16291,6 +17205,12 @@ export interface components {
          * @enum {string}
          */
         ReasonCodeEnum: "staff_child" | "sibling" | "scholarship" | "waiver" | "other";
+        /**
+         * @description * `lost` - lost
+         *     * `left` - left
+         * @enum {string}
+         */
+        ReasonEnum: "lost" | "left";
         ReasonRequest: {
             reason: string;
         };
@@ -16300,9 +17220,10 @@ export interface components {
          *     * `schedule` - schedule
          *     * `portal` - portal
          *     * `grades` - grades
+         *     * `attendance` - attendance
          * @enum {string}
          */
-        ReasonsEnum: "payment" | "discount" | "schedule" | "portal" | "grades";
+        ReasonsEnum: "payment" | "discount" | "schedule" | "portal" | "grades" | "attendance";
         /** @description Réglages du reçu (M5, `receipts.py`). Écriture partielle : les autres restent. */
         ReceiptSettings: {
             /**
@@ -16529,6 +17450,13 @@ export interface components {
             explanation: string;
             actions: components["schemas"]["ReviewAction"][];
         };
+        /**
+         * @description * `lost` - Lost
+         *     * `replaced` - Replaced by a new card
+         *     * `left` - Left the school
+         * @enum {string}
+         */
+        RevokeReasonEnum: "lost" | "replaced" | "left";
         /** @description Rôle de l'école : un nom et des permissions. */
         Role: {
             /** Format: uuid */
@@ -16584,6 +17512,44 @@ export interface components {
          * @enum {string}
          */
         RoomKindEnum: "classroom" | "workshop" | "lab" | "computer" | "sports" | "other";
+        /** @description Liste gardée par l'appareil de pointage pour décider seul, même sans réseau. */
+        Roster: {
+            /** @description À renvoyer : rien n'est envoyé s'il n'a pas changé. */
+            version: string;
+            unchanged: boolean;
+            students: components["schemas"]["RosterStudent"][];
+            /** @description Première page seulement. */
+            staff: components["schemas"]["RosterStaff"][];
+            /**
+             * Format: uuid
+             * @description Page suivante (`after`).
+             */
+            next: string | null;
+            /** @description Le format a une clé de contrôle `{C}` : un matricule tapé inconnu dont la clé est fausse est « mal tapé » (algorithme de Damm sur ses chiffres). */
+            matricule_check: boolean;
+            /** @description Heure limite d'arrivée de l'école (HH:MM) : après, le passage est un retard. */
+            late_after: string;
+        };
+        RosterStaff: {
+            /** Format: uuid */
+            member: string;
+            name: string;
+            card_hash: string;
+            card_last4: string;
+            readonly photo: string | null;
+        };
+        RosterStudent: {
+            /** Format: uuid */
+            student: string;
+            name: string;
+            matricule: string;
+            class_name: string;
+            /** @description Empreinte SHA-256 du jeton ; vide sans carte. */
+            card_hash: string;
+            card_last4: string;
+            /** @description Photo officielle montrée à la porte (`/api/attendance/photos/…`). */
+            readonly photo: string | null;
+        };
         Row: {
             /** Format: uuid */
             enrollment: string;
@@ -17027,6 +17993,20 @@ export interface components {
             /** @description Reste dû, 0 pour un avoir ou une facture soldée. */
             balance: number;
         };
+        SchoolJustificationRequest: {
+            /** Format: date */
+            starts_on: string;
+            /** Format: date */
+            ends_on: string;
+            reason: string;
+            /**
+             * Format: binary
+             * @description Certificat : photo ou PDF, 5 Mo au plus.
+             */
+            document?: string;
+            /** Format: uuid */
+            student: string;
+        };
         /** @description Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza. */
         SchoolSettings: {
             /** @description Subdomain of the school: {code}.mwangaza.school. Changed by the platform only: the old address stops working. */
@@ -17092,6 +18072,8 @@ export interface components {
             readonly pass_rule_presets: {
                 [key: string]: components["schemas"]["PassRulesSettings"];
             };
+            card: components["schemas"]["CardSettings"];
+            attendance: components["schemas"]["AttendanceSettings"];
         };
         /**
          * @description * `trial` - Free trial
@@ -17368,6 +18350,8 @@ export interface components {
             readonly roles: string[];
             /** Active */
             is_active: boolean;
+            /** Job title */
+            title: string;
             /** @description Double authentification (colonne de M3). */
             readonly totp: components["schemas"]["TotpEnum"];
             /**
@@ -17413,6 +18397,8 @@ export interface components {
             readonly roles: string[];
             /** Active */
             is_active: boolean;
+            /** Job title */
+            title: string;
             /** @description Double authentification (colonne de M3). */
             readonly totp: components["schemas"]["TotpEnum"];
             /**
@@ -17428,6 +18414,17 @@ export interface components {
             existing_account: boolean;
             /** @description Nouveau compte seulement : affiché une seule fois, à changer à la connexion. */
             temporary_password: string | null;
+        };
+        StaffDay: {
+            /** Format: uuid */
+            member_id: string;
+            name: string;
+            status: components["schemas"]["DayStatusEnum"];
+            /**
+             * Format: date-time
+             * @description Heure du passage, s'il y en a.
+             */
+            seen_at: string | null;
         };
         /** @description Aperçu d'un fichier du personnel, ou son résultat une fois enregistré. */
         StaffImport: {
@@ -20309,6 +21306,953 @@ export interface operations {
             };
         };
     };
+    attendance_absences_list: {
+        parameters: {
+            query?: {
+                class_group?: string;
+                /** @description Jour suivi ; vide : aujourd'hui. */
+                date?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /**
+                 * @description Vide : tous les absents (justifiés compris).
+                 *
+                 *     * `absent` - Absent
+                 *     * `pending` - Justification pending
+                 *     * `justified` - Justified
+                 */
+                state?: "absent" | "pending" | "justified";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAbsenceList"];
+                };
+            };
+        };
+    };
+    attendance_cards_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CardRevokeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CardRevokeRequest"];
+                "multipart/form-data": components["schemas"]["CardRevokeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Card"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_cards_print_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["CardPrintRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CardPrintRequest"];
+                "multipart/form-data": components["schemas"]["CardPrintRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardPrintResult"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_cards_print_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_cards_staff_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description active : avec une carte active ; none : sans carte.
+                 *
+                 *     * `active` - active
+                 *     * `none` - none
+                 */
+                card?: "active" | "none";
+                /** @description Élèves d'une classe. */
+                class_group?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Nom ou matricule. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCardStaffList"];
+                };
+            };
+        };
+    };
+    attendance_cards_students_list: {
+        parameters: {
+            query?: {
+                /**
+                 * @description active : avec une carte active ; none : sans carte.
+                 *
+                 *     * `active` - active
+                 *     * `none` - none
+                 */
+                card?: "active" | "none";
+                /** @description Élèves d'une classe. */
+                class_group?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Nom ou matricule. */
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCardStudentList"];
+                };
+            };
+        };
+    };
+    attendance_cards_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CardSummary"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_corrections_list: {
+        parameters: {
+            query?: {
+                date_from?: string;
+                date_to?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCorrectionList"];
+                };
+            };
+        };
+    };
+    attendance_corrections_create: {
+        parameters: {
+            query?: {
+                date_from?: string;
+                date_to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CorrectionWriteRequest"];
+                "multipart/form-data": components["schemas"]["CorrectionWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Correction"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_day_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Jour suivi ; vide : aujourd'hui. */
+                date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Day"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_export_retrieve: {
+        parameters: {
+            query: {
+                class_group?: string;
+                date_from: string;
+                date_to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_justifications_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /**
+                 * @description * `pending` - Pending
+                 *     * `accepted` - Accepted
+                 *     * `refused` - Refused
+                 */
+                status?: "pending" | "accepted" | "refused";
+                student?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedJustificationList"];
+                };
+            };
+        };
+    };
+    attendance_justifications_create: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `pending` - Pending
+                 *     * `accepted` - Accepted
+                 *     * `refused` - Refused
+                 */
+                status?: "pending" | "accepted" | "refused";
+                student?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["SchoolJustificationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Justification"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_justifications_decide_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["JustificationDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["JustificationDecisionRequest"];
+                "multipart/form-data": components["schemas"]["JustificationDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Justification"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_justifications_document_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/octet-stream": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_staff_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PNG ou JPEG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_staff_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PhotoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoResult"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_students_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PNG ou JPEG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_students_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PhotoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoResult"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_roster_retrieve: {
+        parameters: {
+            query?: {
+                /** @description `next` de la page précédente. */
+                after?: string;
+                /** @description Version déjà sur l'appareil. */
+                version?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Roster"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_staff_list: {
+        parameters: {
+            query?: {
+                /** @description Jour suivi ; vide : aujourd'hui. */
+                date?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStaffDayList"];
+                };
+            };
+        };
+    };
     audit_list: {
         parameters: {
             query?: {
@@ -20333,6 +22277,8 @@ export interface operations {
                  *     * `staff.reactivated` - Staff member reactivated
                  *     * `staff.account_changed` - Staff member's names or phone changed
                  *     * `staff.signature_changed` - Staff member's signature changed
+                 *     * `staff.photo_changed` - Staff member's official photo changed
+                 *     * `staff.title_changed` - Staff member's position changed
                  *     * `staff.password_reset` - Temporary password given
                  *     * `staff.totp_reset` - Two-factor authentication reset
                  *     * `school.created` - School created
@@ -20379,6 +22325,11 @@ export interface operations {
                  *     * `discipline.incident_recorded` - Offence recorded
                  *     * `discipline.incident_cancelled` - Offence cancelled
                  *     * `discipline.grade_overridden` - Conduct grade corrected
+                 *     * `attendance.card_issued` - Card issued
+                 *     * `attendance.card_revoked` - Card revoked
+                 *     * `attendance.corrected` - Attendance corrected
+                 *     * `attendance.justification_recorded` - Absence justified by the school
+                 *     * `attendance.justification_decided` - Absence justification decided
                  *     * `timetable.grid_changed` - Time grid changed
                  *     * `timetable.grid_deleted` - Time grid deleted
                  *     * `timetable.room_changed` - Room changed
@@ -20480,13 +22431,14 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `announcements` - announcements
                  *     * `application` - application
+                 *     * `attendance` - attendance
                  *     * `audit` - audit
                  *     * `auth` - auth
                  *     * `contract` - contract
@@ -20509,7 +22461,7 @@ export interface operations {
                  *     * `support` - support
                  *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+                domain?: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -20650,6 +22602,8 @@ export interface operations {
                  *     * `staff.reactivated` - Staff member reactivated
                  *     * `staff.account_changed` - Staff member's names or phone changed
                  *     * `staff.signature_changed` - Staff member's signature changed
+                 *     * `staff.photo_changed` - Staff member's official photo changed
+                 *     * `staff.title_changed` - Staff member's position changed
                  *     * `staff.password_reset` - Temporary password given
                  *     * `staff.totp_reset` - Two-factor authentication reset
                  *     * `school.created` - School created
@@ -20696,6 +22650,11 @@ export interface operations {
                  *     * `discipline.incident_recorded` - Offence recorded
                  *     * `discipline.incident_cancelled` - Offence cancelled
                  *     * `discipline.grade_overridden` - Conduct grade corrected
+                 *     * `attendance.card_issued` - Card issued
+                 *     * `attendance.card_revoked` - Card revoked
+                 *     * `attendance.corrected` - Attendance corrected
+                 *     * `attendance.justification_recorded` - Absence justified by the school
+                 *     * `attendance.justification_decided` - Absence justification decided
                  *     * `timetable.grid_changed` - Time grid changed
                  *     * `timetable.grid_deleted` - Time grid deleted
                  *     * `timetable.room_changed` - Room changed
@@ -20797,13 +22756,14 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
                  * @description * `account` - account
                  *     * `announcements` - announcements
                  *     * `application` - application
+                 *     * `attendance` - attendance
                  *     * `audit` - audit
                  *     * `auth` - auth
                  *     * `contract` - contract
@@ -20826,7 +22786,7 @@ export interface operations {
                  *     * `support` - support
                  *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+                domain?: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -36454,6 +38414,108 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_attendance_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChildAttendance"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    portal_children_attendance_justify_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["JustificationWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalJustification"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

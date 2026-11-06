@@ -1,5 +1,5 @@
 import { api, call, type Schemas } from "@mwangaza/api";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export type LinkedFamily = Schemas["LinkedFamily"];
 export type Child = Schemas["Child"];
@@ -40,6 +40,39 @@ export function useChildTimetable(id: string) {
     queryKey: ["portal", "child", id, "timetable"],
     queryFn: () =>
       call(api.GET("/api/portal/children/{id}/timetable/", { params: { path: { id } } })),
+  });
+}
+
+/** Présences de l'année d'un enfant (6.6) : totaux, absences, justifications. Sans le module des
+ *  présences le serveur répond 404 : l'écran n'affiche alors rien. */
+export function useChildAttendance(id: string) {
+  return useQuery({
+    queryKey: ["portal", "child", id, "attendance"],
+    queryFn: () =>
+      call(api.GET("/api/portal/children/{id}/attendance/", { params: { path: { id } } })),
+    retry: false,
+  });
+}
+
+/** Le parent justifie une absence : motif et certificat facultatif ; en attente de l'école. */
+export function useJustify(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { day: string; reason: string; document: File | null }) => {
+      const body = new FormData();
+      body.append("starts_on", input.day);
+      body.append("ends_on", input.day);
+      body.append("reason", input.reason);
+      if (input.document) body.append("document", input.document);
+      return call(
+        api.POST("/api/portal/children/{id}/attendance/justify/", {
+          params: { path: { id } },
+          body: body as unknown as Schemas["JustificationWriteRequest"],
+        }),
+      );
+    },
+    onSuccess: () =>
+      void queryClient.invalidateQueries({ queryKey: ["portal", "child", id, "attendance"] }),
   });
 }
 

@@ -15,6 +15,8 @@ from django.utils import timezone
 
 from apps.academics import discipline
 from apps.academics.models import Course, Evaluation, Grade
+from apps.attendance import cards, scans
+from apps.attendance.models import AttendanceRecord, IdCard
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
 from apps.core.tenancy import use_school
@@ -370,6 +372,15 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
             occurred_on=timezone.localdate(),
             term=term,
         )
+        # Une carte part avec l'élève ; un passage à l'entrée le garde (lot 10).
+        cards.issue(actor=head, enrollments=[enrollment["Josué"]])
+        AttendanceRecord.objects.create(
+            session=scans.entrance(timezone.localdate()),
+            student=enrollment["Grâce"].student,
+            seen_at=timezone.now(),
+            method=AttendanceRecord.Method.MANUAL,
+            status=AttendanceRecord.Status.PRESENT,
+        )
 
     client = api(head)
     path = f"{IMPORTS}{imp.pk}/"
@@ -379,7 +390,7 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
         "Daniel": ["payment", "grades"],
         "Esther": ["discount"],
         "Christian": ["schedule", "grades"],
-        "Grâce": ["portal"],
+        "Grâce": ["portal", "attendance"],
     }
     response = client.post(f"{path}cancel/", {"reason": " "})
     assert response.status_code == 400 and "reason" in response.json()["fields"]
@@ -413,6 +424,7 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
         assert Family.objects.count() == 5
         assert not Enrollment.objects.filter(pk__in=removed).exists()
         assert not StudentCharge.objects.filter(enrollment_id__in=removed).exists()
+        assert not IdCard.objects.exists()
         # L'argent n'a pas bougé : le paiement, sa répartition, ce que doivent les élèves gardés.
         assert Payment.objects.get().pk == payment.pk
         assert PaymentAllocation.objects.filter(payment=payment).count() == 1

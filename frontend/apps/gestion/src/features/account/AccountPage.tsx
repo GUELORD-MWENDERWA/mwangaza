@@ -38,6 +38,8 @@ import { hasCode, keys, useCurrentMe, type Me } from "../../lib/queries";
 import { useCurrentSchool } from "../../lib/school";
 import { useLogout } from "../../lib/session";
 import { passwordSchema } from "../auth/NewPasswordPage";
+import { DeviceSignals } from "../attendance/DeviceSignals";
+import { loadSettings, saveSettings, type SignalSettings } from "../attendance/signals";
 import { SignatureField } from "../settings/SignatureField";
 import { DisableTwoFactorDialog, NewRecoveryCodesDialog } from "./TwoFactorDialogs";
 
@@ -59,6 +61,7 @@ export function AccountPage() {
           {me.school && !me.support && <SignatureCard signature={me.school.documents.signature} />}
           <PasswordCard />
           <DevicesCard />
+          <ThisDeviceCard />
         </div>
         <div className="flex flex-col gap-4">
           <TwoFactorCard me={me} />
@@ -464,6 +467,21 @@ function TwoFactorCard({ me }: { me: Me }) {
         )}
       </CardFooter>
     </Card>
+  );
+}
+
+/** Signaux de cet appareil (SIG.1) : gardés sur l'appareil, jamais sur le serveur. */
+function ThisDeviceCard() {
+  const [settings, setSettings] = useState<SignalSettings>(loadSettings);
+  return (
+    <DeviceSignals
+      settings={settings}
+      onChange={(next) => {
+        const merged = { ...settings, ...next };
+        setSettings(merged);
+        saveSettings(merged);
+      }}
+    />
   );
 }
 

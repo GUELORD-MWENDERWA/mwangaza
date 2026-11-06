@@ -36,7 +36,8 @@ def _code(code: str) -> str:
     return f"{code[:4]}-{code[4:]}" if len(code) == 8 else code
 
 
-def _photo(student: Student) -> str:
+def photo_uri(student: Student) -> str:
+    """Photo de l'élève intégrée au document (`data:`), vide sans photo lisible."""
     if not student.photo:
         return ""
     try:
@@ -121,7 +122,7 @@ def registration_form(
         **school_header(require_current_school()),
         "enrollment": enrollment,
         "student": student,
-        "photo": _photo(student),
+        "photo": photo_uri(student),
         "origin": ", ".join(
             part for part in (student.origin_territory, student.origin_province) if part
         ),

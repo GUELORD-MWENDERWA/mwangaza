@@ -1,0 +1,113 @@
+{% load i18n %}{% get_current_language as language %}{% comment %}Cartes d'élève et du personnel (6.1), d'après `maquettes/gestion/cartes-modeles.html` et les cartes congolaises fournies : début du document (styles) ; chaque page vient de `_card_page.html`. Format ID-1 85,6 × 53,98 mm (carte MIFARE du kit RC522), élève en paysage, personnel en portrait (7 mm libres en haut pour la fente du cordon). `layout` = `sheet` (planches A4 : 10 élèves ou 9 membres du personnel, recto puis verso) ou `card` (une face par page, imprimante à cartes). Couleur : bleu de la plateforme et son relief, ou celle du modèle de carte de l'école. Pas de variables CSS ni de color-mix : WeasyPrint reçoit des couleurs calculées.{% endcomment %}<!doctype html>
+<html lang="{{ language }}">
+<head>
+<meta charset="utf-8">
+<title>{% translate "Cards" %}</title>
+<style>
+@page card-land { size: 85.6mm 53.98mm; margin: 0; }
+@page card-port { size: 53.98mm 85.6mm; margin: 0; }
+@page sheet-land { size: A4 portrait; margin: 13.5mm 19.4mm; }
+@page sheet-port { size: A4 portrait; margin: 20mm 24mm; }
+* { box-sizing: border-box; }
+body { margin: 0; color: #101828; font-family: "Atkinson Hyperlegible Next", "DejaVu Sans", Arial, sans-serif; font-size: 5.6pt; line-height: 1.22; }
+.next { break-before: page; }
+.pg.card.land { page: card-land; } .pg.card.port { page: card-port; }
+.pg.sheet.land { page: sheet-land; } .pg.sheet.port { page: sheet-port; }
+.pg.sheet { display: grid; }
+.pg.sheet.land { grid-template-columns: 85.6mm 85.6mm; grid-auto-rows: 53.98mm; }
+.pg.sheet.port { grid-template-columns: 53.98mm 53.98mm 53.98mm; grid-auto-rows: 85.6mm; }
+/* Marques de coupe : un filet fin et clair autour de chaque carte de la planche. */
+.sheet .slot { outline: .2pt dashed #A9B4C4; outline-offset: -.1pt; }
+.slot { overflow: hidden; }
+.idc { position: relative; width: 85.6mm; height: 53.98mm; overflow: hidden; background: #fff; }
+.port .idc { width: 53.98mm; height: 85.6mm; }
+.blue { background: {{ color }} url("{{ relief }}") center / cover no-repeat; color: {{ text_color }}; }
+.wm { position: absolute; width: 34mm; height: 34mm; opacity: .07; }
+.wm img { width: 100%; height: 100%; object-fit: contain; }
+.logo { width: 9mm; height: 9mm; border-radius: 1.6mm; background: {{ color }}; color: {{ text_color }}; font-weight: 800; font-size: 5.4pt; flex: none; display: flex; align-items: center; justify-content: center; }
+img.logo { background: none; object-fit: contain; }
+.flag { width: 8mm; height: 5.3mm; flex: none; }
+.flag svg { width: 100%; height: 100%; display: block; }
+.off { position: absolute; left: 3mm; right: 3mm; top: 2.2mm; display: flex; align-items: center; gap: 2mm; }
+.off .lines { flex: 1; min-width: 0; text-align: center; line-height: 1.16; }
+.off .rdc { font-size: 5.2pt; font-weight: 700; color: {{ color }}; }
+.off .min { font-size: 4.1pt; color: #344054; text-transform: uppercase; letter-spacing: .02em; }
+.off .sch { font-size: 6.2pt; font-weight: 800; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title { position: absolute; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 3mm; }
+.title b { font-size: 7.4pt; letter-spacing: .12em; text-transform: uppercase; }
+.no { background: #fff; color: {{ color }}; border-radius: 999px; padding: .35mm 2mm; font-weight: 800; font-size: 7pt; }
+.photo { position: absolute; background: {{ tint }}; border-radius: 0 1.8mm 0 1.8mm; overflow: hidden; color: {{ color }}; border: .25mm solid {{ soft }}; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 11pt; }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+/* Cachet de l'école à cheval sur le coin de la photo : une photo changée casse le cachet. */
+.stamp { position: absolute; width: 12mm; height: 12mm; object-fit: contain; opacity: .85; }
+.f { position: absolute; margin: 0; font-size: 5.7pt; }
+.f div { display: flex; gap: 1.6mm; margin-bottom: .5mm; white-space: nowrap; }
+.f dt { color: #5B6475; flex: none; }
+.f dt::after { content: " :"; }
+.f dd { margin: 0; font-weight: 700; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.f .mat { font-size: 6.9pt; letter-spacing: .04em; color: {{ color }}; }
+.f.dense { font-size: 5pt; } .f.dense div { margin-bottom: .2mm; } .f.dense .mat { font-size: 6.2pt; }
+.sig { position: absolute; text-align: center; font-size: 4.3pt; color: #475467; line-height: 1.1; }
+.sig img, .sig .line { display: block; width: 15mm; height: 4.6mm; margin: 0 auto; object-fit: contain; }
+.year { position: absolute; left: 0; right: 0; bottom: 0; height: 6.4mm; display: flex; align-items: center; justify-content: space-between; padding: 0 3mm; }
+.year b { font-size: 6.6pt; letter-spacing: .1em; text-transform: uppercase; }
+.year small { font-size: 4.6pt; opacity: .88; }
+.mz { display: flex; align-items: center; gap: 1.2mm; font-family: "Poppins", "DejaVu Sans", sans-serif; font-weight: 600; letter-spacing: -.03em; }
+.mz i { width: 3.2mm; height: 3.2mm; border-radius: .9mm; background: #fff; position: relative; flex: none; }
+.mz i::after { content: ""; position: absolute; left: 1.2mm; top: .55mm; width: .8mm; height: .8mm; border-radius: 50%; background: #FFA81E; }
+/* Élève, recto (paysage) */
+.st .title { top: 13.4mm; height: 5.8mm; }
+.st .photo { right: 3mm; top: 20.4mm; width: 19.6mm; height: 24.2mm; }
+.st .stamp { right: 16.6mm; top: 36.4mm; }
+.st .f { left: 3mm; right: 25.6mm; top: 20.6mm; }
+.st .sig { left: 30mm; top: 38.6mm; width: 22mm; }
+.st .wm { left: 20mm; top: 16mm; }
+/* Verso (paysage) */
+.bk .qr { position: absolute; left: 3mm; top: 3mm; width: 24mm; height: 24mm; background: #fff; border: .25mm solid {{ soft }}; border-radius: 1.4mm; padding: 1.1mm; }
+.bk .qrno { position: absolute; left: 3mm; top: 28mm; width: 24mm; text-align: center; font-size: 5pt; font-weight: 700; color: {{ color }}; }
+/* Pas de flex ici : WeasyPrint place mal un bloc poussé en bas ; le contact est posé à part. */
+.bk .txt, .bk .contact { position: absolute; left: 30.5mm; right: 3mm; }
+.bk .txt { top: 3mm; }
+.bk .contact { bottom: 8.4mm; }
+.txt > * { margin: 0 0 1mm; }
+.del { font-size: 5.6pt; font-weight: 700; }
+.law { font-size: 5.2pt; font-style: italic; color: #344054; border-left: .5mm solid {{ soft }}; padding-left: 1.4mm; }
+.txt p { margin: 0; font-size: 5.1pt; color: #344054; }
+.contact { font-size: 5pt; line-height: 1.3; }
+.bar { position: absolute; left: 0; right: 0; bottom: 0; height: 6.8mm; display: flex; align-items: center; justify-content: space-between; padding: 0 3mm; }
+.bar .mz { font-size: 6.6pt; }
+.bar small { font-size: 4.3pt; opacity: .88; text-align: right; line-height: 1.2; }
+/* Personnel, recto (portrait) : 7 mm libres en haut pour la fente du cordon. */
+.sf .off { top: 7.4mm; left: 2.6mm; right: 2.6mm; gap: 1.4mm; }
+.sf .logo { width: 7.4mm; height: 7.4mm; font-size: 4.4pt; }
+.sf .flag { width: 6.6mm; height: 4.4mm; }
+.sf .off .rdc { font-size: 4.5pt; } .sf .off .min { font-size: 3.5pt; } .sf .off .sch { font-size: 5.4pt; }
+.sf .title { top: 18.6mm; height: 5.6mm; padding: 0 2.6mm; }
+.sf .title b { font-size: 6pt; letter-spacing: .1em; }
+.sf .no { font-size: 6pt; }
+.sf .photo { left: 17mm; top: 26mm; width: 20mm; height: 24.6mm; }
+.sf .stamp { left: 31.4mm; top: 42.4mm; width: 11mm; height: 11mm; }
+.sf .wm { left: 10mm; top: 30mm; }
+.who { position: absolute; left: 2.6mm; right: 2.6mm; top: 52.4mm; text-align: center; }
+.who b { display: block; font-size: 7.6pt; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+.who span { display: block; font-size: 6.2pt; }
+.who .role { display: inline-block; margin-top: 1mm; background: {{ tint }}; color: {{ color }}; font-weight: 800; font-size: 5.4pt; border-radius: 1mm; padding: .5mm 1.6mm; }
+.sf .sig { left: 2mm; right: 2mm; top: 65mm; }
+.sf .sig img, .sf .sig .line { width: 13mm; height: 4mm; }
+.band { position: absolute; left: 0; right: 0; bottom: 0; height: 8.4mm; background: #101828; color: #fff; display: flex; align-items: center; justify-content: center; gap: 2mm; font-weight: 800; font-size: 7pt; letter-spacing: .3em; text-transform: uppercase; }
+.band small { font-size: 4.6pt; letter-spacing: .04em; opacity: .8; font-weight: 600; }
+/* Personnel, verso (portrait) */
+.sb .qr { position: absolute; left: 13.5mm; top: 8mm; width: 27mm; height: 27mm; border: .25mm solid {{ soft }}; border-radius: 1.4mm; padding: 1.2mm; background: #fff; }
+.sb .qrno { position: absolute; left: 0; right: 0; top: 36mm; text-align: center; font-size: 5.2pt; font-weight: 700; color: {{ color }}; }
+.sb .txt, .sb .contact { position: absolute; left: 3.6mm; right: 3.6mm; text-align: center; }
+.sb .txt { top: 41mm; }
+.sb .contact { bottom: 9.2mm; }
+.sb .del { font-size: 5.4pt; }
+.sb .law { font-size: 5pt; border-left: 0; padding-left: 0; }
+.sb .txt p { font-size: 5pt; }
+.sb .contact { font-size: 4.9pt; }
+.sb .bar { height: 7.6mm; justify-content: center; gap: 2mm; }
+.sb .bar .mz { font-size: 6.2pt; } .sb .bar small { font-size: 4.1pt; text-align: left; }
+</style>
+</head>
+<body>

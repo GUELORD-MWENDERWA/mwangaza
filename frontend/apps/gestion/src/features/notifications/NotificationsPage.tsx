@@ -73,6 +73,10 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   parent_message: "megaphone",
   timetable_published: "calendar",
   ai_credits: "alert",
+  absence_alert: "alert",
+  justification_sent: "inbox",
+  absence: "alert",
+  justification_decided: "check",
 };
 
 export function NotificationsPage() {

@@ -534,6 +534,7 @@ function useAccountSchema() {
         last_name: z.string().trim().min(1, t("validation.nameRequired")).max(100),
         middle_name: z.string().trim().max(100),
         first_name: z.string().trim().max(100),
+        title: z.string().trim().max(80),
       }),
     [t],
   );
@@ -553,6 +554,7 @@ function AccountDialog({ person, onClose }: { person: Staff; onClose: () => void
       last_name: person.user.last_name,
       middle_name: person.user.middle_name,
       first_name: person.user.first_name,
+      title: person.title,
     },
   });
   const save = useMutation({
@@ -562,7 +564,8 @@ function AccountDialog({ person, onClose }: { person: Staff; onClose: () => void
       await refresh();
       onClose();
     },
-    onError: (error) => setGeneral(applyServerErrors(error, [...ACCOUNT_FIELDS], form.setError, t)),
+    onError: (error) =>
+      setGeneral(applyServerErrors(error, [...ACCOUNT_FIELDS, "title"], form.setError, t)),
   });
   const { errors } = form.formState;
   return (
@@ -624,6 +627,15 @@ function AccountDialog({ person, onClose }: { person: Staff; onClose: () => void
             error={errors.first_name?.message}
           >
             {(control) => <Input {...control} {...form.register("first_name")} />}
+          </Field>
+          <Field
+            id="account-title"
+            label={t("staff.create.jobTitle")}
+            help={t("staff.create.jobTitleHelp")}
+            error={errors.title?.message}
+            className="min-[600px]:col-span-3"
+          >
+            {(control) => <Input {...control} maxLength={80} {...form.register("title")} />}
           </Field>
         </form>
       </DialogContent>

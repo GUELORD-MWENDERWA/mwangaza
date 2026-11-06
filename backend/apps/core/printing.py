@@ -32,7 +32,7 @@ from django.utils.translation import gettext as _
 
 from apps.core import kept
 from apps.core.models import PrintJob
-from apps.core.tenancy import use_all_schools, use_school
+from apps.core.tenancy import require_current_school, use_all_schools, use_school
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +66,11 @@ def request_key(request) -> str | None:
     ):
         return None
     query = "&".join(f"{k}={v}" for k, v in sorted(request.GET.items()))
-    raw = f"{user.pk}|{school.pk}|{request.path}|{query}"
-    return hashlib.sha256(raw.encode()).hexdigest()
+    return _key(user.pk, school.pk, request.path, query)
+
+
+def _key(user_id, school_id, path: str, query: str) -> str:
+    return hashlib.sha256(f"{user_id}|{school_id}|{path}|{query}".encode()).hexdigest()
 
 
 class PrintJobMiddleware:
@@ -185,15 +188,8 @@ def submit(head: str, bodies: list, name: str, entries: list[dict] | None = None
             _("Print this class in smaller parts (a few students at a time)."),
             status=413,
         )
-    with use_all_schools():
-        total = _pending(everyone=True)
-    if _pending() >= MAX_PENDING_PER_SCHOOL or total >= MAX_PENDING_TOTAL:
-        return _page(
-            "busy",
-            _("Too many documents in preparation"),
-            _("Wait for the documents already requested to finish, then try again."),
-            status=429,
-        )
+    if (refused := busy()) is not None:
+        return refused
     job = PrintJob(key=key, name=name[:120], pages=len(bodies), created_by_id=user_id)
     job.source.save(
         "source.json",
@@ -208,6 +204,50 @@ def submit(head: str, bodies: list, name: str, entries: list[dict] | None = None
     # Sans tâche de fond (développement, tests : exécution immédiate), le PDF est déjà prêt.
     job.refresh_from_db()
     return answer(job)
+
+
+def busy() -> HttpResponse | None:
+    """Page de refus si l'école ou la plateforme a déjà trop de travaux en attente, sinon None."""
+    with use_all_schools():
+        total = _pending(everyone=True)
+    if _pending() >= MAX_PENDING_PER_SCHOOL or total >= MAX_PENDING_TOTAL:
+        return _page(
+            "busy",
+            _("Too many documents in preparation"),
+            _("Wait for the documents already requested to finish, then try again."),
+            status=429,
+        )
+    return None
+
+
+def prepare_at(path: str, user, head: str, bodies: list[str], name: str) -> HttpResponse | None:
+    """Document fait par une écriture (`POST`) et non par une demande de PDF : les cartes, dont
+    le jeton n'existe qu'au moment de l'émission (lot 10). Le PDF est rangé comme un travail de
+    la personne à l'adresse `path?output=pdf`, qu'elle ouvre ensuite : la page d'attente puis le
+    PDF (`PrintJobMiddleware`). Peu de pages : fait tout de suite ; sinon en tâche de fond.
+    Réponse de refus (trop de pages, trop de travaux) ou None."""
+    key = _key(user.pk, require_current_school().pk, path, "output=pdf")
+    if len(bodies) <= INLINE_MAX_PAGES and sum(map(len, bodies)) <= INLINE_MAX_BODY:
+        now = timezone.now()
+        job = PrintJob(
+            key=key,
+            name=name[:120],
+            status=PrintJob.Status.DONE,
+            pages=len(bodies),
+            pages_done=len(bodies),
+            created_by=user,
+            started_at=now,
+            finished_at=now,
+        )
+        job.pdf.save(name, ContentFile(build_pdf(head, bodies)), save=False)
+        job.save()
+        return None
+    token = _asked.set((key, str(user.pk)))
+    try:
+        response = submit(head, bodies, name)
+    finally:
+        _asked.reset(token)
+    return response if response.status_code >= 400 else None
 
 
 @cache

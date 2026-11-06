@@ -52,6 +52,11 @@ CLASS_OTHER_YEAR = ApiError(
 MATRICULE_TAKEN = ApiError(
     "matricule_taken", _("Another student already has this student number."), 409
 )
+MATRICULE_RANGE_FULL = ApiError(
+    "matricule_range_full",
+    _("No student number left in this year's range: widen it in Organisation, Student number."),
+    409,
+)
 # Un identifiant donné par l'appareil qui sert déjà ailleurs (jamais dit où).
 ID_TAKEN = ApiError("id_taken", _("This identifier is already used."), 409)
 MAX_GUARDIANS = 10
@@ -328,8 +333,21 @@ def set_photo(student: Student, photo, *, actor: User) -> Student:
             student.photo.save(photo_name(photo), photo, save=False)
         student.save()
         _record_student_update(student, before, actor=actor)
+        if old_photo and photo is not None:
+            # Photo officielle remplacée (séance photo) : au journal même si l'élève en avait une.
+            audit.record(
+                Action.STUDENTS_STUDENT_UPDATED,
+                student,
+                actor=actor,
+                before={"photo": _version(old_photo)},
+                after={"photo": _version(student.photo.name)},
+            )
         _delete_photo_after_commit(old_photo, student)
     return student
+
+
+def _version(name: str) -> str:
+    return name.rsplit("/", 1)[-1].split(".")[0].removeprefix("photo-")
 
 
 def photo_name(photo) -> str:
@@ -366,18 +384,35 @@ def next_matricule_number(year: AcademicYear | None) -> int:
     """Numéro du prochain matricule de l'année (« Prochain matricule », C3)."""
     if year is None:
         return 1
-    last = (
-        MatriculeSequence.objects.filter(academic_year=year)
-        .values_list("last_number", flat=True)
-        .first()
-    )
-    return (last or 0) + 1
+    sequence = MatriculeSequence.objects.filter(academic_year=year).first()
+    return next_in(sequence) if sequence else 1
+
+
+def next_in(sequence: MatriculeSequence) -> int:
+    """Numéro qui suit le dernier donné, jamais avant le début de la plage (MAT.1)."""
+    return max(sequence.last_number + 1, sequence.range_start)
+
+
+def range_limit(sequence: MatriculeSequence, template: str) -> int:
+    """Dernier numéro permis : la fin de la plage, jamais plus que les chiffres du format."""
+    widest = 10 ** matricule.number_width(template) - 1
+    return min(sequence.range_end or widest, widest)
+
+
+def take_number(sequence: MatriculeSequence, template: str, number: int) -> int:
+    """`number` s'il reste dans la plage, sinon refus clair (MAT.1) : jamais un matricule plus
+    long que le format ni hors de la plage choisie par l'école."""
+    limit = range_limit(sequence, template)
+    if number > limit:
+        raise BusinessError(MATRICULE_RANGE_FULL, range_end=limit)
+    return number
 
 
 def _give_matricule(year: AcademicYear, group: ClassGroup) -> str:
     """Prochain matricule de l'année au format de l'école ; vide si l'école n'en attribue pas
     (C5). L'année est verrouillée pendant la transaction : deux inscriptions simultanées n'ont
-    jamais le même numéro. Un numéro déjà pris (matricule saisi à la main ou importé) est sauté."""
+    jamais le même numéro. Un numéro déjà pris (matricule saisi à la main ou importé) est sauté ;
+    plage pleine : refus (MAT.1)."""
     automatic, template = School.objects.values_list("auto_matricule", "matricule_format").get(
         pk=require_current_school().pk
     )
@@ -386,9 +421,9 @@ def _give_matricule(year: AcademicYear, group: ClassGroup) -> str:
     AcademicYear.objects.select_for_update().get(pk=year.pk)
     sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
     track_code = group.track.code if group.track_id else ""
-    number = sequence.last_number
+    number = next_in(sequence) - 1
     while True:
-        number += 1
+        number = take_number(sequence, template, number + 1)
         value = matricule.render(
             template, year=year.starts_on.year, number=number, track_code=track_code
         )

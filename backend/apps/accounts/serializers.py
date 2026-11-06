@@ -82,6 +82,7 @@ class StaffSerializer(serializers.ModelSerializer):
             "user",
             "roles",
             "is_active",
+            "title",
             "totp",
             "last_login_at",
             "account_managed_here",
@@ -161,6 +162,12 @@ class StaffUpdateSerializer(serializers.Serializer):
     last_name = serializers.CharField(max_length=100, required=False)
     middle_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
     first_name = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    title = serializers.CharField(
+        max_length=80,
+        required=False,
+        allow_blank=True,
+        help_text="Fonction en clair sur la carte de service ; vide : ses rôles.",
+    )
 
 
 class TemporaryPasswordSerializer(serializers.Serializer):

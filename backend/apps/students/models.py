@@ -205,6 +205,10 @@ class MatriculeSequence(TenantModel):
         AcademicYear, on_delete=models.CASCADE, related_name="+", verbose_name=_("school year")
     )
     last_number = models.PositiveIntegerField(_("last number"), default=0)
+    # Plage de numéros de l'année (MAT.1) : refus clair quand elle est pleine ; `range_end` vide =
+    # le plus grand numéro que permettent les chiffres du format ({0000} : 9999).
+    range_start = models.PositiveIntegerField(_("first number"), default=1)
+    range_end = models.PositiveIntegerField(_("last number allowed"), null=True, blank=True)
 
     class Meta:
         verbose_name = _("student number sequence")

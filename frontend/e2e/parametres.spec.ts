@@ -47,7 +47,7 @@ test("directeur des études : organisation scolaire, classe ajoutée puis retir�
   await expect(classes.getByText("23 classes")).toBeVisible();
 
   await page.getByRole("tab", { name: "Matricule" }).click();
-  const format = page.getByLabel("Modèle");
+  const format = page.getByLabel("Modèle", { exact: true });
   // 800 élèves de démonstration inscrits (plus celui que le parcours hors ligne a pu ajouter) :
   // le prochain numéro de l'année est 801 ou 802.
   await format.fill("ITIG/{AA}/{0000}");
@@ -139,5 +139,5 @@ test("isolation : Volcans ne voit que ses classes", async ({ page }) => {
   ).toBeVisible();
   await expect(page.getByText("Électricité")).toHaveCount(0);
   await page.getByRole("tab", { name: "Matricule" }).click();
-  await expect(page.getByLabel("Modèle")).toHaveValue("LV/{AA}/{0000}");
+  await expect(page.getByLabel("Modèle", { exact: true })).toHaveValue("LV/{AA}/{0000}");
 });

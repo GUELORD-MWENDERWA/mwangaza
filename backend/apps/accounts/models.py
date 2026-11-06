@@ -18,7 +18,7 @@ from apps.accounts.phone import InvalidPhoneError, PhoneNumberField, normalize_p
 from apps.accounts.platform_roles import OWNER, ROLE_CHOICES, permissions_of
 from apps.accounts.roles import PERMISSION_CHOICES
 from apps.core.models import BaseModel, TenantModel
-from apps.schools.signatures import member_signature_path
+from apps.schools.signatures import member_photo_path, member_signature_path
 
 
 class UserManager(BaseUserManager):
@@ -211,6 +211,11 @@ class Membership(BaseModel):
     signature = models.FileField(
         _("signature"), upload_to=member_signature_path, blank=True, editable=False
     )
+    # Photo officielle (carte de service, tablette de la porte) : prise et changée par l'école
+    # seulement (séance photo, au journal), jamais par la personne (lot 10).
+    photo = models.FileField(_("photo"), upload_to=member_photo_path, blank=True, editable=False)
+    # Fonction en clair sur la carte (« Enseignante · Mathématiques ») ; vide : ses rôles.
+    title = models.CharField(_("job title"), max_length=80, blank=True)
 
     class Meta:
         ordering = ["created_at"]

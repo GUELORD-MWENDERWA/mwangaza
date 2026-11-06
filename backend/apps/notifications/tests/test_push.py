@@ -144,6 +144,8 @@ def test_muted_kind_stays_in_the_center_and_expired_browser_is_dropped(
             "parent_message",
             "ai_credits",
             "subscription",
+            "absence_alert",
+            "justification_sent",
         ],
         "muted": ["platform_news"],
     }

@@ -126,7 +126,14 @@ test("mot de passe provisoire : la personne choisit le sien", async ({ page }) =
   await page.getByLabel("Confirmer").fill("secretaire-nouveau-2026");
   await page.getByRole("button", { name: "Enregistrer le mot de passe" }).click();
 
-  await expect(page.getByRole("heading", { name: /^Bonjour/ })).toBeVisible();
+  // Le guide du secrétariat peut s'ouvrir sur la liste des élèves : on le passe s'il est là.
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Passer le guide" })
+    .click({ timeout: 5000 })
+    .catch(() => undefined);
+  await expect(mainMenu(page)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Choisir votre mot de passe" })).toHaveCount(0);
 });
 
 test("enseignant dans deux écoles : changer d'école (M2)", async ({ page }) => {

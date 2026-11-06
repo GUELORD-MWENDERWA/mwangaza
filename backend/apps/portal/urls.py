@@ -28,6 +28,16 @@ urlpatterns = [
     ),
     path("children/<uuid:pk>/photo/", views.ChildPhotoView.as_view(), name="child-photo"),
     path(
+        "children/<uuid:pk>/attendance/",
+        views.ChildAttendanceView.as_view(),
+        name="child-attendance",
+    ),
+    path(
+        "children/<uuid:pk>/attendance/justify/",
+        views.ChildJustifyView.as_view(),
+        name="child-justify",
+    ),
+    path(
         "children/<uuid:pk>/timetable/",
         views.ChildTimetableView.as_view(),
         name="child-timetable",

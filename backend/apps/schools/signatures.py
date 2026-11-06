@@ -31,6 +31,12 @@ def member_signature_path(membership, filename: str) -> str:
     return f"schools/{membership.school_id}/signature-{uuid7().hex[-12:]}.png"
 
 
+def member_photo_path(membership, filename: str) -> str:
+    """Photo officielle d'un membre du personnel ; le nom (nouveau à chaque photo) vient du
+    service."""
+    return f"schools/{membership.school_id}/staff/{filename}"
+
+
 def school_image_url(school, field: str) -> str | None:
     """Adresse du cachet ou de la signature du chef ; elle change avec chaque image (cache)."""
     file = getattr(school, field)

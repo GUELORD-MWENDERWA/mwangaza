@@ -1,0 +1,30 @@
+{% load i18n %}{% comment %}Une page de cartes : `faces` (une seule en format carte), `orientation` = land (élèves) ou port (personnel), `side` = front ou back. Une case vide (None) garde la place d'une carte sur la planche des versos.{% endcomment %}<section class="pg {{ layout }} {{ orientation }}">{% for face in faces %}<div class="slot">{% if face %}{% if side == "front" %}{% if face.kind == "student" %}<div class="idc st">
+  {% if logo %}<div class="wm"><img src="{{ logo }}" alt=""></div>{% endif %}
+  <div class="off">{% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<span class="logo">{{ school_name|slice:":4"|upper }}</span>{% endif %}<div class="lines"><div class="rdc">{% translate "Democratic Republic of the Congo" %}</div><div class="min">{{ ministry }}</div>{% if header_lines %}<div class="min">{{ header_lines.0 }}</div>{% endif %}<div class="sch">{{ school_name }}</div></div>{% include "core/_flag.html" %}</div>
+  <div class="title blue"><b>{% translate "Student card" %}</b><span class="no">{% translate "No." %} {{ face.number }}</span></div>
+  <dl class="f{% if face.rows|length > 4 %} dense{% endif %}">{% for label, value in face.rows %}<div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>{% endfor %}<div><dt>{% translate "Student number" %}</dt><dd class="mat">{{ face.matricule|default:"—" }}</dd></div></dl>
+  <div class="photo">{% if face.photo %}<img src="{{ face.photo }}" alt="">{% else %}{{ face.initials }}{% endif %}</div>
+  {% if stamp %}<img class="stamp" src="{{ stamp }}" alt="">{% endif %}
+  <div class="sig">{% if signer.signature %}<img src="{{ signer.signature }}" alt="">{% else %}<span class="line"></span>{% endif %}{{ head_title }}</div>
+  <div class="year blue"><b>{% blocktranslate with year=year_name %}School year {{ year }}{% endblocktranslate %}</b><small>{% blocktranslate with date=face.valid_until|date:"d/m/Y" %}Valid until {{ date }}{% endblocktranslate %}</small></div>
+</div>{% else %}<div class="idc sf">
+  <div class="off">{% if logo %}<img class="logo" src="{{ logo }}" alt="">{% else %}<span class="logo">{{ school_name|slice:":4"|upper }}</span>{% endif %}<div class="lines"><div class="rdc">{% translate "Democratic Republic of the Congo" %}</div><div class="min">{{ ministry }}</div><div class="sch">{{ school_name }}</div></div>{% include "core/_flag.html" %}</div>
+  <div class="title blue"><b>{% translate "Service card" %}</b><span class="no">{% translate "No." %} {{ face.number }}</span></div>
+  {% if logo %}<div class="wm"><img src="{{ logo }}" alt=""></div>{% endif %}
+  <div class="photo">{% if face.photo %}<img src="{{ face.photo }}" alt="">{% else %}{{ face.initials }}{% endif %}</div>
+  {% if stamp %}<img class="stamp" src="{{ stamp }}" alt="">{% endif %}
+  <div class="who"><b>{{ face.last_names }}</b>{% if face.first_name %}<span>{{ face.first_name }}</span>{% endif %}{% if face.position %}<span class="role">{{ face.position }}</span>{% endif %}</div>
+  <div class="sig">{% if signer.signature %}<img src="{{ signer.signature }}" alt="">{% else %}<span class="line"></span>{% endif %}{{ head_title }}</div>
+  <div class="band">{% translate "Staff" %} <small>{{ year_name }}</small></div>
+</div>{% endif %}{% else %}<div class="idc {% if face.kind == 'student' %}bk{% else %}sb{% endif %}">
+  <img class="qr" src="{{ face.qr }}" alt="">
+  <div class="qrno">{% translate "No." %} {{ face.number }}</div>
+  <div class="txt">
+    <div class="del">{% if city %}{% blocktranslate with date=face.issued_on|date:"d/m/Y" %}Issued in {{ city }}, on {{ date }}{% endblocktranslate %}{% else %}{% blocktranslate with date=face.issued_on|date:"d/m/Y" %}Issued on {{ date }}{% endblocktranslate %}{% endif %}</div>
+    {% if authorities %}<div class="law">{{ authorities }}</div>{% endif %}
+    <p>{% if back_text %}{{ back_text }}{% elif face.kind == "student" %}{% translate "Personal card, requested at the entrance and at the cash desk. Lost: report it to the secretariat, it will be blocked. Found: bring it back to the school." %}{% else %}{% translate "Service card: access to the school and staff check-in. Lost: report it to the management." %}{% endif %}</p>
+    {% for label, value in face.back_rows %}<p>{{ label }} : <b>{{ value }}</b></p>{% endfor %}
+  </div>
+  <div class="contact"><b>{{ school_name }}</b>{% for line in header_lines %} · {{ line }}{% endfor %}<br>{{ host }}</div>
+  <div class="bar blue"><span class="mz"><i></i>{{ platform_name }}</span><small>{% blocktranslate with platform=platform_name %}Card issued with {{ platform }}{% endblocktranslate %}</small></div>
+</div>{% endif %}{% endif %}</div>{% endfor %}</section>

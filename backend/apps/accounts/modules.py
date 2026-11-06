@@ -47,6 +47,11 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
     ),
     # Assistance par l'IA (bloc IA) : le droit `ai.use` ; l'école ne règle que ce droit, la
     # plateforme règle les usages et les crédits (console).
+    # Cartes et présences (lot 10) ; les lecteurs et la sonnerie viendront au lot 16.
+    "attendance": (
+        _("Cards and attendance"),
+        ("attendance.cards", "attendance.scan", "attendance.view", "attendance.correct"),
+    ),
     "ai": (_("AI assistance"), ("ai.use",)),
     "portal": (_("Parent portal"), ()),
     "notifications": (_("Notifications and reminders"), ()),
@@ -61,6 +66,8 @@ DEPENDENCIES: dict[str, tuple[str, ...]] = {
     # L'horaire place les cours des classes.
     "timetable": ("academics",),
     "portal": ("students",),
+    # Les cartes et les passages sont ceux des élèves inscrits.
+    "attendance": ("students",),
 }
 MODULE_CHOICES = [(code, label) for code, (label, _permissions) in MODULES.items()]
 ALL_MODULES = list(MODULES)
@@ -87,6 +94,8 @@ FEATURES: dict[str, tuple[str, ...]] = {
     "settings.grading": ("academics",),
     "settings.pass_rules": ("academics",),
     "settings.ai": ("ai",),
+    "settings.card": ("attendance",),
+    "settings.attendance": ("attendance",),
     # Mise en route (`schools/setup.py`) : années et classes pour tout module qui touche des
     # élèves (plus tard : pas la sonnerie seule).
     "setup.year": ("students",),

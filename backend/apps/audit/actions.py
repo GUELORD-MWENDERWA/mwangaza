@@ -41,6 +41,8 @@ class Action(models.TextChoices):
     STAFF_REACTIVATED = "staff.reactivated", _("Staff member reactivated")
     STAFF_ACCOUNT_CHANGED = "staff.account_changed", _("Staff member's names or phone changed")
     STAFF_SIGNATURE_CHANGED = "staff.signature_changed", _("Staff member's signature changed")
+    STAFF_PHOTO_CHANGED = "staff.photo_changed", _("Staff member's official photo changed")
+    STAFF_TITLE_CHANGED = "staff.title_changed", _("Staff member's position changed")
     STAFF_PASSWORD_RESET = "staff.password_reset", _("Temporary password given")
     STAFF_TOTP_RESET = "staff.totp_reset", _("Two-factor authentication reset")
 
@@ -113,6 +115,19 @@ class Action(models.TextChoices):
     DISCIPLINE_INCIDENT_RECORDED = "discipline.incident_recorded", _("Offence recorded")
     DISCIPLINE_INCIDENT_CANCELLED = "discipline.incident_cancelled", _("Offence cancelled")
     DISCIPLINE_GRADE_OVERRIDDEN = "discipline.grade_overridden", _("Conduct grade corrected")
+    # Cartes (lot 10, 6.1) : chaque carte émise (son jeton n'est jamais noté) et chaque révocation.
+    CARD_ISSUED = "attendance.card_issued", _("Card issued")
+    CARD_REVOKED = "attendance.card_revoked", _("Card revoked")
+    # Suivi des présences (6.5, 6.6) : correction au journal, justification notée ou décidée.
+    ATTENDANCE_CORRECTED = "attendance.corrected", _("Attendance corrected")
+    JUSTIFICATION_RECORDED = (
+        "attendance.justification_recorded",
+        _("Absence justified by the school"),
+    )
+    JUSTIFICATION_DECIDED = (
+        "attendance.justification_decided",
+        _("Absence justification decided"),
+    )
     # Emploi du temps (EDT.1a) : grilles, salles, grille et salle des classes, règles générales.
     TIME_GRID_CHANGED = "timetable.grid_changed", _("Time grid changed")
     TIME_GRID_DELETED = "timetable.grid_deleted", _("Time grid deleted")

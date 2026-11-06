@@ -41,6 +41,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import { firstErrorMessage } from "../../lib/errors";
+import { signal } from "../attendance/signals";
 import { uuidv7 } from "../../lib/ids";
 import { formatPhone } from "../../lib/people";
 import { keys, useCurrentMe } from "../../lib/queries";
@@ -279,6 +280,7 @@ function CollectForm({
       }),
     onSuccess: (payment) => {
       paymentId.current = uuidv7();
+      signal("saved");
       onRecorded(payment);
     },
     onError: onRefused,

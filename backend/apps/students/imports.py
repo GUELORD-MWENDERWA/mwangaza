@@ -50,7 +50,7 @@ from apps.students.models import (
     Student,
     StudentImport,
 )
-from apps.students.services import _student_data
+from apps.students.services import _student_data, next_in, take_number
 from apps.sync import changes as sync_changes
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
@@ -678,13 +678,14 @@ def run(imp: StudentImport, *, actor: User) -> None:
         )
         sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
         imp.matricule_start = sequence.last_number
+        sequence.last_number = next_in(sequence) - 1
         taken = set(Student.objects.exclude(matricule="").values_list("matricule", flat=True))
         students = []
         for row in rows:
             fields = dict(row.student)
             if automatic and not fields["matricule"]:
                 while True:
-                    sequence.last_number += 1
+                    sequence.last_number = take_number(sequence, template, sequence.last_number + 1)
                     fields["matricule"] = matricule.render(
                         template,
                         year=year.starts_on.year,

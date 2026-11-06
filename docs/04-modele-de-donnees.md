@@ -206,6 +206,10 @@ Règles :
 | `courses.configure` (cours, maxima, heures et enseignants de chaque classe, 8.1) | ✔ | ✔ | | | | | | |
 | `timetable.manage` (grilles horaires, salles, grille et salle des classes, règles générales de l'emploi du temps, EDT.1a ; placement des cours, disponibilités des enseignants, contrôles avant le calcul, EDT.1b ; règles de l'horaire, EDT.1c ; donné aux rôles qui avaient `courses.configure`) | ✔ | ✔ | | | | | | |
 | `timetable.publish` (publier un brouillon de l'horaire : il devient celui de l'école, l'ancien est archivé, EDT.4a ; donné aux rôles qui avaient `timetable.manage`) | ✔ | ✔ | | | | | | |
+| `attendance.cards` (émettre, imprimer et révoquer les cartes d'élève et du personnel, 6.1 ; module `attendance`) | ✔ | | ✔ | | | ✔ | | |
+| `attendance.scan` (pointer les arrivées à l'entrée sur un appareil enregistré, 6.3) | ✔ | | ✔ | | | ✔ | | |
+| `attendance.view` (présences, absents du jour, rapports, 6.5) | ✔ | ✔ | ✔ | | | | ✔ | |
+| `attendance.correct` (corriger un passage au journal, accepter ou refuser une justification, 6.5–6.6) | ✔ | | ✔ | | | | | |
 | `ai.use` (utiliser l'IA, IA.1.1 : module `ai` ; faut aussi le droit de l'écran hôte de l'usage ; aucun rôle de départ : l'école le donne à qui elle veut, la plateforme règle les usages et les crédits) | | | | | | | | |
 | `grades.enter` (carnet de ses cours ; fiche de cotes des cours de la classe dont on est titulaire, 8.2.1, NB.1) | | | | | | | | ✔ |
 | `grades.enter_any` (un total par élève dans toute classe et les fiches de cotes ; jamais les évaluations d'un cours qu'on ne donne pas, 8.2.1, NB.1) | | ✔ | | | | ✔ | | |

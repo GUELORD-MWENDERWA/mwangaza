@@ -33,6 +33,7 @@ from apps.sync import changes as sync_changes
 YEAR_NAME_TAKEN = ApiError(
     "year_name_taken", _("The school already has a school year with this name."), 409
 )
+NO_CURRENT_YEAR = ApiError("no_current_year", _("Set the current school year first."), 409)
 YEAR_IS_CURRENT = ApiError("year_is_current", _("The current school year cannot be deleted."), 409)
 YEAR_IN_USE = ApiError("year_in_use", _("This school year has classes: delete them first."), 409)
 LEVEL_NAME_TAKEN = ApiError(
@@ -654,6 +655,71 @@ def matricule_example(template: str) -> str:
         number=next_matricule_number(year),
         track_code=track.code if track else "",
     )
+
+
+def matricule_range(school: School) -> tuple[dict | None, int]:
+    """Plage de l'année en cours (MAT.1) et plus grand numéro que permet le format."""
+    from apps.students.models import MatriculeSequence
+    from apps.students.services import next_in
+
+    widest = 10 ** matricule.number_width(school.matricule_format) - 1
+    year = current_year()
+    if year is None:
+        return None, widest
+    sequence = MatriculeSequence.objects.filter(academic_year=year).first()
+    if sequence is None:
+        return {"range_start": 1, "range_end": None, "next_number": 1}, widest
+    return {
+        "range_start": sequence.range_start,
+        "range_end": sequence.range_end,
+        "next_number": next_in(sequence),
+    }, widest
+
+
+def set_matricule_range(
+    *, actor: User, range_start: int, range_end: int | None, next_number: int
+) -> None:
+    """Plage de numéros de l'année en cours et prochain numéro (« reprendre la numérotation de
+    l'école », MAT.1). Les matricules déjà donnés ne changent pas ; un numéro pris est sauté."""
+    from apps.students.models import MatriculeSequence
+
+    year = current_year()
+    if year is None:
+        raise BusinessError(NO_CURRENT_YEAR)
+    school = require_current_school()
+    # Format lu en base : il peut avoir changé dans la même requête.
+    template = School.objects.values_list("matricule_format", flat=True).get(pk=school.pk)
+    widest = 10 ** matricule.number_width(template) - 1
+    end = range_end or widest
+    if end > widest:
+        raise ValidationError(
+            {"range_end": _("At most %(max)s with the digits of the format.") % {"max": widest}}
+        )
+    if not range_start <= end:
+        raise ValidationError({"range_end": _("The range ends before it starts.")})
+    if not range_start <= next_number <= end:
+        raise ValidationError({"next_number": _("The next number must be within the range.")})
+    with transaction.atomic():
+        AcademicYear.objects.select_for_update().get(pk=year.pk)
+        sequence, _created = MatriculeSequence.objects.get_or_create(academic_year=year)
+        before = {
+            "range_start": sequence.range_start,
+            "range_end": sequence.range_end,
+            "last_number": sequence.last_number,
+        }
+        sequence.range_start, sequence.range_end = range_start, range_end
+        sequence.last_number = next_number - 1
+        after = {"range_start": range_start, "range_end": range_end, "last_number": next_number - 1}
+        if after != before:
+            sequence.save(update_fields=["range_start", "range_end", "last_number", "updated_at"])
+            old, new = audit.changes(before, after)
+            audit.record(
+                Action.ORGANISATION_MATRICULE_FORMAT_CHANGED,
+                school,
+                actor=actor,
+                before={"year": year.name, **old},
+                after={"year": year.name, **new},
+            )
 
 
 def set_matricule_format(

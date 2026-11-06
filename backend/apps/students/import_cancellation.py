@@ -11,7 +11,8 @@ geste de trop effacerait une année d'élèves qui n'ont pas encore payé.
 
 Tout nouveau modèle lié à un élève ou à une inscription s'ajoute ici : aux raisons de garder
 l'élève (`_touches`) ou à ce qui part avec lui (`cancel`). Sinon la base refuse l'annulation.
-Une convocation des parents (5.7) part avec l'élève, par cascade (`Summons.student`).
+Une convocation des parents (5.7) part avec l'élève, par cascade (`Summons.student`). Ses cartes
+(lot 10) partent avec lui ; un passage à l'entrée le garde.
 """
 
 import logging
@@ -36,6 +37,12 @@ from apps.academics.models import (
     ResitGrade,
 )
 from apps.accounts.models import User
+from apps.attendance.models import (
+    AbsenceJustification,
+    AttendanceCorrection,
+    AttendanceRecord,
+    IdCard,
+)
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
@@ -49,7 +56,8 @@ from apps.sync import changes as sync_changes
 logger = logging.getLogger(__name__)
 
 PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES = "payment", "discount", "schedule", "portal", "grades"
-REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES)
+ATTENDANCE = "attendance"
+REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES, ATTENDANCE)
 # Élèves gardés nommés à l'écran ; au-delà, leur nombre seulement.
 KEPT_SHOWN = 50
 CANCEL_WITHIN = timedelta(days=30)
@@ -121,6 +129,13 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             | Exists(FeeWaiver.objects.filter(family=OuterRef("family_id")))
             # Fil avec les parents (8.8) : les messages restent.
             | Exists(Thread.objects.filter(student=student)),
+        ),
+        # Passages, corrections au journal et justifications d'absence (6.3 à 6.6).
+        "attended": (
+            ATTENDANCE,
+            Exists(AttendanceRecord.objects.filter(student=student))
+            | Exists(AttendanceCorrection.objects.filter(student=student))
+            | Exists(AbsenceJustification.objects.filter(student=student)),
         ),
     }
 
@@ -194,6 +209,7 @@ def _cancel(imp: StudentImport, *, actor: User, reason: str) -> StudentImport:
     using = students.db
     StudentCharge.objects.filter(enrollment_id__in=enrollments)._raw_delete(using)
     Enrollment.objects.filter(pk__in=enrollments)._raw_delete(using)
+    IdCard.objects.filter(student_id__in=ids)._raw_delete(using)
     Student.objects.filter(pk__in=ids)._raw_delete(using)
     # Tuteurs, demandes des parents et annonces lues partent avec la famille.
     Family.objects.filter(pk__in={student.family_id for student in removed}).filter(

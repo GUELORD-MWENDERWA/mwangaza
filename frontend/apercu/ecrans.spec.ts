@@ -383,6 +383,23 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     await teacher.context().setOffline(false);
     const discipline = await staff(browser, "0000001003", false);
     await visit(discipline, `${ITIG}conduct-scale`, "gestion", "conduct-scale");
+    // Carte et présences (lot 10) : cartes, pointage à l'entrée (borne), suivi du jour.
+    const calm = async (page: Page) => {
+      await page
+        .getByRole("button", { name: "Compris" })
+        .click({ timeout: 5_000 })
+        .catch(() => {});
+      await skipGuide(page);
+    };
+    await visit(head, `${ITIG}cards`, "gestion", "cards", calm);
+    await visit(head, `${ITIG}entrance`, "gestion", "entrance", async (page) => {
+      await calm(page);
+      await page
+        .getByRole("radio", { name: "Borne / matricule" })
+        .click({ timeout: 20_000 })
+        .catch(() => {});
+    });
+    await visit(head, `${ITIG}follow`, "gestion", "follow", calm);
     // Application (8.5.1c) : le directeur des études corrige la cote de n'importe quelle classe.
     await visit(director, `${ITIG}application`, "gestion", "application");
     // Repêchage (8.4.1) : une classe complète de la démonstration, qui a des cours échoués.

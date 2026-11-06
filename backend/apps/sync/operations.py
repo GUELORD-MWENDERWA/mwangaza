@@ -4,7 +4,8 @@ l'ordre, chacune une seule fois (`SyncOperation`).
 Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) et le service
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
 caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), sortie de caisse
-(FIN.2), inscription d'un élève (HL.1), feuille de notes (8.2.3), infraction d'un élève (HL.2).
+(FIN.2), inscription d'un élève (HL.1), feuille de notes (8.2.3), infraction d'un élève (HL.2),
+passage à l'entrée (6.3).
 Une opération hors
 ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
 donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
@@ -30,6 +31,7 @@ from apps.academics.models import Course
 from apps.academics.serializers import SheetUpdateSerializer
 from apps.accounts.models import User
 from apps.accounts.roles import (
+    ATTENDANCE_SCAN,
     DISCIPLINE_RECORD,
     FINANCE_COLLECT_PAYMENT,
     FINANCE_REQUEST_CANCELLATION,
@@ -39,6 +41,8 @@ from apps.accounts.roles import (
     GRADES_VALIDATE,
     STUDENTS_EDIT,
 )
+from apps.attendance import cards as attendance_cards
+from apps.attendance import scans
 from apps.core.errors import ApiError, BusinessError, api_exception_handler
 from apps.core.tenancy import use_all_schools
 from apps.finance import cash_outs
@@ -47,6 +51,7 @@ from apps.finance.models import CashRegister, CashSession, Expense, Payment, Stu
 from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
 from apps.schools.models import ClassGroup, Term
 from apps.students import services as students
+from apps.students.models import Student
 from apps.students.serializers import StudentWriteSerializer
 from apps.sync.models import Device, SyncOperation
 
@@ -332,6 +337,43 @@ def _enroll_student(data: dict, device: Device, actor: User) -> dict:
     }
 
 
+class _StaffField(serializers.PrimaryKeyRelatedField):
+    def get_queryset(self):
+        return attendance_cards.staff()
+
+
+class OfflineScanSerializer(serializers.Serializer):
+    """Passage à l'entrée (6.3) : la carte lue (empreinte SHA-256 du jeton, jamais le jeton) ou
+    l'élève / le membre du personnel dont on a tapé le matricule."""
+
+    id = serializers.UUIDField(help_text="UUID v7 du passage, donné par l'appareil.")
+    seen_at = serializers.DateTimeField(help_text="Heure de l'appareil à la lecture.")
+    card_hash = serializers.RegexField(r"^[0-9a-f]{64}$", required=False)
+    student = serializers.PrimaryKeyRelatedField(queryset=Student.objects, required=False)
+    member = _StaffField(required=False)
+
+    def validate(self, data):
+        if sum(key in data for key in ("card_hash", "student", "member")) != 1:
+            raise serializers.ValidationError(_("Give the card, the student or the staff member."))
+        return data
+
+    def to_service(self) -> dict:
+        return dict(self.validated_data)
+
+
+def _scan(data: dict, device: Device, actor: User) -> dict:
+    """Mêmes règles que sur l'appareil ; « déjà passé » n'est pas un refus."""
+    record, already = scans.record_scan(actor=actor, device=device, **data)
+    return {
+        "record": str(record.pk),
+        "status": record.status,
+        "already": already,
+        "seen_at": record.seen_at.isoformat(),
+        "student": str(record.student_id) if record.student_id else None,
+        "member": str(record.member_id) if record.member_id else None,
+    }
+
+
 @dataclass(frozen=True)
 class OperationType:
     permission: str | tuple[str, ...]
@@ -364,6 +406,7 @@ OPERATIONS = {
     "incident.record": OperationType(
         DISCIPLINE_RECORD, OfflineIncidentSerializer, _record_incident
     ),
+    "attendance.scan": OperationType(ATTENDANCE_SCAN, OfflineScanSerializer, _scan),
 }
 
 

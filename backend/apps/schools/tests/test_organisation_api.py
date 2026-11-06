@@ -5,8 +5,10 @@ from datetime import date
 import pytest
 
 from apps.audit.models import AuditLog
+from apps.core.errors import BusinessError
 from apps.core.tenancy import use_all_schools, use_school
 from apps.schools import organisation
+from apps.schools.matricule import check_ok
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from tests.factories import MembershipFactory
 
@@ -358,10 +360,13 @@ def test_matricule_format(api, head, school, alpha):
     saved = client.patch(MATRICULE, {"matricule_format": "ITIG-{AAAA}-{0000}"})
     refused = client.patch(MATRICULE, {"matricule_format": "ITIG-{AAAA}"})
 
+    first_range = {"range_start": 1, "range_end": None, "next_number": 1}
     assert current == {
         "matricule_format": "ALPHA-{AAAA}-{0000}",
         "auto_matricule": True,
         "example": "ALPHA-2026-0001",
+        "range": first_range,
+        "range_limit": 9999,
     }
     assert preview.json() == {
         "matricule_format": "LV/{OPT}/{AA}/{000}",
@@ -372,6 +377,8 @@ def test_matricule_format(api, head, school, alpha):
         "matricule_format": "ITIG-{AAAA}-{0000}",
         "auto_matricule": True,
         "example": "ITIG-2026-0001",
+        "range": first_range,
+        "range_limit": 9999,
     }
     assert refused.json()["fields"]["matricule_format"][0]["code"] == "matricule_number_missing"
     assert School.objects.get(pk=school.pk).matricule_format == "ITIG-{AAAA}-{0000}"
@@ -391,6 +398,36 @@ def test_school_stops_giving_matricules_alone_and_it_is_logged(api, head, school
     (entry,) = entries(school, "organisation.matricule_format_changed")
     assert (entry.before, entry.after) == ({"auto_matricule": True}, {"auto_matricule": False})
     assert School.objects.get(code="beta").auto_matricule is True
+
+
+def test_a_full_range_refuses_the_next_student_number_and_spares_the_other_school(
+    api, head, cashier, school, other_school, other_head, alpha, beta
+):
+    """MAT.1 : plage de l'année (du, au, prochain), clé de contrôle, refus clair plage pleine."""
+    from apps.students.tests.conftest import enrolled  # import circulaire au niveau du module
+
+    client = api(head)
+    narrow = {"range_start": 5, "range_end": 6, "next_number": 5}
+    saved = client.patch(MATRICULE, {"matricule_format": "ALPHA-{AA}-{0000}-{C}", "range": narrow})
+    assert saved.status_code == 200, saved.json()
+    assert saved.json()["range"] == narrow and saved.json()["example"] == "ALPHA-26-0005-8"
+    too_wide = client.patch(MATRICULE, {"range": {**narrow, "range_end": 10000}})
+    outside = client.patch(MATRICULE, {"range": {**narrow, "next_number": 7}})
+    assert too_wide.json()["fields"]["range_end"][0]["code"] == "invalid"
+    assert outside.json()["fields"]["next_number"][0]["code"] == "invalid"
+    assert api(cashier).patch(MATRICULE, {"range": narrow}).status_code == 403
+
+    given = [enrolled(school, head, alpha["group"]).matricule for _ in range(2)]
+    assert given == ["ALPHA-26-0005-8", "ALPHA-26-0006-3"]
+    assert all(check_ok(value) for value in given)
+    with pytest.raises(BusinessError) as full:
+        enrolled(school, head, alpha["group"])
+    assert full.value.error.code == "matricule_range_full"
+    # La plage d'une école ne touche pas l'autre.
+    other = enrolled(other_school, other_head, beta["group"])
+    assert other.matricule.endswith("0001")
+    logged = entries(school, "organisation.matricule_format_changed")
+    assert [entry.after["range_end"] for entry in logged if "year" in entry.after] == [6]
 
 
 # Isolation entre écoles

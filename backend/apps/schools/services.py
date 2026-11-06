@@ -27,6 +27,7 @@ from apps.core.models import DemoRequest
 from apps.core.tenancy import use_school
 from apps.schools import (
     alerts,
+    attendance,
     deletion,
     exports,
     grading,
@@ -39,6 +40,11 @@ from apps.schools import (
 )
 from apps.schools.models import Demonstration, School
 
+NOTIFY_BEFORE_LATE = ApiError(
+    "notify_before_late",
+    _("Parents are notified after the arrival deadline: choose a later time."),
+    400,
+)
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
 # Remplir ou effacer un espace est lourd : un seul à la fois, par un refus (pas de file d'attente).
 SPACE_BUSY = ApiError(
@@ -214,6 +220,7 @@ def _settings_fields(settings: dict) -> dict:
         **portal.journal_fields(settings),
         **grading.journal_fields(settings),
         **pass_rules.journal_fields(settings),
+        **attendance.journal_fields(settings),
     }
 
 
@@ -229,8 +236,9 @@ FILE_FIELDS = {
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
     le logo (de même pour le cachet et la signature du chef, DOC.1) ; `receipt`, `alerts`,
-    `reminders`, `portal`, `grading`, `pass_rules` : réglages du reçu, seuils d'alerte, relances aux
-    parents, portail, saisie des points ou règles de réussite à changer, les autres restent."""
+    `reminders`, `portal`, `grading`, `pass_rules`, `card`, `attendance` : réglages du reçu, seuils
+    d'alerte, relances aux parents, portail, saisie des points, règles de réussite, modèle de carte
+    ou présences à changer, les autres restent."""
     if (receipt := fields.pop("receipt", None)) is not None:
         school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
     if (changed := fields.pop("alerts", None)) is not None:
@@ -250,6 +258,18 @@ def update_school(school: School, *, actor, **fields) -> School:
         school.settings = {**school.settings, "grading": {**school.grading, **changed}}
     if (changed := fields.pop("pass_rules", None)) is not None:
         school.settings = {**school.settings, "pass_rules": {**school.pass_rules, **changed}}
+    if (changed := fields.pop("card", None)) is not None:
+        if changed.get("valid_until") is not None:
+            changed["valid_until"] = changed["valid_until"].isoformat()
+        school.settings = {**school.settings, "card": {**school.card, **changed}}
+    if (changed := fields.pop("attendance", None)) is not None:
+        for name in ("late_after", "notify_at"):
+            if name in changed:
+                changed[name] = changed[name].strftime("%H:%M")
+        merged = {**school.attendance, **changed}
+        if merged["notify_at"] <= merged["late_after"]:
+            raise BusinessError(NOTIFY_BEFORE_LATE)
+        school.settings = {**school.settings, "attendance": merged}
     for field, value in fields.items():
         setattr(school, field, "" if field in FILE_FIELDS and value is None else value)
     return save_school(school, actor=actor)

@@ -15,6 +15,7 @@ from django.utils.text import Truncator
 from apps.accounts.models import Membership, User
 from apps.accounts.roles import (
     ANNOUNCEMENTS_PUBLISH,
+    ATTENDANCE_CORRECT,
     BILLING_VIEW,
     FINANCE_APPROVE_CANCELLATION,
     FINANCE_VIEW_REPORTS,
@@ -65,6 +66,9 @@ STAFF_KINDS = {
     Kind.AI_CREDITS: ROLES_MANAGE,
     # Facture de l'abonnement à échéance ou impayée (ABO.3) : ceux qui voient l'abonnement.
     Kind.SUBSCRIPTION: BILLING_VIEW,
+    # Présences (6.6) : seuil d'absences atteint, justification envoyée par un parent.
+    Kind.ABSENCE_ALERT: ATTENDANCE_CORRECT,
+    Kind.JUSTIFICATION_SENT: ATTENDANCE_CORRECT,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})
@@ -86,6 +90,8 @@ PREFERENCE_KINDS = {
         Kind.PAYMENT_DUE,
         Kind.PAYMENT_OVERDUE,
         Kind.TIMETABLE_PUBLISHED,
+        Kind.ABSENCE,
+        Kind.JUSTIFICATION_DECIDED,
     ],
 }
 # Notifications par tâche d'envoi : une annonce à mille familles ne retient pas un worker.

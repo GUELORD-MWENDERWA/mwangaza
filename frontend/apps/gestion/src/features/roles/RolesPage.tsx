@@ -39,7 +39,7 @@ import { LoadError } from "../status/StatusPages";
 type Role = Schemas["Role"];
 
 const GROUPS: {
-  key: "students" | "teaching" | "finance" | "administration";
+  key: "students" | "teaching" | "attendance" | "finance" | "administration";
   permissions: Permission[];
 }[] = [
   { key: "students", permissions: ["students.view", "students.edit", "students.import"] },
@@ -58,6 +58,10 @@ const GROUPS: {
       "discipline.record",
       "discipline.override",
     ],
+  },
+  {
+    key: "attendance",
+    permissions: ["attendance.cards", "attendance.scan", "attendance.view", "attendance.correct"],
   },
   {
     key: "finance",

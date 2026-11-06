@@ -55,12 +55,12 @@ Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche u
 | ~~7~~ ✓ | ~~**Finances et caisse complètes**~~ | FIN.1, FIN.2, FIN.3, HL.1, PERF.7, OPS.5 | ① dépenses ② sorties de caisse, inscription hors ligne ③ budget, rapports, écrans plus légers | passage à 4 Go le moment venu |
 | ~~8~~ ✓ | ~~**Cours communs et notes**~~ | 8.1.2a, 8.1.2b, 8.2.5, 8.2.4, HL.2 | ① cours communs ② remplaçant, import Excel des notes, conduite hors ligne | — |
 | ~~9~~ ✓ | ~~**Emploi du temps fini et IA**~~ | EDT.5b, EDT.6, IA.5, IA.3, IA.4 | ① horaire des épreuves, heures prestées ② grille de cours depuis un PDF, assistant de questions, aide à la rédaction | — |
-| 10 | **Carte et présences** | 6.1, 6.3, 6.5, 6.6, A.5 | ① carte et impression ② pointage (caméra, borne, hors ligne) ③ suivi, rapports, parents prévenus | — |
+| ~~10~~ ✓ | ~~**Carte et présences**~~ | 6.1, 6.3, 6.5, 6.6, A.5, MAT.1, SIG.1 | ① carte et impression ② pointage (caméra, borne, hors ligne) ③ suivi, rapports, parents prévenus | — |
 | 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 (prêts, retours, sorties d'outils et inventaire **hors ligne**) | ① moteur commun ② bibliothèque ③ ateliers | — |
-| 12 | **Personnel et paie** | 7.2, 7.3, 7.4 | ① dossier et contrats ② paie ③ espace enseignant | — |
+| 12 | **Personnel et paie** | 7.2, 7.3, 7.4, PROF.1 | ① dossier et contrats ② paie ③ espace enseignant | — |
 | 13 | **Messagerie et portail des élèves** | 8.5.2, 8.6 | ① messagerie, rendez-vous, mérites, sanctions ② portail des élèves | — |
 | 14 | **Inscriptions, transferts, langues** | 7.5, 8.7, 8.9, 7.6, I18N.1 | ① pénalités, inscription validée par le paiement, documents ② transfert, attestations, sondages ③ swahili, connexion Google | — |
-| 15 | **Sites des écoles** | WEB.2 | ① serveur et Gestion ② pages publiques | — |
+| 15 | **Sites des écoles** | WEB.2, EQ.4 | ① serveur et Gestion ② pages publiques | — |
 | 16 | **Équipements : sonnerie, lecteurs et réseau** | EQP.1, EQP.2, EQP.3, EQP.4, EQP.5 (reprend 6.2, 6.4) | ① modules `bell` et `attendance`, assistant de création d'école, appareils, jumelage, API d'appareil ② sonnerie automatique ③ firmware, réseau maillé, console Uno + SD ④ lecteurs de présence, cartes, essais au banc ⑤ site, aide, guides et démonstration à jour | matériel pour les essais |
 | 17 | **Revue finale de la V1** | S.9 | ① revue ASVS des trois applications, mesures, guides et présentation, V1 déclarée finie | test d'intrusion par une personne extérieure |
 
@@ -96,6 +96,13 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 - [x] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
 - [x] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
+
+## 2 quater. Tâches ajoutées le 2026-11-06 (demande de l'utilisateur pendant le lot 10)
+
+- [ ] **PROF.1** Profils de tous les utilisateurs *(P1, M, 🤖, lot 12 ①)* — une page « Mon profil » cohérente dans les trois applications (Gestion, Portail, console) : ce que la personne change elle-même (langue, mot de passe, double authentification, téléphone et e-mail **vérifiés par un code**, notifications, appareils) et ce qu'elle voit sans pouvoir le changer (nom, **photo officielle**, fonction, rôles, école) avec « à changer au secrétariat » ; demande de correction envoyée à l'école (comme les changements de coordonnées des parents) ; parents et, au lot 13, élèves. Maquettes d'abord, d'après les grands sites (GitHub, Google, Stripe).
+- [x] **MAT.1** Matricule plus sûr *(P1, S, 🤖, lot 10 ① c — avancé le 2026-11-06 à la demande de l'utilisateur)* — plage de numéros par année (du, au, prochain), refus clair quand elle est pleine ; — moteur actuel gardé (déterministe, hors ligne, jamais d'IA) ; variable `{C}` : **clé de contrôle** d'un signe (ISO 7064 mod 97-10 réduit, ou Luhn) qui refuse une faute de frappe à la porte et à la caisse ; pas de `{SEC}` (choix de l'utilisateur, 2026-11-06 : la section change quand l'élève passe en humanités, le matricule ne doit pas changer) ; matricule figé à l'attribution (jamais recalculé quand l'élève change d'option) ; matricule existant toujours gardé (import, saisie du préfet : déjà le cas).
+- [x] **SIG.1** Sons et vibrations de l'application *(P1, M, 🤖, lot 10 ② b)* — module commun (`packages/ui`) : catalogue de signaux identique à celui des lecteurs (`docs/specs/equipements.md` § 2.3 bis : le rythme dit le sens), sons produits par la page (Web Audio, aucun fichier, hors ligne), vibration (Android), écran toujours allumé (Wake Lock) ; réglés **par appareil** dans « Mon compte » (son et volume, vibration, écran) ; jamais un son seul, toujours avec l'écran ; débloqué au premier appui ; muet pendant un examen ou un congé. Branchés là où ça compte : présences (carte lue, retard, déjà passé, refus, gardé hors ligne), caisse (paiement enregistré, refus, gardé hors ligne), séance photo, alertes importantes de la Gestion (écart de caisse, annulation à valider, absences répétées) ; bibliothèque et ateliers au lot 11 ; la sonnerie (lot 16) en reprend le catalogue. Caméra demandée après une phrase qui dit pourquoi ; refusée : marche à suivre et repli (saisie du matricule).
+- [ ] **EQ.4** Cartes de l'équipe Mwangaza *(P2, M, 🤖, lot 15)* — d'après `maquettes/marque/cartes-mwangaza.html` : carte de visite (QR vCard, sans serveur) et badge porté au cordon, imprimés depuis la console au format ID-1 ; QR du badge = page publique de vérification à jeton révocable (nom, photo, fonction, « fait partie de l'équipe » ou non) ; tout vient des paramètres de la plateforme et du compte de l'équipe.
 
 ## 2 ter. Équipements : tâches ajoutées le 2026-11-03
 
@@ -513,13 +520,13 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 
 ### V1.5 — Carte et présences (QR d'abord, NFC en option)
 
-- [ ] **6.1** Carte de l'élève et du personnel : modèle réglé par l'école, PDF carte et planche A4, jeton secret dans le QR, révocable, carte perdue remplacée *(P1, M)*
-- [ ] **6.3** Pointage par téléphone ou tablette enregistrés, caméra QR, mode borne, hors ligne *(P1, M)*
-- [ ] **6.5** Suivi des présences, corrections au journal, rapports, taux au tableau de bord *(P1, M)*
-- [ ] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*
+- [x] **6.1** Carte de l'élève et du personnel : modèle réglé par l'école, PDF carte et planche A4, jeton secret dans le QR, révocable, carte perdue remplacée ; refaite le 2026-11-06 (élève en paysage, personnel en portrait, format ID-1 de la carte MIFARE, photo officielle gérée par l'école seule, bleu de la plateforme et son relief, pas de carte sans photo si l'école l'exige, **séance photo par classe**, mention Mwangaza) *(P1, M)*
+- [x] **6.3** Pointage par téléphone ou tablette enregistrés, caméra QR, mode borne, hors ligne ; son, vibration et écran allumé réglables par appareil, mêmes signaux que les lecteurs (2026-11-06) *(P1, M)*
+- [x] **6.5** Suivi des présences, corrections au journal, rapports, taux au tableau de bord *(P1, M)*
+- [x] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*
 - [ ] **6.2** Liaison des cartes NFC (NTAG215 / 216) *(P2, M)* — reprise par **EQP.4** (lot 16, 2026-11-03)
 - [ ] **6.4** Lecteurs ESP32 (`firmware/`) *(P2, L)* — reprise par **EQP.3** et **EQP.4** (lot 16, 2026-11-03)
-- [ ] **A.5** Sélection de plusieurs élèves pour une impression (§ 5) *(P3, S)* — avec 6.1
+- [x] **A.5** Sélection de plusieurs élèves pour une impression (§ 5) *(P3, S)* — avec 6.1
 
 ### V1.6 — Bibliothèque et ateliers
 
