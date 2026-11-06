@@ -191,7 +191,7 @@ def context(year: AcademicYear | None) -> Context:
     rules = list(TimetableRule.objects.filter(active=True))
     by_course = {course.pk: course for course in courses}
     parallel = _groups(rules, Kind.PARALLEL_COURSES, by_course)
-    joint = _groups(rules, Kind.JOINT_COURSES, by_course)
+    joint = _groups(rules, Kind.JOINT_COURSES, by_course) + _course_groups(courses)
     return Context(
         school_rules,
         groups,
@@ -243,7 +243,7 @@ def run(year: AcademicYear | None) -> dict:
     }
 
 
-def _groups(rules, kind, by_course) -> list[tuple[TimetableRule, list[Course]]]:
+def _groups(rules, kind, by_course) -> list[tuple[TimetableRule | None, list[Course]]]:
     """Les groupes d'un kind (parallèles, cours communs) avec leurs cours de l'année ; un cours
     n'est que dans un groupe actif (`constraints._check_groups`)."""
     return [
@@ -251,6 +251,17 @@ def _groups(rules, kind, by_course) -> list[tuple[TimetableRule, list[Course]]]:
         for rule in rules
         if rule.kind == kind
     ]
+
+
+def _course_groups(courses) -> list[tuple[None, list[Course]]]:
+    """Les cours communs de l'onglet Notes (`CourseGroup`, 8.1.2b) : chacun est un cours commun de
+    l'horaire, sans règle à écrire (même heure, même enseignant, une fois dans sa charge). Lus sur
+    les cours déjà chargés : pas de requête de plus."""
+    members: dict[UUID, list[Course]] = defaultdict(list)
+    for course in courses:
+        if course.course_group_id:
+            members[course.course_group_id].append(course)
+    return [(None, group) for group in members.values()]
 
 
 def _shared_hours(members: list[Course]) -> int:
@@ -582,8 +593,10 @@ def _lock_conflicts(locks, parallel, joint, rooms, by_group, prefix: str) -> lis
     """6. Deux verrous (`locks_…`) ou deux séances d'un brouillon (`same_…`, O1 à O3) en même
     temps pour une même classe (hors groupes en parallèle), un même enseignant ou une même salle
     (hors cours commun ; le sport en reçoit plusieurs)."""
-    side_by_side = {course.pk: rule.pk for rule, members in parallel for course in members}
-    together = {course.pk: rule.pk for rule, members in joint for course in members}
+    side_by_side = {
+        course.pk: n for n, (_rule, members) in enumerate(parallel) for course in members
+    }
+    together = {course.pk: n for n, (_rule, members) in enumerate(joint) for course in members}
     by_day: dict[int, list[Lock]] = defaultdict(list)
     for lock in locks:
         by_day[lock.weekday].append(lock)
@@ -746,7 +759,9 @@ def _group_issues(parallel, joint, by_group) -> list[Issue]:
     for kind_groups, is_joint in ((parallel, False), (joint, True)):
         for rule, members in kind_groups:
             if len(members) < 2:
-                issues.append(_orphan(rule))
+                # Un cours commun de l'onglet Notes a toujours deux classes (8.1.2a).
+                if rule is not None:
+                    issues.append(_orphan(rule))
                 continue
             first = members[0]
             subject = first.name if is_joint else by_group[first.class_group_id].name
@@ -773,7 +788,7 @@ def _group_issues(parallel, joint, by_group) -> list[Issue]:
                     subject,
                     {"names": names, **(values or {})},
                     class_group=None if joint else first.class_group_id,
-                    rule=rule.pk,
+                    rule=rule.pk if rule else None,
                 )
 
             teachers = [course.teacher_id for course in members]

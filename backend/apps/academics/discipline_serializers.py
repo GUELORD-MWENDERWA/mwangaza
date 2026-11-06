@@ -60,6 +60,10 @@ class PickStudentSerializer(serializers.Serializer):
 
 
 class IncidentCreateSerializer(serializers.Serializer):
+    id = serializers.UUIDField(
+        required=False,
+        help_text="UUID v7 donné par l'appareil (HL.2) : un envoi rejoué ne crée rien de plus.",
+    )
     enrollment = serializers.PrimaryKeyRelatedField(queryset=Enrollment.objects)
     rule = serializers.PrimaryKeyRelatedField(queryset=DisciplineRule.objects)
     occurred_on = serializers.DateField()

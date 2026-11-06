@@ -39,16 +39,9 @@ import { useCurrentSchool } from "../../lib/school";
 import { useSyncStatus } from "../../lib/sync/session";
 import { termLabels, type TermShape } from "../../lib/terms";
 import { LoadError } from "../status/StatusPages";
-import { type Grading, type GradingCourse, type Sheet, useGrading, useSheet } from "./data";
+import { type Grading, type Sheet, useGrading, useSheet } from "./data";
 import { ControlBanner, isLocked, ReasonDialog, SheetHistory, todayIn } from "./SheetControl";
-import {
-  dismissRejected,
-  isNetworkError,
-  remember,
-  saveOffline,
-  sheetId,
-  useSheetQueue,
-} from "./offline";
+import { dismissRejected, remember, sendSave, sheetId, useSheetQueue } from "./offline";
 import { parseTenths, percent, periodTenths, type SaveBody, serverTenths, toScore } from "./sheet";
 
 type Term = Grading["terms"][number];
@@ -75,7 +68,7 @@ export function gradableTerms(terms: Term[], label: Map<TermShape, string>): Lea
 }
 
 /** Période du jour d'après ses dates ; à défaut, la première. */
-function currentPeriod(leaves: Leaf[]): Leaf | undefined {
+export function currentPeriod(leaves: Leaf[]): Leaf | undefined {
   const today = new Date().toISOString().slice(0, 10);
   const periods = leaves.filter((leaf) => leaf.kind === "period");
   return (
@@ -145,7 +138,7 @@ export function GradesPage() {
 type SheetProps = {
   classes: Grading["classes"];
   groupId: string;
-  course: GradingCourse;
+  course: Grading["classes"][number]["courses"][number];
   term: Leaf;
   terms: Leaf[];
   onChoose: (choice: Choice) => void;
@@ -174,7 +167,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
   const [editing, setEditing] = useState<Editing | null>(null);
   const [leaving, setLeaving] = useState<Choice | null>(null);
   const [notice, setNotice] = useState<"saved" | "submit" | null>(null);
-  const [reasonFor, setReasonFor] = useState<"edit" | null>(null);
+  const [reasonFor, setReasonFor] = useState<"edit" | "correct" | null>(null);
   const [signing, setSigning] = useState(false);
   const [pendingSave, setPendingSave] = useState<SaveBody | null>(null);
   const [invalid, setInvalid] = useState(false);
@@ -195,25 +188,13 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [waiting]);
   const save = useMutation({
-    mutationFn: async (body: SaveBody) => {
-      // Hors ligne, ou notes de l'appareil pas encore parties (l'ordre compte) : sur l'appareil.
-      const local = Boolean(db) && (!navigator.onLine || waiting > 0);
-      const current = queryClient.getQueryData<Sheet>(sheetKey);
-      const queueIt = () =>
-        saveOffline(db!, { course: course.id, term: term.id, sheet: current!, body });
-      if (local && current) return queueIt();
-      try {
-        return await call(
-          api.PUT("/api/courses/{id}/terms/{term}/grades/", {
-            params: { path: { id: course.id, term: term.id } },
-            body,
-          }),
-        );
-      } catch (error) {
-        if (db && current && isNetworkError(error)) return queueIt();
-        throw error;
-      }
-    },
+    mutationFn: (body: SaveBody) =>
+      sendSave(db, {
+        course: course.id,
+        term: term.id,
+        current: queryClient.getQueryData<Sheet>(sheetKey),
+        body,
+      }),
     onSuccess: (saved) => {
       keep(saved);
       setEvaluations(null);
@@ -221,6 +202,14 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
       setCells({});
       setReasonFor(null);
       setNotice("saved");
+    },
+    // Notes saisies par une autre personne, changées par qui n'est pas l'enseignant (8.2.5) :
+    // le motif est demandé, puis le même envoi repart.
+    onError: (error, body) => {
+      if (error instanceof ApiError && error.code === "reason_required" && !body.reason) {
+        setPendingSave(body);
+        setReasonFor("correct");
+      }
     },
   });
   // Envoyée et signée : la feuille revient à jour.
@@ -266,7 +255,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           .find((item) => item.id === groupId)
           ?.courses.map((item) => (
             <option key={item.id} value={item.id}>
-              {item.name}
+              {item.replacing ? t("grades.replacing.option", { course: item.name }) : item.name}
             </option>
           ))}
       </Select>
@@ -299,6 +288,15 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
             </Link>
           </Button>
         </div>
+      </>
+    );
+  }
+  // Remplaçant (8.2.5) : la fiche commencée par l'enseignant lui reste tant qu'il ne l'a pas envoyée.
+  if (sheet.error instanceof ApiError && sheet.error.code === "sheet_with_teacher") {
+    return (
+      <>
+        <PageHeader title={t("grades.title")} actions={pickers} />
+        <Banner tone="info">{t("grades.replacing.withTeacher")}</Banner>
       </>
     );
   }
@@ -398,6 +396,27 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           timeZone={school.timezone}
         />
       </div>
+      {course.replacing && (
+        <div className="mb-4">
+          <Banner tone="info">{t("grades.replacing.banner")}</Banner>
+        </div>
+      )}
+      {course.course_group && course.access === "notebook" && (
+        <div className="mb-4">
+          <Banner
+            tone="info"
+            action={
+              <Button asChild variant="outline">
+                <Link to={`/grades/joint?group=${course.course_group}&term=${term.id}`}>
+                  {t("grades.joint.open")}
+                </Link>
+              </Button>
+            }
+          >
+            {t("grades.joint.hint")}
+          </Banner>
+        </div>
+      )}
       {waiting > 0 && (
         <div className="mb-4">
           <Banner tone="warn">{t("grades.offline.waiting", { count: waiting })}</Banner>
@@ -426,7 +445,7 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
           </Banner>
         </div>
       )}
-      {(invalid || save.isError || act.isError) && (
+      {(invalid || (save.isError && !reasonFor) || act.isError) && (
         <div className="mb-4">
           <Banner tone="due">
             {invalid ? t("grades.invalidCells") : firstErrorMessage(save.error ?? act.error, t)}
@@ -436,7 +455,17 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
       <Card>
         <CardHeader>
           <CardTitle>{t("grades.students", { count: data.students.length })}</CardTitle>
-          {dirty && <StatusPill tone="warn">{t("grades.unsaved")}</StatusPill>}
+          <div className="flex flex-wrap items-center gap-2">
+            {dirty && <StatusPill tone="warn">{t("grades.unsaved")}</StatusPill>}
+            {!locked && !dirty && columns.length > 0 && data.students.length > 0 && (
+              <Button asChild variant="outline" size="sm">
+                <Link to={`/grades/import?course=${course.id}&term=${term.id}`}>
+                  <Icon name="upload" size={14} />
+                  {t("grades.import.open")}
+                </Link>
+              </Button>
+            )}
+          </div>
         </CardHeader>
         {!totalsOnly && (
           <div className="flex flex-wrap items-center gap-2 border-b border-line-soft px-5 py-3">
@@ -665,6 +694,8 @@ function GradeSheet({ classes, groupId, course, term, terms, onChoose }: SheetPr
 type DialogProps = {
   evaluation: EvaluationDraft | null;
   maximum: number;
+  /** Aide du maximum, si la période n'a pas un seul maximum (fiche commune, 8.1.2a). */
+  maxHelp?: string;
   /** Cases remplies dans cette évaluation, et la plus haute note (en dixièmes). */
   scores: number;
   highest: number;
@@ -673,9 +704,10 @@ type DialogProps = {
   onRemove: (id: string) => void;
 };
 
-function EvaluationDialog({
+export function EvaluationDialog({
   evaluation,
   maximum,
+  maxHelp,
   scores,
   highest,
   onClose,
@@ -739,7 +771,7 @@ function EvaluationDialog({
           id="evaluation-max"
           label={t("grades.dialog.max")}
           required
-          help={t("grades.dialog.maxHelp", { max: maximum })}
+          help={maxHelp ?? t("grades.dialog.maxHelp", { max: maximum })}
           error={maxError}
         >
           {(control) => (

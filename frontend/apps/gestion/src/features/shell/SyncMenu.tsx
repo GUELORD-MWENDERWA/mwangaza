@@ -35,6 +35,7 @@ export function useSyncSession(me: Me) {
       "grades.enter",
       "grades.enter_any",
       "grades.validate",
+      "discipline.record",
     ]);
   useEffect(() => (enabled ? startSync(me.id) : undefined), [enabled, me.id]);
 }

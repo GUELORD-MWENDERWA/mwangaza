@@ -30,6 +30,8 @@ from apps.academics.models import (
     ApplicationGrade,
     ConductGrade,
     Course,
+    CourseGroup,
+    CourseSubstitute,
     Deliberation,
     DeliberationDecision,
     DeliberationSnapshot,
@@ -137,6 +139,66 @@ def create_demo_courses(spaces: list[DemoSpace]) -> None:
                     "category",
                 ],
             )
+            demo_teacher = User.objects.filter(phone=space.numbers.of("+243000001008")).first()
+            _joint_course(year, demo_teacher)
+            _substitute(year, demo_teacher, _validator(space))
+
+
+def _joint_course(year, teacher: User | None) -> None:
+    """Un cours commun (8.1.2a) : la mathématique que l'enseignant de démonstration donne dans
+    deux sections d'un même niveau (1HT Électricité A et B à l'ITIG ; aux Volcans, il n'en a
+    qu'une : rien). Il reste l'enseignant du groupe."""
+    if teacher is None:
+        return
+    by_level: dict = {}
+    for course in Course.objects.filter(
+        class_group__academic_year=year, teacher=teacher, name="Mathématique", is_taught=True
+    ).select_related("class_group"):
+        by_level.setdefault(course.class_group.level_id, []).append(course)
+    for level_id, courses in by_level.items():
+        if len(courses) < 2:
+            continue
+        group, _ = CourseGroup.objects.get_or_create(
+            academic_year=year,
+            level_id=level_id,
+            name=courses[0].name,
+            defaults={"teacher": teacher},
+        )
+        Course.objects.filter(pk__in=[course.pk for course in courses]).update(course_group=group)
+        return
+
+
+def _substitute(year, substitute: User | None, director: User | None) -> None:
+    """Un remplacement (8.2.5) : l'enseignant de démonstration remplace, sans date de fin, un
+    collègue dans une classe où il donne déjà cours (« remplacement » dans ses notes)."""
+    if substitute is None or director is None:
+        return
+    # Deux requêtes simples : une jointure de plus est lente sur une base neuve.
+    classes = set(
+        Course.objects.filter(class_group__academic_year=year, teacher=substitute).values_list(
+            "class_group_id", flat=True
+        )
+    )
+    course = (
+        Course.objects.filter(
+            class_group_id__in=classes,
+            is_taught=True,
+            teacher__isnull=False,
+            course_group__isnull=True,
+        )
+        .exclude(teacher=substitute)
+        .order_by("class_group_id", "order")
+        .first()
+    )
+    if course is not None:
+        CourseSubstitute.objects.get_or_create(
+            course=course,
+            defaults={
+                "substitute": substitute,
+                "reason": "Congé de maladie de l'enseignant",
+                "created_by": director,
+            },
+        )
 
 
 # Évaluations de la 1re période : nom et part du maximum du cours.

@@ -2,10 +2,12 @@ from django.urls import path
 
 from apps.academics import application_views as application
 from apps.academics import (
+    course_group_views,
     deliberation_views,
     promotion_views,
     resits_views,
     situation_views,
+    substitute_views,
     views,
     waiver_views,
 )
@@ -40,6 +42,32 @@ urlpatterns = [
         views.GradeSheetPrintView.as_view(),
         name="grade-sheet-print",
     ),
+    path("course-groups/", course_group_views.CourseGroupsView.as_view(), name="course-groups"),
+    path(
+        "course-groups/<uuid:pk>/",
+        course_group_views.CourseGroupView.as_view(),
+        name="course-group",
+    ),
+    path(
+        "course-groups/<uuid:pk>/remove-class/",
+        course_group_views.CourseGroupRemoveClassView.as_view(),
+        name="course-group-remove-class",
+    ),
+    path(
+        "course-substitutes/",
+        substitute_views.CourseSubstitutesView.as_view(),
+        name="course-substitutes",
+    ),
+    path(
+        "course-substitutes/candidates/",
+        substitute_views.SubstituteCandidatesView.as_view(),
+        name="course-substitute-candidates",
+    ),
+    path(
+        "course-substitutes/<uuid:pk>/",
+        substitute_views.CourseSubstituteView.as_view(),
+        name="course-substitute",
+    ),
     path("course-templates/", views.OfficialGridsView.as_view(), name="course-templates"),
     path("teaching-loads/", views.TeachingLoadsView.as_view(), name="teaching-loads"),
     path("grading/", views.GradingView.as_view(), name="grading"),
@@ -66,6 +94,11 @@ urlpatterns = [
         "courses/<uuid:pk>/terms/<uuid:term>/grades/reopen/",
         views.GradeReopenView.as_view(),
         name="grade-reopen",
+    ),
+    path(
+        "courses/<uuid:pk>/terms/<uuid:term>/grades/import/",
+        views.GradeImportView.as_view(),
+        name="grade-import",
     ),
     path(
         "courses/<uuid:pk>/terms/<uuid:term>/grades/totals/",

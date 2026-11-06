@@ -107,26 +107,31 @@ export function GradeValidationPage() {
         title={t("gradeValidation.title")}
         subtitle={t("gradeValidation.subtitle")}
         actions={
-          leaves.length > 0 && (
-            <div className="text-left!">
-              <Field id="board-term" label={t("gradeValidation.term")}>
-                {(control) => (
-                  <Select
-                    {...control}
-                    value={term}
-                    onChange={(event) => setTermId(event.target.value)}
-                    className="min-w-52"
-                  >
-                    {leaves.map((leaf) => (
-                      <option key={leaf.id} value={leaf.id}>
-                        {leaf.label}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              </Field>
-            </div>
-          )
+          <>
+            <Button asChild variant="outline">
+              <Link to="/grade-validation/substitutes">{t("grades.substitutes.title")}</Link>
+            </Button>
+            {leaves.length > 0 && (
+              <div className="text-left!">
+                <Field id="board-term" label={t("gradeValidation.term")}>
+                  {(control) => (
+                    <Select
+                      {...control}
+                      value={term}
+                      onChange={(event) => setTermId(event.target.value)}
+                      className="min-w-52"
+                    >
+                      {leaves.map((leaf) => (
+                        <option key={leaf.id} value={leaf.id}>
+                          {leaf.label}
+                        </option>
+                      ))}
+                    </Select>
+                  )}
+                </Field>
+              </div>
+            )}
+          </>
         }
       />
       {remind.isSuccess && (

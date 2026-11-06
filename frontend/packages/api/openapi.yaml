@@ -785,9 +785,12 @@ paths:
           - organisation.class_deleted
           - organisation.matricule_format_changed
           - courses.changed
+          - course_group.changed
           - grades.changed
           - grades.submitted
           - grades.validated
+          - grades.substitute_set
+          - grades.substitute_removed
           - grades.reopened
           - grades.deadline_set
           - grades.reminded
@@ -949,9 +952,12 @@ paths:
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
+          * `course_group.changed` - Joint course changed
           * `grades.changed` - Grades changed
           * `grades.submitted` - Grades sent for validation
           * `grades.validated` - Grades validated
+          * `grades.substitute_set` - Course substitute designated
+          * `grades.substitute_removed` - Course substitute removed
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.reminded` - Teachers reminded of their grade sheets
@@ -1079,6 +1085,7 @@ paths:
           - audit
           - auth
           - contract
+          - course_group
           - courses
           - deliberation
           - devices
@@ -1105,6 +1112,7 @@ paths:
           * `audit` - audit
           * `auth` - auth
           * `contract` - contract
+          * `course_group` - course_group
           * `courses` - courses
           * `deliberation` - deliberation
           * `devices` - devices
@@ -1300,9 +1308,12 @@ paths:
           - organisation.class_deleted
           - organisation.matricule_format_changed
           - courses.changed
+          - course_group.changed
           - grades.changed
           - grades.submitted
           - grades.validated
+          - grades.substitute_set
+          - grades.substitute_removed
           - grades.reopened
           - grades.deadline_set
           - grades.reminded
@@ -1464,9 +1475,12 @@ paths:
           * `organisation.class_deleted` - Class deleted
           * `organisation.matricule_format_changed` - Student number format changed
           * `courses.changed` - Courses of a class changed
+          * `course_group.changed` - Joint course changed
           * `grades.changed` - Grades changed
           * `grades.submitted` - Grades sent for validation
           * `grades.validated` - Grades validated
+          * `grades.substitute_set` - Course substitute designated
+          * `grades.substitute_removed` - Course substitute removed
           * `grades.reopened` - Grades reopened
           * `grades.deadline_set` - Grade entry deadline set
           * `grades.reminded` - Teachers reminded of their grade sheets
@@ -1594,6 +1608,7 @@ paths:
           - audit
           - auth
           - contract
+          - course_group
           - courses
           - deliberation
           - devices
@@ -1620,6 +1635,7 @@ paths:
           * `audit` - audit
           * `auth` - auth
           * `contract` - contract
+          * `course_group` - course_group
           * `courses` - courses
           * `deliberation` - deliberation
           * `devices` - devices
@@ -10821,6 +10837,365 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/course-groups/:
+    get:
+      operationId: course_groups_list
+      description: Cours communs de l'école, d'une année et d'un niveau au choix.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: level
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseGroup'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: course_groups_create
+      description: 'Relie le cours de même nom de plusieurs classes d''un même niveau
+        : un seul enseignant.'
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseGroupCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseGroupCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseGroupCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseGroup'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-groups/{id}/:
+    patch:
+      operationId: course_groups_partial_update
+      description: 'Change l''enseignant du groupe : il devient celui du cours de
+        chaque classe.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseGroupUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseGroupUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCourseGroupUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseGroup'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    delete:
+      operationId: course_groups_destroy
+      description: 'Défait le cours commun : chaque classe garde son cours, ses notes
+        et son enseignant.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-groups/{id}/remove-class/:
+    post:
+      operationId: course_groups_remove_class_create
+      description: Sort une classe du groupe sans perdre ses notes ; sous deux classes,
+        il est défait.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - courses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseGroupRemoveClassRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseGroupRemoveClassRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseGroupRemoveClassRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-substitutes/:
+    get:
+      operationId: course_substitutes_list
+      description: Remplaçants en cours (date de fin pas encore passée), d'une année
+        au choix.
+      parameters:
+      - in: query
+        name: academic_year
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseSubstitute'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: course_substitutes_create
+      description: |-
+        Désigne le remplaçant d'un cours (de tout son groupe s'il est commun), avec motif et
+        date de fin facultative ; un remplaçant déjà en cours : 409 `substitute_exists`.
+      tags:
+      - grades
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourseSubstituteCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CourseSubstituteCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseSubstituteCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseSubstitute'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-substitutes/{id}/:
+    delete:
+      operationId: course_substitutes_destroy
+      description: 'Retire le remplaçant : il perd l''accès au cours, les notes qu''il
+        a saisies restent.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/course-substitutes/candidates/:
+    get:
+      operationId: course_substitutes_candidates_list
+      description: 'Personnes qu''on peut désigner : le personnel actif de l''école,
+        par nom.'
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Person'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/course-templates/:
     get:
       operationId: course_templates_list
@@ -10940,6 +11315,103 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Sheet'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/courses/{id}/terms/{term}/grades/import/:
+    get:
+      operationId: courses_terms_grades_import_retrieve
+      description: |-
+        Modèle Excel de la feuille : matricule et nom de chaque élève (verrouillés), une
+        colonne par évaluation (saisie « total » : le total) avec les notes déjà saisies.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: courses_terms_grades_import_create
+      description: |-
+        Contrôle le classeur ligne par ligne, sans rien écrire : élève de la classe reconnu
+        par le matricule (à défaut, le nom exact), notes de 0 au maximum, au dixième ; une case
+        vide ne change rien. Feuille validée : 409 `sheet_validated`.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - grades
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GradeImportUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GradeImport'
           description: ''
         '400':
           content:
@@ -11622,7 +12094,9 @@ paths:
   /api/discipline/incidents/:
     post:
       operationId: discipline_incidents_create
-      description: Attribue une infraction à un élève.
+      description: |-
+        Attribue une infraction à un élève ; avec `id` (appareil), un envoi rejoué rend
+        l'incident déjà écrit.
       tags:
       - discipline
       requestBody:
@@ -14229,8 +14703,8 @@ paths:
       operationId: grading_retrieve
       description: |-
         Ce que le compte voit dans les notes de l'année : son découpage (périodes, examens) et,
-        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ou tous ;
-        `teaches` : il tient le carnet du cours (ses évaluations).
+        par classe, les cours qu'il donne, ceux de la classe dont il est titulaire, ceux qu'il
+        remplace, ou tous ; `teaches` : il tient le carnet du cours (ses évaluations).
       parameters:
       - in: query
         name: academic_year
@@ -20905,8 +21379,8 @@ paths:
       operationId: teaching_loads_retrieve
       description: |-
         Charge horaire de chaque membre du personnel actif dans l'année (heures par semaine
-        de ses cours), et les cours sans enseignant. Sert aussi de liste des enseignants
-        possibles : tout le personnel, quel que soit son rôle.
+        de ses cours, un cours commun une fois), et les cours sans enseignant. Sert aussi de
+        liste des enseignants possibles : tout le personnel, quel que soit son rôle.
       parameters:
       - in: query
         name: academic_year
@@ -24293,9 +24767,12 @@ components:
       - organisation.class_deleted
       - organisation.matricule_format_changed
       - courses.changed
+      - course_group.changed
       - grades.changed
       - grades.submitted
       - grades.validated
+      - grades.substitute_set
+      - grades.substitute_removed
       - grades.reopened
       - grades.deadline_set
       - grades.reminded
@@ -24456,9 +24933,12 @@ components:
         * `organisation.class_deleted` - Class deleted
         * `organisation.matricule_format_changed` - Student number format changed
         * `courses.changed` - Courses of a class changed
+        * `course_group.changed` - Joint course changed
         * `grades.changed` - Grades changed
         * `grades.submitted` - Grades sent for validation
         * `grades.validated` - Grades validated
+        * `grades.substitute_set` - Course substitute designated
+        * `grades.substitute_removed` - Course substitute removed
         * `grades.reopened` - Grades reopened
         * `grades.deadline_set` - Grade entry deadline set
         * `grades.reminded` - Teachers reminded of their grade sheets
@@ -30518,6 +30998,12 @@ components:
           - $ref: '#/components/schemas/Person'
           readOnly: true
           nullable: true
+        course_group:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          title: Joint course
         placement:
           allOf:
           - $ref: '#/components/schemas/CoursePlacement'
@@ -30533,6 +31019,7 @@ components:
       - category
       - weekly_hours
       - teacher
+      - course_group
       - placement
     CourseCategoryEnum:
       enum:
@@ -30546,6 +31033,74 @@ components:
         * `main` - Main course
         * `option` - Option course
         * `practical` - Practical
+    CourseGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        academic_year:
+          type: string
+          format: uuid
+          readOnly: true
+        level:
+          type: string
+          format: uuid
+          readOnly: true
+        teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          readOnly: true
+          nullable: true
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/JointCourseClass'
+          readOnly: true
+        students:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - name
+      - academic_year
+      - level
+      - teacher
+      - classes
+      - students
+    CourseGroupCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        class_groups:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 12
+          minItems: 2
+        teacher_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - class_groups
+      - name
+    CourseGroupRemoveClassRequest:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+      required:
+      - class_group
     CourseInputRequest:
       type: object
       properties:
@@ -30692,6 +31247,76 @@ components:
           allOf:
           - $ref: '#/components/schemas/PreferredPartEnum'
           default: any
+    CourseSubstitute:
+      type: object
+      description: Remplaçant d'un cours (8.2.5), désignation en cours.
+      properties:
+        id:
+          type: string
+          format: uuid
+        course:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours d''une classe (vide : cours commun).'
+        course_group:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours commun (8.1.2a) : remplacé pour toutes ses classes.'
+        label:
+          type: string
+          description: « Électrotechnique · 3e Électricité A ».
+        teacher:
+          allOf:
+          - $ref: '#/components/schemas/Person'
+          nullable: true
+          description: Enseignant remplacé.
+        substitute:
+          $ref: '#/components/schemas/Person'
+        reason:
+          type: string
+        since:
+          type: string
+          format: date
+          description: Jour de la désignation.
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+          description: 'Dernier jour ; vide : sans fin.'
+      required:
+      - id
+      - course
+      - course_group
+      - label
+      - teacher
+      - substitute
+      - reason
+      - since
+      - ends_on
+    CourseSubstituteCreateRequest:
+      type: object
+      properties:
+        course:
+          type: string
+          format: uuid
+          description: Cours remplacé ; s'il est commun, tout son groupe.
+        substitute_id:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - course
+      - reason
+      - substitute_id
     CoursesCopied:
       type: object
       properties:
@@ -31689,6 +32314,7 @@ components:
       - audit
       - auth
       - contract
+      - course_group
       - courses
       - deliberation
       - devices
@@ -32034,6 +32660,26 @@ components:
           type: integer
           readOnly: true
           title: Maximum
+      required:
+      - id
+      - name
+      - max_score
+    EvaluationInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Évaluation de la feuille à garder, ou identifiant (UUID v7)
+            d''une nouvelle donné par l''appareil ; absent : nouvelle.'
+        name:
+          type: string
+          maxLength: 60
+        max_score:
+          type: integer
+          maximum: 1000
+          minimum: 1
       required:
       - id
       - name
@@ -33030,6 +33676,170 @@ components:
       description: |-
         * `detailed` - detailed
         * `totals` - totals
+    GradeImport:
+      type: object
+      description: |-
+        Contrôle d'un classeur (8.2.4), rien n'est écrit. Sans erreur, `evaluations` et `grades`
+        s'envoient tels quels à la saisie de la feuille (PUT), avec un motif si elle est envoyée.
+      properties:
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeImportColumn'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeImportLine'
+        ready_count:
+          type: integer
+        skipped_count:
+          type: integer
+          description: Élèves sans aucune note dans le classeur.
+        error_count:
+          type: integer
+        unchanged_count:
+          type: integer
+          description: Notes identiques à celles de la feuille.
+        evaluations:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvaluationInput'
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeInput'
+          description: Cases qui changent ; vide si erreur.
+      required:
+      - columns
+      - lines
+      - ready_count
+      - skipped_count
+      - error_count
+      - unchanged_count
+      - evaluations
+      - grades
+    GradeImportColumn:
+      type: object
+      properties:
+        evaluation_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        max_score:
+          type: integer
+        new:
+          type: boolean
+          description: 'Saisie « total » encore vide : créée avec les notes.'
+      required:
+      - evaluation_id
+      - name
+      - max_score
+      - new
+    GradeImportIssue:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/GradeImportIssueCodeEnum'
+        column:
+          type: string
+          description: Titre de la colonne fausse.
+        value:
+          type: string
+        max:
+          type: integer
+        line:
+          type: integer
+          description: Ligne où l'élève est déjà.
+      required:
+      - code
+      - column
+      - value
+      - max
+      - line
+    GradeImportIssueCodeEnum:
+      enum:
+      - unknown_student
+      - duplicate_student
+      - invalid_score
+      - above_maximum
+      type: string
+      description: |-
+        * `unknown_student` - unknown_student
+        * `duplicate_student` - duplicate_student
+        * `invalid_score` - invalid_score
+        * `above_maximum` - above_maximum
+    GradeImportLine:
+      type: object
+      properties:
+        number:
+          type: integer
+          description: Numéro de la ligne dans le classeur.
+        matricule:
+          type: string
+        name:
+          type: string
+          description: Élève reconnu, ou nom du fichier.
+        values:
+          type: array
+          items:
+            type: string
+        enrollment_id:
+          type: string
+          format: uuid
+          nullable: true
+        status:
+          $ref: '#/components/schemas/GradeImportLineStatusEnum'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/GradeImportIssue'
+      required:
+      - number
+      - matricule
+      - name
+      - values
+      - enrollment_id
+      - status
+      - issues
+    GradeImportLineStatusEnum:
+      enum:
+      - ready
+      - skipped
+      - error
+      type: string
+      description: |-
+        * `ready` - ready
+        * `skipped` - skipped
+        * `error` - error
+    GradeImportUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Classeur .xlsx (ou .csv) rempli avec le modèle.
+      required:
+      - file
+    GradeInput:
+      type: object
+      properties:
+        enrollment_id:
+          type: string
+          format: uuid
+        evaluation_id:
+          type: string
+          format: uuid
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,1})?$
+          nullable: true
+          description: 'Vide : la case est vidée.'
+      required:
+      - enrollment_id
+      - evaluation_id
+      - score
     GradeInputRequest:
       type: object
       properties:
@@ -33160,6 +33970,18 @@ components:
           oneOf:
           - $ref: '#/components/schemas/AccessEnum'
           - $ref: '#/components/schemas/NullEnum'
+        replacing:
+          type: boolean
+          description: 'Le compte remplace l''enseignant de ce cours (8.2.5) : un
+            total par élève, sur une feuille vide, qu''il a commencée ou déjà envoyée
+            (sinon 403 `sheet_with_teacher`).'
+        course_group:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: 'Cours commun à plusieurs classes (8.1.2a) : ses notes se saisissent
+            aussi sur une seule fiche, avec les autres cours du groupe.'
       required:
       - id
       - name
@@ -33167,6 +33989,8 @@ components:
       - has_exam
       - teaches
       - access
+      - replacing
+      - course_group
     GradingSettings:
       type: object
       description: Saisie des points de l'école (`grading.py`, 8.4.0).
@@ -34010,6 +34834,11 @@ components:
     IncidentCreateRequest:
       type: object
       properties:
+        id:
+          type: string
+          format: uuid
+          description: 'UUID v7 donné par l''appareil (HL.2) : un envoi rejoué ne
+            crée rien de plus.'
         enrollment:
           type: string
           format: uuid
@@ -34350,6 +35179,30 @@ components:
           maxLength: 200
       required:
       - reason
+    JointCourseClass:
+      type: object
+      properties:
+        class_group:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+        course:
+          type: string
+          format: uuid
+        period_max:
+          type: integer
+        has_exam:
+          type: boolean
+        students:
+          type: integer
+      required:
+      - class_group
+      - class_name
+      - course
+      - period_max
+      - has_exam
+      - students
     LanguageEnum:
       enum:
       - fr
@@ -34787,12 +35640,19 @@ components:
           minimum: 1
           nullable: true
           title: Hours per week
+        course_group:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Cours commun (8.1.2a) : ses classes ne comptent qu''une fois
+            dans la charge.'
       required:
       - id
       - name
       - class_group
       - class_name
       - weekly_hours
+      - course_group
     LoginCodeRequest:
       type: object
       properties:
@@ -37811,6 +38671,13 @@ components:
           title: Example
         published:
           type: boolean
+    PatchedCourseGroupUpdateRequest:
+      type: object
+      properties:
+        teacher_id:
+          type: string
+          format: uuid
+          nullable: true
     PatchedEnrollmentUpdateRequest:
       type: object
       properties:

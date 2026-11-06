@@ -8,6 +8,7 @@ from apps.academics.tests.test_courses import classes
 from apps.accounts.models import Membership
 from apps.audit.actions import Action
 from apps.core.tenancy import use_school
+from apps.timetable import checks
 from apps.timetable.models import Room
 from apps.timetable.tests.test_timetable import log, new_grid
 from tests.factories import MembershipFactory
@@ -18,6 +19,7 @@ RULES = "/api/timetable/constraints/"
 CHOICES = "/api/timetable/constraints/choices/"
 CHECKS = "/api/timetable/checks/"
 TEACHERS = "/api/timetable/teachers/"
+COURSE_GROUPS = "/api/course-groups/"
 
 
 def new(group, name, hours, **fields) -> Course:
@@ -126,7 +128,8 @@ def test_groups_hold_together_and_count_once(api, school, head):
     refused = client.post(RULES, group("joint_courses", religion_a, electricity))
     assert "params.courses" in refused.json()["fields"]
     assert client.post(RULES, group("parallel_courses", mechanics, electricity)).status_code == 201
-    assert client.post(RULES, group("joint_courses", religion_a, religion_b)).status_code == 201
+    joint = client.post(RULES, group("joint_courses", religion_a, religion_b))
+    assert joint.status_code == 201
     taken = client.post(RULES, group("parallel_courses", religion_a, mechanics))
     assert (taken.status_code, taken.json()["code"]) == (409, "course_grouped")
     # Comptés une fois : 38 h, 3 h.
@@ -134,6 +137,18 @@ def test_groups_hold_together_and_count_once(api, school, head):
     assert ("class_overloaded", a.name) not in found
     assert ("teacher_over_max", str(shared)) not in found
     assert client.get(CHECKS).json()["rules"] == 2
+
+    # 8.1.2b : le cours commun de l'onglet Notes tient lieu de règle, jamais les deux à la fois.
+    notes = {"name": "religion", "class_groups": [str(a.pk), str(b.pk)], "teacher_id": None}
+    refused = client.post(COURSE_GROUPS, notes)
+    assert refused.json()["fields"]["name"][0]["code"] == "timetable_grouped"
+    client.delete(f"{RULES}{joint.json()['id']}/")
+    assert client.post(COURSE_GROUPS, notes).status_code == 201
+    with use_school(school):
+        assert checks.context(a.academic_year).joint == [(None, [religion_a, religion_b])]
+    assert ("teacher_over_max", str(shared)) not in codes()
+    taken = client.post(RULES, group("joint_courses", religion_a, religion_b))
+    assert (taken.status_code, taken.json()["code"]) == (409, "course_grouped")
 
     # Après coup, les groupes ne tiennent plus : le contrôle 7 le dit.
     with use_school(school):

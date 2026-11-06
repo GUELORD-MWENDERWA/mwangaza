@@ -1273,6 +1273,19 @@ export const fr = {
     reason: "Motif",
     confirmCancel: "Annuler l'infraction",
     keep: "Garder",
+    offline: {
+      queued: "Infraction gardée sur cet appareil ; elle partira au retour du réseau.",
+      waiting_one:
+        "{{count}} infraction attend le réseau : elle est gardée sur cet appareil et partira seule au retour du réseau.",
+      waiting_other:
+        "{{count}} infractions attendent le réseau : elles sont gardées sur cet appareil et partiront seules au retour du réseau.",
+      pending: "En attente du réseau",
+      rejected: "Une infraction n'a pas été acceptée : {{reason}}",
+      dismiss: "Compris",
+      readOnly:
+        "Sans réseau : l'historique et les cotes sont ceux de la dernière lecture sur cet appareil ; annuler un incident et corriger une cote demandent le réseau.",
+      noHistory: "Historique de cet élève pas encore lu sur cet appareil.",
+    },
   },
   resits: {
     title: "Examens de repêchage",
@@ -2764,6 +2777,13 @@ export const fr = {
         help: "Ces notes sont déjà envoyées au directeur des études : le motif est gardé dans l'historique de la feuille.",
         confirm: "Enregistrer",
       },
+      correct: {
+        label: "Motif",
+        required: "Donnez un motif d'au moins 3 lettres.",
+        title: "Motif de la correction",
+        help: "Ces notes ont été saisies par une autre personne : le motif est gardé au journal, avec l'ancienne et la nouvelle note, et l'enseignant du cours est prévenu.",
+        confirm: "Enregistrer",
+      },
       reopen: {
         label: "Remarques",
         required: "Écrivez vos remarques (au moins 3 lettres).",
@@ -2771,6 +2791,84 @@ export const fr = {
         help: "La fiche revient dans le carnet de l'enseignant, qui reçoit vos remarques ; elles restent dans l'historique.",
         confirm: "Renvoyer",
       },
+    },
+    replacing: {
+      option: "{{course}} · remplacement",
+      banner:
+        "Vous remplacez l'enseignant de ce cours : un total par élève et l'examen, jamais ses devoirs. Toute correction d'une note saisie par une autre personne demande un motif.",
+      withTeacher:
+        "L'enseignant a commencé cette fiche : elle lui reste tant qu'il ne l'a pas envoyée. Vous pourrez ensuite y corriger les totaux.",
+    },
+    substitutes: {
+      title: "Remplaçants",
+      subtitle: "Une personne qui saisit à la place de l'enseignant d'un cours",
+      add: "Désigner un remplaçant",
+      addHelp:
+        "Il voit le total de la période et l'examen de chaque élève, jamais les devoirs. Un cours commun se remplace pour toutes ses classes.",
+      empty: "Aucun remplaçant en cours.",
+      columns: {
+        course: "Cours",
+        teacher: "Enseignant",
+        substitute: "Remplaçant",
+        since: "Depuis",
+        until: "Jusqu'au",
+      },
+      joint: "{{label}} (commun)",
+      noEnd: "sans fin",
+      person: "Remplaçant",
+      choose: "Choisir une personne",
+      reason: "Motif",
+      reasonHelp: "Par exemple : congé de maladie de l'enseignant.",
+      until: "Jusqu'au",
+      untilHelp: "Vide : jusqu'à ce que vous le retiriez.",
+      confirm: "Désigner",
+      remove: "Retirer",
+      removeTitle: "Retirer {{name}} ?",
+      removeBody:
+        "{{course}} : la personne perd l'accès au cours ; les notes qu'elle a saisies restent.",
+    },
+    import: {
+      open: "Importer depuis Excel",
+      title: "Importer les points",
+      subtitle: "{{className}} · {{course}} · {{term}}",
+      template: "Télécharger le modèle Excel",
+      file: {
+        title: "1. Choisir le classeur",
+        help: ".xlsx rempli avec le modèle",
+        file: "Classeur",
+        check: "Contrôler",
+        reading: "Lecture…",
+        read_one: "{{file}} · {{number}} ligne",
+        read_other: "{{file}} · {{number}} lignes",
+      },
+      check: {
+        title: "2. Contrôle",
+        errors_one: "{{number}} erreur",
+        errors_other: "{{number}} erreurs",
+        ready: "tout est juste",
+        line: "Ligne",
+        result: "Résultat",
+        blocked:
+          "Rien n'est enregistré tant que toutes les lignes ne sont pas justes : corrigez le classeur, puis renvoyez-le.",
+        summary_one: "{{number}} note change ; {{unchanged}} identiques à la fiche.",
+        summary_other: "{{number}} notes changent ; {{unchanged}} identiques à la fiche.",
+      },
+      status: {
+        ready: "prêt",
+        skipped: "aucune note",
+      },
+      issues: {
+        unknown_student: "élève introuvable dans la classe",
+        duplicate_student: "élève déjà à la ligne {{line}}",
+        invalid_score: "{{column}} : « {{value}} » n'est pas une note",
+        above_maximum: "{{column}} : {{value}} dépasse le maximum {{max}}",
+      },
+      again: "Choisir un autre classeur",
+      confirm_one: "Importer {{number}} note",
+      confirm_other: "Importer {{number}} notes",
+      done_one: "{{number}} note importée dans la fiche.",
+      done_other: "{{number}} notes importées dans la fiche.",
+      openSheet: "Ouvrir la fiche",
     },
     history: {
       title: "Historique de la feuille",
@@ -2797,6 +2895,37 @@ export const fr = {
       nameRequired: "Donnez un nom à l'évaluation.",
       maxInvalid: "Un nombre entier de 1 à 1000.",
       belowAGrade: "Une note dépasse ce maximum.",
+    },
+    joint: {
+      title: "Fiche de cotes commune",
+      subtitle: "{{group}} · {{term}}",
+      groupChoice: "Cours commun",
+      groupOption: "{{course}} · {{classes}}",
+      banner_one:
+        "Cours commun : une seule de ses classes a des examens dans cette période ({{students}} élèves).",
+      banner_other:
+        "Cours commun à {{count}} classes ({{students}} élèves). Une seule fiche : les notes vont à l'élève et à sa classe ; chaque classe garde son maximum de la période.",
+      classState: "{{className}} : {{text}}",
+      classFilter: "Classe affichée",
+      all: "Toutes",
+      class: "Classe",
+      total: "Total",
+      validated: "validée",
+      closed: "fermée",
+      footer:
+        "Les mêmes évaluations pour toutes les classes · le total est ramené au maximum de chaque classe",
+      maxHelp:
+        "Elle vaut pour toutes les classes du cours commun ; la note de la période est ramenée au maximum de chaque classe.",
+      signBody_one:
+        "Vous certifiez ces notes. La fiche de cotes de la classe part au directeur des études et au titulaire.",
+      signBody_other:
+        "Vous certifiez ces notes. La fiche de cotes de chacune des {{count}} classes part au directeur des études et au titulaire ; il la valide classe par classe.",
+      submitted:
+        "Fiches de cotes envoyées et signées : le directeur des études et les titulaires sont avertis.",
+      hint: "Ce cours est commun à plusieurs classes : vous pouvez saisir toutes leurs notes sur une seule fiche.",
+      open: "Ouvrir la fiche commune",
+      none: "Aucun cours commun à noter ici : la fiche commune est celle de l'enseignant d'un cours donné ensemble à plusieurs classes.",
+      back: "Saisie des notes",
     },
     leave: {
       title: "Quitter sans enregistrer ?",
@@ -2900,7 +3029,53 @@ export const fr = {
       body: "Les changements de la grille de {{name}} seront perdus.",
       confirm: "Changer sans enregistrer",
     },
+    joint: {
+      title: "Cours communs",
+      subtitle: "Un même cours donné ensemble à plusieurs classes · {{year}}",
+      subtitleEmpty: "Un même cours donné ensemble à plusieurs classes",
+      noLevel:
+        "Aucun niveau n'a encore deux classes cette année : un cours commun en réunit au moins deux.",
+      levelChoice: "Niveau",
+      create: "Créer un cours commun",
+      createHelp:
+        "Relie les cours du même nom des classes choisies : un seul enseignant, une seule fiche de cotes.",
+      confirm: "Créer",
+      created: "Cours commun « {{name}} » créé.",
+      empty: "Aucun cours commun dans ce niveau.",
+      noName: "Aucun cours de ce niveau n'est donné dans deux classes : rien à réunir.",
+      open: "Ouvrir",
+      openNamed: "Ouvrir {{name}}",
+      columns: {
+        name: "Cours commun",
+        classes: "Classes",
+        teacher: "Enseignant",
+        students: "Élèves",
+        class: "Classe",
+        periodMax: "Max. période",
+        examMax: "Max. examen",
+      },
+      detail: "{{name}} · {{level}}",
+      detailHelp: "Un seul enseignant et une seule fiche de cotes pour les classes ci-dessous.",
+      teacher: "Enseignant du groupe",
+      teacherHelp:
+        "Le choix s'applique à toutes les classes du groupe. Chaque classe garde ses maxima et ses notes.",
+      saved: "Enseignant du cours commun enregistré.",
+      leave: "Sortir du groupe",
+      leaveNamed: "Sortir {{className}} du groupe",
+      leaveHint: "Sortir une classe : ses notes restent, son cours redevient seul.",
+      leaveTitle: "Sortir {{className}} du cours commun ?",
+      leaveBody: "Ses notes restent ; son cours redevient seul, avec le même enseignant.",
+      leaveLast:
+        "Ses notes restent. Il ne resterait qu'une classe : le cours commun est défait, chaque classe garde son cours et son enseignant.",
+      left: "{{className}} est sortie de « {{name}} ».",
+      dissolved: "Cours commun « {{name}} » défait : chaque classe garde son cours.",
+      course: "Cours",
+      classes: "Classes",
+      alreadyGrouped: "{{className}} (déjà dans un cours commun)",
+      withoutCourse: "{{className}} (n'a pas ce cours)",
+    },
     loads: {
+      joint: "commun",
       title: "Charges des enseignants",
       subtitle: "{{year}} · heures de cours par semaine",
       teacher: "Enseignant",
@@ -3175,6 +3350,7 @@ export const fr = {
       school: "École",
       organisation: "Organisation scolaire",
       courses: "Cours",
+      course_group: "Cours communs",
       grades: "Notes",
       discipline: "Conduite",
       application: "Application",
@@ -3257,10 +3433,15 @@ export const fr = {
       courses: {
         changed: "Cours d'une classe modifiés",
       },
+      course_group: {
+        changed: "Cours commun modifié",
+      },
       grades: {
         changed: "Notes modifiées",
         submitted: "Notes envoyées pour validation",
         validated: "Notes validées",
+        substitute_set: "Remplaçant d'un cours désigné",
+        substitute_removed: "Remplaçant d'un cours retiré",
         reopened: "Notes rouvertes",
         deadline_set: "Date limite de saisie fixée",
         reminded: "Enseignants rappelés pour leurs fiches de cotes",

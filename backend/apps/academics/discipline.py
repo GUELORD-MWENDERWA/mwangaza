@@ -6,12 +6,14 @@ Droits : `discipline.configure` (liste, seuils, annulation d'un incident), `disc
 l'instant où il est écrit ; il n'est jamais modifié ni effacé, seulement annulé (motif, auteur).
 Chaque changement va dans le journal de l'école (domaine `discipline`). La cote d'une période
 calculée d'après ces points, corrigeable avec motif (`discipline.override`, 8.5.1b), les parents
-prévenus et la ligne du bulletin.
+prévenus et la ligne du bulletin. Un incident peut être écrit sur un appareil sans réseau (HL.2) :
+il porte alors l'identifiant de l'appareil, rejoué sans doublon.
 """
 
 from dataclasses import dataclass
 from datetime import date
 from itertools import pairwise
+from uuid import UUID
 
 from django.conf import settings
 from django.db import transaction
@@ -31,6 +33,7 @@ from apps.accounts.models import User
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
+from apps.core.tenancy import use_all_schools
 from apps.notifications import events
 from apps.schools.models import Term
 from apps.students.models import Enrollment
@@ -48,6 +51,9 @@ NO_TERM = ApiError(
     "no_term", _("No period matches this date: choose the period of the offence."), 400
 )
 BAD_TERM = ApiError("bad_term", _("This period does not belong to the student's school year."), 400)
+INCIDENT_ID_TAKEN = ApiError(
+    "incident_id_taken", _("This identifier belongs to another offence."), 409
+)
 ALREADY_CANCELLED = ApiError("already_cancelled", _("This offence is already cancelled."), 409)
 BAD_GRADE = ApiError("bad_grade", _("This is not a conduct grade."), 400)
 REASON_REQUIRED = ApiError("reason_required", _("Say why the grade is corrected."), 400)
@@ -237,8 +243,16 @@ def record_incident(
     occurred_on: date,
     note: str = "",
     term: Term | None = None,
+    incident_id: UUID | None = None,
 ) -> DisciplineIncident:
-    """Attribue l'infraction à l'élève ; la période est celle de la date (ou `term`)."""
+    """Attribue l'infraction à l'élève ; la période est celle de la date (ou `term`).
+    `incident_id` : identifiant donné par l'appareil hors ligne (HL.2) ; déjà écrit pour le même
+    élève, la même infraction et le même auteur, l'incident est rendu tel quel (envoi rejoué,
+    même si l'infraction a été retirée depuis) ; pris par une autre ligne : refusé."""
+    if incident_id is not None:
+        existing = _replayed(incident_id, enrollment=enrollment, rule=rule, actor=actor)
+        if existing is not None:
+            return existing
     if not rule.is_active:
         raise BusinessError(RULE_INACTIVE)
     if enrollment.status != Enrollment.Status.ACTIVE:
@@ -248,6 +262,7 @@ def record_incident(
     period = _term_for(enrollment, occurred_on, term)
     with transaction.atomic():
         incident = DisciplineIncident.objects.create(
+            **({"id": incident_id} if incident_id else {}),
             enrollment=enrollment,
             term=period,
             rule=rule,
@@ -270,6 +285,19 @@ def record_incident(
         )
         events.incident_recorded(incident)
     return incident
+
+
+def _replayed(
+    incident_id: UUID, *, enrollment: Enrollment, rule: DisciplineRule, actor: User
+) -> DisciplineIncident | None:
+    with use_all_schools():
+        existing = DisciplineIncident.all_schools.filter(pk=incident_id).first()
+    if existing is None:
+        return None
+    same = (existing.school_id, existing.enrollment_id, existing.rule_id, existing.recorded_by_id)
+    if same != (enrollment.school_id, enrollment.pk, rule.pk, actor.pk):
+        raise BusinessError(INCIDENT_ID_TAKEN)
+    return existing
 
 
 def cancel_incident(incident: DisciplineIncident, *, actor: User, reason: str) -> None:

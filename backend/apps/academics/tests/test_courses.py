@@ -216,12 +216,18 @@ def test_teaching_loads_add_the_hours_of_the_year(api, school, alpha, head, teac
     )
     assert {c["name"] for c in loads["unassigned"]} == {"Chimie", "Atelier électrique"}
 
+    # Cours commun (8.1.2b) : les deux classes l'ont ensemble, il compte une fois (le plus long).
+    together = {"name": "Français", "class_groups": [str(alpha["a"].pk), str(alpha["b"].pk)]}
+    assert client.post("/api/course-groups/", together).status_code == 201
+    first = client.get(LOADS).json()["loads"][0]
+    assert (first["hours"], len(first["courses"])) == (5, 2)
+
     # Parti de l'école : ses cours sont à réattribuer.
     with use_school(school):
         teacher.memberships.filter(school=school).update(is_active=False)
     loads = client.get(LOADS).json()
     assert str(teacher.pk) not in {load["teacher"]["id"] for load in loads["loads"]}
-    assert (loads["unassigned_count"], loads["unassigned_hours"]) == (4, 18)
+    assert (loads["unassigned_count"], loads["unassigned_hours"]) == (4, 14)
 
 
 def test_a_new_year_with_the_classes_takes_their_courses_without_teachers(

@@ -349,27 +349,36 @@ def _row(rule: TimetableRule) -> dict:
     }
 
 
-def _lock_school() -> None:
-    """Une écriture de règle à la fois par école : plafond et groupes disjoints exacts."""
+def lock_school() -> None:
+    """Une écriture de règle à la fois par école : plafond et groupes disjoints exacts (cours
+    communs de l'onglet Notes compris, `course_groups.create_group`)."""
     School.objects.select_for_update().only("pk").get(pk=require_current_school().pk)
 
 
-def _check_groups(fields: dict, exclude: TimetableRule | None = None) -> None:
-    """Un cours n'est que dans un groupe actif (parallèles ou cours commun) : les contrôles et le
-    calcul comptent ses heures une fois."""
-    if fields["kind"] not in GROUPS or not fields["active"]:
-        return
-    mine = set(fields["params"]["courses"])
+def in_rule_group(courses: set[str], exclude: TimetableRule | None = None) -> bool:
+    """Un de ces cours est-il déjà dans une règle de groupe active (parallèles ou cours commun) ?"""
     others = TimetableRule.objects.filter(kind__in=GROUPS, active=True)
     if exclude is not None:
         others = others.exclude(pk=exclude.pk)
-    if any(mine & set(other.params.get("courses", [])) for other in others):
+    return any(courses & set(other.params.get("courses", [])) for other in others)
+
+
+def _check_groups(fields: dict, exclude: TimetableRule | None = None) -> None:
+    """Un cours n'est que dans un groupe actif (parallèles, cours commun, ou cours commun de
+    l'onglet Notes, 8.1.2b) : les contrôles et le calcul comptent ses heures une fois."""
+    if fields["kind"] not in GROUPS or not fields["active"]:
+        return
+    mine = set(fields["params"]["courses"])
+    if (
+        in_rule_group(mine, exclude)
+        or Course.objects.filter(pk__in=mine, course_group__isnull=False).exists()
+    ):
         raise BusinessError(COURSE_GROUPED)
 
 
 def create_rule(*, actor, **fields) -> TimetableRule:
     with transaction.atomic():
-        _lock_school()
+        lock_school()
         if TimetableRule.objects.count() >= RULES_LIMIT:
             raise BusinessError(TOO_MANY_RULES)
         _check_groups(fields)
@@ -381,7 +390,7 @@ def create_rule(*, actor, **fields) -> TimetableRule:
 def update_rule(rule: TimetableRule, *, actor, **fields) -> TimetableRule:
     """Toute la règle (kind compris) ; seulement ce qui change va dans le journal."""
     with transaction.atomic():
-        _lock_school()
+        lock_school()
         _check_groups(fields, exclude=rule)
         before = _row(rule)
         for key, value in fields.items():

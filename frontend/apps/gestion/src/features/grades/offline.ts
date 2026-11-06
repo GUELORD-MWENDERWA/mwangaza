@@ -6,6 +6,8 @@
 import { liveQuery } from "dexie";
 import { useEffect, useState } from "react";
 
+import { api, call } from "@mwangaza/api";
+
 import { uuidv7 } from "../../lib/ids";
 import type { LocalDb, QueuedOperation } from "../../lib/sync/db";
 import { isNetworkError, keep, kept } from "../../lib/sync/reads";
@@ -24,19 +26,24 @@ export const recall = <T>(db: LocalDb, id: string) => kept<T>(db.grades, id);
 
 export { isNetworkError };
 
-const isSheetOp = (op: QueuedOperation, course: string, term: string) =>
-  op.type === "grades.save" && op.payload.course === course && op.payload.term === term;
+const isSheetOp = (op: QueuedOperation, courses: string[], term: string) =>
+  op.type === "grades.save" &&
+  courses.includes(op.payload.course as string) &&
+  op.payload.term === term;
 
-/** Opérations de cette feuille dans la file : en attente ou envoyées pas encore reprises par la
- *  descente (la feuille de l'appareil est la plus à jour), et refusées. */
-export async function sheetQueue(db: LocalDb, course: string, term: string) {
+/** Opérations de ces feuilles (d'une période) dans la file : en attente ou envoyées pas encore
+ *  reprises par la descente (la feuille de l'appareil est la plus à jour), et refusées. */
+export async function sheetsQueue(db: LocalDb, courses: string[], term: string) {
   const all = await db.outbox.orderBy("seq").toArray();
-  const mine = all.filter((op) => isSheetOp(op, course, term));
+  const mine = all.filter((op) => isSheetOp(op, courses, term));
   return {
     waiting: mine.filter((op) => op.status !== "rejected"),
     rejected: mine.filter((op) => op.status === "rejected"),
   };
 }
+
+export const sheetQueue = (db: LocalDb, course: string, term: string) =>
+  sheetsQueue(db, [course], term);
 
 /** Enregistrement fait sur l'appareil : feuille gardée mise à jour et opération ajoutée, ensemble.
  *  Rend la feuille telle qu'elle est maintenant. */
@@ -68,23 +75,59 @@ export async function saveOffline(
   return next;
 }
 
+/** Enregistre la feuille : au serveur, ou sur l'appareil hors ligne, si le serveur ne répond pas
+ *  ou si des notes de cette feuille attendent encore d'être envoyées (l'ordre compte). `current` :
+ *  la feuille affichée ; sans elle, toujours au serveur. */
+export async function sendSave(
+  db: LocalDb | null,
+  {
+    course,
+    term,
+    current,
+    body,
+  }: { course: string; term: string; current?: Sheet; body: SaveBody },
+): Promise<Sheet> {
+  const waiting = db ? (await sheetQueue(db, course, term)).waiting.length : 0;
+  const queueIt = () => saveOffline(db!, { course, term, sheet: current!, body });
+  if (db && current && (!navigator.onLine || waiting > 0)) return queueIt();
+  try {
+    return await call(
+      api.PUT("/api/courses/{id}/terms/{term}/grades/", {
+        params: { path: { id: course, term } },
+        body,
+      }),
+    );
+  } catch (error) {
+    if (db && current && isNetworkError(error)) return queueIt();
+    throw error;
+  }
+}
+
 /** Retire de la file les refus déjà lus de cette feuille. */
 export async function dismissRejected(db: LocalDb, rejected: QueuedOperation[]) {
   await db.outbox.bulkDelete(rejected.flatMap((op) => (op.seq === undefined ? [] : [op.seq])));
 }
 
-export type SheetQueue = Awaited<ReturnType<typeof sheetQueue>>;
+export type SheetQueue = Awaited<ReturnType<typeof sheetsQueue>>;
 
-/** La file de cette feuille, relue à chaque changement. */
-export function useSheetQueue(db: LocalDb | null, course: string, term: string): SheetQueue | null {
+/** La file de ces feuilles, relue à chaque changement. */
+export function useSheetsQueue(
+  db: LocalDb | null,
+  courses: string[],
+  term: string,
+): SheetQueue | null {
   const [state, setState] = useState<SheetQueue | null>(null);
+  const list = courses.join(",");
   useEffect(() => {
     if (!db) return;
-    const subscription = liveQuery(() => sheetQueue(db, course, term)).subscribe({
+    const subscription = liveQuery(() => sheetsQueue(db, list.split(","), term)).subscribe({
       next: setState,
       error: () => setState(null),
     });
     return () => subscription.unsubscribe();
-  }, [db, course, term]);
+  }, [db, list, term]);
   return db ? state : null;
 }
+
+export const useSheetQueue = (db: LocalDb | null, course: string, term: string) =>
+  useSheetsQueue(db, [course], term);

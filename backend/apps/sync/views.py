@@ -18,6 +18,7 @@ from apps.accounts.permissions import (
     school_access,
 )
 from apps.accounts.roles import (
+    DISCIPLINE_RECORD,
     FINANCE_COLLECT_PAYMENT,
     GRADES_ENTER,
     GRADES_ENTER_ANY,
@@ -214,8 +215,8 @@ def revoke(request: Request, device: Device) -> Response:
 class SyncViewSet(viewsets.ViewSet):
     """Synchronisation hors ligne (3.3.2), seulement depuis l'appareil enregistré de la session
     (sinon 403 `device_required` ; déconnecté : 409 `device_revoked`, il efface ses données).
-    Élèves et, selon les droits, leurs finances (`services.Reader`) ; les notes (8.2.3) passent par
-    des opérations seulement."""
+    Élèves et, selon les droits, leurs finances (`services.Reader`) ; les notes (8.2.3) et les
+    infractions (HL.2) passent par des opérations seulement."""
 
     permission_classes = [HasSchoolPermission]
     required_permission = (
@@ -224,6 +225,7 @@ class SyncViewSet(viewsets.ViewSet):
         GRADES_ENTER,
         GRADES_ENTER_ANY,
         GRADES_VALIDATE,
+        DISCIPLINE_RECORD,
     )
     required_module = "offline"
 

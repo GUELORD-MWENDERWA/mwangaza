@@ -411,9 +411,9 @@ def grades_returned(state: GradeSheet, reason: str, *, sender: User | None, acto
     )
 
 
-def grades_corrected(course, term, *, count: int, actor: User) -> None:
-    """Notes d'un cours changées par quelqu'un d'autre que son enseignant (8.2.6) : une
-    notification par enregistrement, à l'enseignant du cours."""
+def grades_corrected(course, term, *, count: int, actor: User, reason: str = "") -> None:
+    """Notes d'un cours changées par quelqu'un d'autre que son enseignant (8.2.6, 8.2.5) : une
+    notification par enregistrement, à l'enseignant du cours, avec le motif s'il y en a un."""
     from apps.academics.grades import term_label
 
     label = f"{course.name} · {course.class_group.name}"
@@ -425,7 +425,7 @@ def grades_corrected(course, term, *, count: int, actor: User) -> None:
             "count": count,
             "by": _by(actor),
         }
-        return title, body
+        return title, f"{body} · {reason}" if reason else body
 
     send(
         _members(course.teacher_id).exclude(pk=actor.pk),
@@ -489,6 +489,33 @@ def course_teacher_changed(changes: list, *, actor: User) -> None:
                 url="/grades",
                 text=text,
             )
+
+
+def course_substitute(
+    course: str, substitute: User, teacher_id, *, reason: str, removed: bool, actor: User
+) -> None:
+    """Remplaçant d'un cours désigné ou retiré (8.2.5) : au remplaçant et à l'enseignant du
+    cours. `course` : son nom et sa classe (ou son niveau, pour un cours commun)."""
+
+    def text() -> tuple[str, str]:
+        if removed:
+            title = _("Substitute removed: %(course)s") % {"course": course}
+            return title, _("%(name)s · by %(by)s") % {"name": substitute, "by": _by(actor)}
+        title = _("Substitute for %(course)s") % {"course": course}
+        body = _("%(name)s · %(reason)s · by %(by)s") % {
+            "name": substitute,
+            "reason": reason,
+            "by": _by(actor),
+        }
+        return title, body
+
+    send(
+        _members(substitute.pk, teacher_id).exclude(pk=actor.pk),
+        app=App.GESTION,
+        kind=Kind.COURSE_TEACHER,
+        url="/grades",
+        text=text,
+    )
 
 
 def grades_validated(state: GradeSheet, *, actor: User) -> None:

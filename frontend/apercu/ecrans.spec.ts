@@ -71,6 +71,8 @@ async function visit(
   await shoot(page, app, name);
 }
 
+type Term = { id: string; kind: string; starts_on: string | null; children?: Term[] };
+
 async function skipGuide(page: Page) {
   const skip = page.getByRole("dialog").getByRole("button", { name: "Passer le guide" });
   if (await skip.isVisible().catch(() => false)) await skip.click().catch(() => {});
@@ -182,6 +184,17 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     for (const path of pages)
       await visit(head, `${ITIG}${path}`, "gestion", path.replace(/\//g, "-") || "accueil");
     // Fil d'une demande d'aide (SUP.1) : la première de la liste.
+    // Cours communs (8.1.2a) : la liste du niveau, le groupe ouvert.
+    await visit(head, `${ITIG}courses/joint`, "gestion", "courses-joint", async (page) => {
+      await page
+        .getByRole("button", { name: "Compris" })
+        .click({ timeout: 3_000 })
+        .catch(() => {});
+      await page
+        .getByRole("button", { name: "Ouvrir Mathématique" })
+        .click({ timeout: 10_000 })
+        .catch(() => {});
+    });
     await visit(head, `${ITIG}help/requests`, "gestion", "help-requests-fil", async (page) => {
       await page.locator('a[href*="/help/requests/"]').first().click();
       await page.waitForLoadState("networkidle").catch(() => undefined);
@@ -250,6 +263,62 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Saisie des notes (8.2.1) : l'enseignant, sur ses cours.
     const teacher = await staff(browser, "0000001008", false);
     await visit(teacher, `${ITIG}grades`, "gestion", "grades");
+    // Fiche de cotes commune (8.1.2a) : sa mathématique des 1HT Électricité A et B, 2e période.
+    await visit(teacher, `${ITIG}grades/joint`, "gestion", "grades-joint");
+    // Import des points (8.2.4) : une fiche encore ouverte de l'enseignant ; un classeur avec une
+    // note trop haute et un matricule inconnu.
+    const grading = await json<{
+      terms: Term[];
+      classes: { courses: { id: string; access: string | null }[] }[];
+    }>(teacher, "/api/grading/");
+    const today = new Date().toISOString().slice(0, 10);
+    const flat = (list: Term[]): Term[] =>
+      list.flatMap((term) => [term, ...flat(term.children ?? [])]);
+    const period = flat(grading.terms)
+      .filter((term) => term.kind === "period" && (term.starts_on ?? "") <= today)
+      .at(-1);
+    type OpenSheet = {
+      status: string;
+      evaluations: { name: string; max_score: number }[];
+      students: { matricule: string; full_name: string }[];
+    };
+    let open: { id: string; sheet: OpenSheet } | undefined;
+    for (const course of grading.classes.flatMap((g) => g.courses)) {
+      if (!period || course.access !== "notebook") continue;
+      const url = `/api/courses/${course.id}/terms/${period.id}/grades/`;
+      const sheet = await json<OpenSheet>(teacher, url);
+      if (sheet.status === "draft" && sheet.evaluations.length > 0) {
+        open = { id: course.id, sheet };
+        break;
+      }
+    }
+    if (open && period) {
+      const { sheet } = open;
+      const column = sheet.evaluations[0]!;
+      const importUrl = `${ITIG}grades/import?course=${open.id}&term=${period.id}`;
+      const noGuide = (page: Page) =>
+        page
+          .getByRole("button", { name: "Passer le guide" })
+          .click({ timeout: 3_000 })
+          .catch(() => {});
+      await visit(teacher, importUrl, "gestion", "grades-import", noGuide);
+      await visit(teacher, importUrl, "gestion", "grades-import-check", async (page) => {
+        await noGuide(page);
+        const rows = [
+          `MATRICULE;NOM;${column.name} /${column.max_score}`,
+          ...sheet.students.slice(0, 6).map((s, i) => `${s.matricule};${s.full_name};${i}`),
+          `${sheet.students[6]?.matricule ?? ""};;${column.max_score + 2}`,
+          "XX-0000;MUKE Inconnu;7",
+        ];
+        await page.getByLabel("Classeur").setInputFiles({
+          name: "points.csv",
+          mimeType: "text/csv",
+          buffer: Buffer.from(rows.join("\n")),
+        });
+        await page.getByRole("button", { name: "Contrôler" }).click();
+        await page.getByText("2. Contrôle", { exact: true }).waitFor({ timeout: 15_000 });
+      });
+    }
     // Ma classe (NB.3) : le titulaire, dans la classe qui attend une dernière fiche.
     const own = await json<{ classes: { id: string; name: string }[] }>(teacher, "/api/homeroom/");
     const titular = own.classes.find((item) => item.name === "3HT ÉLECTRICITÉ A") ?? own.classes[0];
@@ -259,6 +328,13 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     // Suivi des notes (8.2.2, NB.2) : la directrice des études (double authentification).
     const director = await staff(browser, "0000001002", true);
     await visit(director, `${ITIG}grade-validation`, "gestion", "grade-validation");
+    // Remplaçants (8.2.5) : la liste, puis la boîte « Désigner un remplaçant ».
+    const substitutes = `${ITIG}grade-validation/substitutes`;
+    await visit(director, substitutes, "gestion", "substitutes");
+    await visit(director, substitutes, "gestion", "substitutes-dialog", async (page) => {
+      await page.getByRole("button", { name: "Désigner un remplaçant" }).click();
+      await page.getByLabel(/Remplaçant/).waitFor();
+    });
     await visit(director, `${ITIG}report-cards`, "gestion", "report-cards");
     await visit(director, `${ITIG}grade-sheets`, "gestion", "grade-sheets");
     // Fiche de cotes (NB.1) : la première envoyée, lue par la directrice des études ; palmarès
@@ -283,6 +359,28 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
     );
     // Conduite (8.5.1a) : l'enseignant attribue, le directeur de discipline tient le barème.
     await visit(teacher, `${ITIG}conduct`, "gestion", "conduct");
+    // Sans réseau (HL.2) : un élève lu en ligne, une infraction en attente, annuler et corriger
+    // masqués ; le réseau revient après la capture (l'infraction part).
+    await visit(teacher, `${ITIG}conduct`, "gestion", "conduct-offline", async (page) => {
+      await skipGuide(page);
+      const student = page.getByLabel("Élève");
+      await student.locator("option").nth(1).waitFor({ state: "attached" });
+      await student.selectOption({ index: 1 });
+      // L'appareil doit avoir fini sa première synchronisation (sa base locale existe) : pas
+      // encore enregistré (aperçu d'un seul écran, juste après la connexion), capture en ligne.
+      const synced = page.getByRole("status").filter({ hasText: "En ligne · à jour" });
+      const ready = await synced.waitFor({ timeout: 20_000 }).then(
+        () => true,
+        () => false,
+      );
+      if (!ready) return;
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+      await page.context().setOffline(true);
+      await page.getByLabel("Note (facultative)").fill("Aperçu hors ligne");
+      await page.getByRole("button", { name: "Enregistrer l'infraction" }).click();
+      await page.getByText("En attente du réseau").first().waitFor();
+    });
+    await teacher.context().setOffline(false);
     const discipline = await staff(browser, "0000001003", false);
     await visit(discipline, `${ITIG}conduct-scale`, "gestion", "conduct-scale");
     // Application (8.5.1c) : le directeur des études corrige la cote de n'importe quelle classe.

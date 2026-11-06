@@ -26,7 +26,7 @@ from apps.core.errors import ApiError, BusinessError
 from apps.core.tenancy import use_all_schools, use_school
 from apps.schools.models import AcademicYear, ClassGroup
 from apps.timetable import checks, solver
-from apps.timetable.constraints import _lock_school
+from apps.timetable.constraints import lock_school
 from apps.timetable.drafts import NOT_A_DRAFT
 from apps.timetable.models import Timetable, TimetableEntry, TimetableRun
 
@@ -87,7 +87,7 @@ def request(
     # Jamais plus long que ce que la plateforme permet à l'école (console).
     time_limit = min(time_limit, timetable.school.timetable_max_seconds)
     with transaction.atomic():
-        _lock_school()
+        lock_school()
         found = TimetableRun.objects.filter(request_id=request_id).first()
         if found is not None:
             return found, False

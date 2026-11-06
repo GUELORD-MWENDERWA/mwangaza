@@ -16,6 +16,7 @@ from apps.academics.models import (
     SCORE_DECIMALS,
     SCORE_DIGITS,
     Course,
+    CourseGroup,
     Evaluation,
     GradeSheet,
 )
@@ -71,6 +72,7 @@ class CourseSerializer(serializers.ModelSerializer):
             "category",
             "weekly_hours",
             "teacher",
+            "course_group",
             "placement",
         ]
         read_only_fields = fields
@@ -201,10 +203,15 @@ class OfficialGridSerializer(serializers.Serializer):
 class LoadCourseSerializer(serializers.ModelSerializer):
     class_group = serializers.UUIDField(source="class_group_id")
     class_name = serializers.CharField(source="class_group.name")
+    course_group = serializers.UUIDField(
+        source="course_group_id",
+        allow_null=True,
+        help_text="Cours commun (8.1.2a) : ses classes ne comptent qu'une fois dans la charge.",
+    )
 
     class Meta:
         model = Course
-        fields = ["id", "name", "class_group", "class_name", "weekly_hours"]
+        fields = ["id", "name", "class_group", "class_name", "weekly_hours", "course_group"]
 
 
 class TeachingLoadSerializer(serializers.Serializer):
@@ -252,9 +259,26 @@ class GradingListCourseSerializer(GradingCourseSerializer):
         "titulaire ou cotitulaire de la classe, NB.7 ; refusé si la feuille a des devoirs) ; "
         "vide : fiche de cotes à lire seulement.",
     )
+    replacing = serializers.BooleanField(
+        help_text="Le compte remplace l'enseignant de ce cours (8.2.5) : un total par élève, sur "
+        "une feuille vide, qu'il a commencée ou déjà envoyée (sinon 403 `sheet_with_teacher`)."
+    )
+    course_group = serializers.UUIDField(
+        source="course_group_id",
+        allow_null=True,
+        read_only=True,
+        help_text="Cours commun à plusieurs classes (8.1.2a) : ses notes se saisissent aussi sur "
+        "une seule fiche, avec les autres cours du groupe.",
+    )
 
     class Meta(GradingCourseSerializer.Meta):
-        fields = [*GradingCourseSerializer.Meta.fields, "teaches", "access"]
+        fields = [
+            *GradingCourseSerializer.Meta.fields,
+            "teaches",
+            "access",
+            "replacing",
+            "course_group",
+        ]
         read_only_fields = fields
 
 
@@ -417,6 +441,51 @@ class GradeInputSerializer(serializers.Serializer):
         allow_null=True,
         help_text="Vide : la case est vidée.",
     )
+
+
+class GradeImportUploadSerializer(serializers.Serializer):
+    file = serializers.FileField(help_text="Classeur .xlsx (ou .csv) rempli avec le modèle.")
+
+
+class GradeImportColumnSerializer(serializers.Serializer):
+    evaluation_id = serializers.UUIDField()
+    name = serializers.CharField()
+    max_score = serializers.IntegerField()
+    new = serializers.BooleanField(help_text="Saisie « total » encore vide : créée avec les notes.")
+
+
+class GradeImportIssueSerializer(serializers.Serializer):
+    code = serializers.ChoiceField(
+        choices=["unknown_student", "duplicate_student", "invalid_score", "above_maximum"]
+    )
+    column = serializers.CharField(required=False, help_text="Titre de la colonne fausse.")
+    value = serializers.CharField(required=False)
+    max = serializers.IntegerField(required=False)
+    line = serializers.IntegerField(required=False, help_text="Ligne où l'élève est déjà.")
+
+
+class GradeImportLineSerializer(serializers.Serializer):
+    number = serializers.IntegerField(help_text="Numéro de la ligne dans le classeur.")
+    matricule = serializers.CharField(allow_blank=True)
+    name = serializers.CharField(allow_blank=True, help_text="Élève reconnu, ou nom du fichier.")
+    values = serializers.ListField(child=serializers.CharField(allow_blank=True))
+    enrollment_id = serializers.UUIDField(allow_null=True)
+    status = serializers.ChoiceField(choices=["ready", "skipped", "error"])
+    issues = GradeImportIssueSerializer(many=True)
+
+
+class GradeImportSerializer(serializers.Serializer):
+    """Contrôle d'un classeur (8.2.4), rien n'est écrit. Sans erreur, `evaluations` et `grades`
+    s'envoient tels quels à la saisie de la feuille (PUT), avec un motif si elle est envoyée."""
+
+    columns = GradeImportColumnSerializer(many=True)
+    lines = GradeImportLineSerializer(many=True)
+    ready_count = serializers.IntegerField()
+    skipped_count = serializers.IntegerField(help_text="Élèves sans aucune note dans le classeur.")
+    error_count = serializers.IntegerField()
+    unchanged_count = serializers.IntegerField(help_text="Notes identiques à celles de la feuille.")
+    evaluations = EvaluationInputSerializer(many=True)
+    grades = GradeInputSerializer(many=True, help_text="Cases qui changent ; vide si erreur.")
 
 
 class SheetUpdateSerializer(serializers.Serializer):
@@ -594,3 +663,75 @@ class GradeSheetPrintSerializer(PrintOptionsSerializer):
         if attrs["kind"] in ("course", "blank") and "course" not in attrs:
             raise serializers.ValidationError({"course": "Required for this kind of sheet."})
         return attrs
+
+
+class JointCourseClassSerializer(serializers.Serializer):
+    class_group = serializers.UUIDField(source="class_group_id")
+    class_name = serializers.CharField(source="class_group.name")
+    course = serializers.UUIDField(source="pk")
+    period_max = serializers.IntegerField()
+    has_exam = serializers.BooleanField()
+    students = serializers.IntegerField()
+
+
+class CourseGroupSerializer(serializers.ModelSerializer):
+    teacher = PersonSerializer(read_only=True, allow_null=True)
+    level = serializers.UUIDField(source="level_id", read_only=True)
+    academic_year = serializers.UUIDField(source="academic_year_id", read_only=True)
+    classes = JointCourseClassSerializer(source="class_courses", many=True, read_only=True)
+    students = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = CourseGroup
+        fields = ["id", "name", "academic_year", "level", "teacher", "classes", "students"]
+        read_only_fields = fields
+
+
+class CourseGroupFilterSerializer(serializers.Serializer):
+    academic_year = serializers.UUIDField(required=False)
+    level = serializers.UUIDField(required=False)
+
+
+class CourseGroupCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    class_groups = serializers.ListField(child=serializers.UUIDField(), min_length=2, max_length=12)
+    teacher_id = serializers.UUIDField(required=False, allow_null=True, default=None)
+
+
+class CourseGroupUpdateSerializer(serializers.Serializer):
+    teacher_id = serializers.UUIDField(allow_null=True)
+
+
+class CourseGroupRemoveClassSerializer(serializers.Serializer):
+    class_group = serializers.UUIDField()
+
+
+class CourseSubstituteSerializer(serializers.Serializer):
+    """Remplaçant d'un cours (8.2.5), désignation en cours."""
+
+    id = serializers.UUIDField()
+    course = serializers.UUIDField(
+        source="course_id", allow_null=True, help_text="Cours d'une classe (vide : cours commun)."
+    )
+    course_group = serializers.UUIDField(
+        source="course_group_id",
+        allow_null=True,
+        help_text="Cours commun (8.1.2a) : remplacé pour toutes ses classes.",
+    )
+    label = serializers.CharField(help_text="« Électrotechnique · 3e Électricité A ».")
+    teacher = PersonSerializer(allow_null=True, help_text="Enseignant remplacé.")
+    substitute = PersonSerializer()
+    reason = serializers.CharField()
+    since = serializers.DateField(help_text="Jour de la désignation.")
+    ends_on = serializers.DateField(allow_null=True, help_text="Dernier jour ; vide : sans fin.")
+
+
+class CourseSubstituteFilterSerializer(serializers.Serializer):
+    academic_year = serializers.UUIDField(required=False)
+
+
+class CourseSubstituteCreateSerializer(serializers.Serializer):
+    course = serializers.UUIDField(help_text="Cours remplacé ; s'il est commun, tout son groupe.")
+    substitute_id = serializers.UUIDField()
+    reason = serializers.CharField(max_length=200)
+    ends_on = serializers.DateField(required=False, allow_null=True, default=None)

@@ -82,11 +82,15 @@ class Action(models.TextChoices):
 
     # Cours de chaque classe (8.1) : grille enregistrée, copiée, ou reprise d'une autre année.
     COURSES_CHANGED = "courses.changed", _("Courses of a class changed")
+    COURSE_GROUP_CHANGED = "course_group.changed", _("Joint course changed")
     # Notes d'un cours dans une période ou des examens (8.2.1) : une entrée par enregistrement.
     GRADES_CHANGED = "grades.changed", _("Grades changed")
     # Contrôle des notes (8.2.2) : envoi, validation, réouverture, date limite de saisie.
     GRADES_SUBMITTED = "grades.submitted", _("Grades sent for validation")
     GRADES_VALIDATED = "grades.validated", _("Grades validated")
+    # Remplaçant d'un cours (8.2.5), désigné ou retiré par le directeur des études.
+    GRADES_SUBSTITUTE_SET = "grades.substitute_set", _("Course substitute designated")
+    GRADES_SUBSTITUTE_REMOVED = "grades.substitute_removed", _("Course substitute removed")
     GRADES_REOPENED = "grades.reopened", _("Grades reopened")
     GRADES_DEADLINE_SET = "grades.deadline_set", _("Grade entry deadline set")
     # Tableau du directeur des études (NB.2) : rappel des fiches pas encore envoyées.

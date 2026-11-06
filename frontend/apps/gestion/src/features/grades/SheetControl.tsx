@@ -14,7 +14,7 @@ import {
   Field,
   Input,
 } from "@mwangaza/ui";
-import { useState } from "react";
+import { type ComponentProps, useState } from "react";
 
 import type { Sheet } from "./data";
 
@@ -31,56 +31,65 @@ export function isLocked(sheet: Sheet, canValidate: boolean, today: string): boo
   return late && !sheet.reopened && !canValidate;
 }
 
+type BannerTone = NonNullable<ComponentProps<typeof Banner>["tone"]>;
+
 export function ControlBanner({
   sheet,
   locked,
   language,
   timeZone,
+  className,
 }: {
   sheet: Sheet;
   locked: boolean;
   language: string;
   timeZone: string;
+  /** Fiche commune (8.1.2a) : le message est précédé du nom de la classe. */
+  className?: string;
 }) {
   const { t } = useTranslation();
   const day = (value: string) => formatDate(value, language, timeZone);
-  if (sheet.status === "validated") {
-    return (
-      <Banner tone="ok">
-        {t("grades.control.validated", {
+  const state = ((): [BannerTone, string] | null => {
+    if (sheet.status === "validated") {
+      return [
+        "ok",
+        t("grades.control.validated", {
           date: sheet.validated_at ? day(sheet.validated_at) : "",
           name: sheet.validated_by,
-        })}
-      </Banner>
-    );
-  }
-  if (sheet.status === "submitted") {
-    return (
-      <Banner tone="info">
-        {t("grades.control.sent", {
+        }),
+      ];
+    }
+    if (sheet.status === "submitted") {
+      return [
+        "info",
+        t("grades.control.sent", {
           date: sheet.submitted_at ? day(sheet.submitted_at) : "",
           name: sheet.submitted_by,
-        })}
-      </Banner>
-    );
-  }
-  if (sheet.reopened && sheet.returned) {
-    return (
-      <Banner tone="warn">
-        {t("grades.control.returned", {
+        }),
+      ];
+    }
+    if (sheet.reopened && sheet.returned) {
+      return [
+        "warn",
+        t("grades.control.returned", {
           name: sheet.returned.by,
           date: day(sheet.returned.at),
           remarks: sheet.returned.reason,
-        })}
-      </Banner>
-    );
-  }
-  if (sheet.reopened) return <Banner tone="warn">{t("grades.control.reopened")}</Banner>;
-  if (sheet.due_on === null) return null;
-  return locked ? (
-    <Banner tone="due">{t("grades.control.closed", { date: day(sheet.due_on) })}</Banner>
-  ) : (
-    <Banner tone="info">{t("grades.control.open", { date: day(sheet.due_on) })}</Banner>
+        }),
+      ];
+    }
+    if (sheet.reopened) return ["warn", t("grades.control.reopened")];
+    if (sheet.due_on === null) return null;
+    return locked
+      ? ["due", t("grades.control.closed", { date: day(sheet.due_on) })]
+      : ["info", t("grades.control.open", { date: day(sheet.due_on) })];
+  })();
+  if (state === null) return null;
+  const [tone, text] = state;
+  return (
+    <Banner tone={tone}>
+      {className ? t("grades.joint.classState", { className, text }) : text}
+    </Banner>
   );
 }
 
@@ -91,7 +100,7 @@ export function ReasonDialog({
   onClose,
   onConfirm,
 }: {
-  kind: "edit" | "reopen";
+  kind: "edit" | "correct" | "reopen";
   pending: boolean;
   onClose: () => void;
   onConfirm: (reason: string) => void;
