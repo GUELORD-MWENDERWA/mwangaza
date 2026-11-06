@@ -314,7 +314,7 @@ function Shot({
             {t(state === "taken" ? "cards.session.state.had" : "cards.session.state.todo")}
           </StatusPill>
         </div>
-        <div className="relative mx-auto mt-3 aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-tr-2xl rounded-bl-2xl bg-[#1d2230]">
+        <div className="relative mx-auto mt-3 aspect-[4/5] w-full max-w-[420px] overflow-hidden rounded-tr-2xl rounded-bl-2xl bg-night">
           {taken ? (
             <img src={taken.url} alt="" className="h-full w-full object-cover" />
           ) : live ? (

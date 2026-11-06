@@ -22,6 +22,7 @@ const IDENTITY = {
   icon: null,
   primary_color: "#0B5FCC",
   accent_color: "#F2B632",
+  ministry_line: "Ministère de l'Enseignement",
   support_phone: "",
   support_email: "",
   legal_notice: "",
