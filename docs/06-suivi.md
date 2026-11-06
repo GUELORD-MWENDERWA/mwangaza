@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Aucun : lot 10 (carte et présences) terminé, PR #437 en relecture ; bibliothèque de lecture QR pour iPhone en attente de ta réponse (`A-FAIRE.md` 000 sexies) |
-| Prochain lot | Lot 11 ; reste du lot 4 : mesure PERF.6 |
+| Lot en cours | **Lot 11 (bibliothèque et ateliers), partie ① — maquettes faites 2026-11-06** ; lot 10 fusionné (#437) ; bibliothèque de lecture QR pour iPhone en attente de ta réponse (`A-FAIRE.md` 000 sexies) |
+| Prochain lot | Lot 12 ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #436 (lot 10) ; fiche `docs/claude/plans/lot-10.md` |
-| Branche | `lot/10-carte-presences` |
-| Dernière mise à jour | 2026-11-06 (lot 10 terminé) |
+| Issue GitHub | #438 (lot 11) ; fiche `docs/claude/plans/lot-11.md` |
+| Branche | `lot/11-bibliotheque-ateliers` |
+| Dernière mise à jour | 2026-11-06 (lot 11 démarré) |
 
 ## Avancement
 
