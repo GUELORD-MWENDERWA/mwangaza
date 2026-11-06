@@ -3,7 +3,7 @@
 **But** : chaque élève et chaque membre du personnel a une carte (QR) imprimée au nom de l'école ; à l'entrée, une tablette ou un téléphone enregistré la lit (même sans réseau) ; la direction suit présents, retards, absents, corrige au journal ; le parent est prévenu et justifie l'absence depuis le Portail. Tâches : 6.1 (#41), 6.3 (#138), 6.5 (#139), 6.6 (#51), A.5.
 
 ## Parties (une conversation chacune)
-- [ ] ① (maquettes faites le 2026-11-06) serveur : app `attendance` (carte, séance d'entrée, pointage idempotent, corrections, justifications, calcul du jour, alerte), PDF carte + planche A4, notifications d'absence — **Opus**
+- [ ] ① Serveur — Opus, en deux sous-parties : **a** carte (émission, révocation, PDF carte et planche A4) + pointage idempotent ; **b** suivi, corrections, justifications, notifications et alerte, `make demo` (maquettes faites le 2026-11-06, PR #437)
 - [ ] ② Écrans : modèle de carte et impression (sélection multiple A.5), pointage caméra / borne hors ligne, suivi et corrections, Portail (justifier) — Sonnet
 - [ ] ③ Fin du lot : Playwright hors-ligne, captures 390 / 1440, `/verifier`, tous les `.md`, aide, PR — Sonnet
 
