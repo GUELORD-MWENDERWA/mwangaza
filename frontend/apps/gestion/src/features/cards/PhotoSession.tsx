@@ -2,6 +2,7 @@
 // l'ordre de la liste ; « Garder » envoie la photo officielle (au journal) et passe au suivant. Le
 // réseau tombe : les photos attendent dans la file et partent au retour. Jamais la personne
 // elle-même : le droit `attendance.cards` suffit.
+import { signal } from "../attendance/signals";
 import { useTranslation } from "@mwangaza/i18n";
 import {
   Banner,
@@ -102,6 +103,7 @@ export function PhotoSession({ onClose }: { onClose: () => void }) {
     const marked: Record<string, Mark> = { ...marks, [current.id]: "taken" };
     setMarks(marked);
     setQueue((rest) => [...rest, { kind, id: current.id, file }]);
+    signal("saved");
     advance(cursor, marked);
   }
 

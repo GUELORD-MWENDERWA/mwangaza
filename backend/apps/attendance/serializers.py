@@ -239,6 +239,9 @@ class RosterSerializer(serializers.Serializer):
         help_text="Le format a une clé de contrôle `{C}` : un matricule tapé inconnu dont la clé "
         "est fausse est « mal tapé » (algorithme de Damm sur ses chiffres)."
     )
+    late_after = serializers.CharField(
+        help_text="Heure limite d'arrivée de l'école (HH:MM) : après, le passage est un retard."
+    )
 
 
 # Suivi (6.5)

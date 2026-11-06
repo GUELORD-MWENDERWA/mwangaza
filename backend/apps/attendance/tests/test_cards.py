@@ -200,6 +200,7 @@ def test_a_revoked_card_is_gone_from_the_roster_and_cannot_be_revoked_twice(
     hashes = {row["card_hash"] for row in before["students"]}
     assert card.token_hash in hashes
     assert before["matricule_check"] is False
+    assert before["late_after"] == "07:45"
     assert before["students"][0]["photo"].startswith(f"{PHOTOS}students/")
     # Rien à envoyer tant que rien ne change.
     assert client.get(ROSTER, version=before["version"]).json()["unchanged"] is True

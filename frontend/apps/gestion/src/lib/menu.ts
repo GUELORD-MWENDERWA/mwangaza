@@ -60,6 +60,14 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "6.1",
       },
       {
+        key: "entrance",
+        path: "entrance",
+        icon: "qr",
+        permissions: ["attendance.scan"],
+        module: "attendance",
+        task: "6.3",
+      },
+      {
         key: "courses",
         path: "courses",
         icon: "book",

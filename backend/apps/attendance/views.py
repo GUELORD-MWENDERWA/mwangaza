@@ -59,6 +59,7 @@ from apps.core.documents import XLSX, XLSX_RESPONSE, file_response
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.core.ids import uuid7
 from apps.schools import matricule
+from apps.schools.attendance import late_after
 from apps.students import services as students_services
 from apps.students.models import Student
 from apps.students.photos import image_response
@@ -245,6 +246,7 @@ class RosterView(GenericAPIView):
         after, known = params.validated_data.get("after"), params.validated_data.get("version")
         version = cards.roster_version()
         check = matricule.has_check(request.school.matricule_format)
+        limit = late_after(request.school.settings).strftime("%H:%M")
         if after is None and known == version:
             return Response(
                 {
@@ -254,6 +256,7 @@ class RosterView(GenericAPIView):
                     "staff": [],
                     "next": None,
                     "matricule_check": check,
+                    "late_after": limit,
                 }
             )
         students = cards.roster_students(after)
@@ -269,6 +272,7 @@ class RosterView(GenericAPIView):
                 ).data,
                 "next": students[-1].student_id if has_more else None,
                 "matricule_check": check,
+                "late_after": limit,
             }
         )
 

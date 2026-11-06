@@ -135,6 +135,7 @@ export const fr = {
       dashboard: "Tableau de bord",
       students: "Élèves",
       cards: "Cartes",
+      entrance: "Pointage à l'entrée",
       courses: "Cours et maxima",
       teachingLoads: "Charges des enseignants",
       timeGrid: "Grille horaire",
@@ -5530,6 +5531,58 @@ export const fr = {
       paymentsCount_other: "{{count}} paiements",
       noPayments: "Aucun paiement dans cette session.",
       cancelledPill: "Annulé",
+    },
+  },
+  entrance: {
+    title: "Pointage à l'entrée",
+    subtitle: "Ce poste · {{date}}",
+    mode: "Mode de lecture",
+    modes: { camera: "Caméra", kiosk: "Borne / matricule" },
+    noDevice:
+      "Le pointage demande un appareil enregistré (connexion avec « Mémoriser cet appareil »).",
+    noRoster:
+      "La liste des élèves n'est pas encore sur cet appareil : connectez-le une fois au réseau.",
+    keptRoster:
+      "Hors ligne : la liste gardée sur cet appareil sert au pointage ; les passages partiront au retour du réseau.",
+    ready: "Présentez la carte devant la caméra ou tapez un matricule.",
+    kpi: {
+      arrived: "Arrivés",
+      late: "En retard",
+      students: "Élèves",
+      of: "sur {{count}}",
+      staff: "Personnel",
+    },
+    recent: "Derniers passages",
+    none: "Personne n'est encore passé aujourd'hui.",
+    outcome: { arrived: "Arrivé", late: "En retard", already: "Déjà passé", refused: "Refusé" },
+    refused: {
+      unknown: "Carte ou matricule inconnu : refusé.",
+      mistyped: "Matricule mal tapé : la clé de contrôle est fausse.",
+    },
+    camera: {
+      why: "La caméra sert seulement à lire le QR des cartes ; aucune image n'est gardée.",
+      start: "Activer la caméra",
+      hint: "Présentez la carte devant la caméra",
+      denied: "Caméra refusée : autorisez-la dans le navigateur, ou utilisez la borne.",
+      unsupported:
+        "Ce navigateur ne lit pas les QR : utilisez la borne (lecteur USB) ou tapez le matricule.",
+    },
+    kiosk: {
+      label: "Lecteur USB ou matricule",
+      submit: "Valider",
+      hint: "Un lecteur USB tape le code puis Entrée ; sinon tapez le matricule de l'élève.",
+    },
+    device: {
+      title: "Cet appareil",
+      test: "Tester les signaux",
+      sound: "Son",
+      soundHint: "Haut-parleur de l'appareil ; volume du téléphone",
+      vibration: "Vibration",
+      vibrationHint: "Android seulement (l'iPhone ne la permet pas aux pages web)",
+      awake: "Écran toujours allumé",
+      awakeHint: "Pendant le pointage et la séance photo",
+      legend:
+        "1 bip aigu : arrivé · 2 notes descendantes : en retard · 2 bips courts : déjà passé · 2 bips longs : carte refusée.",
     },
   },
   cards: {

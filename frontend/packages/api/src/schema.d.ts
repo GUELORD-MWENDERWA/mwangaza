@@ -17527,6 +17527,8 @@ export interface components {
             next: string | null;
             /** @description Le format a une clé de contrôle `{C}` : un matricule tapé inconnu dont la clé est fausse est « mal tapé » (algorithme de Damm sur ses chiffres). */
             matricule_check: boolean;
+            /** @description Heure limite d'arrivée de l'école (HH:MM) : après, le passage est un retard. */
+            late_after: string;
         };
         RosterStaff: {
             /** Format: uuid */

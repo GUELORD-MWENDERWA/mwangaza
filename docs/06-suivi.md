@@ -12,7 +12,7 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #436 (lot 10) ; fiche `docs/claude/plans/lot-10.md` |
 | Branche | `lot/10-carte-presences` |
-| Dernière mise à jour | 2026-11-06 (lot 10, partie ② a2) |
+| Dernière mise à jour | 2026-11-06 (lot 10, partie ② b1) |
 
 ## Avancement
 
