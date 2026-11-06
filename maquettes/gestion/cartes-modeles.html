@@ -5,14 +5,17 @@
 <style>
 /* Cartes au format ISO/IEC 7810 ID-1 (85,60 × 53,98 mm, coins de 3,18 mm) : celui de la carte
    blanche MIFARE du kit RC522, des imprimantes à cartes et des pochettes à plastifier. Tout est
-   en millimètres : le gabarit WeasyPrint reprend ces règles telles quelles. Couleur : le bleu de
-   la plateforme (`PlatformSettings`, bleu Mwangaza) avec son relief blanc ; une école peut choisir
-   la sienne (`card.color`). Éclaircie par color-mix pour les fonds. */
+   en millimètres : le gabarit WeasyPrint reprend ces règles telles quelles.
+   Contenu d'après les cartes congolaises fournies le 2026-11-06 (ISTA/Goma, modèle EDU-NC de
+   Bondo) : lignes officielles, N° de carte, noms, naissance, sexe, cachet à cheval sur la photo,
+   signature du chef d'établissement, « Délivrée à … le … », formule aux autorités, année.
+   Couleur : bleu de la plateforme et son relief (`PlatformSettings`) ; une école peut choisir la
+   sienne (`card.color`). */
 @font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600}
 .sheet{max-width:1240px;margin:0 auto;padding:28px 16px 48px}
 .sheet h1{font-size:1.6rem;margin:0 0 4px}
 .sheet h2{font-size:1.15rem;margin:36px 0 4px}
-.sheet .lead{color:var(--ink-2);margin:0 0 12px;max-width:72ch}
+.sheet .lead{color:var(--ink-2);margin:0 0 12px;max-width:76ch}
 .pair{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;margin-top:14px}
 .pair figure{margin:0}
 .pair figcaption{font-size:.85rem;color:var(--ink-3);margin-top:8px}
@@ -22,98 +25,112 @@
 @media (max-width:599px){.zoom{zoom:1.05}.pair{gap:18px}}
 .real{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
 
-.idc{--c:#1A2F80;--relief:url(../assets/relief.svg);--on:#FFFFFF;--tint:color-mix(in srgb,var(--c) 10%,#fff);--soft:color-mix(in srgb,var(--c) 22%,#fff);
+.idc{--c:#1A2F80;--relief:url(../assets/relief.svg);--tint:color-mix(in srgb,var(--c) 9%,#fff);--soft:color-mix(in srgb,var(--c) 22%,#fff);
   position:relative;width:85.6mm;height:53.98mm;border-radius:3.18mm;overflow:hidden;background:#fff;color:#101828;
-  font-family:"Atkinson Hyperlegible Next",Arial,sans-serif;font-size:6.4pt;line-height:1.25;box-shadow:0 1px 2px rgba(16,24,40,.12),0 6px 18px rgba(16,24,40,.10);flex:none}
+  font-family:"Atkinson Hyperlegible Next",Arial,sans-serif;font-size:5.6pt;line-height:1.22;box-shadow:0 1px 2px rgba(16,24,40,.12),0 6px 18px rgba(16,24,40,.10);flex:none}
 .idc.portrait{width:53.98mm;height:85.6mm}
-/* Fond de sécurité : fines ondes à 7 %, difficiles à photocopier proprement. */
-.guil{position:absolute;inset:0;background-image:repeating-radial-gradient(circle at 110% 120%,transparent 0 1.1mm,color-mix(in srgb,var(--c) 7%,transparent) 1.1mm 1.25mm);pointer-events:none}
-.logo{width:8.6mm;height:8.6mm;border-radius:1.6mm;background:#fff;color:var(--c);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:5.6pt;letter-spacing:.02em;flex:none;box-shadow:0 0 0 .25mm rgba(255,255,255,.6)}
-.flag{width:6.6mm;height:4.4mm;flex:none;border-radius:.4mm;overflow:hidden;display:block}
-.photo{background:var(--tint);border-radius:0 2.2mm 0 2.2mm;overflow:hidden;flex:none;display:flex;align-items:flex-end;justify-content:center}
+.blue{background:var(--c) var(--relief) center/cover;color:#fff}
+/* Filigrane : le logo de l'école, très pâle, derrière les champs (copie couleur plus difficile). */
+.wm{position:absolute;width:34mm;height:34mm;opacity:.07;color:var(--c)}
+.wm svg{width:100%;height:100%}
+.logo{width:9mm;height:9mm;border-radius:1.6mm;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:5.4pt;flex:none}
+.flag{width:8mm;height:5.3mm;flex:none;display:block}
+/* En-tête officiel, comme l'en-tête des documents de l'école (lignes de ses paramètres). */
+.off{position:absolute;left:3mm;right:3mm;top:2.2mm;display:flex;align-items:center;gap:2mm}
+.off .lines{flex:1;min-width:0;text-align:center;line-height:1.16}
+.off .rdc{font-size:5.2pt;font-weight:700;color:var(--c)}
+.off .min{font-size:4.1pt;color:#344054;text-transform:uppercase;letter-spacing:.02em}
+.off .sch{font-size:6.2pt;font-weight:800;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.title{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 3mm}
+.title b{font-size:7.4pt;letter-spacing:.12em;text-transform:uppercase}
+.no{background:#fff;color:var(--c);border-radius:999px;padding:.35mm 2mm;font-weight:800;font-size:7pt;font-variant-numeric:tabular-nums}
+.photo{position:absolute;background:var(--tint);border-radius:0 1.8mm 0 1.8mm;overflow:hidden;color:var(--c);box-shadow:0 0 0 .25mm var(--soft)}
 .photo svg{width:100%;height:100%}
+/* Cachet de l'école à cheval sur la photo (pratique des cartes congolaises : une photo changée
+   casse le cachet). Ici dessiné ; en vrai, l'image du cachet de l'école (`School.stamp`). */
+.stamp{position:absolute;width:12mm;height:12mm;border-radius:50%;border:.45mm solid rgba(26,47,128,.55);color:rgba(26,47,128,.6);display:flex;align-items:center;justify-content:center;text-align:center;font-size:3.1pt;font-weight:800;line-height:1.05;transform:rotate(-14deg)}
+.stamp::before{content:"";position:absolute;inset:.9mm;border-radius:50%;border:.2mm solid rgba(26,47,128,.45)}
+.f{position:absolute;display:grid;grid-template-columns:auto minmax(0,1fr);gap:.5mm 1.6mm;font-size:5.7pt;margin:0}
+.f dt{color:#5B6475}.f dt::after{content:" :"}
+.f dd{margin:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.f .mat{font-size:6.9pt;letter-spacing:.04em;color:var(--c);font-variant-numeric:tabular-nums}
+.sig{position:absolute;text-align:center;font-size:4.3pt;color:#475467;line-height:1.1}
+.sig svg{display:block;width:15mm;height:4.6mm;margin:0 auto}
+.year{position:absolute;left:0;right:0;bottom:0;height:6.4mm;display:flex;align-items:center;justify-content:space-between;padding:0 3mm}
+.year b{font-size:6.6pt;letter-spacing:.1em;text-transform:uppercase}
+.year small{font-size:4.6pt;opacity:.88}
 .mz{display:flex;align-items:center;gap:1.2mm;font-family:"Poppins",sans-serif;font-weight:600;letter-spacing:-.03em}
 .mz i{width:3.2mm;height:3.2mm;border-radius:.9mm;background:#fff;position:relative;flex:none}
 .mz i::after{content:"";position:absolute;left:50%;top:.55mm;width:.8mm;height:.8mm;border-radius:50%;background:#FFA81E;transform:translateX(-50%)}
-.micro{font-size:2.6pt;letter-spacing:.06em;white-space:nowrap;overflow:hidden;color:color-mix(in srgb,var(--c) 70%,#fff);text-transform:uppercase}
-.sig{width:16mm;height:5mm}
 
-/* Élève, recto (paysage) */
-.st .band{position:absolute;left:0;right:0;top:0;height:14mm;background:var(--c) var(--relief) center/cover;color:var(--on);display:flex;gap:2mm;align-items:center;padding:0 3.2mm 2.2mm}
-.st .band .hl{flex:1;min-width:0}
-.st .band small{display:block;font-size:4.3pt;letter-spacing:.07em;text-transform:uppercase;opacity:.85}
-.st .band b{display:block;font-size:7.6pt;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.st .arch{position:absolute;left:-4mm;right:-4mm;top:11.4mm;height:10mm;background:#fff;border-radius:50% 50% 0 0/100% 100% 0 0}
-.st .body{position:absolute;left:3.2mm;right:3.2mm;top:14.6mm;bottom:8.4mm;display:flex;gap:3mm}
-.st .photo{width:20mm;height:25mm;margin-top:-1.4mm;box-shadow:0 0 0 .6mm #fff}
-.st .k-who{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:0}
-.k-tag{align-self:flex-start;background:var(--tint);color:var(--c);font-weight:800;font-size:4.8pt;letter-spacing:.09em;text-transform:uppercase;border-radius:1mm;padding:.5mm 1.4mm}
-.st .name{font-size:8.6pt;font-weight:800;text-transform:uppercase;margin:1.1mm 0 0;line-height:1.1}
-.st .first{font-size:7.4pt;margin-bottom:1.1mm}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:.35mm 2mm;font-size:6pt}
-.kv dt{color:#5B6475}.kv dd{margin:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kv .mat{font-size:7pt;letter-spacing:.03em;font-variant-numeric:tabular-nums;color:var(--c)}
-.st .foot{position:absolute;left:0;right:0;bottom:1.2mm;height:7.2mm;display:flex;align-items:center;justify-content:space-between;padding:0 3.2mm;border-top:.2mm solid var(--soft)}
-.st .foot .valid{font-size:5.4pt;color:#475467}.st .foot .valid b{color:#101828}
-.st .foot .signed{display:flex;align-items:center;gap:1mm;font-size:4.6pt;color:#475467;line-height:1.1;text-align:right}
-.st .foot .sig{width:12mm;height:4mm}
-.st .stripe{position:absolute;left:0;right:0;bottom:0;height:1.2mm;background:var(--c)}
+/* Élève, recto */
+.st .title{top:13.4mm;height:5.8mm}
+.st .photo{right:3mm;top:20.4mm;width:19.6mm;height:24.2mm}
+.st .stamp{right:16.6mm;top:36.4mm}
+.st .f{left:3mm;right:25.6mm;top:20.6mm}
+.st .sig{left:30mm;top:38.6mm;width:22mm}
+.st .wm{left:20mm;top:16mm}
+/* Verso (paysage) */
+.bk .qr{position:absolute;left:3mm;top:3mm;width:24mm;height:24mm;background:#fff;border:.25mm solid var(--soft);border-radius:1.4mm;padding:1.1mm}
+.bk .qrno{position:absolute;left:3mm;top:28mm;width:24mm;text-align:center;font-size:5pt;font-weight:700;color:var(--c);font-variant-numeric:tabular-nums}
+.bk .txt{position:absolute;left:30.5mm;right:3mm;top:3mm;bottom:9mm;display:flex;flex-direction:column;gap:1mm}
+.bk .del{font-size:5.6pt;font-weight:700}
+.bk .law{font-size:5.2pt;font-style:italic;color:#344054;border-left:.5mm solid var(--soft);padding-left:1.4mm}
+.bk p{margin:0;font-size:5.1pt;color:#344054}
+.bk .contact{margin-top:auto;font-size:5pt;line-height:1.3}
+.bk .bar{position:absolute;left:0;right:0;bottom:0;height:6.8mm;display:flex;align-items:center;justify-content:space-between;padding:0 3mm}
+.bk .bar .mz{font-size:6.6pt}
+.bk .bar small{font-size:4.3pt;opacity:.88;text-align:right;line-height:1.2}
 
-/* Verso commun (paysage) */
-.back .qrbox{position:absolute;left:3.2mm;top:3.2mm;width:27mm;display:flex;flex-direction:column;align-items:center;gap:.8mm}
-.back .qr{width:26mm;height:26mm;background:#fff;border:.25mm solid var(--soft);border-radius:1.4mm;padding:1.2mm}
-.back .qrbox span{font-size:5pt;color:#475467;font-variant-numeric:tabular-nums;letter-spacing:.05em}
-.back .txt{position:absolute;left:33mm;right:3.2mm;top:3.4mm;bottom:9.4mm;display:flex;flex-direction:column;gap:1mm}
-.back h4{margin:0;font-size:6.6pt;color:var(--c);text-transform:uppercase;letter-spacing:.05em}
-.back p{margin:0;font-size:5.6pt;color:#344054}
-.back .contact{margin-top:auto;font-size:5.4pt;color:#101828;line-height:1.35}
-.back .k-bar{position:absolute;left:0;right:0;bottom:0;height:7.6mm;background:var(--c) var(--relief) center/cover;color:var(--on);display:flex;align-items:center;justify-content:space-between;padding:0 3.2mm}
-.back .k-bar .mz{font-size:7pt}
-.back .k-bar small{font-size:4.4pt;opacity:.85;text-align:right;line-height:1.2}
-
-/* Personnel, recto (portrait) : fond plein de la couleur de l'école, bande « PERSONNEL ». */
-.sf{background:var(--c) var(--relief) center/cover;color:var(--on)}
-.slot{position:absolute;left:50%;top:2.6mm;width:13mm;height:3.2mm;transform:translateX(-50%);border:.25mm dashed rgba(255,255,255,.55);border-radius:1.6mm}
-.sf .hd{position:absolute;left:3mm;right:3mm;top:7.6mm;display:flex;align-items:center;gap:1.8mm}
-.sf .hd .hl{flex:1;min-width:0;line-height:1.15}
-.sf .hd small{display:block;font-size:4pt;letter-spacing:.07em;text-transform:uppercase;opacity:.85}
-.sf .hd b{display:block;font-size:6.6pt}
-.sf .kind{position:absolute;left:0;right:0;top:19.6mm;text-align:center;font-size:4.8pt;letter-spacing:.22em;text-transform:uppercase;opacity:.9}
-.sf .white{position:absolute;left:0;right:0;top:36mm;bottom:9mm;background:#fff;color:#101828;border-radius:50% 50% 0 0/9mm 9mm 0 0}
-.sf .photo{position:absolute;left:50%;top:23.6mm;width:22mm;height:27mm;transform:translateX(-50%);box-shadow:0 0 0 .8mm #fff}
-.sf .id{position:absolute;left:3mm;right:3mm;top:52.4mm;text-align:center;color:#101828}
-.sf .when{margin-top:1.6mm;font-size:5.2pt;color:#475467}.sf .when b{color:#101828}
-.sf .name{font-size:8.4pt;font-weight:800;text-transform:uppercase;line-height:1.1}
-.sf .first{font-size:7pt}
-.role{display:inline-block;margin-top:1.3mm;background:var(--tint);color:var(--c);font-weight:800;font-size:5.6pt;border-radius:1mm;padding:.6mm 1.8mm}
-.sf .kv{margin:1.8mm auto 0;width:max-content;font-size:5.4pt}
-.sf .band{position:absolute;left:0;right:0;bottom:0;height:9mm;background:#101828;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:7.4pt;letter-spacing:.32em;text-transform:uppercase}
-.sf .band::before{content:"";width:2mm;height:2mm;border-radius:50%;background:var(--c);box-shadow:0 0 0 .4mm #fff;margin-right:2mm}
-
-/* Personnel, verso (portrait) */
-.sb .slot{border-color:var(--soft)}
-.sb .qr{position:absolute;left:50%;top:9mm;width:28mm;height:28mm;transform:translateX(-50%);border:.25mm solid var(--soft);border-radius:1.4mm;padding:1.2mm;background:#fff}
-.sb .k-num{position:absolute;left:0;right:0;top:38mm;text-align:center;font-size:5pt;color:#475467;letter-spacing:.05em}
-.sb .txt{position:absolute;left:4mm;right:4mm;top:43mm;bottom:10mm;display:flex;flex-direction:column;gap:1mm;text-align:center}
-.sb h4{margin:0;font-size:6.2pt;color:var(--c);text-transform:uppercase;letter-spacing:.05em}
-.sb p{margin:0;font-size:5.3pt;color:#344054}
-.sb .signed{margin-top:auto;display:flex;flex-direction:column;align-items:center;font-size:4.6pt;color:#475467}
-.sb .k-bar{position:absolute;left:0;right:0;bottom:0;height:8mm;background:var(--c) var(--relief) center/cover;color:var(--on);display:flex;align-items:center;justify-content:center;gap:2mm}
-.sb .k-bar .mz{font-size:6.4pt}
-.sb .k-bar small{font-size:4.2pt;opacity:.85}
+/* Personnel, recto (portrait) */
+.slot{position:absolute;left:50%;top:2.4mm;width:13mm;height:3.2mm;transform:translateX(-50%);border:.25mm dashed #A9B4C4;border-radius:1.6mm}
+.sf .off{top:7.4mm;left:2.6mm;right:2.6mm;gap:1.4mm}
+.sf .logo{width:7.4mm;height:7.4mm;font-size:4.4pt}
+.sf .flag{width:6.6mm;height:4.4mm}
+.sf .off .rdc{font-size:4.5pt}.sf .off .min{font-size:3.5pt}.sf .off .sch{font-size:5.4pt}
+.sf .title{top:18.6mm;height:5.6mm;padding:0 2.6mm}
+.sf .title b{font-size:6pt;letter-spacing:.1em}
+.sf .no{font-size:6pt}
+.sf .photo{left:50%;top:26mm;width:20mm;height:24.6mm;transform:translateX(-50%)}
+.sf .stamp{left:31.4mm;top:42.4mm;width:11mm;height:11mm}
+.sf .wm{left:10mm;top:30mm}
+.sf .k-who{position:absolute;left:2.6mm;right:2.6mm;top:52.4mm;text-align:center}
+.sf .k-who b{display:block;font-size:7.6pt;font-weight:800;text-transform:uppercase;line-height:1.1}
+.sf .k-who span{display:block;font-size:6.2pt}
+.sf .k-who .role{display:inline-block;margin-top:1mm;background:var(--tint);color:var(--c);font-weight:800;font-size:5.4pt;border-radius:1mm;padding:.5mm 1.6mm}
+.sf .f{left:5mm;top:66mm;font-size:5.2pt}
+.sf .sig{left:27mm;right:2mm;top:64.6mm;width:auto}
+.sf .sig svg{width:13mm;height:4mm}
+.band{position:absolute;left:0;right:0;bottom:0;height:8.4mm;background:#101828;color:#fff;display:flex;align-items:center;justify-content:center;gap:2mm;font-weight:800;font-size:7pt;letter-spacing:.3em;text-transform:uppercase}
+.band small{font-size:4.6pt;letter-spacing:.04em;opacity:.8;font-weight:600}
+/* Personnel, verso */
+.sb .qr{position:absolute;left:50%;top:8mm;width:27mm;height:27mm;transform:translateX(-50%);border:.25mm solid var(--soft);border-radius:1.4mm;padding:1.2mm;background:#fff}
+.sb .qrno{position:absolute;left:0;right:0;top:36mm;text-align:center;font-size:5.2pt;font-weight:700;color:var(--c)}
+.sb .txt{position:absolute;left:3.6mm;right:3.6mm;top:41mm;bottom:9.6mm;display:flex;flex-direction:column;gap:1.1mm;text-align:center}
+.sb .del{font-size:5.4pt;font-weight:700}
+.sb .law{font-size:5pt;font-style:italic;color:#344054}
+.sb p{margin:0;font-size:5pt;color:#344054}
+.sb .contact{margin-top:auto;font-size:4.9pt}
+.sb .bar{position:absolute;left:0;right:0;bottom:0;height:7.6mm;display:flex;align-items:center;justify-content:center;gap:2mm}
+.sb .bar .mz{font-size:6.2pt}.sb .bar small{font-size:4.1pt;opacity:.88}
 
 .legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin-top:18px}
 .legend div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:.88rem}
 .legend b{display:block;margin-bottom:2px}
+.fields{margin-top:28px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.fields .grid2{display:grid;gap:8px 24px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));margin-top:8px}
+.fields label{display:flex;gap:10px;align-items:center;font-size:.92rem}
+.fields input{width:18px;height:18px;accent-color:var(--lake);flex:none}
 </style></head>
 <body>
 <main class="sheet">
   <h1>Cartes de l'école</h1>
-  <p class="lead">Format ID-1, 85,6 × 54 mm, le même que la carte MIFARE du kit RC522. Élève en largeur, personnel en hauteur (portée au cordon) : on les distingue à trois mètres. Bleu Mwangaza et son motif en relief ; logo, nom, textes et signature viennent des paramètres de l'école (qui peut aussi choisir sa couleur).</p>
+  <p class="lead">Format ID-1, 85,6 × 54 mm, celui de la carte MIFARE du kit RC522. Contenu d'après les cartes congolaises : en-tête officiel, N° de carte, noms, naissance, cachet sur la photo, signature, « Délivrée à … le … », formule aux autorités. Bleu Mwangaza et son relief ; élève en largeur, personnel en hauteur.</p>
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <symbol id="silhouette" viewBox="0 0 84 104"><rect width="84" height="104" fill="none"/><circle cx="42" cy="38" r="17" fill="currentColor" opacity=".35"/><path d="M8 104c2-22 16-34 34-34s32 12 34 34z" fill="currentColor" opacity=".35"/></symbol>
+      <symbol id="silhouette" viewBox="0 0 84 104"><circle cx="42" cy="38" r="17" fill="currentColor" opacity=".35"/><path d="M8 104c2-22 16-34 34-34s32 12 34 34z" fill="currentColor" opacity=".35"/></symbol>
+      <symbol id="crest" viewBox="0 0 64 64"><path d="M32 3 56 12v18c0 15-10 26-24 31C18 56 8 45 8 30V12z" fill="none" stroke="currentColor" stroke-width="3"/><path d="M18 44 28 26l7 10 5-6 8 14z" fill="currentColor"/><circle cx="40" cy="20" r="4" fill="currentColor"/></symbol>
       <symbol id="drc" viewBox="0 0 30 20"><rect width="30" height="20" fill="#00A3E0"/><polygon points="0,16.6 24.9,0 30,0 30,3.4 5.1,20 0,20" fill="#F7D618"/><polygon points="0,17.8 26.7,0 30,0 30,2.2 3.3,20 0,20" fill="#CE1021"/><polygon points="6,2.4 6.9,4.7 9.4,4.8 7.4,6.3 8.1,8.7 6,7.3 3.9,8.7 4.6,6.3 2.6,4.8 5.1,4.7" fill="#F7D618"/></symbol>
       <symbol id="qr" viewBox="0 0 29 29"><path fill="#101828" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM22 0h7v7h-7zM23 1v5h5V1zM24 2h3v3h-3zM0 22h7v7H0zM1 23v5h5v-5zM2 24h3v3H2zM9 0h2v2H9zM12 1h3v2h-3zM16 0h2v3h-2zM19 2h2v2h-2zM9 4h2v3H9zM13 4h2v2h-2zM17 5h3v2h-3zM0 9h3v2H0zM4 9h2v2H4zM8 9h4v2H8zM14 8h2v3h-2zM18 9h2v2h-2zM22 9h3v2h-3zM26 9h3v2h-3zM2 12h2v3H2zM6 13h3v2H6zM10 12h2v2h-2zM13 13h4v2h-4zM19 12h2v3h-2zM23 12h2v2h-2zM27 13h2v3h-2zM0 16h2v2H0zM4 17h2v2H4zM8 16h3v2H8zM12 17h2v3h-2zM16 16h2v2h-2zM20 17h3v2h-3zM25 16h2v2h-2zM9 20h2v3H9zM13 21h3v2h-3zM17 20h2v2h-2zM21 21h2v2h-2zM24 20h3v3h-3zM28 21h1v3h-1zM9 25h3v2H9zM14 24h2v3h-2zM18 25h3v2h-3zM22 26h2v3h-2zM26 25h3v2h-3zM10 28h4v1h-4zM16 28h2v1h-2z"/></symbol>
       <symbol id="signature" viewBox="0 0 64 20"><path d="M2 14c6-9 9-11 10-6s-3 9 2 5 7-12 9-8-2 10 3 6 5-7 8-5 2 6 6 3 6-5 10-4 6 3 12-2" fill="none" stroke="#14245F" stroke-width="1.4" stroke-linecap="round"/></symbol>
@@ -121,108 +138,115 @@
   </svg>
 
   <h2>Carte d'élève</h2>
-  <p class="lead">Recto : qui est l'élève, pour cette année. Verso : le QR (jeton secret) et quoi faire si on la trouve. Le matricule est en grand : on le tape à la porte quand la carte est oubliée.</p>
+  <p class="lead">Recto : l'en-tête officiel, le N° de carte, l'identité, la classe et le matricule en grand (tapé à la porte quand la carte est oubliée), le cachet à cheval sur la photo, la signature, l'année. Verso : le QR secret, la délivrance, la formule aux autorités, le contact de l'école.</p>
   <div class="pair zoom">
     <figure>
       <div class="idc st">
-        <div class="guil"></div>
-        <div class="band"><span class="logo">ITIG</span><div class="hl"><small>République démocratique du Congo · EPST</small><b>ITIG Don Bosco Goma</b></div><svg class="flag"><use href="#drc"/></svg></div>
-        <div class="arch"></div>
-        <div class="body">
-          <div class="photo" style="color:var(--c)"><svg><use href="#silhouette"/></svg></div>
-          <div class="k-who">
-            <span class="k-tag">Carte d'élève · 2026-2027</span>
-            <div class="name">Kambale Muhindo</div>
-            <div class="first">Josué</div>
-            <dl class="kv"><dt>Classe</dt><dd>3HT Électricité A</dd><dt>Matricule</dt><dd class="mat">ITIG-2026-0042</dd><dt>Né le</dt><dd>14/03/2010</dd></dl>
-          </div>
-        </div>
-        <div class="foot"><span class="valid">Valable jusqu'au <b>31/08/2027</b></span><span class="signed">Le Préfet<br>des études<svg class="sig"><use href="#signature"/></svg></span></div>
-        <div class="stripe"></div>
+        <div class="wm"><svg><use href="#crest"/></svg></div>
+        <div class="off"><span class="logo">ITIG</span><div class="lines"><div class="rdc">République Démocratique du Congo</div><div class="min">Ministère de l'Éducation nationale et Nouvelle citoyenneté</div><div class="min">Proved Nord-Kivu 1 · S/Div. Goma</div><div class="sch">ITIG Don Bosco Goma</div></div><svg class="flag"><use href="#drc"/></svg></div>
+        <div class="title blue"><b>Carte d'élève</b><span class="no">N° 0303</span></div>
+        <dl class="f"><dt>Noms</dt><dd>KAMBALE MUHINDO Josué</dd><dt>Né à</dt><dd>Goma, le 14/03/2010</dd><dt>Sexe</dt><dd>M</dd><dt>Classe</dt><dd>3HT Électricité A</dd><dt>Matricule</dt><dd class="mat">ITIG-26-0042-7</dd></dl>
+        <div class="photo"><svg><use href="#silhouette"/></svg></div>
+        <div class="stamp">ITIG<br>DON BOSCO<br>GOMA</div>
+        <div class="sig"><svg><use href="#signature"/></svg>Le Préfet des études</div>
+        <div class="year blue"><b>Année scolaire 2026-2027</b><small>Valable jusqu'au 31/08/2027</small></div>
       </div>
       <figcaption>Recto</figcaption>
     </figure>
     <figure>
-      <div class="idc back">
-        <div class="guil"></div>
-        <div class="qrbox"><svg class="qr"><use href="#qr"/></svg><span>Carte N° •••• 7F3A</span></div>
+      <div class="idc bk">
+        <svg class="qr"><use href="#qr"/></svg>
+        <div class="qrno">N° 0303</div>
         <div class="txt">
-          <h4>Carte personnelle</h4>
-          <p>Elle est présentée à l'entrée et à la caisse. Elle ne se prête pas. Perdue : la signaler au secrétariat, elle sera bloquée et remplacée.</p>
-          <h4>Vous l'avez trouvée ?</h4>
-          <p>Rapportez-la à l'école ou appelez le numéro ci-dessous.</p>
-          <div class="contact"><b>ITIG Don Bosco Goma</b><br>Av. de la Paix, Q. Himbi, Goma<br>+243 99 000 0000 · itig-demo.mwangazaschool.com</div>
+          <div class="del">Délivrée à Goma, le 06/11/2026</div>
+          <div class="law">Les autorités tant civiles, militaires que policières sont priées d'apporter leur assistance au porteur de la présente carte.</div>
+          <p>Carte personnelle, demandée à l'entrée et à la caisse. Perdue : la signaler au secrétariat, elle sera bloquée. Trouvée : la rapporter à l'école.</p>
+          <div class="contact"><b>ITIG Don Bosco Goma</b> · Av. de la Paix, Q. Himbi, Goma<br>+243 99 000 0000 · itig-demo.mwangazaschool.com</div>
         </div>
-        <div class="k-bar"><span class="mz"><i></i>mwangaza</span><small>Carte émise avec Mwangaza<br>Gestion scolaire</small></div>
+        <div class="bar blue"><span class="mz"><i></i>mwangaza</span><small>Carte émise avec Mwangaza<br>Gestion scolaire</small></div>
       </div>
       <figcaption>Verso</figcaption>
     </figure>
   </div>
 
   <h2>Carte du personnel</h2>
-  <p class="lead">Fond bleu plein avec le relief, bande sombre « Personnel » et fonction en clair : l'enseignant ne se confond jamais avec un élève. Le haut reste vide pour la fente du cordon.</p>
+  <p class="lead">En hauteur, portée au cordon (7 mm libres en haut pour la fente), bande sombre « Personnel » : elle ne se confond jamais avec une carte d'élève. Fonction en clair, matricule de l'agent quand il existe (lot 12).</p>
   <div class="pair zoom">
     <figure>
       <div class="idc portrait sf">
         <div class="slot"></div>
-        <div class="hd"><span class="logo">ITIG</span><div class="hl"><small>RD Congo · EPST</small><b>ITIG Don Bosco Goma</b></div><svg class="flag"><use href="#drc"/></svg></div>
-        <div class="kind">Carte de service</div>
-        <div class="white"></div>
-        <div class="photo" style="color:var(--c)"><svg><use href="#silhouette"/></svg></div>
-        <div class="id">
-          <div class="name">Kavira Masika</div>
-          <div class="first">Furaha</div>
-          <span class="role">Enseignante · Mathématiques</span>
-          <div class="when">2026-2027 · valable jusqu'au <b>31/08/2027</b></div>
-        </div>
-        <div class="band">Personnel</div>
+        <div class="off"><span class="logo">ITIG</span><div class="lines"><div class="rdc">République Démocratique du Congo</div><div class="min">Min. Éducation nationale et Nouvelle citoyenneté</div><div class="sch">ITIG Don Bosco Goma</div></div><svg class="flag"><use href="#drc"/></svg></div>
+        <div class="title blue"><b>Carte de service</b><span class="no">N° 0012</span></div>
+        <div class="wm"><svg><use href="#crest"/></svg></div>
+        <div class="photo"><svg><use href="#silhouette"/></svg></div>
+        <div class="stamp">ITIG<br>DON BOSCO<br>GOMA</div>
+        <div class="k-who"><b>Kavira Masika</b><span>Furaha</span><span class="role">Enseignante · Mathématiques</span></div>
+        <dl class="f"><dt>Sexe</dt><dd>F</dd><dt>Agent</dt><dd>1-234-567</dd></dl>
+        <div class="sig"><svg><use href="#signature"/></svg>Le Préfet</div>
+        <div class="band">Personnel <small>2026-2027</small></div>
       </div>
       <figcaption>Recto</figcaption>
     </figure>
     <figure>
       <div class="idc portrait sb">
-        <div class="guil"></div>
         <div class="slot"></div>
         <svg class="qr"><use href="#qr"/></svg>
-        <div class="k-num">Carte N° •••• 2C9D</div>
+        <div class="qrno">N° 0012</div>
         <div class="txt">
-          <h4>Carte de service</h4>
-          <p>Elle donne accès à l'école et sert au pointage du personnel. Perdue : la signaler à la direction, elle sera bloquée.</p>
-          <p><b>ITIG Don Bosco Goma</b><br>Av. de la Paix, Q. Himbi, Goma<br>+243 99 000 0000</p>
-          <span class="signed"><svg class="sig"><use href="#signature"/></svg>Le Préfet des études</span>
+          <div class="del">Délivrée à Goma, le 06/11/2026</div>
+          <div class="law">Les autorités tant civiles, militaires que policières sont priées d'apporter leur assistance au porteur de la présente carte.</div>
+          <p>Carte de service : accès à l'école et pointage du personnel. Perdue : la signaler à la direction.</p>
+          <div class="contact"><b>ITIG Don Bosco Goma</b><br>Av. de la Paix, Q. Himbi, Goma · +243 99 000 0000</div>
         </div>
-        <div class="k-bar"><span class="mz"><i></i>mwangaza</span><small>Carte émise avec Mwangaza</small></div>
+        <div class="bar blue"><span class="mz"><i></i>mwangaza</span><small>Carte émise avec Mwangaza</small></div>
       </div>
       <figcaption>Verso</figcaption>
     </figure>
+  </div>
+
+  <div class="fields">
+    <b>Ce que l'école choisit d'imprimer</b> <span class="small muted">(Cartes › Modèle de carte ; cochés : valeurs par défaut)</span>
+    <div class="grid2">
+      <label><input type="checkbox" checked disabled>Noms, classe, matricule, N° de carte, année (toujours)</label>
+      <label><input type="checkbox" checked>Lieu et date de naissance</label>
+      <label><input type="checkbox" checked>Sexe</label>
+      <label><input type="checkbox">Nationalité</label>
+      <label><input type="checkbox">N° d'identification national de l'élève</label>
+      <label><input type="checkbox">Téléphone du responsable (au verso)</label>
+      <label><input type="checkbox">Adresse de l'élève</label>
+      <label><input type="checkbox" checked>Formule aux autorités (texte modifiable)</label>
+      <label><input type="checkbox" checked>Pas de carte sans photo officielle</label>
+    </div>
   </div>
 
   <h2>Taille réelle</h2>
   <p class="lead">Sur un écran réglé à 96 points par pouce, ces cartes ont leur taille d'impression.</p>
   <div class="real">
     <div class="idc st">
-      <div class="band"><span class="logo">IV</span><div class="hl"><small>République démocratique du Congo · EPST</small><b>Institut Les Volcans</b></div><svg class="flag"><use href="#drc"/></svg></div>
-      <div class="arch"></div>
-      <div class="body"><div class="photo" style="color:var(--c)"><svg><use href="#silhouette"/></svg></div><div class="k-who"><span class="k-tag">Carte d'élève · 2026-2027</span><div class="name">Mapendo Rukara</div><div class="first">Amina</div><dl class="kv"><dt>Classe</dt><dd>6e Pédagogie B</dd><dt>Matricule</dt><dd class="mat">VOL-26-0117</dd></dl></div></div>
-      <div class="foot"><span class="valid">Valable jusqu'au <b>31/08/2027</b></span><span class="signed">Le Préfet<svg class="sig"><use href="#signature"/></svg></span></div>
-      <div class="stripe"></div>
+      <div class="off"><span class="logo">IV</span><div class="lines"><div class="rdc">République Démocratique du Congo</div><div class="min">Ministère de l'Éducation nationale et Nouvelle citoyenneté</div><div class="sch">Institut Les Volcans</div></div><svg class="flag"><use href="#drc"/></svg></div>
+      <div class="title blue"><b>Carte d'élève</b><span class="no">N° 0117</span></div>
+      <dl class="f"><dt>Noms</dt><dd>MAPENDO RUKARA Amina</dd><dt>Née à</dt><dd>Goma, le 02/07/2009</dd><dt>Sexe</dt><dd>F</dd><dt>Classe</dt><dd>6e Pédagogie B</dd><dt>Matricule</dt><dd class="mat">VOL-26-0117-3</dd></dl>
+      <div class="photo"><svg><use href="#silhouette"/></svg></div>
+      <div class="stamp">LES<br>VOLCANS</div>
+      <div class="sig"><svg><use href="#signature"/></svg>Le Préfet</div>
+      <div class="year blue"><b>Année scolaire 2026-2027</b><small>Valable jusqu'au 31/08/2027</small></div>
     </div>
     <div class="idc portrait sf">
       <div class="slot"></div>
-      <div class="hd"><span class="logo">IV</span><div class="hl"><small>RD Congo · EPST</small><b>Institut Les Volcans</b></div></div>
-      <div class="kind">Carte de service</div><div class="white"></div>
-      <div class="photo" style="color:var(--c)"><svg><use href="#silhouette"/></svg></div>
-      <div class="id"><div class="name">Bahati Mugisho</div><div class="first">Patrick</div><span class="role">Comptable</span><div class="when">2026-2027 · valable jusqu'au <b>31/08/2027</b></div></div>
-      <div class="band">Personnel</div>
+      <div class="off"><span class="logo">IV</span><div class="lines"><div class="rdc">République Démocratique du Congo</div><div class="sch">Institut Les Volcans</div></div><svg class="flag"><use href="#drc"/></svg></div>
+      <div class="title blue"><b>Carte de service</b><span class="no">N° 0031</span></div>
+      <div class="photo"><svg><use href="#silhouette"/></svg></div>
+      <div class="k-who"><b>Bahati Mugisho</b><span>Patrick</span><span class="role">Comptable</span></div>
+      <div class="band">Personnel <small>2026-2027</small></div>
     </div>
   </div>
 
   <div class="legend">
-    <div><b>Photo officielle</b>Prise et changée seulement au secrétariat (droit dédié, au journal). Ni l'élève, ni le parent, ni l'agent ne la changent depuis « Mon compte » ou le Portail.</div>
-    <div><b>Anti-fraude</b>Le QR ne porte qu'un jeton secret ; à la porte, la tablette montre la photo officielle et le nom : une photo collée sur une carte volée se voit.</div>
-    <div><b>Impression</b>Imprimante à cartes (une face par page) ou planche A4 à découper et plastifier ; la carte MIFARE du kit reçoit l'autocollant ou l'impression directe.</div>
+    <div><b>Photo officielle</b>Prise et changée seulement par l'école (séance photo, droit dédié, au journal). Ni l'élève, ni le parent, ni l'agent ne la changent depuis « Mon compte » ou le Portail ; le cachet à cheval sur la photo trahit une photo collée.</div>
+    <div><b>Anti-fraude</b>Le QR ne porte qu'un jeton secret ; à la porte, la tablette montre la photo officielle et le nom. Filigrane du logo, N° de carte inscrit au registre des cartes délivrées.</div>
+    <div><b>Impression</b>Imprimante à cartes (une face par page) ou planche A4 de 10 à découper et plastifier ; la carte MIFARE du kit reçoit l'impression directe ou l'autocollant.</div>
   </div>
 
-  <div class="note">Règles : format ID-1 85,6 × 53,98 mm, coins 3,18 mm, marges intérieures ≥ 3 mm ; élève en paysage, personnel en portrait avec 7 mm libres en haut (fente) ; bleu de la plateforme et son relief blanc (une école peut choisir sa couleur, `card.color`), éclairci pour les fonds ; une carte n'est émise qu'avec la photo officielle si l'école l'exige (`card.require_photo`, oui par défaut) : sinon, séance photo de la classe ; texte jamais sous 4 pt ; matricule en grand ; pas de téléphone du parent ni d'adresse de l'élève sur la carte (carte perdue = données lues par n'importe qui) : seul le contact de l'école ; date de naissance seulement si l'école le choisit (paramètre) ; mention « Carte émise avec Mwangaza » au verso, discrète ; la fonction du personnel vient de sa fiche (`Membership.title`), sinon de son premier rôle.</div>
+  <div class="note">Règles : format ID-1 85,6 × 53,98 mm, coins 3,18 mm, marges ≥ 3 mm ; élève en paysage, personnel en portrait avec 7 mm libres en haut ; en-tête officiel tiré des paramètres de l'école (République, ministère, PROVED et sous-division = lignes d'en-tête de ses documents ; ministère actuel « Éducation nationale et Nouvelle citoyenneté », plus « EPST ») ; N° de carte séquentiel par école (`IdCard.number`, registre des cartes délivrées), jamais le jeton ; matricule avec clé de contrôle (MAT.1) ; champs choisis par l'école (`card.fields`) ; « Délivrée à {ville}, le {date d'émission} » ; formule aux autorités par défaut, texte modifiable ; cachet de l'école (`School.stamp`) à cheval sur le coin de la photo, signature et titre du chef d'établissement (`head_signature`) ; bleu de la plateforme et son relief, ou couleur choisie par l'école (`card.color`) ; pas de carte sans photo si `card.require_photo` ; téléphone du responsable et adresse de l'élève décochés par défaut (carte perdue = lue par n'importe qui) ; « Carte émise avec Mwangaza » au verso.</div>
 </main>
 </body></html>
