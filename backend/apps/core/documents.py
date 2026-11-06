@@ -143,6 +143,7 @@ def school_header(school: School) -> dict:
                 kind = logo_kind(file)
         except OSError:
             kind = None
+    platform = PlatformSettings.load()
     return {
         "school_name": school.official_name or school.name,
         "school_code": school.code,
@@ -151,7 +152,9 @@ def school_header(school: School) -> dict:
         ],
         "logo": data_uri(school.logo, kind, LOGO_TYPES),
         # Ministère de tutelle : réglé par la plateforme (son nom change avec les gouvernements).
-        "ministry": PlatformSettings.load().ministry_line,
+        "ministry": platform.ministry_line,
+        # Lue une seule fois par document : `render` la reprend de là.
+        "platform": platform,
         "printed_at": timezone.localtime(),
         **signatures.signature_context(school),
     }
@@ -174,7 +177,7 @@ def render(
     # Les polices ne vont dans le HTML que pour l'aperçu du navigateur ; le PDF les reçoit à part.
     preview = output == "html"
     shared = {
-        "platform": PlatformSettings.load(),
+        "platform": context.get("platform") or PlatformSettings.load(),
         "print_fonts": print_fonts() if preview else "",
         "serif_fonts": serif_fonts() if preview else "",
         **options,
