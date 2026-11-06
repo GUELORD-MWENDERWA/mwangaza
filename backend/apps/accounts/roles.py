@@ -66,6 +66,8 @@ SENSITIVE_PERMISSIONS = frozenset(
 
 # Paramètres de l'école : nom, logo, couleur, devises, fuseau (M5).
 SCHOOL_CONFIGURE = "school.configure"
+# Se servir de l'IA dans les écrans qui la proposent (IA.1.1).
+AI_USE = "ai.use"
 # Organisation scolaire : années, découpage, niveaux, options, classes, matricule (C1-C3).
 CLASSES_MANAGE = "classes.manage"
 # Cours de chaque classe : maxima, heures, enseignants (8.1).

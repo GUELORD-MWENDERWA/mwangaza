@@ -58,3 +58,14 @@ def complete(
         cache_read_tokens=getattr(usage, "cache_read_input_tokens", 0) or 0,
         cache_write_tokens=getattr(usage, "cache_creation_input_tokens", 0) or 0,
     )
+
+
+def count_tokens(*, model: str, system: str, messages: list[dict]) -> int:
+    """Jetons d'entrée exacts d'une demande (PDF ou photo compris), sans la faire : l'API ne
+    facture pas ce comptage. Sert à refuser un fichier trop gros avant de payer l'appel."""
+    if not settings.ANTHROPIC_API_KEY:
+        raise NotConfigured
+    import anthropic
+
+    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY, timeout=30, max_retries=1)
+    return client.messages.count_tokens(model=model, system=system, messages=messages).input_tokens

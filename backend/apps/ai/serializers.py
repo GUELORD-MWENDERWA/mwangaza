@@ -3,6 +3,7 @@ micro-dollars entiers, crédits en entiers."""
 
 from rest_framework import serializers
 
+from apps.ai import drafting
 from apps.ai.models import AiCall
 
 
@@ -14,6 +15,9 @@ class AiUseRowSerializer(serializers.Serializer):
     model = serializers.CharField()
     max_input_tokens = serializers.IntegerField()
     max_output_tokens = serializers.IntegerField()
+    daily_limit = serializers.IntegerField(
+        allow_null=True, help_text="Demandes par personne et par jour ; vide : sans limite."
+    )
     changed = serializers.BooleanField()
     calls = serializers.IntegerField()
     kept_percent = serializers.IntegerField(allow_null=True)
@@ -85,6 +89,9 @@ class AiUseChangeSerializer(serializers.Serializer):
     model = serializers.CharField(required=False, allow_null=True, max_length=60)
     max_input_tokens = serializers.IntegerField(required=False, allow_null=True)
     max_output_tokens = serializers.IntegerField(required=False, allow_null=True)
+    daily_limit = serializers.IntegerField(
+        required=False, allow_null=True, min_value=1, max_value=500
+    )
 
 
 class AiPriceChangeSerializer(serializers.Serializer):
@@ -146,3 +153,111 @@ class AiCreditsSerializer(serializers.Serializer):
     remaining_credits = serializers.IntegerField()
     blocked = serializers.CharField()
     uses = AiCreditUseSerializer(many=True)
+
+
+# IA dans l'école (IA.3, IA.4, IA.5) : demande, puis état de l'appel et sa réponse.
+
+
+class _CallSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    state = serializers.CharField(
+        help_text="queued, running, done, error, refused, kept, abandoned."
+    )
+    refusal = serializers.CharField(allow_blank=True, help_text="Code du refus ou de l'erreur.")
+
+
+class CourseGridAskSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField(help_text="Fabriqué par l'écran : un clic, un appel.")
+    file = serializers.FileField(help_text="PDF (3 pages au plus) ou photo JPEG / PNG.")
+
+
+class GridCourseSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    domain = serializers.CharField(allow_blank=True)
+    period_max = serializers.IntegerField()
+    has_exam = serializers.BooleanField()
+    category = serializers.CharField()
+    doubtful = serializers.BooleanField(help_text="Peu lisible : à vérifier.")
+
+
+class SkippedSerializer(serializers.Serializer):
+    name = serializers.CharField(allow_blank=True)
+    reason = serializers.CharField(allow_blank=True)
+
+
+class GridProposalSerializer(serializers.Serializer):
+    courses = GridCourseSerializer(many=True)
+    skipped = SkippedSerializer(many=True)
+
+
+class CourseGridCallSerializer(_CallSerializer):
+    proposal = GridProposalSerializer(allow_null=True)
+
+
+class DraftAskSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField()
+    kind = serializers.ChoiceField(choices=drafting.KINDS)
+    tone = serializers.ChoiceField(choices=["formal", "simple"], default="formal")
+    brief = serializers.CharField(max_length=600, trim_whitespace=True)
+
+
+class AiDraftSerializer(serializers.Serializer):
+    title = serializers.CharField(allow_blank=True)
+    body = serializers.CharField(allow_blank=True)
+
+
+class DraftCallSerializer(_CallSerializer):
+    draft = AiDraftSerializer(allow_null=True)
+
+
+class KeepSerializer(serializers.Serializer):
+    kept = serializers.BooleanField(help_text="Vrai : mis dans l'écran ; faux : laissé.")
+
+
+class QuestionAskSerializer(serializers.Serializer):
+    request_id = serializers.UUIDField()
+    question = serializers.CharField(max_length=300, trim_whitespace=True)
+    history = serializers.ListField(
+        child=serializers.CharField(max_length=300),
+        max_length=3,
+        required=False,
+        help_text="Les questions d'avant de la conversation (gardée dans le navigateur).",
+    )
+
+
+class AmountSerializer(serializers.Serializer):
+    currency = serializers.CharField()
+    amount_minor = serializers.IntegerField()
+
+
+class LoadRowSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    hours = serializers.IntegerField()
+    courses = serializers.IntegerField()
+
+
+class FiguresSerializer(serializers.Serializer):
+    """Chiffres calculés par l'application ; seuls ceux de la requête sont présents."""
+
+    class_group = serializers.CharField(allow_null=True, required=False)
+    period = serializers.CharField(required=False)
+    count = serializers.IntegerField(required=False)
+    girls = serializers.IntegerField(required=False)
+    boys = serializers.IntegerField(required=False)
+    amounts = AmountSerializer(many=True, required=False)
+    rows = LoadRowSerializer(many=True, required=False)
+    link = serializers.CharField(help_text="Écran d'où vient la réponse.")
+
+
+class AnswerSerializer(serializers.Serializer):
+    intent = serializers.ChoiceField(
+        choices=["unpaid", "collected", "headcount", "teacher_load", "unknown"]
+    )
+    status = serializers.ChoiceField(
+        choices=["answered", "not_understood", "forbidden", "not_available"]
+    )
+    figures = FiguresSerializer(required=False)
+
+
+class QuestionCallSerializer(_CallSerializer):
+    answer = AnswerSerializer(allow_null=True)

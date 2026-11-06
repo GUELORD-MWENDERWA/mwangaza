@@ -6,11 +6,14 @@ Rien n'est appelé sans le clic d'une personne. Un refus ne coûte rien (aucun a
 dit pourquoi. Le texte de la demande passe par la file de tâches et n'est écrit nulle part ;
 `AiCall` ne garde que les jetons et le coût, en micro-dollars (entiers)."""
 
+import base64
 import logging
 from dataclasses import dataclass
 from datetime import date, timedelta
 
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.db import IntegrityError, transaction
 from django.db.models import F
 from django.utils import timezone, translation
@@ -38,6 +41,7 @@ logger = logging.getLogger(__name__)
 State = AiCall.State
 KEEP_DAYS = 90
 RESULT_HOURS = 24
+UPLOADS = "ai-uploads"  # fichiers privés (jamais servis), le temps d'un appel
 ALERT_AT = 80  # pour cent
 
 # Un refus par verrou ; le code est stable, l'interface affiche son texte.
@@ -61,6 +65,12 @@ AI_RATE_LIMITED = ApiError(
 )
 AI_TOO_LARGE = ApiError(
     "ai_too_large", gettext_lazy("The request is too large for this AI use."), 413
+)
+AI_NOT_READY = ApiError(
+    "ai_not_ready", gettext_lazy("The answer is not ready, or was already used."), 409
+)
+AI_DAILY_LIMIT = ApiError(
+    "ai_daily_limit", gettext_lazy("You have reached today's limit for this AI use."), 429
 )
 AI_CONFLICT = ApiError(
     "ai_request_conflict", gettext_lazy("This request identifier is already used."), 409
@@ -96,7 +106,7 @@ def resolve_use(config: AiSettings, code: str) -> uses.AiUse:
     changed = config.use_overrides.get(code, {})
     fields = {
         key: changed[key]
-        for key in ("model", "max_input_tokens", "max_output_tokens")
+        for key in ("model", "max_input_tokens", "max_output_tokens", "daily_limit")
         if key in changed
     }
     return uses.AiUse(**{**base.__dict__, **fields})
@@ -108,7 +118,14 @@ def estimate_tokens(chars: int) -> int:
 
 
 def authorize(
-    *, school: School, user: User, permissions, use_code: str, input_chars: int, support=False
+    *,
+    school: School,
+    user: User,
+    permissions,
+    use_code: str,
+    input_chars: int,
+    extra_tokens: int = 0,
+    support=False,
 ) -> Authorization:
     """Les cinq verrous, dans l'ordre. Lève `BusinessError` au premier refus, sans rien écrire
     ni appeler l'API. Dans l'école courante."""
@@ -136,7 +153,7 @@ def authorize(
     if not support and not {"ai.use", use.permission} <= set(permissions):
         raise BusinessError(AI_FORBIDDEN)
     # 4. Crédits restants ≥ coût maximal de l'appel (sauf session support : plateforme).
-    input_tokens = estimate_tokens(input_chars)
+    input_tokens = estimate_tokens(input_chars) + extra_tokens
     if input_tokens > use.max_input_tokens:
         raise BusinessError(AI_TOO_LARGE)
     table = price_table(config)[use.model]
@@ -153,6 +170,12 @@ def authorize(
     )
     if recent >= config.hourly_limit:
         raise BusinessError(AI_RATE_LIMITED)
+    if use.daily_limit:
+        today = AiCall.objects.filter(
+            user=user, use=use.code, created_at__date=timezone.localdate()
+        ).exclude(state=State.REFUSED)
+        if today.count() >= use.daily_limit:
+            raise BusinessError(AI_DAILY_LIMIT)
     return Authorization(use, use.model, use.max_output_tokens, max_cost, support)
 
 
@@ -167,10 +190,12 @@ def submit(
     messages: list[dict],
     schema: dict | None = None,
     support: bool = False,
+    attachment: tuple[bytes, str, int] | None = None,
 ) -> AiCall:
     """Demande d'une personne, dans l'école courante : autorise, écrit l'appel, met la tâche en
     file. Même `request_id` deux fois : l'appel déjà fait, aucun nouvel appel. Le refus est noté
-    (une ligne, sans texte) puis levé."""
+    (une ligne, sans texte) puis levé. `attachment` : (contenu, type, jetons estimés) d'un PDF ou
+    d'une photo, gardé dans les fichiers privés le temps de l'appel (jamais dans la file)."""
     existing = AiCall.objects.filter(request_id=request_id).first()
     if existing is not None:
         if existing.user_id != user.pk:
@@ -184,6 +209,7 @@ def submit(
             permissions=permissions,
             use_code=use_code,
             input_chars=chars,
+            extra_tokens=attachment[2] if attachment else 0,
             support=support,
         )
     except BusinessError as refusal:
@@ -207,6 +233,13 @@ def submit(
         "max_tokens": grant.max_output_tokens,
         "language": translation.get_language() or settings.LANGUAGE_CODE,
     }
+    if attachment:
+        content, media_type, _tokens = attachment
+        name = f"{UPLOADS}/{call.school_id}/{call.pk}"
+        payload["attachment"] = {
+            "path": default_storage.save(name, ContentFile(content)),
+            "media_type": media_type,
+        }
     _enqueue(call, payload)
     return call
 
@@ -248,19 +281,58 @@ def execute(call_id: str, school_id: str, payload: dict) -> None:
         call = AiCall.objects.get(pk=call_id)
         reply, failure = None, ""
         try:
+            messages = _with_attachment(payload)
+            if payload.get("attachment"):
+                # Le vrai poids d'un PDF ou d'une photo ne se connaît qu'ici : trop gros, rien
+                # n'est envoyé ni facturé.
+                limit = resolve_use(platform_settings(), call.use).max_input_tokens
+                counted = client.count_tokens(
+                    model=call.model, system=payload["system"], messages=messages
+                )
+                if counted > limit:
+                    raise TooLarge
             reply = client.complete(
                 model=call.model,
                 system=payload["system"],
-                messages=payload["messages"],
+                messages=messages,
                 max_tokens=payload["max_tokens"],
                 schema=payload.get("schema"),
             )
+        except TooLarge:
+            failure = AI_TOO_LARGE.code
         except client.NotConfigured:
             failure = "not_configured"
         except Exception as error:  # l'API a refusé, coupé ou ne répond pas
             logger.exception("Appel IA %s en échec", call_id)
             failure = type(error).__name__[:40]
+        finally:
+            if payload.get("attachment"):
+                default_storage.delete(payload["attachment"]["path"])
         _finish(call, reply, failure)
+
+
+class TooLarge(Exception):
+    """Le fichier dépasse la taille d'entrée de l'usage."""
+
+
+def _with_attachment(payload: dict) -> list[dict]:
+    """Les messages, le PDF ou la photo placés avant le texte de la première demande."""
+    attachment = payload.get("attachment")
+    messages = payload["messages"]
+    if not attachment:
+        return messages
+    with default_storage.open(attachment["path"], "rb") as file:
+        data = base64.standard_b64encode(file.read()).decode()
+    media_type = attachment["media_type"]
+    block = {
+        "type": "document" if media_type == "application/pdf" else "image",
+        "source": {"type": "base64", "media_type": media_type, "data": data},
+    }
+    first, *rest = messages
+    return [
+        {"role": first["role"], "content": [block, {"type": "text", "text": first["content"]}]},
+        *rest,
+    ]
 
 
 @transaction.atomic
@@ -457,4 +529,19 @@ def purge(now=None) -> int:
         deleted, _per = AiCall.all_schools.filter(
             created_at__lt=now - timedelta(days=KEEP_DAYS)
         ).delete()
+    _purge_uploads(now)
     return deleted
+
+
+def _purge_uploads(now) -> None:
+    """Fichiers envoyés restés après un arrêt du travailleur (plus d'un jour) : effacés."""
+    try:
+        folders, _files = default_storage.listdir(UPLOADS)
+    except FileNotFoundError:
+        return
+    for folder in folders:
+        _subfolders, files = default_storage.listdir(f"{UPLOADS}/{folder}")
+        for name in files:
+            path = f"{UPLOADS}/{folder}/{name}"
+            if default_storage.get_modified_time(path) < now - timedelta(days=1):
+                default_storage.delete(path)

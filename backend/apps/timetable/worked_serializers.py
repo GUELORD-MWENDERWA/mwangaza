@@ -123,5 +123,5 @@ class LessonExceptionWriteSerializer(serializers.Serializer):
     )
 
 
-class CancelSerializer(serializers.Serializer):
+class ExceptionCancelSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=200, trim_whitespace=True)

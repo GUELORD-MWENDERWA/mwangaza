@@ -54,9 +54,10 @@ from apps.notifications.models import SupportRequest, Thread
 from apps.schools.demo import DemoNumbers, DemoSpace
 from apps.schools.models import AcademicYear, ClassGroup, Level, School, Track
 from apps.students.models import Enrollment, Family, Guardian, Student
-from apps.timetable import checks, exams, placement, schedule
+from apps.timetable import checks, exams, placement, schedule, worked
 from apps.timetable.models import (
     ExamSchedule,
+    LessonException,
     Room,
     TeacherTimetableProfile,
     Timetable,
@@ -181,6 +182,11 @@ def created(demo) -> None:
         exam = ExamSchedule.objects.get()
         assert exam.status == "published" and exam.sittings.count() >= 4
         assert exams.report(exam.term, exams.sittings_of(exam))["errors"] == 0
+        # EDT.6 : des exceptions récentes, comptées dans les heures prestées de leur mois.
+        noted = LessonException.objects.order_by("date").first()
+        if noted is not None:  # sauf vacances pendant les trois dernières semaines
+            report = worked.month_report(noted.date)
+            assert report["teachers"] and report["totals"]["planned"] > 0
         # EDT.4b : « Mon horaire » de l'enseignant de démo (titulaire), heures de la grille.
         mine = schedule.mine(User.objects.get(phone="+243000001008"))
         assert mine["lessons"] and mine["homeroom"]["lessons"]

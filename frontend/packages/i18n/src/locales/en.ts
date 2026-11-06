@@ -583,6 +583,8 @@ export const en: Messages<typeof fr> = {
       timetable: {
         manage: "Configure the timetable: time grids, rooms and rules",
         publish: "Publish the timetable: the draft becomes the school's timetable",
+        record_exceptions:
+          "Record lessons not given, replacements and extra lessons; hours worked sheet",
       },
       grades: {
         enter: "Enter the grades of one's courses and of one's homeroom class",
@@ -3434,6 +3436,8 @@ export const en: Messages<typeof fr> = {
         exam_sitting_deleted: "Exam sitting deleted",
         exam_published: "Exam timetable published",
         exam_reopened: "Exam timetable reopened",
+        lesson_exception_recorded: "Lesson exception recorded",
+        lesson_exception_cancelled: "Lesson exception cancelled",
       },
       discipline: {
         rule_changed: "Offence list changed",

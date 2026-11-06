@@ -275,6 +275,8 @@ SPECTACULAR_SETTINGS = {
         "TimetableRuleKindEnum": "apps.timetable.models.TimetableRule.Kind",
         "RuleStrengthEnum": "apps.timetable.models.TimetableRule.Strength",
         "TimetableStatusEnum": "apps.timetable.models.Timetable.Status",
+        "LessonExceptionKindEnum": "apps.timetable.models.LessonException.Kind",
+        "DraftKindEnum": "apps.ai.drafting.KINDS",
         "ExamKindEnum": "apps.timetable.models.ExamSitting.Kind",
         "ExamScheduleStatusEnum": "apps.timetable.models.ExamSchedule.Status",
         "RuleSourceEnum": "apps.timetable.models.TimetableRule.Source",

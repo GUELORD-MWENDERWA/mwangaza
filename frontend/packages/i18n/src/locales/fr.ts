@@ -585,6 +585,8 @@ export const fr = {
       timetable: {
         manage: "Régler l'emploi du temps : grilles horaires, salles et règles",
         publish: "Publier l'emploi du temps : le brouillon devient celui de l'école",
+        record_exceptions:
+          "Noter les heures non données, les remplacements et les heures en plus ; fiche des heures prestées",
       },
       grades: {
         enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
@@ -3468,6 +3470,8 @@ export const fr = {
         exam_sitting_deleted: "Épreuve de l'horaire supprimée",
         exam_published: "Horaire des épreuves publié",
         exam_reopened: "Horaire des épreuves rouvert",
+        lesson_exception_recorded: "Exception d'horaire notée",
+        lesson_exception_cancelled: "Exception d'horaire annulée",
       },
       discipline: {
         rule_changed: "Liste des infractions modifiée",

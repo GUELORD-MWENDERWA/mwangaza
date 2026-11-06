@@ -312,6 +312,189 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/ai/course-grid/:
+    post:
+      operationId: ai_course_grid_create
+      description: |-
+        Envoie le PDF ou la photo d'un bulletin (IA.5) : l'appel est rendu tout de suite, la
+        grille proposée se lit sur l'appel. Droits `courses.configure` et `ai.use`.
+      tags:
+      - ai
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CourseGridAskRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseGridCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/ai/course-grid/{id}/:
+    get:
+      operationId: ai_course_grid_retrieve
+      description: État de la lecture ; prête, les cours lus (revérifiés) et ce qui
+        n'a pas été repris.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - ai
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseGridCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: ai_course_grid_settle
+      description: La grille lue a été mise dans l'écran (gardée) ou laissée (abandonnée).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - ai
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeepRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KeepRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KeepRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/ai/credits/:
     get:
       operationId: ai_credits_retrieve
@@ -331,6 +514,320 @@ paths:
                 $ref: '#/components/schemas/AiCredits'
           description: ''
         '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/ai/drafts/:
+    post:
+      operationId: ai_drafts_create
+      description: |-
+        Demande un brouillon d'annonce, de relance ou de convocation (IA.4) à partir d'une
+        phrase. Droits `announcements.publish` et `ai.use`.
+      tags:
+      - ai
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DraftAskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DraftAskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DraftAskRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/ai/drafts/{id}/:
+    get:
+      operationId: ai_drafts_retrieve
+      description: État de la demande ; prête, le brouillon (titre, texte).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - ai
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DraftCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: ai_drafts_settle
+      description: Le brouillon a été mis dans le texte (gardé) ou laissé (abandonné).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - ai
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeepRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KeepRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KeepRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/ai/questions/:
+    post:
+      operationId: ai_questions_create
+      description: |-
+        Pose une question sur les chiffres de l'école (IA.3) : l'IA la traduit en une requête
+        d'une liste fermée, l'application calcule la réponse avec les droits de la personne.
+      tags:
+      - ai
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionAskRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/QuestionAskRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/QuestionAskRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/ai/questions/{id}/:
+    get:
+      operationId: ai_questions_retrieve
+      description: |-
+        État de la question ; prête, la réponse calculée (une seule fois : ensuite l'appel est
+        gardé ou abandonné et la réponse vit dans l'écran). Sans le droit de l'écran d'où vient
+        la réponse : `forbidden`, sans chiffre.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - ai
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionCall'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '413':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
           content:
             application/json:
               schema:
@@ -820,6 +1317,8 @@ paths:
           - timetable.exam_sitting_deleted
           - timetable.exam_published
           - timetable.exam_reopened
+          - timetable.lesson_exception_recorded
+          - timetable.lesson_exception_cancelled
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -987,6 +1486,8 @@ paths:
           * `timetable.exam_sitting_deleted` - Exam sitting deleted
           * `timetable.exam_published` - Exam timetable published
           * `timetable.exam_reopened` - Exam timetable reopened
+          * `timetable.lesson_exception_recorded` - Lesson exception recorded
+          * `timetable.lesson_exception_cancelled` - Lesson exception cancelled
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -1343,6 +1844,8 @@ paths:
           - timetable.exam_sitting_deleted
           - timetable.exam_published
           - timetable.exam_reopened
+          - timetable.lesson_exception_recorded
+          - timetable.lesson_exception_cancelled
           - application.grade_overridden
           - resit.grade_changed
           - deliberation.decided
@@ -1510,6 +2013,8 @@ paths:
           * `timetable.exam_sitting_deleted` - Exam sitting deleted
           * `timetable.exam_published` - Exam timetable published
           * `timetable.exam_reopened` - Exam timetable reopened
+          * `timetable.lesson_exception_recorded` - Lesson exception recorded
+          * `timetable.lesson_exception_cancelled` - Lesson exception cancelled
           * `application.grade_overridden` - Application grade corrected
           * `resit.grade_changed` - Resit grade changed
           * `deliberation.decided` - Deliberation decision recorded
@@ -22613,6 +23118,122 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/exams/{term}/print/:
+    get:
+      operationId: timetable_exams_print_retrieve
+      description: |-
+        Horaire des épreuves imprimé (EDT.5b) : une page par classe (ou la classe `subject`),
+        ou l'horaire général groupé par jour ; un brouillon porte sa mention. Aperçu HTML ou PDF
+        gardé tant que l'horaire ne change pas.
+      parameters:
+      - in: query
+        name: kind
+        schema:
+          enum:
+          - class
+          - general
+          type: string
+          default: class
+          minLength: 1
+        description: |-
+          `class` : une page par classe ; `general` : toutes les classes, par jour.
+
+          * `class` - class
+          * `general` - general
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: subject
+        schema:
+          type: string
+          format: uuid
+        description: Une seule classe.
+      - in: path
+        name: term
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: term
+        schema:
+          type: string
+        description: La période ou les examens.
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/timetable/exams/{term}/publish/:
     post:
       operationId: timetable_exams_publish_create
@@ -23835,6 +24456,387 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/timetable/worked/:
+    get:
+      operationId: timetable_worked_retrieve
+      description: |-
+        Heures prestées du mois (jusqu'à aujourd'hui) : une ligne par enseignant qui avait des
+        heures ou une exception (prévues, absent, annulées, remplacements faits, en plus,
+        prestées), jours de cours et congés.
+      parameters:
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: Le mois, `AAAA-MM`.
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkedMonth'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/worked/day/:
+    get:
+      operationId: timetable_worked_day_list
+      description: |-
+        Heures d'un enseignant un jour donné dans l'horaire en vigueur ce jour-là (une par
+        heure, cours commun compris), avec l'exception déjà notée.
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: teacher
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDayLessonList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/worked/exceptions/:
+    get:
+      operationId: timetable_worked_exceptions_list
+      description: Exceptions actives du mois, les plus récentes d'abord (paginées).
+      parameters:
+      - in: query
+        name: kind
+        schema:
+          enum:
+          - teacher_absent
+          - replaced
+          - cancelled
+          - extra
+          type: string
+          minLength: 1
+        description: |-
+          * `teacher_absent` - Teacher absent
+          * `replaced` - Replaced
+          * `cancelled` - Lesson cancelled
+          * `extra` - Extra lesson
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: Le mois, `AAAA-MM`.
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLessonExceptionList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: timetable_worked_exceptions_create
+      description: |-
+        Note ce qui s'est passé un jour passé : absence, remplacement ou annulation d'heures de
+        l'horaire de l'enseignant (une exception par heure), ou heure en plus d'un cours. Motif
+        obligatoire ; journal.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LessonExceptionWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LessonExceptionWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LessonExceptionWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLessonExceptionList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/worked/exceptions/{id}/cancel/:
+    post:
+      operationId: timetable_worked_exceptions_cancel_create
+      description: 'Annule une exception (motif, journal) : elle sort du calcul, la
+        ligne reste.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExceptionCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ExceptionCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ExceptionCancelRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonException'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/worked/export/:
+    get:
+      operationId: timetable_worked_export_retrieve
+      description: 'Classeur du mois pour la paie et les primes : une ligne par enseignant.'
+      parameters:
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: Le mois, `AAAA-MM`.
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/timetable/worked/sheet/:
+    get:
+      operationId: timetable_worked_sheet_retrieve
+      description: |-
+        Fiche des heures prestées d'un enseignant pour un mois (une page, à la demande, pas
+        gardée : les exceptions peuvent changer) ; deux signatures.
+      parameters:
+      - in: query
+        name: month
+        schema:
+          type: string
+          format: date
+        description: Le mois, `AAAA-MM`.
+        required: true
+      - in: query
+        name: orientation
+        schema:
+          enum:
+          - portrait
+          - landscape
+          type: string
+          minLength: 1
+        description: |-
+          Absent : le sens habituel du document.
+
+          * `portrait` - portrait
+          * `landscape` - landscape
+      - in: query
+        name: output
+        schema:
+          enum:
+          - pdf
+          - html
+          type: string
+          default: pdf
+          minLength: 1
+        description: |-
+          * `pdf` - pdf
+          * `html` - html
+      - in: query
+        name: paper
+        schema:
+          enum:
+          - a4
+          - a5
+          type: string
+          default: a4
+          minLength: 1
+        description: |-
+          * `a4` - a4
+          * `a5` - a5
+      - in: query
+        name: teacher
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - timetable
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            text/html:
+              schema:
+                type: string
+          description: Document PDF (`output=pdf`).
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/tracks/:
     get:
       operationId: tracks_list
@@ -24802,6 +25804,8 @@ components:
       - timetable.exam_sitting_deleted
       - timetable.exam_published
       - timetable.exam_reopened
+      - timetable.lesson_exception_recorded
+      - timetable.lesson_exception_cancelled
       - application.grade_overridden
       - resit.grade_changed
       - deliberation.decided
@@ -24968,6 +25972,8 @@ components:
         * `timetable.exam_sitting_deleted` - Exam sitting deleted
         * `timetable.exam_published` - Exam timetable published
         * `timetable.exam_reopened` - Exam timetable reopened
+        * `timetable.lesson_exception_recorded` - Lesson exception recorded
+        * `timetable.lesson_exception_cancelled` - Lesson exception cancelled
         * `application.grade_overridden` - Application grade corrected
         * `resit.grade_changed` - Resit grade changed
         * `deliberation.decided` - Deliberation decision recorded
@@ -25198,6 +26204,16 @@ components:
       - remaining_credits
       - blocked
       - uses
+    AiDraft:
+      type: object
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+      required:
+      - title
+      - body
     AiLastCall:
       type: object
       properties:
@@ -25437,6 +26453,10 @@ components:
           type: integer
         max_output_tokens:
           type: integer
+        daily_limit:
+          type: integer
+          nullable: true
+          description: 'Demandes par personne et par jour ; vide : sans limite.'
         changed:
           type: boolean
         calls:
@@ -25460,6 +26480,7 @@ components:
       - model
       - max_input_tokens
       - max_output_tokens
+      - daily_limit
       - changed
       - calls
       - kept_percent
@@ -25515,6 +26536,11 @@ components:
         max_output_tokens:
           type: integer
           nullable: true
+        daily_limit:
+          type: integer
+          maximum: 500
+          minimum: 1
+          nullable: true
     AiUseRow:
       type: object
       properties:
@@ -25532,6 +26558,10 @@ components:
           type: integer
         max_output_tokens:
           type: integer
+        daily_limit:
+          type: integer
+          nullable: true
+          description: 'Demandes par personne et par jour ; vide : sans limite.'
         changed:
           type: boolean
         calls:
@@ -25551,6 +26581,7 @@ components:
       - model
       - max_input_tokens
       - max_output_tokens
+      - daily_limit
       - changed
       - calls
       - kept_percent
@@ -25608,6 +26639,16 @@ components:
       - cancellations_per_day
       - closing_time
       - difference_minor
+    Amount:
+      type: object
+      properties:
+        currency:
+          type: string
+        amount_minor:
+          type: integer
+      required:
+      - currency
+      - amount_minor
     Announcement:
       type: object
       properties:
@@ -25694,12 +26735,37 @@ components:
       - audience
       - body
       - title
+    Answer:
+      type: object
+      properties:
+        intent:
+          $ref: '#/components/schemas/IntentEnum'
+        status:
+          $ref: '#/components/schemas/AnswerStatusEnum'
+        figures:
+          $ref: '#/components/schemas/Figures'
+      required:
+      - intent
+      - status
+      - figures
     AnswerEnum:
       enum:
       - 'yes'
       - 'no'
       type: string
       description: "* `yes` - yes\n* `no` - no\n* `` - "
+    AnswerStatusEnum:
+      enum:
+      - answered
+      - not_understood
+      - forbidden
+      - not_available
+      type: string
+      description: |-
+        * `answered` - answered
+        * `not_understood` - not_understood
+        * `forbidden` - forbidden
+        * `not_available` - not_available
     ApplicationOverrideRequest:
       type: object
       properties:
@@ -27541,11 +28607,17 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScheduleLesson'
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpcomingExam'
+          description: Épreuves publiées à venir de la classe.
       required:
       - id
       - class_group
       - timetable
       - lessons
+      - exams
     ClassActivation:
       type: object
       properties:
@@ -31033,6 +32105,41 @@ components:
         * `main` - Main course
         * `option` - Option course
         * `practical` - Practical
+    CourseGridAskRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+          description: 'Fabriqué par l''écran : un clic, un appel.'
+        file:
+          type: string
+          format: binary
+          description: PDF (3 pages au plus) ou photo JPEG / PNG.
+      required:
+      - file
+      - request_id
+    CourseGridCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          description: queued, running, done, error, refused, kept, abandoned.
+        refusal:
+          type: string
+          description: Code du refus ou de l'erreur.
+        proposal:
+          allOf:
+          - $ref: '#/components/schemas/GridProposal'
+          nullable: true
+      required:
+      - id
+      - state
+      - refusal
+      - proposal
     CourseGroup:
       type: object
       properties:
@@ -31899,6 +33006,44 @@ components:
           format: date
       required:
       - held_on
+    DayLesson:
+      type: object
+      properties:
+        entry:
+          type: string
+          format: uuid
+          description: La séance à noter.
+        first:
+          type: integer
+        length:
+          type: integer
+        start:
+          type: string
+          format: time
+          nullable: true
+        end:
+          type: string
+          format: time
+          nullable: true
+        course:
+          type: string
+        class_groups:
+          type: array
+          items:
+            type: string
+        recorded:
+          type: string
+          nullable: true
+          description: Exception déjà notée.
+      required:
+      - entry
+      - first
+      - length
+      - start
+      - end
+      - course
+      - class_groups
+      - recorded
     Deadline:
       type: object
       properties:
@@ -32364,6 +33509,47 @@ components:
       - based_on
       - hours
       - updated_at
+    DraftAskRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/DraftKindEnum'
+        tone:
+          allOf:
+          - $ref: '#/components/schemas/ToneEnum'
+          default: formal
+        brief:
+          type: string
+          minLength: 1
+          maxLength: 600
+      required:
+      - brief
+      - kind
+      - request_id
+    DraftCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          description: queued, running, done, error, refused, kept, abandoned.
+        refusal:
+          type: string
+          description: Code du refus ou de l'erreur.
+        draft:
+          allOf:
+          - $ref: '#/components/schemas/AiDraft'
+          nullable: true
+      required:
+      - id
+      - state
+      - refusal
+      - draft
     DraftCreateRequest:
       type: object
       properties:
@@ -32379,6 +33565,16 @@ components:
             ; vide : verrous des règles.'
       required:
       - name
+    DraftKindEnum:
+      enum:
+      - announcement
+      - payment_reminder
+      - summons
+      type: string
+      description: |-
+        * `announcement` - announcement
+        * `payment_reminder` - payment_reminder
+        * `summons` - summons
     DraftState:
       type: object
       properties:
@@ -32897,6 +34093,15 @@ components:
       - date
       - end
       - start
+    ExceptionCancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
     ExchangeRate:
       type: object
       properties:
@@ -33668,6 +34873,42 @@ components:
       required:
       - code
       - detail
+    Figures:
+      type: object
+      description: Chiffres calculés par l'application ; seuls ceux de la requête
+        sont présents.
+      properties:
+        class_group:
+          type: string
+          nullable: true
+        period:
+          type: string
+        count:
+          type: integer
+        girls:
+          type: integer
+        boys:
+          type: integer
+        amounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Amount'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoadRow'
+        link:
+          type: string
+          description: Écran d'où vient la réponse.
+      required:
+      - class_group
+      - period
+      - count
+      - girls
+      - boys
+      - amounts
+      - rows
+      - link
     GradeEntryEnum:
       enum:
       - detailed
@@ -34019,6 +35260,43 @@ components:
             * `totals` - totals
       required:
       - entry
+    GridCourse:
+      type: object
+      properties:
+        name:
+          type: string
+        domain:
+          type: string
+        period_max:
+          type: integer
+        has_exam:
+          type: boolean
+        category:
+          type: string
+        doubtful:
+          type: boolean
+          description: 'Peu lisible : à vérifier.'
+      required:
+      - name
+      - domain
+      - period_max
+      - has_exam
+      - category
+      - doubtful
+    GridProposal:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/GridCourse'
+        skipped:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skipped'
+      required:
+      - courses
+      - skipped
     Guardian:
       type: object
       properties:
@@ -34381,9 +35659,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ScheduleLesson'
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpcomingExam'
+          description: Épreuves à venir de la classe.
       required:
       - class_group
       - lessons
+      - exams
     HomeroomStats:
       type: object
       properties:
@@ -34933,6 +36217,20 @@ components:
       - amount_minor
       - due_on
       - label
+    IntentEnum:
+      enum:
+      - unpaid
+      - collected
+      - headcount
+      - teacher_load
+      - unknown
+      type: string
+      description: |-
+        * `unpaid` - unpaid
+        * `collected` - collected
+        * `headcount` - headcount
+        * `teacher_load` - teacher_load
+        * `unknown` - unknown
     InvitationMessage:
       type: object
       properties:
@@ -35203,6 +36501,14 @@ components:
       - period_max
       - has_exam
       - students
+    KeepRequest:
+      type: object
+      properties:
+        kept:
+          type: boolean
+          description: 'Vrai : mis dans l''écran ; faux : laissé.'
+      required:
+      - kept
     LanguageEnum:
       enum:
       - fr
@@ -35399,6 +36705,123 @@ components:
       - kind
       - title_en
       - title_fr
+    LessonException:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        date:
+          type: string
+          format: date
+        kind:
+          $ref: '#/components/schemas/LessonExceptionKindEnum'
+        teacher:
+          type: string
+          format: uuid
+        teacher_name:
+          type: string
+          readOnly: true
+        replacement:
+          type: string
+          format: uuid
+          nullable: true
+        replacement_name:
+          type: string
+          nullable: true
+          readOnly: true
+        first:
+          type: integer
+          maximum: 32767
+          minimum: 0
+          nullable: true
+          title: First hour
+        hours:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        label:
+          type: string
+          title: Course and class
+          maxLength: 160
+        reason:
+          type: string
+          maxLength: 200
+        created_by_name:
+          type: string
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - date
+      - kind
+      - teacher
+      - teacher_name
+      - replacement
+      - replacement_name
+      - first
+      - hours
+      - label
+      - reason
+      - created_by_name
+      - created_at
+    LessonExceptionKindEnum:
+      enum:
+      - teacher_absent
+      - replaced
+      - cancelled
+      - extra
+      type: string
+      description: |-
+        * `teacher_absent` - Teacher absent
+        * `replaced` - Replaced
+        * `cancelled` - Lesson cancelled
+        * `extra` - Extra lesson
+    LessonExceptionWriteRequest:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        kind:
+          $ref: '#/components/schemas/LessonExceptionKindEnum'
+        teacher:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        entries:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Heures de l'horaire (absence, remplacement, annulation).
+          maxItems: 12
+        replacement:
+          type: string
+          format: uuid
+          nullable: true
+        course:
+          type: string
+          format: uuid
+          description: 'Heure en plus : le cours.'
+        hours:
+          type: integer
+          maximum: 8
+          minimum: 1
+          description: 'Heure en plus : combien.'
+      required:
+      - date
+      - kind
+      - reason
+      - teacher
     Level:
       type: object
       properties:
@@ -35653,6 +37076,19 @@ components:
       - class_name
       - weekly_hours
       - course_group
+    LoadRow:
+      type: object
+      properties:
+        name:
+          type: string
+        hours:
+          type: integer
+        courses:
+          type: integer
+      required:
+      - name
+      - hours
+      - courses
     LoginCodeRequest:
       type: object
       properties:
@@ -36100,6 +37536,11 @@ components:
           items:
             $ref: '#/components/schemas/ScheduleLesson'
           description: Séances du compte.
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/UpcomingExam'
+          description: Épreuves à venir de ses cours et celles qu'il surveille.
         homeroom:
           allOf:
           - $ref: '#/components/schemas/HomeroomSchedule'
@@ -36108,6 +37549,7 @@ components:
       required:
       - timetable
       - lessons
+      - exams
       - homeroom
     Notification:
       type: object
@@ -36834,6 +38276,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Contract'
+    PaginatedDayLessonList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DayLesson'
     PaginatedDeviceList:
       type: object
       required:
@@ -37009,6 +38476,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LegalDocument'
+    PaginatedLessonExceptionList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LessonException'
     PaginatedModuleRequestList:
       type: object
       required:
@@ -39548,6 +41040,7 @@ components:
       - finance.manage_budget
       - timetable.manage
       - timetable.publish
+      - timetable.record_exceptions
       - ai.use
       - announcements.publish
       - audit.view
@@ -39583,6 +41076,7 @@ components:
         * `finance.manage_budget` - Set the budget, the opening balance of the accounts and the transfers between them
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `timetable.publish` - Publish the timetable
+        * `timetable.record_exceptions` - Record lessons not given, replacements and extra lessons (hours worked)
         * `ai.use` - Use the AI assistance
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
@@ -41251,6 +42745,48 @@ components:
           maxLength: 1000
       required:
       - endpoint
+    QuestionAskRequest:
+      type: object
+      properties:
+        request_id:
+          type: string
+          format: uuid
+        question:
+          type: string
+          minLength: 1
+          maxLength: 300
+        history:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 300
+          description: Les questions d'avant de la conversation (gardée dans le navigateur).
+          maxItems: 3
+      required:
+      - question
+      - request_id
+    QuestionCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        state:
+          type: string
+          description: queued, running, done, error, refused, kept, abandoned.
+        refusal:
+          type: string
+          description: Code du refus ou de l'erreur.
+        answer:
+          allOf:
+          - $ref: '#/components/schemas/Answer'
+          nullable: true
+      required:
+      - id
+      - state
+      - refusal
+      - answer
     ReadRequest:
       type: object
       properties:
@@ -43377,6 +44913,16 @@ components:
         * `300-800` - 300 to 800
         * `800-1500` - 800 to 1,500
         * `gt1500` - More than 1,500
+    Skipped:
+      type: object
+      properties:
+        name:
+          type: string
+        reason:
+          type: string
+      required:
+      - name
+      - reason
     Snapshot:
       type: object
       properties:
@@ -46383,6 +47929,14 @@ components:
         * `draft` - Draft
         * `published` - Published
         * `archived` - Archived
+    ToneEnum:
+      enum:
+      - formal
+      - simple
+      type: string
+      description: |-
+        * `formal` - formal
+        * `simple` - simple
     TopicEnum:
       enum:
       - waiver
@@ -46859,6 +48413,57 @@ components:
       - class_groups
       - fee_types
       - installments
+    UpcomingExam:
+      type: object
+      description: Épreuve publiée à venir (EDT.5b).
+      properties:
+        term:
+          type: string
+          description: La période ou les examens.
+        date:
+          type: string
+          format: date
+        start:
+          type: string
+          format: time
+        end:
+          type: string
+          format: time
+        kind:
+          $ref: '#/components/schemas/UpcomingExamKindEnum'
+        course:
+          type: string
+        class_group:
+          type: string
+        room:
+          type: string
+          description: 'Vide : sans salle.'
+        invigilator:
+          type: string
+          description: 'Vide : pas de surveillant, ou Portail.'
+        invigilating:
+          type: boolean
+          default: false
+          description: Le compte surveille cette épreuve.
+      required:
+      - term
+      - date
+      - start
+      - end
+      - kind
+      - course
+      - class_group
+      - room
+      - invigilator
+      - invigilating
+    UpcomingExamKindEnum:
+      enum:
+      - quiz
+      - exam
+      type: string
+      description: |-
+        * `quiz` - quiz
+        * `exam` - exam
     Validation:
       type: object
       properties:
@@ -46946,6 +48551,80 @@ components:
       - summary
       - html
       - url
+    WorkedLine:
+      type: object
+      properties:
+        teacher:
+          type: string
+          format: uuid
+        name:
+          type: string
+        planned:
+          type: integer
+          description: Heures prévues par l'horaire publié.
+        absent:
+          type: integer
+          description: 'Non données : absent, ou remplacé.'
+        cancelled:
+          type: integer
+        replacements:
+          type: integer
+          description: Données à la place d'un autre.
+        extra:
+          type: integer
+          description: Heures en plus.
+        given:
+          type: integer
+          description: Prestées.
+      required:
+      - teacher
+      - name
+      - planned
+      - absent
+      - cancelled
+      - replacements
+      - extra
+      - given
+    WorkedMonth:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+        school_days:
+          type: integer
+          description: Jours de cours du mois, jusqu'à aujourd'hui.
+        holidays:
+          type: array
+          items:
+            type: string
+            format: date
+          description: Congés du mois.
+        totals:
+          $ref: '#/components/schemas/WorkedTotals'
+        teachers:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkedLine'
+      required:
+      - month
+      - school_days
+      - holidays
+      - totals
+      - teachers
+    WorkedTotals:
+      type: object
+      properties:
+        planned:
+          type: integer
+        missed:
+          type: integer
+        added:
+          type: integer
+      required:
+      - planned
+      - missed
+      - added
     Year:
       type: object
       properties:

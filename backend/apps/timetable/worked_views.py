@@ -28,9 +28,9 @@ from apps.core.tenancy import require_current_school
 from apps.timetable import worked
 from apps.timetable.models import LessonException
 from apps.timetable.worked_serializers import (
-    CancelSerializer,
     DayLessonSerializer,
     DayQuerySerializer,
+    ExceptionCancelSerializer,
     ExceptionsQuerySerializer,
     LessonExceptionSerializer,
     LessonExceptionWriteSerializer,
@@ -140,11 +140,12 @@ class LessonExceptionsView(_WorkedView):
 @extend_schema(tags=["timetable"])
 class LessonExceptionCancelView(_WorkedView):
     @extend_schema(
-        request=CancelSerializer, responses={200: LessonExceptionSerializer, **WRITE_ERRORS}
+        request=ExceptionCancelSerializer,
+        responses={200: LessonExceptionSerializer, **WRITE_ERRORS},
     )
     def post(self, request: Request, pk) -> Response:
         """Annule une exception (motif, journal) : elle sort du calcul, la ligne reste."""
-        data = CancelSerializer(data=request.data)
+        data = ExceptionCancelSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         exception = worked.cancel(
             get_object_or_404(LessonException, pk=pk),
