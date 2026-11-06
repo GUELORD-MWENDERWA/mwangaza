@@ -183,6 +183,14 @@ class PlatformSettings(models.Model):
         help_text=_("Sun of the symbol and highlights on the menu (rarely)."),
     )
     support_phone = PhoneNumberField(_("support phone"), blank=True)
+    # Ligne du ministère en tête des documents et des cartes de toutes les écoles : le nom du
+    # ministère change avec les gouvernements (EPST, puis EDU-NC en 2024), jamais dans le code.
+    ministry_line = models.CharField(
+        _("ministry line"),
+        max_length=120,
+        default="Ministère de l'Éducation nationale et Nouvelle citoyenneté",
+        help_text=_("Printed under « République démocratique du Congo » on documents and cards."),
+    )
     support_email = models.EmailField(_("support email"), blank=True)
     legal_notice = models.TextField(_("legal notice"), blank=True)
     # Adresse et réseaux (WEB.1d) : pied de page et page Démonstration du site, données

@@ -383,7 +383,9 @@ export interface paths {
         /**
          * @description Émet une carte pour chaque personne choisie (l'ancienne est remplacée) et prépare le
          *     PDF à ouvrir aussitôt à `url` : le jeton du QR n'existe que dans ce PDF, jamais gardé
-         *     en clair. Au plus 100 cartes à la fois ; planche A4 de 10 ou une carte par page.
+         *     en clair. Au plus 100 cartes à la fois ; planches A4 (10 élèves, 9 membres du
+         *     personnel) ou une carte par page. Photo exigée par l'école : les personnes sans photo
+         *     officielle sont laissées de côté (`without_photo`), 409 si plus personne ne reste.
          */
         post: operations["attendance_cards_print_create"];
         delete?: never;
@@ -453,7 +455,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Compteurs de l'écran « Cartes » : actives, élèves sans carte, perdues cette année. */
+        /**
+         * @description Compteurs de l'écran « Cartes » : actives, élèves sans carte, perdues cette année,
+         *     cartes à réimprimer.
+         */
         get: operations["attendance_cards_summary_retrieve"];
         put?: never;
         post?: never;
@@ -576,6 +581,42 @@ export interface paths {
         get: operations["attendance_justifications_document_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/photos/staff/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Photo officielle d'un membre actif du personnel (carte de service). */
+        get: operations["attendance_photos_staff_retrieve"];
+        put?: never;
+        /** @description Photo officielle d'un membre actif du personnel (carte de service). */
+        post: operations["attendance_photos_staff_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/attendance/photos/students/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Photo officielle d'un élève de l'école (la même que sur sa fiche). */
+        get: operations["attendance_photos_students_retrieve"];
+        put?: never;
+        /** @description Photo officielle d'un élève de l'école (la même que sur sa fiche). */
+        post: operations["attendance_photos_students_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5429,8 +5470,8 @@ export interface paths {
         options?: never;
         head?: never;
         /**
-         * @description Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
-         *     les matricules déjà donnés ne changent pas.
+         * @description Un seul des champs suffit. Vaut pour les inscriptions et les imports suivants ; les
+         *     matricules déjà donnés ne changent pas. `range` : plage de l'année en cours (MAT.1).
          */
         patch: operations["matricule_format_partial_update"];
         trace?: never;
@@ -8788,6 +8829,8 @@ export interface components {
          *     * `staff.reactivated` - Staff member reactivated
          *     * `staff.account_changed` - Staff member's names or phone changed
          *     * `staff.signature_changed` - Staff member's signature changed
+         *     * `staff.photo_changed` - Staff member's official photo changed
+         *     * `staff.title_changed` - Staff member's position changed
          *     * `staff.password_reset` - Temporary password given
          *     * `staff.totp_reset` - Two-factor authentication reset
          *     * `school.created` - School created
@@ -8941,7 +8984,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -9612,6 +9655,8 @@ export interface components {
         Card: {
             /** Format: uuid */
             readonly id: string;
+            /** Card number */
+            readonly number: number;
             /** Last signs of the token */
             readonly last4: string;
             /** Format: date-time */
@@ -9639,10 +9684,11 @@ export interface components {
              */
             missing_only: boolean;
             /**
-             * @description Les 100 premiers sans carte ; `remaining` : les autres.
+             * @description Les 100 premiers sans carte, ou dont la carte est à réimprimer (`reprint`) ; `remaining` : les autres.
              *
              *     * `students` - students
              *     * `staff` - staff
+             *     * `reprint` - reprint
              */
             missing?: components["schemas"]["MissingEnum"];
             /** @default sheet */
@@ -9653,6 +9699,8 @@ export interface components {
             issued: number;
             /** @description Personnes encore sans carte (`missing`). */
             remaining: number;
+            /** @description Laissées de côté : pas de photo officielle alors que l'école l'exige. */
+            without_photo: number;
             /** @description Adresse du PDF à ouvrir tout de suite (10 minutes). */
             url: string;
         };
@@ -9661,27 +9709,39 @@ export interface components {
         };
         /** @description Modèle de carte (`attendance.py`, lot 10). Écriture partielle : les autres restent. */
         CardSettings: {
-            /** @description Couleur de l'en-tête de la carte `#RRGGBB` ; vide : couleur de l'école. */
+            /** @description Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de la plateforme. */
             color: string;
-            /** @description Texte du verso ; vide : « Cette carte est personnelle… » au nom de l'école. */
+            /** @description Texte du verso ; vide : « Carte personnelle, demandée à l'entrée… ». */
             back_text: string;
             /**
              * Format: date
              * @description Fin de validité ; vide : dernier jour de l'année en cours.
              */
             valid_until: string | null;
+            /** @description Champs facultatifs imprimés ; noms, classe, matricule, N° et année toujours. */
+            printed_fields: components["schemas"]["PrintedFieldsEnum"][];
+            /** @description Formule aux autorités (champ `authorities`) ; vide : la formule habituelle. */
+            authorities_text: string;
+            /** @description Pas de carte sans photo officielle : ces personnes sont laissées de côté. */
+            require_photo: boolean;
         };
         /** @description Modèle de carte (`attendance.py`, lot 10). Écriture partielle : les autres restent. */
         CardSettingsRequest: {
-            /** @description Couleur de l'en-tête de la carte `#RRGGBB` ; vide : couleur de l'école. */
+            /** @description Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de la plateforme. */
             color: string;
-            /** @description Texte du verso ; vide : « Cette carte est personnelle… » au nom de l'école. */
+            /** @description Texte du verso ; vide : « Carte personnelle, demandée à l'entrée… ». */
             back_text: string;
             /**
              * Format: date
              * @description Fin de validité ; vide : dernier jour de l'année en cours.
              */
             valid_until: string | null;
+            /** @description Champs facultatifs imprimés ; noms, classe, matricule, N° et année toujours. */
+            printed_fields: components["schemas"]["PrintedFieldsEnum"][];
+            /** @description Formule aux autorités (champ `authorities`) ; vide : la formule habituelle. */
+            authorities_text: string;
+            /** @description Pas de carte sans photo officielle : ces personnes sont laissées de côté. */
+            require_photo: boolean;
         };
         /** @description Membre du personnel et sa carte (onglet Personnel). */
         CardStaff: {
@@ -9693,6 +9753,11 @@ export interface components {
             member: string;
             name: string;
             readonly roles: string[];
+            /** @description Fonction imprimée ; vide : ses rôles. */
+            title: string;
+            /** @description Photo officielle (celle de la carte). */
+            readonly photo: string | null;
+            readonly needs_reprint: boolean;
         };
         /** @description Élève inscrit de l'année et sa carte (écran « Cartes », onglet Élèves). */
         CardStudent: {
@@ -9707,8 +9772,10 @@ export interface components {
             /** Format: uuid */
             class_group: string;
             class_name: string;
-            /** @description Photo seulement avec le consentement. */
+            /** @description Photo officielle (celle de la carte). */
             readonly photo: string | null;
+            /** @description La carte active n'imprime plus ce qui est vrai (photo, classe, noms…). */
+            readonly needs_reprint: boolean;
         };
         CardSummary: {
             /** @description Élèves inscrits dans l'année en cours. */
@@ -9719,6 +9786,8 @@ export interface components {
             missing: number;
             /** @description Cartes perdues depuis la rentrée. */
             lost_this_year: number;
+            /** @description Cartes actives (élèves et personnel) qui n'impriment plus ce qui est vrai. */
+            to_reprint: number;
         };
         CashCloseRequest: {
             /** @description Argent compté, par devise. */
@@ -10824,6 +10893,8 @@ export interface components {
              * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color: string;
+            /** @description Printed under « République démocratique du Congo » on documents and cards. */
+            ministry_line: string;
             /** @description 0970000000 ou +243970000000 ; vide : aucun. */
             support_phone: string;
             support_email: string;
@@ -14140,22 +14211,44 @@ export interface components {
             logo: string;
         };
         MatriculeFormat: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format: string;
             /** @description Prochain matricule : année en cours, première option (C3). */
             example: string;
         };
         MatriculeFormatInputRequest: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format: string;
         };
+        /** @description Plage de numéros de l'année en cours (MAT.1). */
+        MatriculeRange: {
+            /** @description Premier numéro de l'année. */
+            range_start: number;
+            /** @description Dernier numéro permis ; vide : le plus grand que permet le format. */
+            range_end: number | null;
+            /** @description Prochain numéro donné (pour reprendre la numérotation). */
+            next_number: number;
+        };
+        /** @description Plage de numéros de l'année en cours (MAT.1). */
+        MatriculeRangeRequest: {
+            /** @description Premier numéro de l'année. */
+            range_start: number;
+            /** @description Dernier numéro permis ; vide : le plus grand que permet le format. */
+            range_end: number | null;
+            /** @description Prochain numéro donné (pour reprendre la numérotation). */
+            next_number: number;
+        };
         MatriculeSettings: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format: string;
             /** @description Prochain matricule : année en cours, première option (C3). */
             example: string;
             /** @description Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens (importés ou saisis sur la fiche) ou n'en a pas (C5). */
             auto_matricule: boolean;
+            /** @description Plage de l'année en cours ; vide sans année en cours. */
+            range: components["schemas"]["MatriculeRange"] | null;
+            /** @description Plus grand numéro que permettent les chiffres du format. */
+            range_limit: number;
         };
         Me: {
             /** Format: uuid */
@@ -14234,9 +14327,10 @@ export interface components {
         /**
          * @description * `students` - students
          *     * `staff` - staff
+         *     * `reprint` - reprint
          * @enum {string}
          */
-        MissingEnum: "students" | "staff";
+        MissingEnum: "students" | "staff" | "reprint";
         /**
          * @description * `last_name` - last_name
          *     * `middle_name` - middle_name
@@ -15614,6 +15708,8 @@ export interface components {
              * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color?: string;
+            /** @description Printed under « République démocratique du Congo » on documents and cards. */
+            ministry_line?: string;
             /** @description 0970000000 ou +243970000000 ; vide : aucun. */
             support_phone?: string;
             support_email?: string;
@@ -15900,10 +15996,12 @@ export interface components {
             pass_rules?: components["schemas"]["LevelPassRulesRequest"];
         };
         PatchedMatriculeSettingsInputRequest: {
-            /** @description Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option). */
+            /** @description Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin). */
             matricule_format?: string;
             /** @description Non : ni l'inscription ni l'import ne donnent de matricule ; l'école garde les siens (importés ou saisis sur la fiche) ou n'en a pas (C5). */
             auto_matricule?: boolean;
+            /** @description Plage de l'année en cours (il en faut une). */
+            range?: components["schemas"]["MatriculeRangeRequest"];
         };
         PatchedMeUpdateRequest: {
             language?: components["schemas"]["LanguageEnum"];
@@ -16026,6 +16124,8 @@ export interface components {
             last_name?: string;
             middle_name?: string;
             first_name?: string;
+            /** @description Fonction en clair sur la carte de service ; vide : ses rôles. */
+            title?: string;
         };
         PatchedStudentImportUpdateRequest: {
             mapping?: components["schemas"]["ImportMappingRequest"];
@@ -16304,6 +16404,10 @@ export interface components {
             middle_name: string;
             first_name: string;
         };
+        PhotoResult: {
+            /** @description Adresse de la nouvelle photo officielle. */
+            photo: string;
+        };
         PhotoUploadRequest: {
             /**
              * Format: binary
@@ -16415,6 +16519,8 @@ export interface components {
              * @description Sun of the symbol and highlights on the menu (rarely).
              */
             accent_color: string;
+            /** @description Printed under « République démocratique du Congo » on documents and cards. */
+            ministry_line: string;
             support_phone: string;
             support_email: string;
             legal_notice: string;
@@ -16837,6 +16943,17 @@ export interface components {
          * @enum {string}
          */
         PreferredPartEnum: "any" | "morning";
+        /**
+         * @description * `birth` - birth
+         *     * `sex` - sex
+         *     * `nationality` - nationality
+         *     * `national_id` - national_id
+         *     * `guardian_phone` - guardian_phone
+         *     * `address` - address
+         *     * `authorities` - authorities
+         * @enum {string}
+         */
+        PrintedFieldsEnum: "birth" | "sex" | "nationality" | "national_id" | "guardian_phone" | "address" | "authorities";
         /**
          * @description * `thermal_58` - thermal_58
          *     * `thermal_80` - thermal_80
@@ -17408,6 +17525,8 @@ export interface components {
              * @description Page suivante (`after`).
              */
             next: string | null;
+            /** @description Le format a une clé de contrôle `{C}` : un matricule tapé inconnu dont la clé est fausse est « mal tapé » (algorithme de Damm sur ses chiffres). */
+            matricule_check: boolean;
         };
         RosterStaff: {
             /** Format: uuid */
@@ -17415,6 +17534,7 @@ export interface components {
             name: string;
             card_hash: string;
             card_last4: string;
+            readonly photo: string | null;
         };
         RosterStudent: {
             /** Format: uuid */
@@ -17425,7 +17545,7 @@ export interface components {
             /** @description Empreinte SHA-256 du jeton ; vide sans carte. */
             card_hash: string;
             card_last4: string;
-            /** @description Photo seulement avec le consentement. */
+            /** @description Photo officielle montrée à la porte (`/api/attendance/photos/…`). */
             readonly photo: string | null;
         };
         Row: {
@@ -18228,6 +18348,8 @@ export interface components {
             readonly roles: string[];
             /** Active */
             is_active: boolean;
+            /** Job title */
+            title: string;
             /** @description Double authentification (colonne de M3). */
             readonly totp: components["schemas"]["TotpEnum"];
             /**
@@ -18273,6 +18395,8 @@ export interface components {
             readonly roles: string[];
             /** Active */
             is_active: boolean;
+            /** Job title */
+            title: string;
             /** @description Double authentification (colonne de M3). */
             readonly totp: components["schemas"]["TotpEnum"];
             /**
@@ -21857,6 +21981,212 @@ export interface operations {
             };
         };
     };
+    attendance_photos_staff_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PNG ou JPEG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_staff_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PhotoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoResult"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_students_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description PNG ou JPEG. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/*": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    attendance_photos_students_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["PhotoUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhotoResult"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     attendance_roster_retrieve: {
         parameters: {
             query?: {
@@ -21945,6 +22275,8 @@ export interface operations {
                  *     * `staff.reactivated` - Staff member reactivated
                  *     * `staff.account_changed` - Staff member's names or phone changed
                  *     * `staff.signature_changed` - Staff member's signature changed
+                 *     * `staff.photo_changed` - Staff member's official photo changed
+                 *     * `staff.title_changed` - Staff member's position changed
                  *     * `staff.password_reset` - Temporary password given
                  *     * `staff.totp_reset` - Two-factor authentication reset
                  *     * `school.created` - School created
@@ -22097,7 +22429,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -22268,6 +22600,8 @@ export interface operations {
                  *     * `staff.reactivated` - Staff member reactivated
                  *     * `staff.account_changed` - Staff member's names or phone changed
                  *     * `staff.signature_changed` - Staff member's signature changed
+                 *     * `staff.photo_changed` - Staff member's official photo changed
+                 *     * `staff.title_changed` - Staff member's position changed
                  *     * `staff.password_reset` - Temporary password given
                  *     * `staff.totp_reset` - Two-factor authentication reset
                  *     * `school.created` - School created
@@ -22420,7 +22754,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**

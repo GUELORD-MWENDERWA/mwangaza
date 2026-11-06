@@ -3556,6 +3556,8 @@ export const fr = {
         reactivated: "Compte réactivé",
         account_changed: "Noms ou téléphone changés",
         signature_changed: "Signature changée",
+        photo_changed: "Photo officielle changée",
+        title_changed: "Fonction changée",
         password_reset: "Nouveau mot de passe provisoire",
         totp_reset: "Double authentification réinitialisée",
       },

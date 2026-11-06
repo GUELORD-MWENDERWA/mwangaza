@@ -10,6 +10,8 @@ urlpatterns = [
     path("attendance/cards/print/<uuid:batch>/", views.CardPrintFileView.as_view()),
     path("attendance/cards/<uuid:pk>/revoke/", views.CardRevokeView.as_view()),
     path("attendance/roster/", views.RosterView.as_view()),
+    path("attendance/photos/students/<uuid:pk>/", views.StudentPhotoView.as_view()),
+    path("attendance/photos/staff/<uuid:pk>/", views.StaffPhotoView.as_view()),
     path("attendance/day/", views.DayView.as_view()),
     path("attendance/absences/", views.AbsencesView.as_view()),
     path("attendance/staff/", views.StaffDayView.as_view()),

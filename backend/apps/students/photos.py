@@ -35,13 +35,18 @@ def photo_version(student) -> str:
 
 def photo_response(student) -> FileResponse | None:
     """La photo, jamais dans un cache partagé ; None sans photo ou fichier manquant."""
-    if not student.photo:
+    return image_response(student.photo)
+
+
+def image_response(photo) -> FileResponse | None:
+    """Photo d'un élève ou d'un membre du personnel (`FieldFile`), comme `photo_response`."""
+    if not photo:
         return None
     try:
-        file = student.photo.open("rb")
+        file = photo.open("rb")
     except FileNotFoundError:
         return None
-    kind = Path(student.photo.name).suffix.removeprefix(".")
+    kind = Path(photo.name).suffix.removeprefix(".")
     response = FileResponse(file, content_type=CONTENT_TYPES.get(kind, "image/jpeg"))
     response["X-Content-Type-Options"] = "nosniff"
     # L'adresse donnée par l'API change avec chaque photo (`photo_version`).

@@ -392,6 +392,30 @@ def set_signature(membership: Membership, image, *, actor: User) -> Membership:
     return membership
 
 
+def set_photo(membership: Membership, photo, *, actor: User) -> Membership:
+    """Photo officielle de la personne dans cette école (carte de service, tablette de la porte),
+    PNG ou JPEG déjà ré-encodé ; jamais changée par la personne elle-même. Au journal ; l'ancien
+    fichier est effacé une fois enregistré."""
+    from apps.students.services import photo_name
+
+    if membership.school_id != require_current_school().pk:
+        raise CrossSchoolError("Appartenance d'une autre école que l'école courante.")
+    old = membership.photo.name
+    with transaction.atomic():
+        membership.photo.save(photo_name(photo), photo, save=False)
+        membership.save(update_fields=["photo", "updated_at"])
+        _audit_staff(
+            Action.STAFF_PHOTO_CHANGED,
+            membership,
+            actor=actor,
+            before={"photo": bool(old)},
+            after={"photo": True},
+        )
+        if old:
+            transaction.on_commit(partial(membership.photo.storage.delete, old))
+    return membership
+
+
 def _audit_account(user: User, action: str, *, actor: User | None, **data) -> None:
     """Changement d'un compte (mot de passe, double authentification, noms…) : dans le journal
     de chaque école où la personne est active, sur son appartenance à cette école. Le compte est
@@ -427,6 +451,7 @@ def update_staff_member(
     actor: User,
     roles: Iterable[Role] | None = None,
     is_active: bool | None = None,
+    title: str | None = None,
     **account: str,
 ) -> Membership:
     """Changer les rôles d'une personne dans l'école, la désactiver (plus aucun accès à cette
@@ -460,6 +485,17 @@ def update_staff_member(
                     before={"roles": before},
                     after={"roles": _role_summaries(roles)},
                 )
+        if title is not None and title.strip() != membership.title:
+            before = membership.title
+            membership.title = title.strip()
+            membership.save(update_fields=["title", "updated_at"])
+            _audit_staff(
+                Action.STAFF_TITLE_CHANGED,
+                membership,
+                actor=actor,
+                before={"title": before},
+                after={"title": membership.title},
+            )
         if is_active is not None and is_active != membership.is_active:
             membership.is_active = is_active
             membership.save(update_fields=["is_active", "updated_at"])

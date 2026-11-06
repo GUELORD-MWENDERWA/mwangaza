@@ -150,6 +150,8 @@ def school_header(school: School) -> dict:
             line for line in (school.receipt or {}).get("header", "").splitlines() if line.strip()
         ],
         "logo": data_uri(school.logo, kind, LOGO_TYPES),
+        # Ministère de tutelle : réglé par la plateforme (son nom change avec les gouvernements).
+        "ministry": PlatformSettings.load().ministry_line,
         "printed_at": timezone.localtime(),
         **signatures.signature_context(school),
     }

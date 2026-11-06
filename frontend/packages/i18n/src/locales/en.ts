@@ -3522,6 +3522,8 @@ export const en: Messages<typeof fr> = {
         reactivated: "Account reactivated",
         account_changed: "Names or phone changed",
         signature_changed: "Signature changed",
+        photo_changed: "Official photo changed",
+        title_changed: "Job title changed",
         password_reset: "New temporary password",
         totp_reset: "Two-factor authentication reset",
       },

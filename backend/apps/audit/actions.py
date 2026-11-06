@@ -41,6 +41,8 @@ class Action(models.TextChoices):
     STAFF_REACTIVATED = "staff.reactivated", _("Staff member reactivated")
     STAFF_ACCOUNT_CHANGED = "staff.account_changed", _("Staff member's names or phone changed")
     STAFF_SIGNATURE_CHANGED = "staff.signature_changed", _("Staff member's signature changed")
+    STAFF_PHOTO_CHANGED = "staff.photo_changed", _("Staff member's official photo changed")
+    STAFF_TITLE_CHANGED = "staff.title_changed", _("Staff member's position changed")
     STAFF_PASSWORD_RESET = "staff.password_reset", _("Temporary password given")
     STAFF_TOTP_RESET = "staff.totp_reset", _("Two-factor authentication reset")
 

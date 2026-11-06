@@ -8,13 +8,15 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from apps.accounts import services as accounts_services
 from apps.accounts.permissions import HasSchoolPermission
 from apps.accounts.roles import (
     ATTENDANCE_CARDS,
@@ -44,6 +46,7 @@ from apps.attendance.serializers import (
     JustificationQuerySerializer,
     JustificationSerializer,
     PeriodQuerySerializer,
+    PhotoResultSerializer,
     RosterQuerySerializer,
     RosterSerializer,
     RosterStaffSerializer,
@@ -55,6 +58,11 @@ from apps.core import printing
 from apps.core.documents import XLSX, XLSX_RESPONSE, file_response
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.core.ids import uuid7
+from apps.schools import matricule
+from apps.students import services as students_services
+from apps.students.models import Student
+from apps.students.photos import image_response
+from apps.students.serializers import PhotoUploadSerializer
 from apps.students.views import _words
 
 ERRORS = {403: ErrorSerializer, 404: ErrorSerializer}
@@ -147,7 +155,8 @@ class CardStaffView(_CardsView, ListAPIView):
 class CardSummaryView(_CardsView):
     @extend_schema(responses={200: CardSummarySerializer, **ERRORS})
     def get(self, request: Request) -> Response:
-        """Compteurs de l'écran « Cartes » : actives, élèves sans carte, perdues cette année."""
+        """Compteurs de l'écran « Cartes » : actives, élèves sans carte, perdues cette année,
+        cartes à réimprimer."""
         return Response(CardSummarySerializer(cards.summary()).data)
 
 
@@ -159,7 +168,9 @@ class CardPrintView(_CardsView):
     def post(self, request: Request) -> Response:
         """Émet une carte pour chaque personne choisie (l'ancienne est remplacée) et prépare le
         PDF à ouvrir aussitôt à `url` : le jeton du QR n'existe que dans ce PDF, jamais gardé
-        en clair. Au plus 100 cartes à la fois ; planche A4 de 10 ou une carte par page."""
+        en clair. Au plus 100 cartes à la fois ; planches A4 (10 élèves, 9 membres du
+        personnel) ou une carte par page. Photo exigée par l'école : les personnes sans photo
+        officielle sont laissées de côté (`without_photo`), 409 si plus personne ne reste."""
         serializer = CardPrintSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -172,7 +183,10 @@ class CardPrintView(_CardsView):
             class_group=data.get("class_group"),
             missing_only=data["missing_only"],
             missing=data.get("missing"),
+            require_photo=request.school.card["require_photo"],
         )
+        if chosen.without_photo and not (chosen.enrollments or chosen.members):
+            raise BusinessError(cards.NO_PHOTO, without_photo=chosen.without_photo)
         issued = cards.issue(
             actor=request.user, enrollments=chosen.enrollments, members=chosen.members
         )
@@ -184,7 +198,12 @@ class CardPrintView(_CardsView):
         refused = printing.prepare_at(path, request.user, head, bodies, name)
         if refused is not None:
             raise BusinessError(PRINT_BUSY)
-        result = {"issued": len(issued), "remaining": chosen.remaining, "url": f"{path}?output=pdf"}
+        result = {
+            "issued": len(issued),
+            "remaining": chosen.remaining,
+            "without_photo": chosen.without_photo,
+            "url": f"{path}?output=pdf",
+        }
         return Response(CardPrintResultSerializer(result).data, status=status.HTTP_201_CREATED)
 
 
@@ -225,9 +244,17 @@ class RosterView(GenericAPIView):
         params.is_valid(raise_exception=True)
         after, known = params.validated_data.get("after"), params.validated_data.get("version")
         version = cards.roster_version()
+        check = matricule.has_check(request.school.matricule_format)
         if after is None and known == version:
             return Response(
-                {"version": version, "unchanged": True, "students": [], "staff": [], "next": None}
+                {
+                    "version": version,
+                    "unchanged": True,
+                    "students": [],
+                    "staff": [],
+                    "next": None,
+                    "matricule_check": check,
+                }
             )
         students = cards.roster_students(after)
         has_more = len(students) > cards.ROSTER_PAGE
@@ -241,8 +268,91 @@ class RosterView(GenericAPIView):
                     cards.roster_staff() if after is None else [], many=True
                 ).data,
                 "next": students[-1].student_id if has_more else None,
+                "matricule_check": check,
             }
         )
+
+
+class _PhotoView(GenericAPIView):
+    """Photo officielle (carte, tablette de la porte) : lue avec le droit de pointer ou celui des
+    cartes ; prise et changée avec celui des cartes seulement (séance photo), au journal. Jamais
+    par la personne elle-même."""
+
+    permission_classes = [HasSchoolPermission]
+    required_module = "attendance"
+    parser_classes = [MultiPartParser]
+
+    @property
+    def required_permission(self):
+        if self.request.method == "GET":
+            return [ATTENDANCE_SCAN, ATTENDANCE_CARDS]
+        return ATTENDANCE_CARDS
+
+    def holder(self, pk):
+        raise NotImplementedError
+
+    def field(self, holder):
+        raise NotImplementedError
+
+    def save(self, holder, photo, actor):
+        raise NotImplementedError
+
+    def get(self, request: Request, pk) -> Response:
+        response = image_response(self.field(self.holder(pk)))
+        if response is None:
+            raise Http404
+        return response
+
+    def post(self, request: Request, pk) -> Response:
+        holder = self.holder(pk)
+        serializer = PhotoUploadSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        holder = self.save(holder, serializer.validated_data["photo"], request.user)
+        return Response({"photo": cards.photo_url(holder)})
+
+
+PHOTO_SCHEMA = {
+    "get": extend_schema(
+        responses={
+            (200, "image/*"): OpenApiResponse(OpenApiTypes.BINARY, description="PNG ou JPEG."),
+            **ERRORS,
+        }
+    ),
+    "post": extend_schema(
+        request={"multipart/form-data": PhotoUploadSerializer},
+        responses={200: PhotoResultSerializer, **WRITE_ERRORS},
+    ),
+}
+
+
+@extend_schema_view(**PHOTO_SCHEMA)
+@extend_schema(tags=["attendance"])
+class StudentPhotoView(_PhotoView):
+    """Photo officielle d'un élève de l'école (la même que sur sa fiche)."""
+
+    def holder(self, pk):
+        return get_object_or_404(Student.objects, pk=pk)
+
+    def field(self, holder):
+        return holder.photo
+
+    def save(self, holder, photo, actor):
+        return students_services.set_photo(holder, photo, actor=actor)
+
+
+@extend_schema_view(**PHOTO_SCHEMA)
+@extend_schema(tags=["attendance"])
+class StaffPhotoView(_PhotoView):
+    """Photo officielle d'un membre actif du personnel (carte de service)."""
+
+    def holder(self, pk):
+        return get_object_or_404(cards.staff(), pk=pk)
+
+    def field(self, holder):
+        return holder.photo
+
+    def save(self, holder, photo, actor):
+        return accounts_services.set_photo(holder, photo, actor=actor)
 
 
 # Suivi des présences (6.5), corrections et justifications (6.6)

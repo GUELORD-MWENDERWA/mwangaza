@@ -39,6 +39,7 @@ PUBLIC_FIELDS = [
     "icon",
     "primary_color",
     "accent_color",
+    "ministry_line",
     "support_phone",
     "support_email",
     "legal_notice",

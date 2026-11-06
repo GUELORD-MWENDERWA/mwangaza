@@ -19,7 +19,15 @@ class CardSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = IdCard
-        fields = ["id", "last4", "issued_at", "valid_until", "revoked_at", "revoke_reason"]
+        fields = [
+            "id",
+            "number",
+            "last4",
+            "issued_at",
+            "valid_until",
+            "revoked_at",
+            "revoke_reason",
+        ]
         read_only_fields = fields
 
 
@@ -60,14 +68,21 @@ class CardStudentSerializer(_HolderSerializer):
     matricule = serializers.CharField(source="student.matricule")
     class_group = serializers.UUIDField(source="class_group_id")
     class_name = serializers.CharField(source="class_group.name")
-    photo = serializers.SerializerMethodField(help_text="Photo seulement avec le consentement.")
+    photo = serializers.SerializerMethodField(help_text="Photo officielle (celle de la carte).")
+    needs_reprint = serializers.SerializerMethodField(
+        help_text="La carte active n'imprime plus ce qui est vrai (photo, classe, noms…)."
+    )
 
     def person(self, instance):
         return instance.student
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_photo(self, instance: Enrollment) -> str | None:
-        return photo_url(instance.student) if instance.student.photo_consent else None
+        return photo_url(instance.student)
+
+    def get_needs_reprint(self, instance: Enrollment) -> bool:
+        current, _revoked = _cards(instance.student)
+        return cards.needs_reprint(current, cards.student_fingerprint(instance))
 
 
 class CardStaffSerializer(_HolderSerializer):
@@ -76,12 +91,23 @@ class CardStaffSerializer(_HolderSerializer):
     member = serializers.UUIDField(source="pk")
     name = serializers.CharField(source="user.get_full_name")
     roles = serializers.SerializerMethodField()
+    title = serializers.CharField(help_text="Fonction imprimée ; vide : ses rôles.")
+    photo = serializers.SerializerMethodField(help_text="Photo officielle (celle de la carte).")
+    needs_reprint = serializers.SerializerMethodField()
 
     def person(self, instance):
         return instance
 
     def get_roles(self, instance) -> list[str]:
         return sorted(role.name for role in instance.roles.all())
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_photo(self, instance: Membership) -> str | None:
+        return cards.photo_url(instance)
+
+    def get_needs_reprint(self, instance: Membership) -> bool:
+        current, _revoked = _cards(instance)
+        return cards.needs_reprint(current, cards.member_fingerprint(instance))
 
 
 class CardListQuerySerializer(serializers.Serializer):
@@ -101,6 +127,9 @@ class CardSummarySerializer(serializers.Serializer):
     active = serializers.IntegerField(help_text="Élèves inscrits qui ont une carte active.")
     missing = serializers.IntegerField(help_text="Élèves inscrits sans carte.")
     lost_this_year = serializers.IntegerField(help_text="Cartes perdues depuis la rentrée.")
+    to_reprint = serializers.IntegerField(
+        help_text="Cartes actives (élèves et personnel) qui n'impriment plus ce qui est vrai."
+    )
 
 
 class CardPrintSerializer(serializers.Serializer):
@@ -121,9 +150,10 @@ class CardPrintSerializer(serializers.Serializer):
         default=False, help_text="Avec `class_group` : seulement les élèves sans carte."
     )
     missing = serializers.ChoiceField(
-        choices=[("students", "students"), ("staff", "staff")],
+        choices=[("students", "students"), ("staff", "staff"), ("reprint", "reprint")],
         required=False,
-        help_text=f"Les {cards.MAX_PER_PRINT} premiers sans carte ; `remaining` : les autres.",
+        help_text=f"Les {cards.MAX_PER_PRINT} premiers sans carte, ou dont la carte est à "
+        "réimprimer (`reprint`) ; `remaining` : les autres.",
     )
     layout = serializers.ChoiceField(
         choices=[(cards.SHEET, "A4 sheet of 10"), (cards.CARD, "one card per page")],
@@ -146,6 +176,9 @@ class CardPrintSerializer(serializers.Serializer):
 class CardPrintResultSerializer(serializers.Serializer):
     issued = serializers.IntegerField(help_text="Cartes émises (les anciennes sont remplacées).")
     remaining = serializers.IntegerField(help_text="Personnes encore sans carte (`missing`).")
+    without_photo = serializers.IntegerField(
+        help_text="Laissées de côté : pas de photo officielle alors que l'école l'exige."
+    )
     url = serializers.CharField(help_text="Adresse du PDF à ouvrir tout de suite (10 minutes).")
 
 
@@ -153,6 +186,10 @@ class CardRevokeSerializer(serializers.Serializer):
     reason = serializers.ChoiceField(
         choices=[(IdCard.RevokeReason.LOST, "lost"), (IdCard.RevokeReason.LEFT, "left")]
     )
+
+
+class PhotoResultSerializer(serializers.Serializer):
+    photo = serializers.CharField(help_text="Adresse de la nouvelle photo officielle.")
 
 
 class RosterQuerySerializer(serializers.Serializer):
@@ -169,11 +206,13 @@ class RosterStudentSerializer(serializers.Serializer):
     class_name = serializers.CharField(source="class_group.name")
     card_hash = serializers.CharField(help_text="Empreinte SHA-256 du jeton ; vide sans carte.")
     card_last4 = serializers.CharField()
-    photo = serializers.SerializerMethodField(help_text="Photo seulement avec le consentement.")
+    photo = serializers.SerializerMethodField(
+        help_text="Photo officielle montrée à la porte (`/api/attendance/photos/…`)."
+    )
 
     @extend_schema_field(serializers.CharField(allow_null=True))
     def get_photo(self, instance: Enrollment) -> str | None:
-        return photo_url(instance.student) if instance.student.photo_consent else None
+        return cards.photo_url(instance.student)
 
 
 class RosterStaffSerializer(serializers.Serializer):
@@ -181,6 +220,11 @@ class RosterStaffSerializer(serializers.Serializer):
     name = serializers.CharField(source="user.get_full_name")
     card_hash = serializers.CharField()
     card_last4 = serializers.CharField()
+    photo = serializers.SerializerMethodField()
+
+    @extend_schema_field(serializers.CharField(allow_null=True))
+    def get_photo(self, instance: Membership) -> str | None:
+        return cards.photo_url(instance)
 
 
 class RosterSerializer(serializers.Serializer):
@@ -191,6 +235,10 @@ class RosterSerializer(serializers.Serializer):
     students = RosterStudentSerializer(many=True)
     staff = RosterStaffSerializer(many=True, help_text="Première page seulement.")
     next = serializers.UUIDField(allow_null=True, help_text="Page suivante (`after`).")
+    matricule_check = serializers.BooleanField(
+        help_text="Le format a une clé de contrôle `{C}` : un matricule tapé inconnu dont la clé "
+        "est fausse est « mal tapé » (algorithme de Damm sur ses chiffres)."
+    )
 
 
 # Suivi (6.5)

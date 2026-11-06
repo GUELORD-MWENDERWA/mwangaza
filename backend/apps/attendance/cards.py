@@ -9,39 +9,54 @@ qu'il lit et décide seul, même sans réseau.
 """
 
 import hashlib
+import json
 import secrets
 from dataclasses import dataclass
 from datetime import date
+from functools import cache
+from pathlib import Path
 
 from django.db import IntegrityError, transaction
-from django.db.models import Count, Exists, Max, OuterRef, Q, QuerySet
+from django.db.models import Count, Exists, Max, OuterRef, Q, QuerySet, Subquery
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from django.utils.translation import gettext_lazy
+from django.utils.translation import gettext_lazy, pgettext
 from rest_framework.exceptions import ValidationError
 
 from apps.accounts.models import Membership, User
 from apps.attendance.models import IdCard
 from apps.audit import services as audit
 from apps.audit.actions import Action
-from apps.core.documents import qr_code, school_header
+from apps.core.documents import data_uri, qr_code, school_header
 from apps.core.errors import ApiError, BusinessError
+from apps.core.models import PlatformSettings
 from apps.core.tenancy import require_current_school
 from apps.schools import colors, organisation
 from apps.schools.models import AcademicYear, School
-from apps.students.documents import photo_uri
-from apps.students.models import Enrollment, Student
+from apps.students.documents import _address
+from apps.students.models import Enrollment, Guardian, Student
+from apps.students.photos import CONTENT_TYPES as PHOTO_TYPES
+from apps.students.photos import photo_kind
 
 TOKEN_PREFIX = "MWZ1:"
 MAX_PER_PRINT = 100
-PER_SHEET = 10  # planche A4 : 2 colonnes, 5 rangées de cartes de 85,6 sur 54 mm
+# Planche A4 : élèves en paysage (2 colonnes, 5 rangées), personnel en portrait (3 sur 3).
+GRID = {"land": (2, 10), "port": (3, 9)}
 SHEET, CARD = "sheet", "card"
 ROSTER_PAGE = 1000
 
 NO_YEAR = ApiError("no_current_year", gettext_lazy("Set the current school year first."), 409)
 ALREADY_REVOKED = ApiError(
     "card_already_revoked", gettext_lazy("This card is already revoked."), 409
+)
+NO_PHOTO = ApiError(
+    "card_needs_photo",
+    gettext_lazy(
+        "No official photo: take it first (Cards, Photo session), or allow cards without "
+        "a photo in the card model."
+    ),
+    409,
 )
 ISSUE_CONFLICT = ApiError(
     "card_issue_conflict",
@@ -121,8 +136,15 @@ def issue(
     until = valid_until(school, year)
     now = timezone.now()
     students = [enrollment.student for enrollment in enrollments]
+    faces = {
+        **{item.student_id: student_fingerprint(item) for item in enrollments},
+        **{member.pk: member_fingerprint(member) for member in members},
+    }
     try:
         with transaction.atomic():
+            # École verrouillée : deux impressions simultanées n'ont jamais le même N° de carte.
+            School.objects.select_for_update().get(pk=school.pk)
+            number = IdCard.objects.aggregate(last=Max("number"))["last"] or 0
             old = list(
                 active()
                 .filter(Q(student__in=students) | Q(member__in=members))
@@ -138,9 +160,12 @@ def issue(
             issued = []
             for holder in [*students, *members]:
                 token = new_token()
+                number += 1
                 card = IdCard(
+                    number=number,
                     token_hash=fingerprint(token),
                     last4=token[-4:],
+                    face_hash=faces[holder.pk],
                     valid_until=until,
                     created_by=actor,
                     **({"student": holder} if isinstance(holder, Student) else {"member": holder}),
@@ -159,7 +184,14 @@ def issue(
     audit.record_many(
         Action.CARD_ISSUED,
         [
-            (item.card, {"last4": item.card.last4, "valid_until": until.isoformat()})
+            (
+                item.card,
+                {
+                    "number": item.card.number,
+                    "last4": item.card.last4,
+                    "valid_until": until.isoformat(),
+                },
+            )
             for item in issued
         ],
         actor=actor,
@@ -201,7 +233,70 @@ def summary() -> dict:
         "active": counts["with_card"],
         "missing": counts["total"] - counts["with_card"],
         "lost_this_year": lost.count(),
+        "to_reprint": len(stale_students()) + len(stale_staff()),
     }
+
+
+# Carte à réimprimer : ce qu'elle imprime de la personne a changé depuis l'émission.
+
+
+def _hash(values: tuple) -> str:
+    raw = json.dumps(values, default=str, ensure_ascii=False)
+    return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+
+def student_fingerprint(enrollment: Enrollment) -> str:
+    """Noms, naissance, sexe, nationalité, N° ID, matricule, photo et classe de l'élève."""
+    student = enrollment.student
+    return _hash(
+        (
+            student.last_name,
+            student.middle_name,
+            student.first_name,
+            student.sex,
+            student.birth_date,
+            student.birth_place,
+            student.nationality,
+            student.national_id,
+            student.matricule,
+            student.photo.name,
+            enrollment.class_group.name,
+        )
+    )
+
+
+def member_fingerprint(member: Membership) -> str:
+    """Noms, fonction (ou rôles) et photo du membre du personnel (`roles` préchargés)."""
+    user = member.user
+    return _hash(
+        (
+            user.last_name,
+            user.middle_name,
+            user.first_name,
+            _position(member),
+            member.photo.name,
+        )
+    )
+
+
+def needs_reprint(card: IdCard | None, current: str) -> bool:
+    return card is not None and card.face_hash != current
+
+
+def _with_face(items: QuerySet, field: str, outer: str) -> QuerySet:
+    face = active().filter(**{field: OuterRef(outer)}).values("face_hash")[:1]
+    return items.annotate(card_face=Subquery(face)).filter(card_face__isnull=False)
+
+
+def stale_students() -> list[Enrollment]:
+    """Élèves dont la carte active n'imprime plus ce qui est vrai aujourd'hui (une requête)."""
+    items = _with_face(students_list(), "student", "student")
+    return [item for item in items if item.card_face != student_fingerprint(item)]
+
+
+def stale_staff() -> list[Membership]:
+    items = _with_face(staff_list(), "member", "pk")
+    return [item for item in items if item.card_face != member_fingerprint(item)]
 
 
 # Choix des personnes
@@ -239,86 +334,218 @@ class Selection:
     enrollments: list[Enrollment]
     members: list[Membership]
     remaining: int = 0
+    # Laissées de côté : pas de photo officielle alors que l'école l'exige (`require_photo`).
+    without_photo: int = 0
+
+
+def _batch(pending: QuerySet, photo: str, require_photo: bool) -> tuple[list, int, int]:
+    """Les `MAX_PER_PRINT` premiers, le nombre des suivants et, si la photo est exigée, le nombre
+    de ceux qui n'en ont pas (jamais choisis : sinon le même lot reviendrait sans fin)."""
+    without = 0
+    if require_photo:
+        without = pending.filter(**{photo: ""}).count()
+        pending = pending.exclude(**{photo: ""})
+    found = list(pending[: MAX_PER_PRINT + 1])
+    rest = pending.count() - MAX_PER_PRINT if len(found) > MAX_PER_PRINT else 0
+    return found[:MAX_PER_PRINT], rest, without
+
+
+def _has_photo(holder) -> bool:
+    return bool(holder.student.photo if isinstance(holder, Enrollment) else holder.photo)
 
 
 def select(
-    *, students=(), members=(), class_group=None, missing_only=False, missing=None
+    *,
+    students=(),
+    members=(),
+    class_group=None,
+    missing_only=False,
+    missing=None,
+    require_photo=False,
 ) -> Selection:
     """Qui reçoit une carte : une sélection (A.5), une classe (`missing_only` : sans carte
-    seulement) ou les `MAX_PER_PRINT` premiers sans carte (`missing` : `students` ou `staff`).
-    Un élève non inscrit cette année ou un compte d'une autre école : refusé."""
+    seulement), les `MAX_PER_PRINT` premiers sans carte (`missing` : `students` ou `staff`) ou
+    dont la carte est à réimprimer (`reprint`). Un élève non inscrit cette année ou un compte
+    d'une autre école : refusé. `require_photo` : personne sans photo officielle laissée de côté."""
     if missing == "students":
         pending = students_list().filter(~has_active_card("student", "student"))
-        found = list(pending[: MAX_PER_PRINT + 1])
-        rest = pending.count() - MAX_PER_PRINT if len(found) > MAX_PER_PRINT else 0
-        return Selection(found[:MAX_PER_PRINT], [], rest)
+        found, rest, without = _batch(pending, "student__photo", require_photo)
+        return Selection(found, [], rest, without)
     if missing == "staff":
         pending = staff_list().filter(~has_active_card("member"))
-        found = list(pending[: MAX_PER_PRINT + 1])
-        rest = pending.count() - MAX_PER_PRINT if len(found) > MAX_PER_PRINT else 0
-        return Selection([], found[:MAX_PER_PRINT], rest)
-    if class_group is not None:
+        found, rest, without = _batch(pending, "photo", require_photo)
+        return Selection([], found, rest, without)
+    if missing == "reprint":
+        people = [*stale_students(), *stale_staff()]
+    elif class_group is not None:
         chosen = students_list().filter(class_group=class_group)
         if missing_only:
             chosen = chosen.filter(~has_active_card("student", "student"))
-        return Selection(list(chosen[:MAX_PER_PRINT]), [])
-    enrollments = list(students_list().filter(student_id__in=students)) if students else []
-    people = list(staff_list().filter(pk__in=members)) if members else []
-    if len(enrollments) != len(set(students)):
-        raise ValidationError({"students": _("Only students enrolled this year get a card.")})
-    if len(people) != len(set(members)):
-        raise ValidationError({"members": _("Unknown staff member.")})
-    return Selection(enrollments, people)
+        people = list(chosen[:MAX_PER_PRINT])
+    else:
+        enrollments = list(students_list().filter(student_id__in=students)) if students else []
+        team = list(staff_list().filter(pk__in=members)) if members else []
+        if len(enrollments) != len(set(students)):
+            raise ValidationError({"students": _("Only students enrolled this year get a card.")})
+        if len(team) != len(set(members)):
+            raise ValidationError({"members": _("Unknown staff member.")})
+        people = [*enrollments, *team]
+    kept = [person for person in people if _has_photo(person)] if require_photo else people
+    without, rest = len(people) - len(kept), 0
+    if missing == "reprint":
+        rest, kept = max(len(kept) - MAX_PER_PRINT, 0), kept[:MAX_PER_PRINT]
+    return Selection(
+        [person for person in kept if isinstance(person, Enrollment)],
+        [person for person in kept if isinstance(person, Membership)],
+        rest,
+        without,
+    )
 
 
-# Impression
+# Impression (maquette `gestion/cartes-modeles.html`, d'après les cartes congolaises fournies)
+
+RELIEF = Path(__file__).resolve().parents[1] / "core/static/core/site/relief.svg"
+
+
+@cache
+def _relief() -> str:
+    """Lignes de relief de la marque (blanches, très pâles) posées sur les bandes de couleur."""
+    import base64
+
+    return "data:image/svg+xml;base64," + base64.b64encode(RELIEF.read_bytes()).decode()
+
+
+def _mix(color: str, share: float) -> str:
+    """`color` mêlée de blanc (`share` = part de la couleur) : teintes claires de la carte."""
+    rgb = [int(color[i : i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(255 - (255 - part) * share):02X}" for part in rgb)
+
+
+def _image(field) -> str:
+    """Photo (PNG ou JPEG) intégrée au PDF ; vide sans photo lisible."""
+    if not field:
+        return ""
+    try:
+        with field.open("rb") as file:
+            kind = photo_kind(file)
+    except OSError:
+        return ""
+    return data_uri(field, kind, PHOTO_TYPES)
 
 
 def _initials(name: str) -> str:
     return "".join(part[0] for part in name.split()[:2]).upper()
 
 
-def _face(item: Issued, enrollment: Enrollment | None, year: AcademicYear) -> dict:
+def _position(member: Membership) -> str:
+    """Fonction en clair (« Enseignante · Mathématiques »), sinon ses rôles (préchargés)."""
+    return member.title or " · ".join(sorted(role.name for role in member.roles.all()))
+
+
+def _born(student: Student) -> tuple[str, str]:
+    """(« Né à » / « Née à », « Goma, le 14/03/2010 ») ; vide sans lieu ni date."""
+    when = student.birth_date.strftime("%d/%m/%Y") if student.birth_date else ""
+    if student.birth_place and when:
+        value = _("%(place)s, on %(date)s") % {"place": student.birth_place, "date": when}
+    else:
+        value = student.birth_place or when
+    if not value:
+        return "", ""
+    female = student.sex == Student.Sex.FEMALE
+    label = pgettext("card, female", "Born in") if female else pgettext("card, male", "Born in")
+    return label, value
+
+
+def _student_face(student: Student, enrollment: Enrollment | None, chosen: set, phones) -> dict:
+    surnames = " ".join(part for part in (student.last_name, student.middle_name) if part)
+    rows = [(_("Names"), f"{surnames.upper()} {student.first_name}".strip())]
+    if "birth" in chosen and (born := _born(student))[0]:
+        rows.append(born)
+    if "sex" in chosen:
+        rows.append((_("Sex"), student.sex))
+    if "nationality" in chosen and student.nationality:
+        rows.append((_("Nationality"), student.nationality))
+    if "national_id" in chosen and student.national_id:
+        rows.append((_("ID No."), student.national_id))
+    rows.append((_("Class"), enrollment.class_group.name if enrollment else ""))
+    back = []
+    if "guardian_phone" in chosen and (phone := phones.get(student.family_id)):
+        back.append((_("Guardian"), phone))
+    if "address" in chosen and (address := _address(student)):
+        back.append((_("Address"), address))
+    return {
+        "kind": "student",
+        "name": student.full_name,
+        "rows": rows,
+        "matricule": student.matricule,
+        "back_rows": back,
+        "photo": _image(student.photo),
+    }
+
+
+def _staff_face(member: Membership) -> dict:
+    user = member.user
+    return {
+        "kind": "staff",
+        "name": user.get_full_name(),
+        "last_names": " ".join(part for part in (user.last_name, user.middle_name) if part),
+        "first_name": user.first_name,
+        "position": _position(member),
+        "rows": [],
+        "back_rows": [],
+        "photo": _image(member.photo),
+    }
+
+
+def _face(item: Issued, enrollment: Enrollment | None, chosen: set, phones: dict) -> dict:
     card = item.card
     if card.student_id:
-        student = card.student
-        name = student.full_name
-        line = enrollment.class_group.name if enrollment else ""
-        number = student.matricule
-        kind = _("Student card")
-        photo = photo_uri(student) if student.photo_consent else ""
+        face = _student_face(card.student, enrollment, chosen, phones)
     else:
-        user = card.member.user
-        name = user.get_full_name()
-        roles = sorted(role.name for role in card.member.roles.all())
-        line = roles[0] if roles else ""
-        number, kind, photo = "", _("Staff card"), ""
+        face = _staff_face(card.member)
     return {
-        "name": name,
-        "initials": _initials(name),
-        "line": line,
-        "number": number,
-        "kind": f"{kind} · {year.name}",
-        "photo": photo,
+        **face,
+        "initials": _initials(face["name"]),
+        "orientation": "land" if card.student_id else "port",
+        "number": f"{card.number:04d}",
         "qr": qr_code(TOKEN_PREFIX + item.token),
-        "last4": card.last4,
+        "issued_on": timezone.localdate(card.created_at),
         "valid_until": card.valid_until,
     }
 
 
-def _pages(faces: list[dict], layout: str) -> list[tuple[str, list]]:
-    """Pages du PDF : `card` = recto puis verso de chaque carte (imprimante à cartes) ; `sheet` =
-    planches A4 de 10, rectos puis versos dont les colonnes sont inversées (impression recto
-    verso, retournée sur le grand côté : chaque verso tombe derrière son recto)."""
+def _pages(faces: list[dict], layout: str) -> list[tuple[str, str, list]]:
+    """Pages du PDF (`orientation`, `side`, faces) : `card` = recto puis verso de chaque carte
+    (imprimante à cartes) ; `sheet` = planches A4 (10 élèves en paysage ou 9 membres du personnel
+    en portrait), rectos puis versos dont chaque rangée est inversée (impression recto verso
+    retournée sur le grand côté : chaque verso tombe derrière son recto)."""
     if layout == CARD:
-        return [page for face in faces for page in (("front", [face]), ("back", [face]))]
+        return [(face["orientation"], side, [face]) for face in faces for side in ("front", "back")]
     pages = []
-    for start in range(0, len(faces), PER_SHEET):
-        chunk = faces[start : start + PER_SHEET]
-        padded = chunk + [None] * (-len(chunk) % 2)
-        backs = [face for i in range(0, len(padded), 2) for face in (padded[i + 1], padded[i])]
-        pages += [("front", chunk), ("back", backs)]
+    for orientation in ("land", "port"):
+        group = [face for face in faces if face["orientation"] == orientation]
+        columns, per_sheet = GRID[orientation]
+        for start in range(0, len(group), per_sheet):
+            chunk = group[start : start + per_sheet]
+            padded = chunk + [None] * (-len(chunk) % columns)
+            backs = [
+                face
+                for row in range(0, len(padded), columns)
+                for face in reversed(padded[row : row + columns])
+            ]
+            pages += [(orientation, "front", chunk), (orientation, "back", backs)]
     return pages
+
+
+def _guardian_phones(students: list[Student]) -> dict:
+    """Téléphone du responsable principal de chaque famille (une requête)."""
+    guardians = Guardian.objects.filter(
+        family_id__in={student.family_id for student in students}
+    ).exclude(phone="")
+    phones = {}
+    for guardian in guardians.order_by("-is_primary", "full_name"):
+        phones.setdefault(guardian.family_id, str(guardian.phone))
+    return phones
 
 
 def document(issued: list[Issued], enrollments: dict, layout: str) -> tuple[str, list[str]]:
@@ -326,24 +553,42 @@ def document(issued: list[Issued], enrollments: dict, layout: str) -> tuple[str,
     school = require_current_school()
     year = organisation.current_year()
     settings = school.card
-    color = settings["color"] or school.primary_color
+    platform = PlatformSettings.load()
+    color = settings["color"] or platform.primary_color
+    chosen = set(settings["printed_fields"])
+    students = [item.card.student for item in issued if item.card.student_id]
+    phones = _guardian_phones(students) if "guardian_phone" in chosen and students else {}
     header = school_header(school)
-    city = f", {school.city}" if school.city else ""
-    back_text = settings["back_text"] or _(
-        "This card is personal. If you find it, please return it to %(school)s%(city)s."
-    ) % {"school": header["school_name"], "city": city}
+    authorities = ""
+    if "authorities" in chosen:
+        authorities = settings["authorities_text"] or _(
+            "The civil, military and police authorities are kindly requested to assist the "
+            "holder of this card."
+        )
     shared = {
         **header,
         "layout": layout,
         "color": color,
         "text_color": colors.text_color(color) or colors.WHITE,
-        "back_text": back_text,
+        "tint": _mix(color, 0.09),
+        "soft": _mix(color, 0.22),
+        "relief": _relief(),
+        "platform_name": platform.name,
+        "year_name": year.name,
+        "city": school.city,
+        "host": school.url.split("://", 1)[-1],
+        "authorities": authorities,
+        "back_text": settings["back_text"],
+        "head_title": (header["signer"] or {}).get("title") or _("The head of the school"),
     }
-    faces = [_face(item, enrollments.get(item.card.student_id), year) for item in issued]
+    faces = [_face(item, enrollments.get(item.card.student_id), chosen, phones) for item in issued]
     head = render_to_string("attendance/cards.html", shared)
     bodies = [
-        render_to_string("attendance/_card_page.html", {**shared, "side": side, "faces": chunk})
-        for side, chunk in _pages(faces, layout)
+        render_to_string(
+            "attendance/_card_page.html",
+            {**shared, "orientation": orientation, "side": side, "faces": chunk},
+        )
+        for orientation, side, chunk in _pages(faces, layout)
     ]
     return head, bodies
 
@@ -359,8 +604,12 @@ def roster_version() -> str:
         last=Max("updated_at"), student=Max("student__updated_at"), count=Count("pk")
     )
     people = staff().aggregate(last=Max("updated_at"), user=Max("user__updated_at"))
+    # Le format du matricule dit à l'appareil s'il vérifie la clé de contrôle (MAT.1).
+    template = School.objects.values_list("matricule_format", flat=True).get(
+        pk=require_current_school().pk
+    )
     raw = "|".join(str(value) for part in (cards, pupils, people) for value in part.values())
-    return hashlib.sha256(raw.encode()).hexdigest()[:16]
+    return hashlib.sha256(f"{raw}|{template}".encode()).hexdigest()[:16]
 
 
 def roster_students(after=None) -> list[Enrollment]:
@@ -381,6 +630,19 @@ def roster_students(after=None) -> list[Enrollment]:
         item.card_hash = card.token_hash if card else ""
         item.card_last4 = card.last4 if card else ""
     return items
+
+
+def photo_url(holder) -> str | None:
+    """Photo officielle pour l'appareil de pointage (droit de pointer suffit) ; l'adresse change
+    avec chaque photo (cache de l'appareil)."""
+    if isinstance(holder, Student):
+        kind, field = "students", holder.photo
+    else:
+        kind, field = "staff", holder.photo
+    if not field:
+        return None
+    version = field.name.rsplit("/", 1)[-1].split(".")[0].removeprefix("photo-")
+    return f"/api/attendance/photos/{kind}/{holder.pk}/?v={version}"
 
 
 def roster_staff() -> list[Membership]:

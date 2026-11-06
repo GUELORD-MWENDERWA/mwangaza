@@ -606,7 +606,13 @@ class MatriculeFormatView(_MatriculeView):
     automatiquement (C5)."""
 
     def _settings(self, school: School) -> Response:
-        return self._response(school.matricule_format, auto_matricule=school.auto_matricule)
+        year_range, limit = organisation.matricule_range(school)
+        return self._response(
+            school.matricule_format,
+            auto_matricule=school.auto_matricule,
+            range=year_range,
+            range_limit=limit,
+        )
 
     @extend_schema(responses={200: MatriculeSettingsSerializer, **ERRORS})
     def get(self, request: Request) -> Response:
@@ -617,14 +623,19 @@ class MatriculeFormatView(_MatriculeView):
         responses={200: MatriculeSettingsSerializer, 400: ErrorSerializer, **ERRORS},
     )
     def patch(self, request: Request) -> Response:
-        """Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
-        les matricules déjà donnés ne changent pas."""
+        """Un seul des champs suffit. Vaut pour les inscriptions et les imports suivants ; les
+        matricules déjà donnés ne changent pas. `range` : plage de l'année en cours (MAT.1)."""
         serializer = MatriculeSettingsInputSerializer(data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        school = organisation.set_matricule_format(
-            data.get("matricule_format"), actor=request.user, automatic=data.get("auto_matricule")
-        )
+        with transaction.atomic():
+            school = organisation.set_matricule_format(
+                data.get("matricule_format"),
+                actor=request.user,
+                automatic=data.get("auto_matricule"),
+            )
+            if "range" in data:
+                organisation.set_matricule_range(actor=request.user, **data["range"])
         return self._settings(school)
 
 

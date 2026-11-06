@@ -3,13 +3,33 @@
 prévenus, seuil d'alerte des absences non justifiées, 0 = aucune alerte). Jamais dans le code :
 chaque école les règle dans ses paramètres.
 
-Carte : `color` vide = couleur de l'école ; `back_text` vide = texte par défaut au nom de l'école ;
-`valid_until` vide = dernier jour de l'année scolaire en cours.
+Carte : `color` vide = bleu de la plateforme ; `back_text` vide = texte par défaut ;
+`valid_until` vide = dernier jour de l'année scolaire en cours ; `printed_fields` = champs
+facultatifs imprimés (téléphone du responsable et adresse décochés : une carte perdue est lue
+par n'importe qui) ; `authorities_text` vide = formule habituelle ; `require_photo` = pas de
+carte sans photo officielle.
 """
 
 from datetime import time
 
-CARD_DEFAULTS = {"color": "", "back_text": "", "valid_until": None}
+# Champs facultatifs de la carte, dans l'ordre d'impression.
+CARD_FIELDS = (
+    "birth",
+    "sex",
+    "nationality",
+    "national_id",
+    "guardian_phone",
+    "address",
+    "authorities",
+)
+CARD_DEFAULTS = {
+    "color": "",
+    "back_text": "",
+    "valid_until": None,
+    "printed_fields": ["birth", "sex", "authorities"],
+    "authorities_text": "",
+    "require_photo": True,
+}
 ATTENDANCE_DEFAULTS = {"late_after": "07:45", "notify_at": "09:00", "alert_after": 3}
 
 

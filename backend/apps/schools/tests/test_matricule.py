@@ -1,9 +1,11 @@
 """Format du matricule (C3) : variables, formats refusés, rendu."""
 
+import itertools
+
 import pytest
 from django.core.exceptions import ValidationError
 
-from apps.schools.matricule import default_format, render, validate_matricule_format
+from apps.schools.matricule import check_ok, default_format, render, validate_matricule_format
 
 
 @pytest.mark.parametrize(
@@ -14,6 +16,7 @@ from apps.schools.matricule import default_format, render, validate_matricule_fo
         "LV/{AA}/{000000}",
         "ITIG-{OPT}-{AAAA}-{0000}",
         "X.{AAAA}_{0000}",
+        "ITIG-{AA}-{0000}-{C}",
     ],
 )
 def test_accepted_formats(value):
@@ -34,6 +37,8 @@ def test_accepted_formats(value):
         ("ITIG-{AAAA}}-{0000}", "matricule_braces"),
         ("ÉCOLE-{AAAA}-{0000}", "matricule_characters"),
         ("ITIG {AAAA} {0000}", "matricule_characters"),
+        ("ITIG-{C}-{AA}-{0000}", "matricule_check_place"),
+        ("ITIG-{AA}-{0000}{C}{C}", "matricule_check_place"),
     ],
 )
 def test_refused_formats(value, code):
@@ -54,6 +59,9 @@ def test_refused_formats(value, code):
         ("{OPT}/{AA}/{0000}", 1, "", "26/0001"),
         ("ITIG-{AAAA}-{0000}-{OPT}", 1, "", "ITIG-2026-0001"),
         ("ITIG{OPT}{AAAA}{0000}", 1, "", "ITIG20260001"),
+        # Clé de contrôle (MAT.1) : un chiffre de plus, calculé sur les chiffres qui précèdent.
+        ("ITIG-{AA}-{0000}-{C}", 612, "", "ITIG-26-0612-5"),
+        ("LV/{OPT}/{AA}/{000}{C}", 7, "ELEC", "LV/ELEC/26/0075"),
     ],
 )
 def test_render(template, number, track, expected):
@@ -63,3 +71,18 @@ def test_render(template, number, track, expected):
 def test_default_format_uses_the_school_code():
     assert default_format("itig") == "ITIG-{AAAA}-{0000}"
     validate_matricule_format(default_format("saint-paul"))
+
+
+def test_the_check_key_refuses_every_single_typo_and_swap_of_neighbours():
+    """MAT.1 : un matricule mal tapé à la porte ou à la caisse ne tombe jamais sur un autre."""
+    for number in (1, 42, 612, 9090):
+        value = render("ITIG-{AA}-{0000}-{C}", year=2026, number=number)
+        assert check_ok(value)
+        digits = [i for i, char in enumerate(value) if char.isdigit()]
+        for i in digits:
+            for wrong in "0123456789".replace(value[i], ""):
+                assert not check_ok(value[:i] + wrong + value[i + 1 :])
+        for i, j in itertools.pairwise(digits):
+            if j == i + 1 and value[i] != value[j]:
+                swapped = value[:i] + value[j] + value[i] + value[j + 1 :]
+                assert not check_ok(swapped)

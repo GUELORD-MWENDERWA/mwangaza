@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-06 14:21+0200\n"
+"POT-Creation-Date: 2026-11-06 17:54+0200\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
@@ -52,7 +52,7 @@ msgid "The chair and the secretary are chosen among those present."
 msgstr "Le président et le secrétaire se choisissent parmi les présents."
 
 #: apps/academics/course_groups.py:39 apps/academics/courses.py:126
-#: apps/academics/substitutes.py:108 apps/schools/organisation.py:542
+#: apps/academics/substitutes.py:108 apps/schools/organisation.py:543
 msgid "Choose a member of the school's staff."
 msgstr "Choisissez un membre du personnel de l'école."
 
@@ -507,8 +507,8 @@ msgstr "classe"
 
 #: apps/academics/models.py:35 apps/academics/models.py:170
 #: apps/academics/models.py:263 apps/accounts/models.py:162
-#: apps/billing/models.py:27 apps/core/models.py:139 apps/core/models.py:525
-#: apps/core/models.py:652 apps/finance/models.py:35 apps/finance/models.py:371
+#: apps/billing/models.py:27 apps/core/models.py:139 apps/core/models.py:533
+#: apps/core/models.py:660 apps/finance/models.py:35 apps/finance/models.py:371
 #: apps/finance/models.py:866 apps/schools/models.py:110
 #: apps/schools/models.py:417 apps/schools/models.py:475
 #: apps/schools/models.py:514 apps/schools/models.py:551 apps/sync/models.py:27
@@ -649,8 +649,8 @@ msgstr "remplaçant"
 #: apps/academics/models.py:223 apps/academics/models.py:477
 #: apps/academics/models.py:502 apps/academics/models.py:537
 #: apps/academics/models.py:716 apps/academics/models.py:848
-#: apps/ai/models.py:114 apps/attendance/models.py:61
-#: apps/attendance/models.py:244 apps/attendance/models.py:286
+#: apps/ai/models.py:114 apps/attendance/models.py:67
+#: apps/attendance/models.py:251 apps/attendance/models.py:293
 #: apps/billing/models.py:224 apps/finance/models.py:251
 #: apps/finance/models.py:336 apps/finance/models.py:621
 #: apps/finance/models.py:682 apps/finance/models.py:911
@@ -661,7 +661,7 @@ msgid "reason"
 msgstr "motif"
 
 #: apps/academics/models.py:224 apps/academics/models.py:849
-#: apps/core/models.py:391
+#: apps/core/models.py:399
 msgid "until"
 msgstr "jusqu'au"
 
@@ -713,7 +713,7 @@ msgid "grades"
 msgstr "notes"
 
 #: apps/academics/models.py:321 apps/billing/models.py:67
-#: apps/core/models.py:681 apps/timetable/models.py:247
+#: apps/core/models.py:689 apps/timetable/models.py:247
 #: apps/timetable/models.py:415
 msgid "Draft"
 msgstr "Brouillon"
@@ -727,14 +727,14 @@ msgid "Validated"
 msgstr "Validée"
 
 #: apps/academics/models.py:332 apps/academics/models.py:666
-#: apps/academics/models.py:803 apps/attendance/models.py:177
-#: apps/attendance/models.py:242 apps/attendance/models.py:290
-#: apps/billing/models.py:77 apps/billing/models.py:242 apps/core/models.py:703
+#: apps/academics/models.py:803 apps/attendance/models.py:184
+#: apps/attendance/models.py:249 apps/attendance/models.py:297
+#: apps/billing/models.py:77 apps/billing/models.py:242 apps/core/models.py:711
 #: apps/finance/models.py:190 apps/finance/models.py:638
 #: apps/finance/models.py:917 apps/notifications/models.py:491
 #: apps/schools/models.py:210 apps/schools/models.py:422
-#: apps/students/models.py:176 apps/students/models.py:242
-#: apps/students/models.py:290 apps/sync/models.py:74
+#: apps/students/models.py:176 apps/students/models.py:246
+#: apps/students/models.py:294 apps/sync/models.py:74
 #: apps/timetable/models.py:259 apps/timetable/models.py:377
 #: apps/timetable/models.py:425
 msgid "status"
@@ -744,7 +744,7 @@ msgstr "statut"
 msgid "sent on"
 msgstr "envoyée le"
 
-#: apps/academics/models.py:341 apps/attendance/models.py:288
+#: apps/academics/models.py:341 apps/attendance/models.py:295
 msgid "sent by"
 msgstr "envoyée par"
 
@@ -827,7 +827,7 @@ msgstr "à partir de (points)"
 msgid "enrolment"
 msgstr "inscription"
 
-#: apps/academics/models.py:448 apps/attendance/models.py:106
+#: apps/academics/models.py:448 apps/attendance/models.py:113
 #: apps/finance/models.py:914 apps/finance/models.py:1100
 #: apps/timetable/models.py:464 apps/timetable/models.py:511
 msgid "date"
@@ -849,7 +849,7 @@ msgstr "incident"
 
 #: apps/academics/models.py:482 apps/finance/models.py:971
 #: apps/finance/models.py:1037 apps/finance/models.py:1147
-#: apps/notifications/models.py:143 apps/students/models.py:261
+#: apps/notifications/models.py:143 apps/students/models.py:265
 #: apps/timetable/models.py:556
 msgid "cancelled by"
 msgstr "annulé par"
@@ -882,8 +882,8 @@ msgstr "En cours"
 msgid "Proclaimed"
 msgstr "Proclamée"
 
-#: apps/academics/models.py:662 apps/attendance/models.py:141
-#: apps/attendance/models.py:216 apps/finance/models.py:509
+#: apps/academics/models.py:662 apps/attendance/models.py:148
+#: apps/attendance/models.py:223 apps/finance/models.py:509
 #: apps/finance/models.py:816 apps/finance/models.py:992
 msgid "session"
 msgstr "séance de caisse"
@@ -1008,13 +1008,13 @@ msgstr "confirmations de place"
 
 #: apps/academics/models.py:838 apps/notifications/models.py:62
 #: apps/students/models.py:47 apps/students/models.py:66
-#: apps/students/models.py:95 apps/students/models.py:286
+#: apps/students/models.py:95 apps/students/models.py:290
 msgid "family"
 msgstr "famille"
 
 #: apps/academics/models.py:846 apps/attendance/models.py:38
-#: apps/attendance/models.py:149 apps/attendance/models.py:224
-#: apps/attendance/models.py:282 apps/notifications/models.py:127
+#: apps/attendance/models.py:156 apps/attendance/models.py:231
+#: apps/attendance/models.py:289 apps/notifications/models.py:127
 #: apps/notifications/models.py:424 apps/students/models.py:128
 #: apps/students/models.py:164
 msgid "student"
@@ -1210,7 +1210,8 @@ msgstr "Pour témoignage"
 #: apps/academics/templates/academics/_report_card_side.html:2
 #: apps/academics/templates/academics/report_card.html:144
 #: apps/academics/templates/academics/situation.html:216
-#: apps/core/templates/core/site/home.html:125 apps/schools/signatures.py:68
+#: apps/attendance/cards.py:582 apps/core/templates/core/site/home.html:125
+#: apps/schools/signatures.py:74
 msgid "The head of the school"
 msgstr "Le chef d'établissement"
 
@@ -1375,6 +1376,9 @@ msgstr "Résultats des élèves"
 #: apps/academics/templates/academics/deliberation_minutes.html:51
 #: apps/academics/templates/academics/grade_sheet.html:70
 #: apps/academics/templates/academics/grade_sheet.html:98
+#: apps/attendance/templates/attendance/_card_page.html:5
+#: apps/attendance/templates/attendance/_card_page.html:13
+#: apps/attendance/templates/attendance/_card_page.html:22
 #: apps/billing/templates/billing/contract.html:5
 #: apps/billing/templates/billing/invoice.html:5
 #: apps/core/templates/core/_document_header.html:14
@@ -1553,8 +1557,9 @@ msgstr "Provisoire : des notes ne sont pas encore validées."
 #: apps/academics/templates/academics/grade_sheet.html:71
 #: apps/academics/templates/academics/grade_sheet.html:99
 #: apps/academics/templates/academics/situation.html:97
-#: apps/attendance/reports.py:195 apps/finance/documents.py:144
-#: apps/finance/documents.py:399
+#: apps/attendance/reports.py:195
+#: apps/attendance/templates/attendance/_card_page.html:6
+#: apps/finance/documents.py:144 apps/finance/documents.py:399
 #: apps/finance/templates/finance/statement.html:24
 #: apps/portal/templates/portal/receipt.html:24 apps/students/documents.py:226
 #: apps/students/imports.py:97
@@ -1637,7 +1642,6 @@ msgid "DEMOCRATIC REPUBLIC OF THE CONGO"
 msgstr "RÉPUBLIQUE DÉMOCRATIQUE DU CONGO"
 
 #: apps/academics/templates/academics/report_card.html:76
-#: apps/core/templates/core/_document_header.html:6
 #: apps/core/templates/core/site/home.html:96
 msgid "MINISTRY OF PRIMARY, SECONDARY AND TECHNICAL EDUCATION"
 msgstr "MINISTÈRE DE L'ENSEIGNEMENT PRIMAIRE, SECONDAIRE ET TECHNIQUE"
@@ -2057,8 +2061,8 @@ msgstr "Lauréat de l'école :"
 
 #: apps/academics/templates/academics/situation.html:123
 #: apps/academics/templates/academics/situation.html:193
-#: apps/attendance/reports.py:197 apps/finance/documents.py:143
-#: apps/finance/documents.py:401
+#: apps/attendance/cards.py:470 apps/attendance/reports.py:197
+#: apps/finance/documents.py:143 apps/finance/documents.py:401
 #: apps/finance/templates/finance/receipt_register.html:28
 #: apps/finance/templates/finance/statement.html:25
 #: apps/finance/templates/finance/unpaid.html:27
@@ -2294,8 +2298,8 @@ msgid "Replace your temporary password at your school's address first."
 msgstr ""
 "Remplacez d'abord votre mot de passe provisoire à l'adresse de votre école."
 
-#: apps/accounts/models.py:64 apps/accounts/models.py:255
-#: apps/core/models.py:314 apps/notifications/models.py:489
+#: apps/accounts/models.py:64 apps/accounts/models.py:260
+#: apps/core/models.py:322 apps/notifications/models.py:489
 #: apps/students/models.py:70
 msgid "phone"
 msgstr "téléphone"
@@ -2316,7 +2320,7 @@ msgstr "post-nom"
 msgid "first name"
 msgstr "prénom"
 
-#: apps/accounts/models.py:73 apps/core/models.py:318 apps/core/models.py:688
+#: apps/accounts/models.py:73 apps/core/models.py:326 apps/core/models.py:696
 msgid "language"
 msgstr "langue"
 
@@ -2355,7 +2359,7 @@ msgid "two-factor authentication enabled on"
 msgstr "double authentification activée le"
 
 #: apps/accounts/models.py:108 apps/accounts/models.py:197
-#: apps/accounts/models.py:238 apps/notifications/models.py:211
+#: apps/accounts/models.py:243 apps/notifications/models.py:211
 #: apps/notifications/models.py:301 apps/notifications/models.py:367
 #: apps/notifications/models.py:406 apps/sync/models.py:22
 msgid "account"
@@ -2365,12 +2369,12 @@ msgstr "compte"
 msgid "accounts"
 msgstr "comptes"
 
-#: apps/accounts/models.py:174 apps/core/models.py:311
+#: apps/accounts/models.py:174 apps/core/models.py:319
 msgid "role"
 msgstr "rôle"
 
-#: apps/accounts/models.py:200 apps/core/models.py:53 apps/core/models.py:312
-#: apps/core/models.py:527 apps/core/models.py:569
+#: apps/accounts/models.py:200 apps/core/models.py:53 apps/core/models.py:320
+#: apps/core/models.py:535 apps/core/models.py:577
 #: apps/notifications/models.py:376 apps/schools/admin.py:59
 #: apps/schools/models.py:240 apps/schools/models.py:381
 #: apps/schools/models.py:686
@@ -2385,36 +2389,45 @@ msgstr "dernière connexion"
 msgid "signature"
 msgstr "signature"
 
-#: apps/accounts/models.py:217
+#: apps/accounts/models.py:216 apps/core/models.py:513
+#: apps/students/models.py:112
+msgid "photo"
+msgstr "photo"
+
+#: apps/accounts/models.py:218
+msgid "job title"
+msgstr "fonction"
+
+#: apps/accounts/models.py:222
 msgid "membership"
 msgstr "appartenance"
 
-#: apps/accounts/models.py:218
+#: apps/accounts/models.py:223
 msgid "memberships"
 msgstr "appartenances"
 
-#: apps/accounts/models.py:241
+#: apps/accounts/models.py:246
 msgid "used on"
 msgstr "utilisé le"
 
-#: apps/accounts/models.py:245
+#: apps/accounts/models.py:250
 msgid "recovery code"
 msgstr "code de secours"
 
-#: apps/accounts/models.py:246
+#: apps/accounts/models.py:251
 msgid "recovery codes"
 msgstr "codes de secours"
 
-#: apps/accounts/models.py:256 apps/audit/models.py:70 apps/audit/models.py:136
+#: apps/accounts/models.py:261 apps/audit/models.py:70 apps/audit/models.py:136
 #: apps/audit/views.py:115
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: apps/accounts/models.py:260
+#: apps/accounts/models.py:265
 msgid "failed login"
 msgstr "connexion ratée"
 
-#: apps/accounts/models.py:261
+#: apps/accounts/models.py:266
 msgid "failed logins"
 msgstr "connexions ratées"
 
@@ -2755,7 +2768,7 @@ msgstr "Directeur des études"
 msgid "Discipline master"
 msgstr "Directeur de discipline"
 
-#: apps/accounts/roles.py:239 apps/core/models.py:280
+#: apps/accounts/roles.py:239 apps/core/models.py:288
 #: apps/core/templates/core/site/home.html:137
 #: apps/core/templates/core/site/schools.html:12
 #: apps/core/templates/core/site/schools.html:42
@@ -2776,7 +2789,7 @@ msgstr "Caissier"
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: apps/accounts/roles.py:277 apps/core/models.py:278
+#: apps/accounts/roles.py:277 apps/core/models.py:286
 msgid "Promoter"
 msgstr "Promoteur"
 
@@ -2793,11 +2806,11 @@ msgstr "Enseignant"
 msgid "Parent"
 msgstr "Parent"
 
-#: apps/accounts/serializers.py:359
+#: apps/accounts/serializers.py:366
 msgid "Choose a password different from the current one."
 msgstr "Choisissez un mot de passe différent de l'actuel."
 
-#: apps/accounts/serializers.py:444
+#: apps/accounts/serializers.py:451
 #, python-format
 msgid "Choose between 1 and %(max)s people."
 msgstr "Choisissez entre 1 et %(max)s personnes."
@@ -3056,7 +3069,7 @@ msgid "Add to my app"
 msgstr "Ajouter à mon application"
 
 #: apps/accounts/templates/admin/accounts/user/temporary_password.html:6
-#: apps/core/models.py:483 apps/core/templates/core/site/article.html:6
+#: apps/core/models.py:491 apps/core/templates/core/site/article.html:6
 msgid "Home"
 msgstr "Accueil"
 
@@ -3178,20 +3191,20 @@ msgstr "usage"
 msgid "Waiting"
 msgstr "En attente"
 
-#: apps/ai/models.py:100 apps/core/models.py:752
+#: apps/ai/models.py:100 apps/core/models.py:760
 msgid "Running"
 msgstr "En cours"
 
-#: apps/ai/models.py:101 apps/core/models.py:753 apps/timetable/models.py:353
+#: apps/ai/models.py:101 apps/core/models.py:761 apps/timetable/models.py:353
 msgid "Done"
 msgstr "Terminé"
 
-#: apps/ai/models.py:102 apps/attendance/models.py:272
+#: apps/ai/models.py:102 apps/attendance/models.py:279
 msgid "Refused"
 msgstr "Refusé"
 
-#: apps/ai/models.py:103 apps/core/models.py:754 apps/schools/models.py:378
-#: apps/schools/models.py:682 apps/students/models.py:227
+#: apps/ai/models.py:103 apps/core/models.py:762 apps/schools/models.py:378
+#: apps/schools/models.py:682 apps/students/models.py:231
 #: apps/timetable/models.py:356
 msgid "Failed"
 msgstr "Échec"
@@ -3298,53 +3311,100 @@ msgstr "Analyse de l’horaire et propositions"
 msgid "Attendance"
 msgstr "Présences"
 
-#: apps/attendance/cards.py:42
+#: apps/attendance/cards.py:49 apps/schools/organisation.py:36
 msgid "Set the current school year first."
 msgstr "Choisissez d'abord l'année scolaire en cours."
 
-#: apps/attendance/cards.py:44
+#: apps/attendance/cards.py:51
 msgid "This card is already revoked."
 msgstr "Cette carte est déjà révoquée."
 
-#: apps/attendance/cards.py:48
+#: apps/attendance/cards.py:56
+msgid ""
+"No official photo: take it first (Cards, Photo session), or allow cards "
+"without a photo in the card model."
+msgstr ""
+"Pas de photo officielle : prenez-la d'abord (Cartes, Séance photo), ou "
+"permettez les cartes sans photo dans le modèle de carte."
+
+#: apps/attendance/cards.py:63
 msgid "Someone issued a card for the same person at the same time: try again."
 msgstr ""
 "Une carte vient d'être émise pour la même personne au même moment : "
 "recommencez."
 
-#: apps/attendance/cards.py:116
+#: apps/attendance/cards.py:131
 msgid "Choose at least one person."
 msgstr "Choisissez au moins une personne."
 
-#: apps/attendance/cards.py:119
+#: apps/attendance/cards.py:134
 #, python-format
 msgid "At most %(max)s cards at a time."
 msgstr "Au plus %(max)s cartes à la fois."
 
-#: apps/attendance/cards.py:268
+#: apps/attendance/cards.py:389
 msgid "Only students enrolled this year get a card."
 msgstr "Seuls les élèves inscrits cette année reçoivent une carte."
 
-#: apps/attendance/cards.py:270
+#: apps/attendance/cards.py:391
 msgid "Unknown staff member."
 msgstr "Membre du personnel inconnu."
 
-#: apps/attendance/cards.py:288
-msgid "Student card"
-msgstr "Carte d'élève"
-
-#: apps/attendance/cards.py:295
-msgid "Staff card"
-msgstr "Carte du personnel"
-
-#: apps/attendance/cards.py:333
+#: apps/attendance/cards.py:449
 #, python-format
+msgid "%(place)s, on %(date)s"
+msgstr "%(place)s, le %(date)s"
+
+#: apps/attendance/cards.py:455
+msgctxt "card, female"
+msgid "Born in"
+msgstr "Née à"
+
+#: apps/attendance/cards.py:455
+msgctxt "card, male"
+msgid "Born in"
+msgstr "Né à"
+
+#: apps/attendance/cards.py:461
+msgid "Names"
+msgstr "Noms"
+
+#: apps/attendance/cards.py:465 apps/schools/exports.py:85
+#: apps/students/documents.py:231
+#: apps/students/templates/students/class_list.html:19
+#: apps/students/templates/students/registration_form.html:23
+msgid "Sex"
+msgstr "Sexe"
+
+#: apps/attendance/cards.py:467
+#: apps/students/templates/students/registration_form.html:24
+msgid "Nationality"
+msgstr "Nationalité"
+
+#: apps/attendance/cards.py:469
+msgid "ID No."
+msgstr "N° ID"
+
+#: apps/attendance/cards.py:473 apps/finance/documents.py:146
+#: apps/finance/templates/finance/statement.html:25
+#: apps/finance/templates/finance/unpaid.html:28 apps/students/models.py:60
+msgid "Guardian"
+msgstr "Tuteur"
+
+#: apps/attendance/cards.py:475 apps/core/templates/core/site/contact.html:63
+#: apps/core/templates/core/site/llms.txt:7
+#: apps/core/templates/core/site/llms.txt:51
+#: apps/students/templates/students/registration_form.html:25
+msgid "Address"
+msgstr "Adresse"
+
+#: apps/attendance/cards.py:565
 msgid ""
-"This card is personal. If you find it, please return it to "
-"%(school)s%(city)s."
+"The civil, military and police authorities are kindly requested to assist "
+"the holder of this card."
 msgstr ""
-"Cette carte est personnelle. Si vous la trouvez, rapportez-la à "
-"%(school)s%(city)s."
+"Les autorités tant civiles, militaires que policières sont priées d'apporter "
+"leur assistance au porteur de la présente carte."
 
 #: apps/attendance/corrections.py:33
 msgid ""
@@ -3392,7 +3452,7 @@ msgstr "Cette justification a déjà reçu une réponse."
 msgid "The file must not exceed 5 MB."
 msgstr "Le fichier ne doit pas dépasser 5 Mo."
 
-#: apps/attendance/models.py:28 apps/core/models.py:301
+#: apps/attendance/models.py:28 apps/core/models.py:309
 msgid "Lost"
 msgstr "Perdue"
 
@@ -3404,45 +3464,53 @@ msgstr "Remplacée par une nouvelle carte"
 msgid "Left the school"
 msgstr "A quitté l'école"
 
-#: apps/attendance/models.py:46 apps/attendance/models.py:157
-#: apps/attendance/models.py:232
+#: apps/attendance/models.py:46 apps/attendance/models.py:164
+#: apps/attendance/models.py:239
 msgid "staff member"
 msgstr "membre du personnel"
 
-#: apps/attendance/models.py:48
+#: apps/attendance/models.py:50
+msgid "card number"
+msgstr "N° de carte"
+
+#: apps/attendance/models.py:51
 msgid "token fingerprint"
 msgstr "empreinte du jeton"
 
-#: apps/attendance/models.py:49
+#: apps/attendance/models.py:54
+msgid "printed data fingerprint"
+msgstr "empreinte des données imprimées"
+
+#: apps/attendance/models.py:55
 msgid "last signs of the token"
 msgstr "derniers signes du jeton"
 
-#: apps/attendance/models.py:50
+#: apps/attendance/models.py:56
 msgid "valid until"
 msgstr "valable jusqu'au"
 
-#: apps/attendance/models.py:51 apps/finance/models.py:253
+#: apps/attendance/models.py:57 apps/finance/models.py:253
 msgid "revoked at"
 msgstr "retirée le"
 
-#: apps/attendance/models.py:58 apps/finance/models.py:260
+#: apps/attendance/models.py:64 apps/finance/models.py:260
 msgid "revoked by"
 msgstr "retirée par"
 
-#: apps/attendance/models.py:66 apps/attendance/models.py:165
+#: apps/attendance/models.py:72 apps/attendance/models.py:172
 msgid "card"
 msgstr "carte"
 
-#: apps/attendance/models.py:67
+#: apps/attendance/models.py:73
 msgid "cards"
 msgstr "cartes"
 
-#: apps/attendance/models.py:103
+#: apps/attendance/models.py:110
 msgid "Entrance"
 msgstr "Entrée"
 
-#: apps/attendance/models.py:105 apps/billing/models.py:127
-#: apps/billing/models.py:172 apps/core/models.py:365
+#: apps/attendance/models.py:112 apps/billing/models.py:127
+#: apps/billing/models.py:172 apps/core/models.py:373
 #: apps/finance/models.py:247 apps/finance/models.py:1093
 #: apps/notifications/models.py:94 apps/notifications/models.py:304
 #: apps/schools/models.py:464 apps/sync/models.py:26
@@ -3452,32 +3520,32 @@ msgstr "Entrée"
 msgid "kind"
 msgstr "type"
 
-#: apps/attendance/models.py:110
+#: apps/attendance/models.py:117
 msgid "attendance session"
 msgstr "séance de présence"
 
-#: apps/attendance/models.py:111
+#: apps/attendance/models.py:118
 msgid "attendance sessions"
 msgstr "séances de présence"
 
-#: apps/attendance/models.py:130
+#: apps/attendance/models.py:137
 msgid "Card (QR code)"
 msgstr "Carte (code QR)"
 
-#: apps/attendance/models.py:131
+#: apps/attendance/models.py:138
 msgid "Student number typed"
 msgstr "Matricule tapé"
 
-#: apps/attendance/models.py:134 apps/attendance/models.py:208
+#: apps/attendance/models.py:141 apps/attendance/models.py:215
 msgid "Arrived"
 msgstr "Arrivé"
 
-#: apps/attendance/models.py:135 apps/attendance/models.py:209
+#: apps/attendance/models.py:142 apps/attendance/models.py:216
 #: apps/attendance/reports.py:200
 msgid "Late"
 msgstr "En retard"
 
-#: apps/attendance/models.py:173 apps/audit/models.py:76
+#: apps/attendance/models.py:180 apps/audit/models.py:76
 #: apps/finance/models.py:418 apps/finance/models.py:541
 #: apps/finance/models.py:635 apps/finance/models.py:836
 #: apps/finance/models.py:1005 apps/notifications/models.py:487
@@ -3485,93 +3553,93 @@ msgstr "En retard"
 msgid "device"
 msgstr "appareil"
 
-#: apps/attendance/models.py:175
+#: apps/attendance/models.py:182
 msgid "seen at"
 msgstr "lu à"
 
-#: apps/attendance/models.py:176 apps/billing/models.py:218
+#: apps/attendance/models.py:183 apps/billing/models.py:218
 #: apps/finance/models.py:530
 msgid "method"
 msgstr "moyen de paiement"
 
-#: apps/attendance/models.py:181
+#: apps/attendance/models.py:188
 msgid "attendance record"
 msgstr "passage"
 
-#: apps/attendance/models.py:182
+#: apps/attendance/models.py:189
 msgid "attendance records"
 msgstr "passages"
 
-#: apps/attendance/models.py:210 apps/attendance/serializers.py:200
+#: apps/attendance/models.py:217 apps/attendance/serializers.py:248
 #: apps/timetable/worked_views.py:185
 msgid "Absent"
 msgstr "Absent"
 
-#: apps/attendance/models.py:240
+#: apps/attendance/models.py:247
 msgid "corrected record"
 msgstr "passage corrigé"
 
-#: apps/attendance/models.py:243
+#: apps/attendance/models.py:250
 msgid "status before"
 msgstr "état avant"
 
-#: apps/attendance/models.py:248
+#: apps/attendance/models.py:255
 msgid "attendance correction"
 msgstr "correction de présence"
 
-#: apps/attendance/models.py:249
+#: apps/attendance/models.py:256
 msgid "attendance corrections"
 msgstr "corrections de présence"
 
-#: apps/attendance/models.py:270 apps/finance/models.py:611
+#: apps/attendance/models.py:277 apps/finance/models.py:611
 msgid "Pending"
 msgstr "En attente"
 
-#: apps/attendance/models.py:271
+#: apps/attendance/models.py:278
 msgid "Accepted"
 msgstr "Acceptée"
 
-#: apps/attendance/models.py:275
+#: apps/attendance/models.py:282
 msgid "Sent by the parent"
 msgstr "Envoyée par le parent"
 
-#: apps/attendance/models.py:276
+#: apps/attendance/models.py:283
 msgid "Recorded by the school"
 msgstr "Notée par l'école"
 
-#: apps/attendance/models.py:284 apps/core/models.py:390
+#: apps/attendance/models.py:291 apps/core/models.py:398
 #: apps/finance/models.py:1095
 msgid "from"
 msgstr "du"
 
 #
-#: apps/attendance/models.py:285 apps/finance/models.py:1097
+#: apps/attendance/models.py:292 apps/finance/models.py:1097
 msgid "to"
 msgstr "vers"
 
-#: apps/attendance/models.py:287
+#: apps/attendance/models.py:294
 msgid "certificate"
 msgstr "certificat"
 
-#: apps/attendance/models.py:292 apps/finance/models.py:648
+#: apps/attendance/models.py:299 apps/finance/models.py:648
 #: apps/finance/models.py:934
 msgid "decided at"
 msgstr "décidée le"
 
-#: apps/attendance/models.py:299 apps/finance/models.py:646
+#: apps/attendance/models.py:306 apps/finance/models.py:646
 #: apps/finance/models.py:932
 msgid "decided by"
 msgstr "décidée par"
 
-#: apps/attendance/models.py:301
+#: apps/attendance/models.py:308
 msgid "answer to the parent"
 msgstr "réponse au parent"
 
-#: apps/attendance/models.py:305
+#: apps/attendance/models.py:312
 msgid "absence justification"
 msgstr "justification d'absence"
 
-#: apps/attendance/models.py:306
+#: apps/attendance/models.py:313
 msgid "absence justifications"
 msgstr "justifications d'absence"
 
@@ -3615,7 +3683,7 @@ msgstr "À l'heure"
 msgid "Absences"
 msgstr "Absences"
 
-#: apps/attendance/reports.py:202 apps/attendance/serializers.py:202
+#: apps/attendance/reports.py:202 apps/attendance/serializers.py:250
 msgid "Justified"
 msgstr "Justifiée"
 
@@ -3651,45 +3719,98 @@ msgstr "L'horloge de cet appareil est en avance : réglez la bonne heure."
 msgid "This identifier is already used: update the application."
 msgstr "Cet identifiant est déjà utilisé : mettez l'application à jour."
 
-#: apps/attendance/serializers.py:141
+#: apps/attendance/serializers.py:171
 msgid "Choose people, a class, or the people without a card."
 msgstr "Choisissez des personnes, une classe, ou les personnes sans carte."
 
-#: apps/attendance/serializers.py:201
+#: apps/attendance/serializers.py:249
 msgid "Justification pending"
 msgstr "Justification en attente"
 
-#: apps/attendance/serializers.py:227
+#: apps/attendance/serializers.py:275
 msgid "The start comes after the end."
 msgstr "Le début vient après la fin."
 
-#: apps/attendance/serializers.py:229
+#: apps/attendance/serializers.py:277
 msgid "Choose one school year at most."
 msgstr "Choisissez une année scolaire au plus."
 
-#: apps/attendance/serializers.py:350
+#: apps/attendance/serializers.py:398
 msgid "Choose one student or one staff member."
 msgstr "Choisissez un élève ou un membre du personnel."
 
 #: apps/attendance/templates/attendance/_card_page.html:4
+#: apps/attendance/templates/attendance/_card_page.html:12
+#: apps/core/templates/core/_document_header.html:5
+msgid "Democratic Republic of the Congo"
+msgstr "République Démocratique du Congo"
+
+#: apps/attendance/templates/attendance/_card_page.html:5
+msgid "Student card"
+msgstr "Carte d'élève"
+
+#: apps/attendance/templates/attendance/_card_page.html:10
+#: apps/finance/templates/finance/statement.html:21
+#: apps/portal/templates/portal/receipt.html:20
 #, python-format
-msgid "Student number %(number)s"
-msgstr "Matricule %(number)s"
+msgid "School year %(year)s"
+msgstr "Année scolaire %(year)s"
 
 #: apps/attendance/templates/attendance/_card_page.html:10
 #, python-format
 msgid "Valid until %(date)s"
 msgstr "Valable jusqu'au %(date)s"
 
+#: apps/attendance/templates/attendance/_card_page.html:13
+msgid "Service card"
+msgstr "Carte de service"
+
+#: apps/attendance/templates/attendance/_card_page.html:19
+#: apps/notifications/models.py:21
+msgid "Staff"
+msgstr "Personnel"
+
+#: apps/attendance/templates/attendance/_card_page.html:24
+#, python-format
+msgid "Issued in %(city)s, on %(date)s"
+msgstr "Délivrée à %(city)s, le %(date)s"
+
+#: apps/attendance/templates/attendance/_card_page.html:24
+#, python-format
+msgid "Issued on %(date)s"
+msgstr "Délivrée le %(date)s"
+
+#: apps/attendance/templates/attendance/_card_page.html:26
+msgid ""
+"Personal card, requested at the entrance and at the cash desk. Lost: report "
+"it to the secretariat, it will be blocked. Found: bring it back to the "
+"school."
+msgstr ""
+"Carte personnelle, demandée à l'entrée et à la caisse. Perdue : la signaler "
+"au secrétariat, elle sera bloquée. Trouvée : la rapporter à l'école."
+
+#: apps/attendance/templates/attendance/_card_page.html:26
+msgid ""
+"Service card: access to the school and staff check-in. Lost: report it to "
+"the management."
+msgstr ""
+"Carte de service : accès à l'école et pointage du personnel. Perdue : la "
+"signaler à la direction."
+
+#: apps/attendance/templates/attendance/_card_page.html:30
+#, python-format
+msgid "Card issued with %(platform)s"
+msgstr "Carte émise avec %(platform)s"
+
 #: apps/attendance/templates/attendance/cards.html:6
 msgid "Cards"
 msgstr "Cartes"
 
-#: apps/attendance/views.py:64
+#: apps/attendance/views.py:72
 msgid "Too many documents in preparation: try again in a moment."
 msgstr "Trop de documents en préparation : réessayez dans un instant."
 
-#: apps/attendance/views.py:70
+#: apps/attendance/views.py:78
 msgid ""
 "This print is no longer available: card codes are never kept. Issue the "
 "cards again."
@@ -3713,7 +3834,7 @@ msgstr "Double authentification sur un nouveau téléphone"
 msgid "Two-factor authentication turned off"
 msgstr "Double authentification désactivée"
 
-#: apps/audit/actions.py:24 apps/audit/actions.py:356
+#: apps/audit/actions.py:24 apps/audit/actions.py:364
 msgid "Two-factor authentication reset by support"
 msgstr "Double authentification réinitialisée par le support"
 
@@ -3721,19 +3842,19 @@ msgstr "Double authentification réinitialisée par le support"
 msgid "New recovery codes"
 msgstr "Nouveaux codes de secours"
 
-#: apps/audit/actions.py:27 apps/audit/actions.py:352
+#: apps/audit/actions.py:27 apps/audit/actions.py:360
 msgid "Names or phone changed by support"
 msgstr "Noms ou téléphone changés par le support"
 
-#: apps/audit/actions.py:28 apps/audit/actions.py:353
+#: apps/audit/actions.py:28 apps/audit/actions.py:361
 msgid "Account deactivated by support"
 msgstr "Compte désactivé par le support"
 
-#: apps/audit/actions.py:29 apps/audit/actions.py:354
+#: apps/audit/actions.py:29 apps/audit/actions.py:362
 msgid "Account reactivated by support"
 msgstr "Compte réactivé par le support"
 
-#: apps/audit/actions.py:30 apps/audit/actions.py:355
+#: apps/audit/actions.py:30 apps/audit/actions.py:363
 msgid "Temporary password given by support"
 msgstr "Mot de passe provisoire donné par le support"
 
@@ -3774,880 +3895,888 @@ msgid "Staff member's signature changed"
 msgstr "Signature d'un membre du personnel changée"
 
 #: apps/audit/actions.py:44
+msgid "Staff member's official photo changed"
+msgstr "Photo officielle d'un membre du personnel changée"
+
+#: apps/audit/actions.py:45
+msgid "Staff member's position changed"
+msgstr "Fonction d'un membre du personnel changée"
+
+#: apps/audit/actions.py:46
 msgid "Temporary password given"
 msgstr "Mot de passe provisoire donné"
 
-#: apps/audit/actions.py:45
+#: apps/audit/actions.py:47
 msgid "Two-factor authentication reset"
 msgstr "Double authentification réinitialisée"
 
-#: apps/audit/actions.py:49 apps/audit/actions.py:344
+#: apps/audit/actions.py:51 apps/audit/actions.py:352
 msgid "School created"
 msgstr "École créée"
 
-#: apps/audit/actions.py:50
+#: apps/audit/actions.py:52
 msgid "School settings changed"
 msgstr "Paramètres de l'école modifiés"
 
-#: apps/audit/actions.py:52
+#: apps/audit/actions.py:54
 msgid "Terms accepted"
 msgstr "Conditions acceptées"
 
-#: apps/audit/actions.py:53
+#: apps/audit/actions.py:55
 msgid "Contract with the platform started"
 msgstr "Contrat avec la plateforme commencé"
 
-#: apps/audit/actions.py:54
+#: apps/audit/actions.py:56
 msgid "School logo changed"
 msgstr "Logo de l'école changé"
 
-#: apps/audit/actions.py:57
+#: apps/audit/actions.py:59
 msgid "School stamp or signature of the head changed"
 msgstr "Cachet de l'école ou signature du chef d'établissement changés"
 
-#: apps/audit/actions.py:59 apps/audit/actions.py:346
+#: apps/audit/actions.py:61 apps/audit/actions.py:354
 msgid "School suspended"
 msgstr "École suspendue"
 
-#: apps/audit/actions.py:60 apps/audit/actions.py:347
+#: apps/audit/actions.py:62 apps/audit/actions.py:355
 msgid "School reactivated"
 msgstr "École réactivée"
 
-#: apps/audit/actions.py:61 apps/audit/actions.py:348
+#: apps/audit/actions.py:63 apps/audit/actions.py:356
 msgid "School stopped"
 msgstr "École arrêtée"
 
-#: apps/audit/actions.py:64
+#: apps/audit/actions.py:66
 msgid "School year created"
 msgstr "Année scolaire créée"
 
-#: apps/audit/actions.py:65
+#: apps/audit/actions.py:67
 msgid "School year changed"
 msgstr "Année scolaire modifiée"
 
-#: apps/audit/actions.py:66
+#: apps/audit/actions.py:68
 msgid "School year deleted"
 msgstr "Année scolaire supprimée"
 
-#: apps/audit/actions.py:67
+#: apps/audit/actions.py:69
 msgid "Terms and periods changed"
 msgstr "Découpage de l'année modifié"
 
-#: apps/audit/actions.py:68
+#: apps/audit/actions.py:70
 msgid "Level created"
 msgstr "Niveau créé"
 
-#: apps/audit/actions.py:69
+#: apps/audit/actions.py:71
 msgid "Level changed"
 msgstr "Niveau modifié"
 
-#: apps/audit/actions.py:70
+#: apps/audit/actions.py:72
 msgid "Level deleted"
 msgstr "Niveau supprimé"
 
-#: apps/audit/actions.py:71
+#: apps/audit/actions.py:73
 msgid "Levels reordered"
 msgstr "Niveaux réordonnés"
 
-#: apps/audit/actions.py:72
+#: apps/audit/actions.py:74
 msgid "Track created"
 msgstr "Option créée"
 
-#: apps/audit/actions.py:73
+#: apps/audit/actions.py:75
 msgid "Track changed"
 msgstr "Option modifiée"
 
-#: apps/audit/actions.py:74
+#: apps/audit/actions.py:76
 msgid "Track deleted"
 msgstr "Option supprimée"
 
-#: apps/audit/actions.py:75
+#: apps/audit/actions.py:77
 msgid "Class created"
 msgstr "Classe créée"
 
-#: apps/audit/actions.py:76
+#: apps/audit/actions.py:78
 msgid "Class changed"
 msgstr "Classe modifiée"
 
-#: apps/audit/actions.py:77
+#: apps/audit/actions.py:79
 msgid "Class deleted"
 msgstr "Classe supprimée"
 
-#: apps/audit/actions.py:80
+#: apps/audit/actions.py:82
 msgid "Student number format changed"
 msgstr "Format du matricule modifié"
 
-#: apps/audit/actions.py:84
+#: apps/audit/actions.py:86
 msgid "Courses of a class changed"
 msgstr "Cours d'une classe modifiés"
 
-#: apps/audit/actions.py:85
+#: apps/audit/actions.py:87
 msgid "Joint course changed"
 msgstr "Cours commun modifié"
 
-#: apps/audit/actions.py:87
+#: apps/audit/actions.py:89
 msgid "Grades changed"
 msgstr "Notes modifiées"
 
-#: apps/audit/actions.py:89
+#: apps/audit/actions.py:91
 msgid "Grades sent for validation"
 msgstr "Notes envoyées pour validation"
 
-#: apps/audit/actions.py:90
+#: apps/audit/actions.py:92
 msgid "Grades validated"
 msgstr "Notes validées"
 
-#: apps/audit/actions.py:92
+#: apps/audit/actions.py:94
 msgid "Course substitute designated"
 msgstr "Remplaçant d'un cours désigné"
 
-#: apps/audit/actions.py:93
+#: apps/audit/actions.py:95
 msgid "Course substitute removed"
 msgstr "Remplaçant d'un cours retiré"
 
-#: apps/audit/actions.py:94
+#: apps/audit/actions.py:96
 msgid "Grades reopened"
 msgstr "Notes rouvertes"
 
-#: apps/audit/actions.py:95
+#: apps/audit/actions.py:97
 msgid "Grade entry deadline set"
 msgstr "Date limite de saisie fixée"
 
-#: apps/audit/actions.py:97
+#: apps/audit/actions.py:99
 msgid "Teachers reminded of their grade sheets"
 msgstr "Enseignants rappelés pour leurs fiches de cotes"
 
-#: apps/audit/actions.py:99
+#: apps/audit/actions.py:101
 msgid "Report cards declared ready"
 msgstr "Bulletins déclarés prêts"
 
-#: apps/audit/actions.py:102
+#: apps/audit/actions.py:104
 msgid "Report cards no longer declared ready"
 msgstr "Bulletins plus dits prêts"
 
-#: apps/audit/actions.py:105
+#: apps/audit/actions.py:107
 msgid "Report card printed"
 msgstr "Bulletin imprimé"
 
-#: apps/audit/actions.py:107
+#: apps/audit/actions.py:109
 msgid "Grade sheet printed"
 msgstr "Fiche de cotes imprimée"
 
-#: apps/audit/actions.py:109
+#: apps/audit/actions.py:111
 msgid "Year-end situation printed"
 msgstr "Situation de fin d'année imprimée"
 
-#: apps/audit/actions.py:111
+#: apps/audit/actions.py:113
 msgid "Offence list changed"
 msgstr "Liste des infractions modifiée"
 
-#: apps/audit/actions.py:112
+#: apps/audit/actions.py:114
 msgid "Conduct scale changed"
 msgstr "Seuils de la conduite modifiés"
 
-#: apps/audit/actions.py:113
+#: apps/audit/actions.py:115
 msgid "Offence recorded"
 msgstr "Infraction attribuée"
 
-#: apps/audit/actions.py:114
+#: apps/audit/actions.py:116
 msgid "Offence cancelled"
 msgstr "Infraction annulée"
 
-#: apps/audit/actions.py:115
+#: apps/audit/actions.py:117
 msgid "Conduct grade corrected"
 msgstr "Cote de conduite corrigée"
 
-#: apps/audit/actions.py:117
+#: apps/audit/actions.py:119
 msgid "Card issued"
 msgstr "Carte émise"
 
-#: apps/audit/actions.py:118
+#: apps/audit/actions.py:120
 msgid "Card revoked"
 msgstr "Carte révoquée"
 
-#: apps/audit/actions.py:120
+#: apps/audit/actions.py:122
 msgid "Attendance corrected"
 msgstr "Présence corrigée"
 
-#: apps/audit/actions.py:121
+#: apps/audit/actions.py:125
 msgid "Absence justified by the school"
 msgstr "Absence justifiée par l'école"
 
-#: apps/audit/actions.py:122
+#: apps/audit/actions.py:129
 msgid "Absence justification decided"
 msgstr "Justification d'absence décidée"
 
-#: apps/audit/actions.py:124
+#: apps/audit/actions.py:132
 msgid "Time grid changed"
 msgstr "Grille horaire modifiée"
 
-#: apps/audit/actions.py:125
+#: apps/audit/actions.py:133
 msgid "Time grid deleted"
 msgstr "Grille horaire supprimée"
 
-#: apps/audit/actions.py:126
+#: apps/audit/actions.py:134
 msgid "Room changed"
 msgstr "Salle modifiée"
 
-#: apps/audit/actions.py:127
+#: apps/audit/actions.py:135
 msgid "Time grid or room of a class changed"
 msgstr "Grille ou salle d'une classe changée"
 
-#: apps/audit/actions.py:128
+#: apps/audit/actions.py:136
 msgid "Timetable rules changed"
 msgstr "Règles de l'emploi du temps modifiées"
 
-#: apps/audit/actions.py:129
+#: apps/audit/actions.py:137
 msgid "Teacher availability changed"
 msgstr "Disponibilités d'un enseignant modifiées"
 
-#: apps/audit/actions.py:130
+#: apps/audit/actions.py:138
 msgid "Timetable rule saved"
 msgstr "Règle de l'horaire enregistrée"
 
-#: apps/audit/actions.py:131
+#: apps/audit/actions.py:139
 msgid "Timetable rule deleted"
 msgstr "Règle de l'horaire supprimée"
 
-#: apps/audit/actions.py:132
+#: apps/audit/actions.py:140
 msgid "Timetable draft created"
 msgstr "Brouillon d'horaire créé"
 
-#: apps/audit/actions.py:133
+#: apps/audit/actions.py:141
 msgid "Timetable draft deleted"
 msgstr "Brouillon d'horaire supprimé"
 
-#: apps/audit/actions.py:134
+#: apps/audit/actions.py:142
 msgid "Lesson locked or unlocked"
 msgstr "Heure verrouillée ou déverrouillée"
 
-#: apps/audit/actions.py:135
+#: apps/audit/actions.py:143
 msgid "Timetable published"
 msgstr "Horaire publié"
 
-#: apps/audit/actions.py:137
+#: apps/audit/actions.py:145
 msgid "Exam sitting saved"
 msgstr "Épreuve de l'horaire enregistrée"
 
-#: apps/audit/actions.py:138
+#: apps/audit/actions.py:146
 msgid "Exam sitting deleted"
 msgstr "Épreuve de l'horaire supprimée"
 
-#: apps/audit/actions.py:139 apps/notifications/events.py:747
+#: apps/audit/actions.py:147 apps/notifications/events.py:747
 #: apps/notifications/events.py:752
 msgid "Exam timetable published"
 msgstr "Horaire des épreuves publié"
 
-#: apps/audit/actions.py:140
+#: apps/audit/actions.py:148
 msgid "Exam timetable reopened"
 msgstr "Horaire des épreuves rouvert"
 
-#: apps/audit/actions.py:143
+#: apps/audit/actions.py:151
 msgid "Lesson exception recorded"
 msgstr "Exception d'horaire notée"
 
-#: apps/audit/actions.py:147
+#: apps/audit/actions.py:155
 msgid "Lesson exception cancelled"
 msgstr "Exception d'horaire annulée"
 
-#: apps/audit/actions.py:149
+#: apps/audit/actions.py:157
 msgid "Application grade corrected"
 msgstr "Cote d'application corrigée"
 
-#: apps/audit/actions.py:150
+#: apps/audit/actions.py:158
 msgid "Resit grade changed"
 msgstr "Note de repêchage modifiée"
 
-#: apps/audit/actions.py:152
+#: apps/audit/actions.py:160
 msgid "Deliberation decision recorded"
 msgstr "Décision de délibération enregistrée"
 
-#: apps/audit/actions.py:153
+#: apps/audit/actions.py:161
 msgid "Class results proclaimed"
 msgstr "Résultats de la classe proclamés"
 
-#: apps/audit/actions.py:154
+#: apps/audit/actions.py:162
 msgid "Class results reopened"
 msgstr "Résultats de la classe rouverts"
 
-#: apps/audit/actions.py:155
+#: apps/audit/actions.py:163
 msgid "Report card fee waiver granted"
 msgstr "Dérogation de bulletin accordée"
 
-#: apps/audit/actions.py:156
+#: apps/audit/actions.py:164
 msgid "Report card fee waiver lifted"
 msgstr "Dérogation de bulletin levée"
 
-#: apps/audit/actions.py:157
+#: apps/audit/actions.py:165
 msgid "Deliberation council recorded"
 msgstr "Conseil de délibération enregistré"
 
-#: apps/audit/actions.py:160
+#: apps/audit/actions.py:168
 msgid "Deliberation minutes printed"
 msgstr "Procès-verbal de délibération imprimé"
 
-#: apps/audit/actions.py:164
+#: apps/audit/actions.py:172
 msgid "Family created"
 msgstr "Famille créée"
 
-#: apps/audit/actions.py:165
+#: apps/audit/actions.py:173
 msgid "Family changed"
 msgstr "Famille modifiée"
 
-#: apps/audit/actions.py:166
+#: apps/audit/actions.py:174
 msgid "Family deleted"
 msgstr "Famille supprimée"
 
-#: apps/audit/actions.py:167
+#: apps/audit/actions.py:175
 msgid "Student created"
 msgstr "Élève créé"
 
-#: apps/audit/actions.py:168
+#: apps/audit/actions.py:176
 msgid "Student changed"
 msgstr "Élève modifié"
 
-#: apps/audit/actions.py:169
+#: apps/audit/actions.py:177
 msgid "Student enrolled"
 msgstr "Élève inscrit"
 
-#: apps/audit/actions.py:170
+#: apps/audit/actions.py:178
 msgid "Enrollment changed"
 msgstr "Inscription modifiée"
 
-#: apps/audit/actions.py:172
+#: apps/audit/actions.py:180
 msgid "Place offered for next year"
 msgstr "Place de l'année suivante proposée"
 
-#: apps/audit/actions.py:173
+#: apps/audit/actions.py:181
 msgid "Place for next year withdrawn"
 msgstr "Place de l'année suivante retirée"
 
-#: apps/audit/actions.py:174
+#: apps/audit/actions.py:182
 msgid "Parent answered about the place"
 msgstr "Réponse du parent pour la place"
 
-#: apps/audit/actions.py:175
+#: apps/audit/actions.py:183
 msgid "Student imported from a file"
 msgstr "Élève importé d'un fichier"
 
-#: apps/audit/actions.py:176
+#: apps/audit/actions.py:184
 msgid "Student import cancelled"
 msgstr "Import d'élèves annulé"
 
-#: apps/audit/actions.py:177
+#: apps/audit/actions.py:185
 msgid "Student removed (import cancelled)"
 msgstr "Élève retiré (import annulé)"
 
-#: apps/audit/actions.py:180
+#: apps/audit/actions.py:188
 msgid "Family code printed on the registration form"
 msgstr "Code famille imprimé sur la fiche d'inscription"
 
-#: apps/audit/actions.py:182
+#: apps/audit/actions.py:190
 msgid "New family code"
 msgstr "Nouveau code famille"
 
-#: apps/audit/actions.py:185
+#: apps/audit/actions.py:193
 msgid "Portal invitation letter printed (family code)"
 msgstr "Lettre d'invitation au portail imprimée (code famille)"
 
-#: apps/audit/actions.py:189
+#: apps/audit/actions.py:197
 msgid "Portal invitation message opened (family code)"
 msgstr "Message d'invitation au portail ouvert (code famille)"
 
-#: apps/audit/actions.py:191
+#: apps/audit/actions.py:199
 msgid "Parent portal access suspended"
 msgstr "Accès au portail suspendu"
 
-#: apps/audit/actions.py:192
+#: apps/audit/actions.py:200
 msgid "Parent portal access restored"
 msgstr "Accès au portail rétabli"
 
-#: apps/audit/actions.py:195
+#: apps/audit/actions.py:203
 msgid "Contact details sent by the parent applied"
 msgstr "Coordonnées envoyées par le parent appliquées"
 
-#: apps/audit/actions.py:199
+#: apps/audit/actions.py:207
 msgid "Contact details sent by the parent not applied"
 msgstr "Coordonnées envoyées par le parent non appliquées"
 
-#: apps/audit/actions.py:202
+#: apps/audit/actions.py:210
 msgid "Parent portal activated"
 msgstr "Portail activé par le parent"
 
-#: apps/audit/actions.py:203
+#: apps/audit/actions.py:211
 msgid "Report card read by a parent"
 msgstr "Bulletin lu par un parent"
 
-#: apps/audit/actions.py:204
+#: apps/audit/actions.py:212
 msgid "Parent chose a new password"
 msgstr "Nouveau mot de passe choisi par le parent"
 
-#: apps/audit/actions.py:206
+#: apps/audit/actions.py:214
 msgid "Fee type created"
 msgstr "Type de frais créé"
 
-#: apps/audit/actions.py:207
+#: apps/audit/actions.py:215
 msgid "Fee type changed"
 msgstr "Type de frais modifié"
 
-#: apps/audit/actions.py:208
+#: apps/audit/actions.py:216
 msgid "Fee type deleted"
 msgstr "Type de frais supprimé"
 
-#: apps/audit/actions.py:209
+#: apps/audit/actions.py:217
 msgid "Fee rule created"
 msgstr "Barème créé"
 
-#: apps/audit/actions.py:210
+#: apps/audit/actions.py:218
 msgid "Fee rule changed"
 msgstr "Barème modifié"
 
-#: apps/audit/actions.py:211
+#: apps/audit/actions.py:219
 msgid "Fee rule deleted"
 msgstr "Barème supprimé"
 
-#: apps/audit/actions.py:214
+#: apps/audit/actions.py:222
 msgid "Fee rules copied from another school year"
 msgstr "Barèmes repris d'une autre année"
 
-#: apps/audit/actions.py:216
+#: apps/audit/actions.py:224
 msgid "Exchange rate set"
 msgstr "Taux de l'année saisi"
 
-#: apps/audit/actions.py:217
+#: apps/audit/actions.py:225
 msgid "Custom schedule set"
 msgstr "Échéancier particulier enregistré"
 
-#: apps/audit/actions.py:218 apps/finance/models.py:717
+#: apps/audit/actions.py:226 apps/finance/models.py:717
 msgid "Discount granted"
 msgstr "Réduction accordée"
 
-#: apps/audit/actions.py:219
+#: apps/audit/actions.py:227
 msgid "Discount revoked"
 msgstr "Réduction retirée"
 
-#: apps/audit/actions.py:221
+#: apps/audit/actions.py:229
 msgid "Cash register created"
 msgstr "Caisse créée"
 
-#: apps/audit/actions.py:222
+#: apps/audit/actions.py:230
 msgid "Cash register changed"
 msgstr "Caisse modifiée"
 
-#: apps/audit/actions.py:223
+#: apps/audit/actions.py:231
 msgid "Cash session opened"
 msgstr "Caisse ouverte"
 
-#: apps/audit/actions.py:224
+#: apps/audit/actions.py:232
 msgid "Cash session closed"
 msgstr "Caisse clôturée"
 
-#: apps/audit/actions.py:225
+#: apps/audit/actions.py:233
 msgid "Payment recorded"
 msgstr "Paiement encaissé"
 
-#: apps/audit/actions.py:229
+#: apps/audit/actions.py:237
 msgid "Earlier payment recorded (not at the cash desk)"
 msgstr "Paiement d'avant l'application enregistré (hors caisse)"
 
-#: apps/audit/actions.py:234
+#: apps/audit/actions.py:242
 msgid "Expense category created"
 msgstr "Catégorie de dépenses créée"
 
-#: apps/audit/actions.py:238
+#: apps/audit/actions.py:246
 msgid "Expense category changed"
 msgstr "Catégorie de dépenses modifiée"
 
-#: apps/audit/actions.py:242
+#: apps/audit/actions.py:250
 msgid "Expense approval threshold changed"
 msgstr "Seuil de validation des dépenses modifié"
 
-#: apps/audit/actions.py:244
+#: apps/audit/actions.py:252
 msgid "Expense recorded"
 msgstr "Dépense enregistrée"
 
-#: apps/audit/actions.py:245
+#: apps/audit/actions.py:253
 msgid "Expense approved"
 msgstr "Dépense validée"
 
-#: apps/audit/actions.py:246
+#: apps/audit/actions.py:254
 msgid "Expense rejected"
 msgstr "Dépense refusée"
 
-#: apps/audit/actions.py:247
+#: apps/audit/actions.py:255
 msgid "Expense cancelled"
 msgstr "Dépense annulée"
 
-#: apps/audit/actions.py:248
+#: apps/audit/actions.py:256
 msgid "Cash paid out for an expense"
 msgstr "Sortie de caisse pour une dépense"
 
-#: apps/audit/actions.py:249
+#: apps/audit/actions.py:257
 msgid "Cash-out cancelled"
 msgstr "Sortie de caisse annulée"
 
 #
-#: apps/audit/actions.py:250
+#: apps/audit/actions.py:258
 msgid "Budget changed"
 msgstr "Budget modifié"
 
-#: apps/audit/actions.py:253
+#: apps/audit/actions.py:261
 msgid "Account balance or transfer recorded"
 msgstr "Solde de départ ou virement saisi"
 
-#: apps/audit/actions.py:257
+#: apps/audit/actions.py:265
 msgid "Account balance or transfer cancelled"
 msgstr "Solde de départ ou virement annulé"
 
-#: apps/audit/actions.py:259
+#: apps/audit/actions.py:267
 msgid "Receipt reprinted"
 msgstr "Reçu réimprimé"
 
-#: apps/audit/actions.py:263
+#: apps/audit/actions.py:271
 msgid "Payment cancellation requested"
 msgstr "Annulation de paiement demandée"
 
-#: apps/audit/actions.py:265
+#: apps/audit/actions.py:273
 msgid "Payment cancelled"
 msgstr "Paiement annulé"
 
-#: apps/audit/actions.py:268
+#: apps/audit/actions.py:276
 msgid "Payment cancellation refused"
 msgstr "Annulation de paiement refusée"
 
-#: apps/audit/actions.py:272
+#: apps/audit/actions.py:280
 msgid "Cancellation receipt reprinted"
 msgstr "Reçu d'annulation réimprimé"
 
-#: apps/audit/actions.py:275
+#: apps/audit/actions.py:283
 msgid "Student credit created"
 msgstr "Crédit d'élève créé"
 
-#: apps/audit/actions.py:276
+#: apps/audit/actions.py:284
 msgid "Student credit used"
 msgstr "Crédit d'élève utilisé"
 
-#: apps/audit/actions.py:277
+#: apps/audit/actions.py:285
 msgid "Student credit voided"
 msgstr "Crédit d'élève annulé"
 
-#: apps/audit/actions.py:279
+#: apps/audit/actions.py:287
 msgid "Unpaid fees exported"
 msgstr "Impayés exportés"
 
-#: apps/audit/actions.py:283
+#: apps/audit/actions.py:291
 msgid "Receipt register exported"
 msgstr "Registre des reçus exporté"
 
-#: apps/audit/actions.py:286
+#: apps/audit/actions.py:294
 msgid "Financial statement printed"
 msgstr "Situation financière imprimée"
 
-#: apps/audit/actions.py:289
+#: apps/audit/actions.py:297
 msgid "Announcement published"
 msgstr "Annonce publiée"
 
-#: apps/audit/actions.py:290
+#: apps/audit/actions.py:298
 msgid "Announcement archived"
 msgstr "Annonce archivée"
 
-#: apps/audit/actions.py:292
+#: apps/audit/actions.py:300
 msgid "Parents summoned"
 msgstr "Parents convoqués"
 
-#: apps/audit/actions.py:293
+#: apps/audit/actions.py:301
 msgid "Summons cancelled"
 msgstr "Convocation annulée"
 
-#: apps/audit/actions.py:296
+#: apps/audit/actions.py:304
 msgid "Device remembered"
 msgstr "Appareil mémorisé"
 
-#: apps/audit/actions.py:297
+#: apps/audit/actions.py:305
 msgid "Device disconnected"
 msgstr "Appareil déconnecté"
 
-#: apps/audit/actions.py:300
+#: apps/audit/actions.py:308
 msgid "Audit log exported"
 msgstr "Journal d'audit exporté"
 
-#: apps/audit/actions.py:304
+#: apps/audit/actions.py:312
 msgid "Support session opened"
 msgstr "Session support ouverte"
 
-#: apps/audit/actions.py:305
+#: apps/audit/actions.py:313
 msgid "Support session closed"
 msgstr "Session support fermée"
 
-#: apps/audit/actions.py:319
+#: apps/audit/actions.py:327
 msgid "Platform identity changed"
 msgstr "Identité de la plateforme modifiée"
 
-#: apps/audit/actions.py:320
+#: apps/audit/actions.py:328
 msgid "Platform logo changed"
 msgstr "Logo de la plateforme changé"
 
-#: apps/audit/actions.py:321
+#: apps/audit/actions.py:329
 msgid "Application icon changed"
 msgstr "Icône des applications changée"
 
-#: apps/audit/actions.py:323
+#: apps/audit/actions.py:331
 msgid "AI settings changed"
 msgstr "Réglages de l’IA modifiés"
 
-#: apps/audit/actions.py:324
+#: apps/audit/actions.py:332
 msgid "AI uses or credits of a school changed"
 msgstr "Usages ou crédits IA d’une école modifiés"
 
-#: apps/audit/actions.py:325
+#: apps/audit/actions.py:333
 msgid "AI credits added to a school"
 msgstr "Crédits IA ajoutés à une école"
 
-#: apps/audit/actions.py:326
+#: apps/audit/actions.py:334
 #, python-format
 msgid "AI spending reached 80 % of the monthly cap"
 msgstr "La dépense IA atteint 80 % du plafond du mois"
 
-#: apps/audit/actions.py:327
+#: apps/audit/actions.py:335
 msgid "AI monthly cap reached"
 msgstr "Plafond mensuel de l’IA atteint"
 
-#: apps/audit/actions.py:330
+#: apps/audit/actions.py:338
 msgid "Plan saved"
 msgstr "Offre enregistrée"
 
-#: apps/audit/actions.py:331
+#: apps/audit/actions.py:339
 msgid "Contract drafted"
 msgstr "Contrat rédigé en brouillon"
 
-#: apps/audit/actions.py:332
+#: apps/audit/actions.py:340
 msgid "Contract started"
 msgstr "Contrat commencé"
 
-#: apps/audit/actions.py:333
+#: apps/audit/actions.py:341
 msgid "Contract ended"
 msgstr "Contrat terminé"
 
-#: apps/audit/actions.py:334
+#: apps/audit/actions.py:342
 msgid "Terms or policy version published"
 msgstr "Version des conditions ou de la politique publiée"
 
-#: apps/audit/actions.py:335
+#: apps/audit/actions.py:343
 msgid "Invoice issued"
 msgstr "Facture émise"
 
-#: apps/audit/actions.py:336
+#: apps/audit/actions.py:344
 msgid "Credit note issued"
 msgstr "Avoir émis"
 
-#: apps/audit/actions.py:337
+#: apps/audit/actions.py:345
 msgid "Invoice payment recorded"
 msgstr "Paiement de facture enregistré"
 
-#: apps/audit/actions.py:338
+#: apps/audit/actions.py:346
 msgid "Invoice payment cancelled"
 msgstr "Paiement de facture annulé"
 
-#: apps/audit/actions.py:339
+#: apps/audit/actions.py:347
 msgid "Module request handled"
 msgstr "Demande de module traitée"
 
-#: apps/audit/actions.py:341
+#: apps/audit/actions.py:349
 msgid "Help request answered"
 msgstr "Demande d'aide traitée"
 
-#: apps/audit/actions.py:342
+#: apps/audit/actions.py:350
 msgid "Help request closed"
 msgstr "Demande d'aide clôturée"
 
-#: apps/audit/actions.py:343
+#: apps/audit/actions.py:351
 msgid "Help request assigned"
 msgstr "Demande d'aide attribuée"
 
-#: apps/audit/actions.py:345
+#: apps/audit/actions.py:353
 msgid "School or subscription changed"
 msgstr "École ou abonnement modifié"
 
-#: apps/audit/actions.py:349
+#: apps/audit/actions.py:357
 msgid "Sandbox or demonstration space deleted"
 msgstr "Espace d'essai ou de démonstration supprimé"
 
-#: apps/audit/actions.py:359
+#: apps/audit/actions.py:367
 msgid "Device disconnected by support"
 msgstr "Appareil déconnecté par le support"
 
-#: apps/audit/actions.py:361
+#: apps/audit/actions.py:369
 msgid "Announcement to schools published"
 msgstr "Annonce aux écoles publiée"
 
-#: apps/audit/actions.py:362
+#: apps/audit/actions.py:370
 msgid "Announcement to schools archived"
 msgstr "Annonce aux écoles archivée"
 
-#: apps/audit/actions.py:365
+#: apps/audit/actions.py:373
 msgid "Platform account logged in"
 msgstr "Connexion d'un compte de la plateforme"
 
-#: apps/audit/actions.py:366
+#: apps/audit/actions.py:374
 msgid "Two-factor code refused on a platform account"
 msgstr "Code de double authentification refusé sur un compte de la plateforme"
 
-#: apps/audit/actions.py:369
+#: apps/audit/actions.py:377
 msgid "Platform account refused from an unauthorised address"
 msgstr "Compte de la plateforme refusé depuis une adresse non autorisée"
 
-#: apps/audit/actions.py:372
+#: apps/audit/actions.py:380
 msgid "Team member invited"
 msgstr "Membre de l'équipe invité"
 
-#: apps/audit/actions.py:373
+#: apps/audit/actions.py:381
 msgid "Roles of a team member changed"
 msgstr "Rôles d'un membre de l'équipe changés"
 
-#: apps/audit/actions.py:374
+#: apps/audit/actions.py:382
 msgid "Member removed from the team"
 msgstr "Membre retiré de l'équipe"
 
-#: apps/audit/actions.py:376
+#: apps/audit/actions.py:384
 msgid "Site content added"
 msgstr "Contenu du site ajouté"
 
-#: apps/audit/actions.py:377
+#: apps/audit/actions.py:385
 msgid "Site content changed"
 msgstr "Contenu du site modifié"
 
-#: apps/audit/actions.py:378
+#: apps/audit/actions.py:386
 msgid "Site content moved"
 msgstr "Contenu du site déplacé"
 
-#: apps/audit/actions.py:379
+#: apps/audit/actions.py:387
 msgid "Site content deleted"
 msgstr "Contenu du site supprimé"
 
-#: apps/audit/actions.py:380
+#: apps/audit/actions.py:388
 msgid "Site banner changed"
 msgstr "Bandeau du site modifié"
 
-#: apps/audit/actions.py:383
+#: apps/audit/actions.py:391
 msgid "Testimonial added"
 msgstr "Témoignage ajouté"
 
 #
-#: apps/audit/actions.py:384
+#: apps/audit/actions.py:392
 msgid "Testimonial changed"
 msgstr "Témoignage modifié"
 
-#: apps/audit/actions.py:385
+#: apps/audit/actions.py:393
 msgid "Testimonial moved"
 msgstr "Témoignage déplacé"
 
 #
-#: apps/audit/actions.py:386
+#: apps/audit/actions.py:394
 msgid "Testimonial deleted"
 msgstr "Témoignage supprimé"
 
-#: apps/audit/actions.py:387
+#: apps/audit/actions.py:395
 msgid "Reference school added"
 msgstr "École de référence ajoutée"
 
 #
-#: apps/audit/actions.py:388
+#: apps/audit/actions.py:396
 msgid "Reference school changed"
 msgstr "École de référence modifiée"
 
-#: apps/audit/actions.py:389
+#: apps/audit/actions.py:397
 msgid "Reference school moved"
 msgstr "École de référence déplacée"
 
 #
-#: apps/audit/actions.py:390
+#: apps/audit/actions.py:398
 msgid "Reference school deleted"
 msgstr "École de référence supprimée"
 
-#: apps/audit/actions.py:391
+#: apps/audit/actions.py:399
 msgid "Plan added"
 msgstr "Formule ajoutée"
 
-#: apps/audit/actions.py:392
+#: apps/audit/actions.py:400
 msgid "Plan changed"
 msgstr "Formule modifiée"
 
-#: apps/audit/actions.py:393
+#: apps/audit/actions.py:401
 msgid "Plan moved"
 msgstr "Formule déplacée"
 
-#: apps/audit/actions.py:394
+#: apps/audit/actions.py:402
 msgid "Plan deleted"
 msgstr "Formule supprimée"
 
-#: apps/audit/actions.py:395
+#: apps/audit/actions.py:403
 msgid "Partner added"
 msgstr "Partenaire ajouté"
 
 #
-#: apps/audit/actions.py:396
+#: apps/audit/actions.py:404
 msgid "Partner changed"
 msgstr "Partenaire modifié"
 
-#: apps/audit/actions.py:397
+#: apps/audit/actions.py:405
 msgid "Partner moved"
 msgstr "Partenaire déplacé"
 
 #
-#: apps/audit/actions.py:398
+#: apps/audit/actions.py:406
 msgid "Partner deleted"
 msgstr "Partenaire supprimé"
 
 #
-#: apps/audit/actions.py:399
+#: apps/audit/actions.py:407
 msgid "Site page settings changed"
 msgstr "Réglages d'une page du site modifiés"
 
-#: apps/audit/actions.py:400
+#: apps/audit/actions.py:408
 msgid "Article written"
 msgstr "Article écrit"
 
 #
-#: apps/audit/actions.py:401
+#: apps/audit/actions.py:409
 msgid "Article changed"
 msgstr "Article modifié"
 
 #
-#: apps/audit/actions.py:402
+#: apps/audit/actions.py:410
 msgid "Article published"
 msgstr "Article publié"
 
 #
-#: apps/audit/actions.py:403
+#: apps/audit/actions.py:411
 msgid "Article deleted"
 msgstr "Article supprimé"
 
-#: apps/audit/actions.py:404
+#: apps/audit/actions.py:412
 msgid "Photo added to the photo library"
 msgstr "Photo ajoutée à la photothèque"
 
 #
-#: apps/audit/actions.py:405
+#: apps/audit/actions.py:413
 msgid "Photo details changed"
 msgstr "Informations d'une photo modifiées"
 
-#: apps/audit/actions.py:406
+#: apps/audit/actions.py:414
 msgid "Photo deleted from the photo library"
 msgstr "Photo supprimée de la photothèque"
 
-#: apps/audit/actions.py:409
+#: apps/audit/actions.py:417
 msgid "Burst of failed logins"
 msgstr "Rafale de connexions ratées"
 
-#: apps/audit/actions.py:410
+#: apps/audit/actions.py:418
 msgid "Unusual export"
 msgstr "Export inhabituel"
 
-#: apps/audit/actions.py:413
+#: apps/audit/actions.py:421
 msgid "Unusual number of payment cancellations"
 msgstr "Annulations de paiements hors norme"
 
-#: apps/audit/actions.py:415
+#: apps/audit/actions.py:423
 msgid "Disconnected device keeps trying"
 msgstr "Appareil déconnecté qui insiste"
 
@@ -4701,7 +4830,7 @@ msgstr "entrée du journal d'audit"
 msgid "audit log"
 msgstr "journal d'audit"
 
-#: apps/audit/models.py:139 apps/core/models.py:324
+#: apps/audit/models.py:139 apps/core/models.py:332
 #: apps/notifications/models.py:186
 msgid "fictional"
 msgstr "fictif"
@@ -4844,7 +4973,7 @@ msgid "Smallest unit of the currency."
 msgstr "Plus petite unité de la devise."
 
 #: apps/billing/models.py:35 apps/billing/models.py:88
-#: apps/billing/models.py:181 apps/core/models.py:620 apps/finance/models.py:83
+#: apps/billing/models.py:181 apps/core/models.py:628 apps/finance/models.py:83
 #: apps/finance/models.py:177 apps/finance/models.py:250
 #: apps/finance/models.py:522 apps/finance/models.py:727
 #: apps/finance/models.py:818 apps/finance/models.py:913
@@ -4908,7 +5037,7 @@ msgstr "se renouvelle automatiquement"
 msgid "signed at"
 msgstr "signé le"
 
-#: apps/billing/models.py:97 apps/core/models.py:203
+#: apps/billing/models.py:97 apps/core/models.py:211
 msgid "signer"
 msgstr "signataire"
 
@@ -5363,7 +5492,7 @@ msgstr "Enseignants"
 msgid "Timetable, marks, mark sheets."
 msgstr "Horaire, notes, fiches de cotes."
 
-#: apps/core/help_center.py:52 apps/core/models.py:485 apps/core/site.py:239
+#: apps/core/help_center.py:52 apps/core/models.py:493 apps/core/site.py:239
 #: apps/core/site.py:272 apps/core/templates/core/site/_menu.html:1
 msgid "Parents"
 msgstr "Parents"
@@ -5436,8 +5565,8 @@ msgstr "Guide d'utilisation : %(app)s"
 msgid "created at"
 msgstr "créé le"
 
-#: apps/core/models.py:25 apps/core/models.py:228 apps/core/models.py:305
-#: apps/core/models.py:393 apps/core/models.py:507
+#: apps/core/models.py:25 apps/core/models.py:236 apps/core/models.py:313
+#: apps/core/models.py:401 apps/core/models.py:515
 msgid "updated at"
 msgstr "modifié le"
 
@@ -5466,7 +5595,7 @@ msgstr ""
 "Titres du site public, résultats de recherche, aperçus partagés sur "
 "WhatsApp. Un nom courant se perd dans les résultats : ajoutez-lui un mot."
 
-#: apps/core/models.py:158 apps/core/models.py:579 apps/core/models.py:660
+#: apps/core/models.py:158 apps/core/models.py:587 apps/core/models.py:668
 #: apps/schools/models.py:114
 msgid "logo"
 msgstr "logo"
@@ -5507,307 +5636,318 @@ msgstr "Soleil du symbole et repères sur le menu (avec mesure)."
 msgid "support phone"
 msgstr "téléphone du support"
 
-#: apps/core/models.py:186
+#: apps/core/models.py:189
+msgid "ministry line"
+msgstr "ligne du ministère"
+
+#: apps/core/models.py:192
+msgid ""
+"Printed under « République démocratique du Congo » on documents and cards."
+msgstr ""
+"Imprimée sous « République démocratique du Congo » sur les documents et les "
+"cartes."
+
+#: apps/core/models.py:194
 msgid "support email"
 msgstr "e-mail du support"
 
-#: apps/core/models.py:187
+#: apps/core/models.py:195
 msgid "legal notice"
 msgstr "mentions légales"
 
-#: apps/core/models.py:191 apps/core/models.py:690 apps/students/models.py:111
+#: apps/core/models.py:199 apps/core/models.py:698 apps/students/models.py:111
 msgid "address"
 msgstr "adresse"
 
-#: apps/core/models.py:191
+#: apps/core/models.py:199
 msgid "Street, number, district."
 msgstr "Rue, numéro, quartier."
 
-#: apps/core/models.py:193 apps/core/models.py:313 apps/core/models.py:528
-#: apps/core/models.py:570 apps/schools/models.py:151
+#: apps/core/models.py:201 apps/core/models.py:321 apps/core/models.py:536
+#: apps/core/models.py:578 apps/schools/models.py:151
 msgid "town"
 msgstr "ville"
 
-#: apps/core/models.py:194 apps/schools/models.py:150
+#: apps/core/models.py:202 apps/schools/models.py:150
 msgid "province"
 msgstr "province"
 
-#: apps/core/models.py:196
+#: apps/core/models.py:204
 msgid "company name"
 msgstr "raison sociale"
 
-#: apps/core/models.py:198
+#: apps/core/models.py:206
 msgid "registration numbers"
 msgstr "numéros d’enregistrement"
 
-#: apps/core/models.py:201
+#: apps/core/models.py:209
 msgid "RCCM, national ID, tax number: printed under the company name."
 msgstr ""
 "RCCM, identification nationale, numéro d’impôt : imprimés sous la raison "
 "sociale."
 
-#: apps/core/models.py:204
+#: apps/core/models.py:212
 msgid "signer's position"
 msgstr "fonction du signataire"
 
-#: apps/core/models.py:206
+#: apps/core/models.py:214
 msgid "how to pay"
 msgstr "comment payer"
 
-#: apps/core/models.py:208
+#: apps/core/models.py:216
 msgid "Bank account, Mobile Money number: printed on invoices."
 msgstr "Compte bancaire, numéro Mobile Money : imprimés sur les factures."
 
-#: apps/core/models.py:231 apps/core/models.py:232
+#: apps/core/models.py:239 apps/core/models.py:240
 msgid "platform identity"
 msgstr "identité de la plateforme"
 
-#: apps/core/models.py:277
+#: apps/core/models.py:285
 msgid "Prefect of studies"
 msgstr "Préfet des études"
 
-#: apps/core/models.py:279
+#: apps/core/models.py:287
 msgid "Head teacher"
 msgstr "Directeur"
 
-#: apps/core/models.py:281 apps/finance/models.py:33 apps/finance/models.py:231
+#: apps/core/models.py:289 apps/finance/models.py:33 apps/finance/models.py:231
 #: apps/notifications/models.py:86 apps/students/models.py:63
 #: apps/timetable/models.py:117
 msgid "Other"
 msgstr "Autre"
 
-#: apps/core/models.py:284
+#: apps/core/models.py:292
 msgid "Fewer than 300"
 msgstr "Moins de 300"
 
-#: apps/core/models.py:285
+#: apps/core/models.py:293
 msgid "300 to 800"
 msgstr "300 à 800"
 
-#: apps/core/models.py:286
+#: apps/core/models.py:294
 msgid "800 to 1,500"
 msgstr "800 à 1 500"
 
-#: apps/core/models.py:287
+#: apps/core/models.py:295
 msgid "More than 1,500"
 msgstr "Plus de 1 500"
 
-#: apps/core/models.py:290
+#: apps/core/models.py:298
 msgid "Demo form"
 msgstr "Formulaire de démonstration"
 
 #
-#: apps/core/models.py:291
+#: apps/core/models.py:299
 msgid "Site chat"
 msgstr "Chat du site"
 
-#: apps/core/models.py:296
+#: apps/core/models.py:304
 msgid "New"
 msgstr "Nouvelle"
 
-#: apps/core/models.py:297
+#: apps/core/models.py:305
 msgid "Contacted"
 msgstr "Contactée"
 
-#: apps/core/models.py:298
+#: apps/core/models.py:306
 msgid "Demonstration done"
 msgstr "Démonstration faite"
 
-#: apps/core/models.py:299
+#: apps/core/models.py:307
 msgid "Trial"
 msgstr "Essai"
 
-#: apps/core/models.py:300
+#: apps/core/models.py:308
 msgid "Signed"
 msgstr "Signée"
 
-#: apps/core/models.py:304
+#: apps/core/models.py:312
 msgid "received at"
 msgstr "reçue le"
 
-#: apps/core/models.py:306 apps/students/models.py:68
+#: apps/core/models.py:314 apps/students/models.py:68
 msgid "full name"
 msgstr "nom complet"
 
-#: apps/core/models.py:308 apps/finance/models.py:179
+#: apps/core/models.py:316 apps/finance/models.py:179
 #: apps/timetable/models.py:217
 msgid "source"
 msgstr "origine"
 
-#: apps/core/models.py:315
+#: apps/core/models.py:323
 msgid "number of pupils"
 msgstr "nombre d'élèves"
 
-#: apps/core/models.py:316 apps/students/models.py:71
+#: apps/core/models.py:324 apps/students/models.py:71
 msgid "email"
 msgstr "e-mail"
 
-#: apps/core/models.py:317 apps/notifications/models.py:24
+#: apps/core/models.py:325 apps/notifications/models.py:24
 #: apps/notifications/models.py:169 apps/notifications/models.py:306
 #: apps/notifications/models.py:459 apps/notifications/models.py:463
 #: apps/notifications/models.py:535
 msgid "message"
 msgstr "message"
 
-#: apps/core/models.py:320
+#: apps/core/models.py:328
 msgid "follow-up"
 msgstr "suivi"
 
-#: apps/core/models.py:322
+#: apps/core/models.py:330
 msgid "internal note"
 msgstr "note interne"
 
-#: apps/core/models.py:327 apps/notifications/models.py:499
+#: apps/core/models.py:335 apps/notifications/models.py:499
 msgid "assigned to"
 msgstr "responsable"
 
-#: apps/core/models.py:333
+#: apps/core/models.py:341
 msgid "next follow-up"
 msgstr "prochaine relance"
 
-#: apps/core/models.py:334
+#: apps/core/models.py:342
 msgid "reason lost"
 msgstr "motif de la perte"
 
-#: apps/core/models.py:337
+#: apps/core/models.py:345
 msgid "trial space"
 msgstr "espace d'essai"
 
-#: apps/core/models.py:340
+#: apps/core/models.py:348
 msgid "demo request"
 msgstr "demande de démonstration"
 
-#: apps/core/models.py:341
+#: apps/core/models.py:349
 msgid "demo requests"
 msgstr "demandes de démonstration"
 
-#: apps/core/models.py:359
+#: apps/core/models.py:367
 msgid "Home page question"
 msgstr "Question de l'accueil"
 
-#: apps/core/models.py:360
+#: apps/core/models.py:368
 msgid "Parents page question"
 msgstr "Question de la page Parents"
 
-#: apps/core/models.py:361
+#: apps/core/models.py:369
 msgid "Coming soon"
 msgstr "Prochainement"
 
-#: apps/core/models.py:366
+#: apps/core/models.py:374
 msgid "title in French"
 msgstr "titre en français"
 
-#: apps/core/models.py:367
+#: apps/core/models.py:375
 msgid "title in English"
 msgstr "titre en anglais"
 
-#: apps/core/models.py:368 apps/core/models.py:387
+#: apps/core/models.py:376 apps/core/models.py:395
 msgid "text in French"
 msgstr "texte en français"
 
-#: apps/core/models.py:369 apps/core/models.py:388
+#: apps/core/models.py:377 apps/core/models.py:396
 msgid "text in English"
 msgstr "texte en anglais"
 
-#: apps/core/models.py:370 apps/core/models.py:526 apps/core/models.py:541
-#: apps/core/models.py:583 apps/core/models.py:634 apps/core/models.py:662
+#: apps/core/models.py:378 apps/core/models.py:534 apps/core/models.py:549
+#: apps/core/models.py:591 apps/core/models.py:642 apps/core/models.py:670
 msgid "position"
 msgstr "rang"
 
-#: apps/core/models.py:371 apps/core/models.py:542 apps/core/models.py:584
-#: apps/core/models.py:635 apps/core/models.py:663
+#: apps/core/models.py:379 apps/core/models.py:550 apps/core/models.py:592
+#: apps/core/models.py:643 apps/core/models.py:671
 msgid "published"
 msgstr "publié"
 
-#: apps/core/models.py:375
+#: apps/core/models.py:383
 msgid "site content"
 msgstr "contenu du site"
 
-#: apps/core/models.py:376
+#: apps/core/models.py:384
 msgid "site contents"
 msgstr "contenus du site"
 
-#: apps/core/models.py:389 apps/core/models.py:572 apps/core/models.py:653
+#: apps/core/models.py:397 apps/core/models.py:580 apps/core/models.py:661
 #: apps/notifications/models.py:308
 msgid "link"
 msgstr "lien"
 
-#: apps/core/models.py:392
+#: apps/core/models.py:400
 msgid "shown"
 msgstr "affiché"
 
-#: apps/core/models.py:396 apps/core/models.py:397
+#: apps/core/models.py:404 apps/core/models.py:405
 msgid "site banner"
 msgstr "bandeau du site"
 
 #
-#: apps/core/models.py:440
+#: apps/core/models.py:448
 msgid "Public domain"
 msgstr "Domaine public"
 
 #
-#: apps/core/models.py:443
+#: apps/core/models.py:451
 msgid "Written consent"
 msgstr "Accord écrit"
 
-#: apps/core/models.py:447
+#: apps/core/models.py:455
 msgid "width"
 msgstr "largeur"
 
 #
-#: apps/core/models.py:448
+#: apps/core/models.py:456
 msgid "height"
 msgstr "hauteur"
 
 #
-#: apps/core/models.py:449
+#: apps/core/models.py:457
 msgid "alternative text in French"
 msgstr "texte alternatif en français"
 
 #
-#: apps/core/models.py:450
+#: apps/core/models.py:458
 msgid "alternative text in English"
 msgstr "texte alternatif en anglais"
 
-#: apps/core/models.py:451
+#: apps/core/models.py:459
 msgid "author or source"
 msgstr "auteur ou source"
 
 #
-#: apps/core/models.py:452
+#: apps/core/models.py:460
 msgid "source page"
 msgstr "page d'origine"
 
-#: apps/core/models.py:453
+#: apps/core/models.py:461
 msgid "licence"
 msgstr "licence"
 
 #
-#: apps/core/models.py:454
+#: apps/core/models.py:462
 msgid "a pupil can be recognised"
 msgstr "un élève est reconnaissable"
 
 #
-#: apps/core/models.py:455 apps/core/models.py:531
+#: apps/core/models.py:463 apps/core/models.py:539
 msgid "written consent"
 msgstr "accord écrit"
 
 #
-#: apps/core/models.py:459
+#: apps/core/models.py:467
 msgid "site photo"
 msgstr "photo du site"
 
 #
-#: apps/core/models.py:460
+#: apps/core/models.py:468
 msgid "site photos"
 msgstr "photos du site"
 
-#: apps/core/models.py:484 apps/core/site.py:271
+#: apps/core/models.py:492 apps/core/site.py:271
 #: apps/core/templates/core/site/_menu.html:1 apps/schools/apps.py:10
 msgid "Schools"
 msgstr "Écoles"
 
-#: apps/core/models.py:486 apps/core/site.py:277
+#: apps/core/models.py:494 apps/core/site.py:277
 #: apps/core/templates/core/site/_menu.html:1
 #: apps/core/templates/core/site/article.html:6
 #: apps/core/templates/core/site/base.html:85
@@ -5816,216 +5956,212 @@ msgstr "Écoles"
 msgid "News"
 msgstr "Actualités"
 
-#: apps/core/models.py:487 apps/core/templates/core/site/base.html:50
+#: apps/core/models.py:495 apps/core/templates/core/site/base.html:50
 #: apps/core/templates/core/site/contact.html:52
 #: apps/core/templates/core/site/schools.html:109
 msgid "Demo"
 msgstr "Démo"
 
-#: apps/core/models.py:492 apps/core/templates/core/help/guide.html:37
+#: apps/core/models.py:500 apps/core/templates/core/help/guide.html:37
 #: apps/core/templates/core/print_base.html:13
 msgid "page"
 msgstr "page"
 
 #
-#: apps/core/models.py:493
+#: apps/core/models.py:501
 msgid "search title in French"
 msgstr "titre de recherche en français"
 
 #
-#: apps/core/models.py:494
+#: apps/core/models.py:502
 msgid "search title in English"
 msgstr "titre de recherche en anglais"
 
-#: apps/core/models.py:495
+#: apps/core/models.py:503
 msgid "search description in French"
 msgstr "description de recherche en français"
 
-#: apps/core/models.py:497
+#: apps/core/models.py:505
 msgid "search description in English"
 msgstr "description de recherche en anglais"
 
-#: apps/core/models.py:505 apps/students/models.py:112
-msgid "photo"
-msgstr "photo"
-
 #
-#: apps/core/models.py:510
+#: apps/core/models.py:518
 msgid "site page"
 msgstr "page du site"
 
 #
-#: apps/core/models.py:511
+#: apps/core/models.py:519
 msgid "site pages"
 msgstr "pages du site"
 
 #
-#: apps/core/models.py:529
+#: apps/core/models.py:537
 msgid "quote in French"
 msgstr "citation en français"
 
 #
-#: apps/core/models.py:530
+#: apps/core/models.py:538
 msgid "quote in English"
 msgstr "citation en anglais"
 
 #
-#: apps/core/models.py:538
+#: apps/core/models.py:546
 msgid "school logo"
 msgstr "logo de l'école"
 
-#: apps/core/models.py:540 apps/core/models.py:582 apps/core/models.py:633
+#: apps/core/models.py:548 apps/core/models.py:590 apps/core/models.py:641
 msgid "example"
 msgstr "exemple"
 
 #
-#: apps/core/models.py:546
+#: apps/core/models.py:554
 msgid "testimonial"
 msgstr "témoignage"
 
 #
-#: apps/core/models.py:547
+#: apps/core/models.py:555
 msgid "testimonials"
 msgstr "témoignages"
 
-#: apps/core/models.py:571
+#: apps/core/models.py:579
 msgid "pupils"
 msgstr "élèves"
 
-#: apps/core/models.py:581
+#: apps/core/models.py:589
 msgid "school's consent given on"
 msgstr "accord de l'école donné le"
 
 #
-#: apps/core/models.py:588
+#: apps/core/models.py:596
 msgid "reference school"
 msgstr "école de référence"
 
 #
-#: apps/core/models.py:589
+#: apps/core/models.py:597
 msgid "reference schools"
 msgstr "écoles de référence"
 
-#: apps/core/models.py:611
+#: apps/core/models.py:619
 msgid "per month"
 msgstr "par mois"
 
-#: apps/core/models.py:612
+#: apps/core/models.py:620
 msgid "per year"
 msgstr "par an"
 
-#: apps/core/models.py:614
+#: apps/core/models.py:622
 msgid "name in French"
 msgstr "nom en français"
 
-#: apps/core/models.py:615
+#: apps/core/models.py:623
 msgid "name in English"
 msgstr "nom en anglais"
 
-#: apps/core/models.py:616
+#: apps/core/models.py:624
 msgid "tagline in French"
 msgstr "accroche en français"
 
-#: apps/core/models.py:617
+#: apps/core/models.py:625
 msgid "tagline in English"
 msgstr "accroche en anglais"
 
-#: apps/core/models.py:618
+#: apps/core/models.py:626
 msgid "price"
 msgstr "prix"
 
-#: apps/core/models.py:622 apps/timetable/models.py:422
+#: apps/core/models.py:630 apps/timetable/models.py:422
 msgid "period"
 msgstr "période"
 
-#: apps/core/models.py:623
+#: apps/core/models.py:631
 msgid "included, one per line, in French"
 msgstr "ce qui est compris, un point par ligne, en français"
 
-#: apps/core/models.py:625
+#: apps/core/models.py:633
 msgid "included, one per line, in English"
 msgstr "ce qui est compris, un point par ligne, en anglais"
 
-#: apps/core/models.py:632
+#: apps/core/models.py:640
 msgid "highlighted"
 msgstr "mise en avant"
 
-#: apps/core/models.py:639 apps/schools/models.py:214
+#: apps/core/models.py:647 apps/schools/models.py:214
 msgid "plan"
 msgstr "formule"
 
-#: apps/core/models.py:640
+#: apps/core/models.py:648
 msgid "plans"
 msgstr "formules"
 
-#: apps/core/models.py:667
+#: apps/core/models.py:675
 msgid "partner"
 msgstr "partenaire"
 
-#: apps/core/models.py:668
+#: apps/core/models.py:676
 msgid "partners"
 msgstr "partenaires"
 
-#: apps/core/models.py:682 apps/timetable/models.py:248
+#: apps/core/models.py:690 apps/timetable/models.py:248
 #: apps/timetable/models.py:416
 msgid "Published"
 msgstr "Publié"
 
-#: apps/core/models.py:685 apps/core/templates/core/site/home.html:108
+#: apps/core/models.py:693 apps/core/templates/core/site/home.html:108
 msgid "French"
 msgstr "Français"
 
-#: apps/core/models.py:686 apps/core/templates/core/site/llms.txt:7
+#: apps/core/models.py:694 apps/core/templates/core/site/llms.txt:7
 #: apps/core/templates/core/site/llms.txt:29
 msgid "English"
 msgstr "Anglais"
 
-#: apps/core/models.py:689 apps/notifications/models.py:23
+#: apps/core/models.py:697 apps/notifications/models.py:23
 #: apps/notifications/models.py:92 apps/notifications/models.py:168
 #: apps/notifications/models.py:305
 msgid "title"
 msgstr "titre"
 
-#: apps/core/models.py:691
+#: apps/core/models.py:699
 msgid "summary"
 msgstr "résumé"
 
-#: apps/core/models.py:692
+#: apps/core/models.py:700
 msgid "text"
 msgstr "texte"
 
 #
-#: apps/core/models.py:699
+#: apps/core/models.py:707
 msgid "image"
 msgstr "image"
 
-#: apps/core/models.py:701
+#: apps/core/models.py:709
 msgid "author shown"
 msgstr "auteur affiché"
 
 #
-#: apps/core/models.py:705
+#: apps/core/models.py:713
 msgid "publication date"
 msgstr "date de publication"
 
 #
-#: apps/core/models.py:713
+#: apps/core/models.py:721
 msgid "changed by"
 msgstr "modifié par"
 
-#: apps/core/models.py:718
+#: apps/core/models.py:726
 msgid "article"
 msgstr "article"
 
-#: apps/core/models.py:719
+#: apps/core/models.py:727
 msgid "articles"
 msgstr "articles"
 
-#: apps/core/models.py:751
+#: apps/core/models.py:759
 msgid "Queued"
 msgstr "En attente"
 
-#: apps/core/models.py:759 apps/students/models.py:233
+#: apps/core/models.py:767 apps/students/models.py:237
 msgid "file name"
 msgstr "nom du fichier"
 
@@ -6112,21 +6248,21 @@ msgstr "Trop de documents en préparation"
 msgid "Wait for the documents already requested to finish, then try again."
 msgstr "Attendez la fin des documents déjà demandés, puis réessayez."
 
-#: apps/core/serializers.py:208
+#: apps/core/serializers.py:209
 msgid "Say why this prospect was lost."
 msgstr "Indiquez pourquoi ce prospect est perdu."
 
-#: apps/core/serializers.py:249
+#: apps/core/serializers.py:250
 msgid "The kind of an entry cannot change."
 msgstr "La sorte d'une entrée ne change pas."
 
-#: apps/core/serializers.py:254 apps/core/serializers.py:342
+#: apps/core/serializers.py:255 apps/core/serializers.py:343
 #, python-format
 msgid "This list is full (%(max)s at most): delete an entry first."
 msgstr ""
 "Cette liste est pleine (%(max)s au plus) : supprimez d'abord une entrée."
 
-#: apps/core/serializers.py:302
+#: apps/core/serializers.py:303
 msgid ""
 "Give a page of the site (/demonstration/) or an address starting with "
 "https://."
@@ -6134,43 +6270,43 @@ msgstr ""
 "Donnez une page du site (/demonstration/) ou une adresse qui commence par "
 "https://."
 
-#: apps/core/serializers.py:312
+#: apps/core/serializers.py:313
 msgid "Write the text to show."
 msgstr "Écrivez le texte à afficher."
 
-#: apps/core/serializers.py:314
+#: apps/core/serializers.py:315
 msgid "The end comes before the start."
 msgstr "La fin vient avant le début."
 
-#: apps/core/serializers.py:351
+#: apps/core/serializers.py:352
 msgid "Only the examples that came with the site are marked."
 msgstr "Seuls les exemples livrés avec le site portent cette marque."
 
 #
-#: apps/core/serializers.py:398
+#: apps/core/serializers.py:399
 msgid "File the written consent before publishing."
 msgstr "Déposez l'accord écrit avant de publier."
 
 #
-#: apps/core/serializers.py:434
+#: apps/core/serializers.py:435
 msgid "This date has not come yet."
 msgstr "Cette date n'est pas encore arrivée."
 
 #
-#: apps/core/serializers.py:445
+#: apps/core/serializers.py:446
 msgid "Give the date the school agreed before publishing."
 msgstr "Indiquez la date de l'accord de l'école avant de publier."
 
-#: apps/core/serializers.py:493
+#: apps/core/serializers.py:494
 msgid "Eight points at most."
 msgstr "Huit points au plus."
 
 #
-#: apps/core/serializers.py:541
+#: apps/core/serializers.py:542
 msgid "This page has no photo."
 msgstr "Cette page n'a pas de photo."
 
-#: apps/core/serializers.py:544
+#: apps/core/serializers.py:545
 #, python-format
 msgid ""
 "This photo is too small for the top of a page (%(width)s pixels at least)."
@@ -6178,11 +6314,11 @@ msgstr ""
 "Cette photo est trop petite pour le haut d'une page (%(width)s pixels au "
 "moins)."
 
-#: apps/core/serializers.py:597
+#: apps/core/serializers.py:598
 msgid "The language of a published article is fixed."
 msgstr "La langue d'un article publié ne change plus."
 
-#: apps/core/serializers.py:684
+#: apps/core/serializers.py:685
 msgid "File the written consent of the parents and the school."
 msgstr "Déposez l'accord écrit des parents et de l'école."
 
@@ -6722,10 +6858,6 @@ msgstr "options techniques"
 msgid "founded"
 msgstr "fondée"
 
-#: apps/core/templates/core/_document_header.html:5
-msgid "Democratic Republic of the Congo"
-msgstr "République Démocratique du Congo"
-
 #: apps/core/templates/core/help/guide.html:48
 msgid "Short answers, screen by screen."
 msgstr "Des réponses courtes, écran par écran."
@@ -7081,13 +7213,6 @@ msgstr "Cour et bâtiments d'une école secondaire à Goma"
 #: apps/core/templates/core/site/contact.html:58
 msgid "Reach us directly"
 msgstr "Nous joindre directement"
-
-#: apps/core/templates/core/site/contact.html:63
-#: apps/core/templates/core/site/llms.txt:7
-#: apps/core/templates/core/site/llms.txt:51
-#: apps/students/templates/students/registration_form.html:25
-msgid "Address"
-msgstr "Adresse"
 
 #: apps/core/templates/core/site/contact.html:65
 msgid "Follow us:"
@@ -8836,12 +8961,6 @@ msgstr "Explication"
 msgid "Cash closings"
 msgstr "Clôtures de caisse"
 
-#: apps/finance/documents.py:146
-#: apps/finance/templates/finance/statement.html:25
-#: apps/finance/templates/finance/unpaid.html:28 apps/students/models.py:60
-msgid "Guardian"
-msgstr "Tuteur"
-
 #: apps/finance/documents.py:148
 #: apps/finance/templates/finance/statement.html:30
 #: apps/portal/templates/portal/receipt.html:29
@@ -8877,7 +8996,7 @@ msgid "more than %(days)s days late"
 msgstr "retard de plus de %(days)s jours"
 
 #: apps/finance/documents.py:372 apps/schools/exports.py:147
-#: apps/students/models.py:228 apps/timetable/models.py:357
+#: apps/students/models.py:232 apps/timetable/models.py:357
 #: apps/timetable/worked_views.py:186
 msgid "Cancelled"
 msgstr "Annulé"
@@ -9382,7 +9501,7 @@ msgstr "dépenses"
 
 #: apps/finance/models.py:973 apps/finance/models.py:1039
 #: apps/finance/models.py:1149 apps/notifications/models.py:136
-#: apps/students/models.py:254
+#: apps/students/models.py:258
 msgid "cancelled at"
 msgstr "annulé le"
 
@@ -9417,7 +9536,7 @@ msgstr "annulations de sortie de caisse"
 #: apps/finance/models.py:1052 apps/finance/models.py:1091
 #: apps/schools/models.py:427 apps/schools/models.py:462
 #: apps/schools/models.py:590 apps/students/models.py:170
-#: apps/students/models.py:205 apps/students/models.py:231
+#: apps/students/models.py:205 apps/students/models.py:235
 #: apps/timetable/models.py:255
 msgid "school year"
 msgstr "année scolaire"
@@ -9871,12 +9990,6 @@ msgstr "Situation financière"
 #, python-format
 msgid "FINANCIAL STATEMENT ON %(date)s"
 msgstr "SITUATION FINANCIÈRE AU %(date)s"
-
-#: apps/finance/templates/finance/statement.html:21
-#: apps/portal/templates/portal/receipt.html:20
-#, python-format
-msgid "School year %(year)s"
-msgstr "Année scolaire %(year)s"
 
 #: apps/finance/templates/finance/statement.html:32
 msgid "OVERDUE"
@@ -10376,10 +10489,6 @@ msgstr "Toutes les familles"
 #: apps/notifications/models.py:19
 msgid "Some classes"
 msgstr "Certaines classes"
-
-#: apps/notifications/models.py:21
-msgid "Staff"
-msgstr "Personnel"
 
 #: apps/notifications/models.py:25 apps/notifications/models.py:170
 msgid "recipients"
@@ -11214,12 +11323,6 @@ msgid "This demonstration space is not ready yet."
 msgstr "Cet espace de démonstration n'est pas encore prêt."
 
 #: apps/schools/exports.py:85 apps/students/documents.py:231
-#: apps/students/templates/students/class_list.html:19
-#: apps/students/templates/students/registration_form.html:23
-msgid "Sex"
-msgstr "Sexe"
-
-#: apps/schools/exports.py:85 apps/students/documents.py:231
 msgid "Date of birth"
 msgstr "Date de naissance"
 
@@ -11347,32 +11450,38 @@ msgstr "Motif : %(reason)s"
 msgid "Download your data (valid %(days)s days): %(link)s"
 msgstr "Télécharger vos données (lien valable %(days)s jours) : %(link)s"
 
-#: apps/schools/matricule.py:39
+#: apps/schools/matricule.py:45
 msgid "A brace is not closed."
 msgstr "Une accolade n'est pas fermée."
 
-#: apps/schools/matricule.py:43
+#: apps/schools/matricule.py:53
 #, python-format
-msgid "Unknown variable {%(name)s}: use {AAAA}, {AA}, {0000} or {OPT}."
-msgstr "Variable inconnue {%(name)s} : utilisez {AAAA}, {AA}, {0000} ou {OPT}."
+msgid "Unknown variable {%(name)s}: use {AAAA}, {AA}, {0000}, {OPT} or {C}."
+msgstr ""
+"Variable {%(name)s} inconnue : utilisez {AAAA}, {AA}, {0000}, {OPT} ou {C}."
 
-#: apps/schools/matricule.py:49
+#: apps/schools/matricule.py:59
 msgid ""
 "Outside the variables, use only letters without accents, digits and - / . _"
 msgstr ""
 "En dehors des variables, utilisez seulement des lettres sans accent, des "
 "chiffres et - / . _"
 
-#: apps/schools/matricule.py:54
+#: apps/schools/matricule.py:64
 #, python-brace-format
 msgid "Add the number, e.g. {0000}."
 msgstr "Ajoutez le numéro, ex. {0000}."
 
-#: apps/schools/matricule.py:56
+#: apps/schools/matricule.py:66
 msgid "The number appears twice."
 msgstr "Le numéro apparaît deux fois."
 
-#: apps/schools/matricule.py:59
+#: apps/schools/matricule.py:71
+#, python-brace-format
+msgid "The check key {C} comes once, at the very end."
+msgstr "La clé de contrôle {C} vient une fois, tout à la fin."
+
+#: apps/schools/matricule.py:75
 #, python-brace-format
 msgid "Add the year, {AAAA} or {AA}: numbers start again at 1 each year."
 msgstr ""
@@ -11733,7 +11842,7 @@ msgstr "règles de réussite"
 msgid "levels"
 msgstr "niveaux"
 
-#: apps/schools/models.py:557 apps/schools/serializers.py:605
+#: apps/schools/models.py:557 apps/schools/serializers.py:623
 msgid "1 to 10 capital letters or digits."
 msgstr "1 à 10 lettres majuscules ou chiffres."
 
@@ -11803,115 +11912,128 @@ msgstr "exports d'école"
 msgid "The school already has a school year with this name."
 msgstr "L'école a déjà une année scolaire de ce nom."
 
-#: apps/schools/organisation.py:36
+#: apps/schools/organisation.py:37
 msgid "The current school year cannot be deleted."
 msgstr "L'année scolaire en cours ne peut pas être supprimée."
 
-#: apps/schools/organisation.py:37
+#: apps/schools/organisation.py:38
 msgid "This school year has classes: delete them first."
 msgstr "Cette année scolaire a des classes : supprimez-les d'abord."
 
-#: apps/schools/organisation.py:39
+#: apps/schools/organisation.py:40
 msgid "The school already has a level with this name."
 msgstr "L'école a déjà un niveau de ce nom."
 
-#: apps/schools/organisation.py:41
+#: apps/schools/organisation.py:42
 msgid "This level is used by classes."
 msgstr "Ce niveau est utilisé par des classes."
 
-#: apps/schools/organisation.py:43
+#: apps/schools/organisation.py:44
 msgid "The school already has a track with this name."
 msgstr "L'école a déjà une option de ce nom."
 
-#: apps/schools/organisation.py:46
+#: apps/schools/organisation.py:47
 msgid "The school already has a track with this code."
 msgstr "L'école a déjà une option avec ce code."
 
-#: apps/schools/organisation.py:48
+#: apps/schools/organisation.py:49
 msgid "This track is used by classes."
 msgstr "Cette option est utilisée par des classes."
 
-#: apps/schools/organisation.py:49
+#: apps/schools/organisation.py:50
 msgid "This class already exists this school year."
 msgstr "Cette classe existe déjà cette année scolaire."
 
-#: apps/schools/organisation.py:50
+#: apps/schools/organisation.py:51
 msgid "This class has students: it cannot be deleted."
 msgstr "Cette classe a des élèves : elle ne peut pas être supprimée."
 
-#: apps/schools/organisation.py:51
+#: apps/schools/organisation.py:52
 msgid "A removed period is already used."
 msgstr "Une période retirée est déjà utilisée."
 
-#: apps/schools/organisation.py:68
+#: apps/schools/organisation.py:69
 msgid "RDC secondary: 2 semesters, 4 periods, 2 exam sessions"
 msgstr "Secondaire RDC | 2 semestres, 4 périodes, 2 examens"
 
-#: apps/schools/organisation.py:69
+#: apps/schools/organisation.py:70
 msgid "3 terms, 6 periods, 3 exam sessions"
 msgstr "3 trimestres, 6 périodes, 3 examens"
 
-#: apps/schools/organisation.py:70
+#: apps/schools/organisation.py:71
 msgid "Empty: enter the terms yourself"
 msgstr "Vide : je saisis le découpage moi-même"
 
-#: apps/schools/organisation.py:107 apps/schools/organisation.py:278
+#: apps/schools/organisation.py:108 apps/schools/organisation.py:279
 msgid "The end must come after the start."
 msgstr "La fin doit venir après le début."
 
-#: apps/schools/organisation.py:190
+#: apps/schools/organisation.py:191
 msgid "Some terms and periods would fall outside the year: change them first."
 msgstr ""
 "Des semestres, trimestres ou périodes tomberaient en dehors de l'année : "
 "modifiez-les d'abord."
 
-#: apps/schools/organisation.py:254
+#: apps/schools/organisation.py:255
 msgid "Too many terms and periods."
 msgstr "Trop de semestres, trimestres et périodes."
 
-#: apps/schools/organisation.py:265
+#: apps/schools/organisation.py:266
 msgid "Unknown term."
 msgstr "Semestre ou trimestre inconnu."
 
-#: apps/schools/organisation.py:267
+#: apps/schools/organisation.py:268
 msgid "This term appears twice."
 msgstr "Ce semestre ou trimestre apparaît deux fois."
 
-#: apps/schools/organisation.py:270
+#: apps/schools/organisation.py:271
 msgid "Only a semester or a term has periods."
 msgstr "Seul un semestre ou un trimestre contient des périodes."
 
-#: apps/schools/organisation.py:272
+#: apps/schools/organisation.py:273
 msgid "Only periods and exams go inside."
 msgstr "Seuls des périodes et des examens vont à l'intérieur."
 
-#: apps/schools/organisation.py:276
+#: apps/schools/organisation.py:277
 msgid "This date is outside the school year."
 msgstr "Cette date est en dehors de l'année scolaire."
 
-#: apps/schools/organisation.py:281 apps/schools/organisation.py:283
+#: apps/schools/organisation.py:282 apps/schools/organisation.py:284
 msgid "Outside its semester or term."
 msgstr "En dehors de son semestre ou trimestre."
 
-#: apps/schools/organisation.py:436
+#: apps/schools/organisation.py:437
 msgid "Give every level of the school once."
 msgstr "Donnez chaque niveau de l'école une seule fois."
 
-#: apps/schools/organisation.py:593
+#: apps/schools/organisation.py:594
 msgid "The co-homeroom teacher is someone other than the homeroom teacher."
 msgstr "Le cotitulaire est une autre personne que le titulaire."
 
-#: apps/schools/serializers.py:78
+#: apps/schools/organisation.py:696
+#, python-format
+msgid "At most %(max)s with the digits of the format."
+msgstr "Au plus %(max)s avec les chiffres du format."
+
+#: apps/schools/organisation.py:699
+msgid "The range ends before it starts."
+msgstr "La plage finit avant de commencer."
+
+#: apps/schools/organisation.py:701
+msgid "The next number must be within the range."
+msgstr "Le prochain numéro doit être dans la plage."
+
+#: apps/schools/serializers.py:79
 #, python-format
 msgid "At most %(count)d header lines."
 msgstr "Au plus %(count)d lignes d'en-tête."
 
-#: apps/schools/serializers.py:106
+#: apps/schools/serializers.py:107
 #, python-format
 msgid "Unknown currency: %(codes)s."
 msgstr "Devise inconnue : %(codes)s."
 
-#: apps/schools/serializers.py:524
+#: apps/schools/serializers.py:542
 msgid "Choose the school year to copy from."
 msgstr "Choisissez l'année scolaire à reprendre."
 
@@ -12027,7 +12149,7 @@ msgstr "Cette école n'a pas de logo."
 msgid "No image."
 msgstr "Aucune image."
 
-#: apps/schools/views.py:813
+#: apps/schools/views.py:824
 msgid "Not available in this console mode."
 msgstr "Indisponible dans ce mode de la console."
 
@@ -12211,16 +12333,16 @@ msgstr "Colonne inconnue."
 msgid "Choose a class of this school year."
 msgstr "Choisissez une classe de cette année scolaire."
 
-#: apps/students/imports.py:764
+#: apps/students/imports.py:765
 #, python-format
 msgid "%(title)s (optional)"
 msgstr "%(title)s (facultatif)"
 
-#: apps/students/imports.py:780
+#: apps/students/imports.py:781
 msgid "Line"
 msgstr "Ligne"
 
-#: apps/students/imports.py:780
+#: apps/students/imports.py:781
 msgid "Problems"
 msgstr "Problèmes"
 
@@ -12413,106 +12535,114 @@ msgid "last number"
 msgstr "dernier numéro"
 
 #: apps/students/models.py:210
+msgid "first number"
+msgstr "premier numéro"
+
+#: apps/students/models.py:211
+msgid "last number allowed"
+msgstr "dernier numéro permis"
+
+#: apps/students/models.py:214
 msgid "student number sequence"
 msgstr "compteur de matricules"
 
-#: apps/students/models.py:211
+#: apps/students/models.py:215
 msgid "student number sequences"
 msgstr "compteurs de matricules"
 
-#: apps/students/models.py:224
+#: apps/students/models.py:228
 msgid "Checked"
 msgstr "Vérifié"
 
-#: apps/students/models.py:225
+#: apps/students/models.py:229
 msgid "Importing"
 msgstr "Import en cours"
 
-#: apps/students/models.py:226
+#: apps/students/models.py:230
 msgid "Imported"
 msgstr "Importé"
 
-#: apps/students/models.py:234
+#: apps/students/models.py:238
 msgid "sheet"
 msgstr "feuille"
 
-#: apps/students/models.py:236
+#: apps/students/models.py:240
 msgid "column titles"
 msgstr "titres des colonnes"
 
-#: apps/students/models.py:237
+#: apps/students/models.py:241
 msgid "rows"
 msgstr "lignes"
 
-#: apps/students/models.py:239
+#: apps/students/models.py:243
 msgid "column mapping"
 msgstr "correspondance des colonnes"
 
-#: apps/students/models.py:240
+#: apps/students/models.py:244
 msgid "class mapping"
 msgstr "correspondance des classes"
 
-#: apps/students/models.py:245
+#: apps/students/models.py:249
 msgid "report"
 msgstr "rapport"
 
-#: apps/students/models.py:246
+#: apps/students/models.py:250
 msgid "students created"
 msgstr "élèves créés"
 
-#: apps/students/models.py:247 apps/timetable/models.py:388
+#: apps/students/models.py:251 apps/timetable/models.py:388
 msgid "finished at"
 msgstr "terminé le"
 
-#: apps/students/models.py:250
+#: apps/students/models.py:254
 msgid "last student number before the import"
 msgstr "dernier numéro de matricule avant l'import"
 
-#: apps/students/models.py:253
+#: apps/students/models.py:257
 msgid "students removed"
 msgstr "élèves retirés"
 
-#: apps/students/models.py:263
+#: apps/students/models.py:267
 msgid "cancellation reason"
 msgstr "motif de l'annulation"
 
-#: apps/students/models.py:267
+#: apps/students/models.py:271
 msgid "student import"
 msgstr "import d'élèves"
 
-#: apps/students/models.py:268
+#: apps/students/models.py:272
 msgid "student imports"
 msgstr "imports d'élèves"
 
-#: apps/students/models.py:281
+#: apps/students/models.py:285
 msgid "To review"
 msgstr "À traiter"
 
-#: apps/students/models.py:282
+#: apps/students/models.py:286
 msgid "Applied"
 msgstr "Appliquée"
 
-#: apps/students/models.py:283
+#: apps/students/models.py:287
 msgid "Not applied"
 msgstr "Non appliquée"
 
-#: apps/students/models.py:288 apps/sync/models.py:115
+#: apps/students/models.py:292 apps/sync/models.py:115
 msgid "changes"
 msgstr "changements"
 
-#: apps/students/models.py:298
+#: apps/students/models.py:302
 msgid "handled by"
 msgstr "traitée par"
 
-#: apps/students/models.py:300
+#: apps/students/models.py:304
 msgid "handled at"
 msgstr "traitée le"
 
-#: apps/students/models.py:304
+#: apps/students/models.py:308
 msgid "contact details change"
 msgstr "changement de coordonnées"
 
-#: apps/students/models.py:305
+#: apps/students/models.py:309
 msgid "contact details changes"
 msgstr "changements de coordonnées"
 
@@ -12544,19 +12674,27 @@ msgstr "La nouvelle classe doit être dans la même année scolaire."
 msgid "Another student already has this student number."
 msgstr "Un autre élève a déjà ce matricule."
 
-#: apps/students/services.py:56
+#: apps/students/services.py:57
+msgid ""
+"No student number left in this year's range: widen it in Organisation, "
+"Student number."
+msgstr ""
+"Plus de matricule libre dans la plage de l'année : élargissez-la dans "
+"Organisation, Matricule."
+
+#: apps/students/services.py:61
 msgid "This identifier is already used."
 msgstr "Cet identifiant est déjà utilisé."
 
-#: apps/students/services.py:112
+#: apps/students/services.py:117
 msgid "At most 10 guardians."
 msgstr "Au plus 10 tuteurs."
 
-#: apps/students/services.py:114
+#: apps/students/services.py:119
 msgid "Only one main contact."
 msgstr "Un seul contact principal."
 
-#: apps/students/services.py:124
+#: apps/students/services.py:129
 msgid "Unknown guardian for this family."
 msgstr "Tuteur inconnu pour cette famille."
 
@@ -12650,10 +12788,6 @@ msgstr "Année scolaire %(year)s · inscrit le %(date)s"
 #: apps/students/templates/students/registration_form.html:23
 msgid "Born on, in"
 msgstr "Né le, à"
-
-#: apps/students/templates/students/registration_form.html:24
-msgid "Nationality"
-msgstr "Nationalité"
 
 #: apps/students/templates/students/registration_form.html:24
 msgid "Origin"

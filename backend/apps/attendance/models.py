@@ -45,7 +45,13 @@ class IdCard(TenantModel):
         related_name="cards",
         verbose_name=_("staff member"),
     )
+    # N° imprimé sur la carte, séquentiel par école (registre des cartes délivrées), jamais le
+    # jeton du QR.
+    number = models.PositiveIntegerField(_("card number"), editable=False)
     token_hash = models.CharField(_("token fingerprint"), max_length=64, unique=True)
+    # Empreinte de ce que la carte imprime de la personne (noms, naissance, classe, matricule,
+    # photo…) : différente aujourd'hui = carte « à réimprimer » (`cards.face_fingerprint`).
+    face_hash = models.CharField(_("printed data fingerprint"), max_length=16, blank=True)
     last4 = models.CharField(_("last signs of the token"), max_length=4)
     valid_until = models.DateField(_("valid until"))
     revoked_at = models.DateTimeField(_("revoked at"), null=True, blank=True)
@@ -67,6 +73,7 @@ class IdCard(TenantModel):
         verbose_name_plural = _("cards")
         constraints = [
             models.CheckConstraint(condition=ONE_HOLDER, name="idcard_one_holder"),
+            models.UniqueConstraint(fields=["school", "number"], name="idcard_number_per_school"),
             models.UniqueConstraint(
                 fields=["student"],
                 condition=Q(revoked_at__isnull=True, student__isnull=False),
@@ -87,7 +94,7 @@ class IdCard(TenantModel):
         ]
 
     def __str__(self) -> str:
-        return f"•••• {self.last4}"
+        return f"N° {self.number:04d}"
 
     @property
     def is_active(self) -> bool:

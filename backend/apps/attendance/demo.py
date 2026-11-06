@@ -3,7 +3,9 @@ tout le personnel, les passages à l'entrée des quinze derniers jours de classe
 vendredi, congés exclus, aujourd'hui compris), quelques retards, des absents — dont quelques
 élèves souvent absents, pour l'alerte —, des corrections au journal et des justifications
 (acceptées, refusées, en attente, dont une de l'enfant du parent de démonstration). Le jeton des
-cartes n'est gardé nulle part : on les réimprime en les émettant de nouveau.
+cartes n'est gardé nulle part : on les réimprime en les émettant de nouveau. Cartes numérotées
+dans l'ordre ; une sur vingt « à réimprimer » (photo ou classe changée depuis) ; une fonction en
+clair pour les enseignants (carte de service).
 
 Rien au journal d'audit, comme le reste de la démonstration ; tout est remis comme au départ à
 chaque `make demo`."""
@@ -33,6 +35,8 @@ from apps.students.models import Family
 
 DAYS = 15
 CARD_SHARE, ABSENT_SHARE, LATE_SHARE, STAFF_PRESENT = 0.9, 0.04, 0.06, 0.92
+STALE_SHARE = 0.05
+TEACHER_TITLES = ("Enseignant · Mathématiques", "Enseignante · Français", "Enseignant · Atelier")
 # Élèves souvent absents (un sur trente), absents deux jours sur cinq.
 OFTEN_ABSENT_SHARE, OFTEN_ABSENT = 1 / 30, 0.4
 Status = AbsenceJustification.Status
@@ -65,15 +69,30 @@ def _days(today: date) -> list[date]:
     return found[::-1]
 
 
-def _card(holder: dict, until: date, actor) -> IdCard:
+def _card(number: int, face: str, holder: dict, until: date, actor) -> IdCard:
     token = secrets.token_hex(16)
     return IdCard(
+        number=number,
         token_hash=cards.fingerprint(token),
         last4=token[-4:].upper(),
+        face_hash=face,
         valid_until=until,
         created_by=actor,
         **holder,
     )
+
+
+def _titles(members: list[Membership], rng: random.Random) -> None:
+    """Fonction en clair des enseignants (carte de service) ; les autres gardent leurs rôles."""
+
+    def is_teacher(member: Membership) -> bool:
+        rights = {code for role in member.roles.all() for code in role.permissions}
+        return "grades.enter" in rights and "grades.validate" not in rights
+
+    teachers = [member for member in members if is_teacher(member)]
+    for member in teachers:
+        member.title = rng.choice(TEACHER_TITLES)
+    Membership.objects.bulk_update(teachers, ["title"])
 
 
 def _fill(school, rng: random.Random) -> None:
@@ -90,16 +109,20 @@ def _fill(school, rng: random.Random) -> None:
     if year is None or head is None:
         return
     actor = head.user
-    enrollments = list(cards.current_enrollments().select_related("student").order_by("pk"))
-    members = list(cards.staff().order_by("pk"))
+    enrollments = list(cards.students_list().order_by("pk"))
+    members = list(cards.staff_list().order_by("pk"))
+    _titles(members, rng)
     until = cards.valid_until(school, year)
+    faces = [
+        (cards.student_fingerprint(item), {"student": item.student})
+        for item in enrollments
+        if rng.random() < CARD_SHARE
+    ] + [(cards.member_fingerprint(member), {"member": member}) for member in members]
     IdCard.objects.bulk_create(
         [
-            _card({"student": item.student}, until, actor)
-            for item in enrollments
-            if rng.random() < CARD_SHARE
+            _card(number, "" if rng.random() < STALE_SHARE else face, holder, until, actor)
+            for number, (face, holder) in enumerate(faces, start=1)
         ]
-        + [_card({"member": member}, until, actor) for member in members]
     )
     card_of = {
         card.student_id or card.member_id: card for card in IdCard.objects.filter(revoked_at=None)

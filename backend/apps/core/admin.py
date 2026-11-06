@@ -19,7 +19,7 @@ class PlatformSettingsAdmin(admin.ModelAdmin):
                 "description": _("To change it: Identity screen of the platform console."),
             },
         ),
-        (None, {"fields": ["primary_color", "accent_color"]}),
+        (None, {"fields": ["primary_color", "accent_color", "ministry_line"]}),
         (None, {"fields": ["support_phone", "support_email", "legal_notice"]}),
         (
             None,

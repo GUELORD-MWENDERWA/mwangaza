@@ -135,6 +135,11 @@ def created(demo) -> None:
             assert not AuditLog.objects.filter(action__startswith="attendance.").exists()
     with use_school(itig):
         assert IdCard.objects.filter(student__isnull=False).count() > 600
+        # N° de carte dans l'ordre, quelques cartes à réimprimer, fonction des enseignants.
+        numbers = list(IdCard.objects.order_by("number").values_list("number", flat=True))
+        assert numbers == list(range(1, len(numbers) + 1))
+        assert 0 < cards.summary()["to_reprint"] < len(numbers) // 10
+        assert cards.staff().exclude(title="").exists()
         child = AbsenceJustification.objects.get(
             source="portal",
             created_by__isnull=False,

@@ -15,6 +15,7 @@ from apps.core import health
 from apps.core.images import CleanedFileField, clean_signature
 from apps.core.money import Currency
 from apps.schools import grading, organisation, pass_rules, receipts, signatures
+from apps.schools.attendance import CARD_FIELDS
 from apps.schools.matricule import MAX_LENGTH as MAX_MATRICULE_LENGTH
 from apps.schools.models import (
     TRACK_CODE_PATTERN,
@@ -205,16 +206,33 @@ class CardSettingsSerializer(serializers.Serializer):
     color = serializers.RegexField(
         r"^(#[0-9A-Fa-f]{6})?$",
         allow_blank=True,
-        help_text="Couleur de l'en-tête de la carte `#RRGGBB` ; vide : couleur de l'école.",
+        help_text="Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de la plateforme.",
     )
     back_text = serializers.CharField(
         max_length=240,
         allow_blank=True,
-        help_text="Texte du verso ; vide : « Cette carte est personnelle… » au nom de l'école.",
+        help_text="Texte du verso ; vide : « Carte personnelle, demandée à l'entrée… ».",
     )
     valid_until = serializers.DateField(
         allow_null=True, help_text="Fin de validité ; vide : dernier jour de l'année en cours."
     )
+    # Pas `fields` : nom réservé des serializers DRF.
+    printed_fields = serializers.ListField(
+        child=serializers.ChoiceField(choices=CARD_FIELDS),
+        max_length=len(CARD_FIELDS),
+        help_text="Champs facultatifs imprimés ; noms, classe, matricule, N° et année toujours.",
+    )
+    authorities_text = serializers.CharField(
+        max_length=200,
+        allow_blank=True,
+        help_text="Formule aux autorités (champ `authorities`) ; vide : la formule habituelle.",
+    )
+    require_photo = serializers.BooleanField(
+        help_text="Pas de carte sans photo officielle : ces personnes sont laissées de côté."
+    )
+
+    def validate_printed_fields(self, value: list[str]) -> list[str]:
+        return [code for code in CARD_FIELDS if code in value]
 
 
 class AttendanceSettingsSerializer(serializers.Serializer):
@@ -692,8 +710,8 @@ class ClassGroupFilterSerializer(serializers.Serializer):
 class MatriculeFormatInputSerializer(serializers.Serializer):
     matricule_format = serializers.CharField(
         max_length=MAX_MATRICULE_LENGTH,
-        help_text="Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 "
-        "chiffres), {OPT} (code de l'option).",
+        help_text="Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro, 3 à 6 "
+        "chiffres), {OPT} (code de l'option), {C} (clé de contrôle, à la fin).",
     )
 
 
@@ -709,12 +727,33 @@ AUTO_MATRICULE_HELP = (
 )
 
 
+class MatriculeRangeSerializer(serializers.Serializer):
+    """Plage de numéros de l'année en cours (MAT.1)."""
+
+    range_start = serializers.IntegerField(min_value=1, help_text="Premier numéro de l'année.")
+    range_end = serializers.IntegerField(
+        min_value=1,
+        allow_null=True,
+        help_text="Dernier numéro permis ; vide : le plus grand que permet le format.",
+    )
+    next_number = serializers.IntegerField(
+        min_value=1, help_text="Prochain numéro donné (pour reprendre la numérotation)."
+    )
+
+
 class MatriculeSettingsInputSerializer(MatriculeFormatInputSerializer):
     auto_matricule = serializers.BooleanField(help_text=AUTO_MATRICULE_HELP)
+    range = MatriculeRangeSerializer(help_text="Plage de l'année en cours (il en faut une).")
 
 
 class MatriculeSettingsSerializer(MatriculeFormatSerializer):
     auto_matricule = serializers.BooleanField(help_text=AUTO_MATRICULE_HELP)
+    range = MatriculeRangeSerializer(
+        allow_null=True, help_text="Plage de l'année en cours ; vide sans année en cours."
+    )
+    range_limit = serializers.IntegerField(
+        help_text="Plus grand numéro que permettent les chiffres du format."
+    )
 
 
 # Console de la plateforme (5.2)

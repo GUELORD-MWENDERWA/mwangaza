@@ -1346,7 +1346,9 @@ paths:
       description: |-
         Émet une carte pour chaque personne choisie (l'ancienne est remplacée) et prépare le
         PDF à ouvrir aussitôt à `url` : le jeton du QR n'existe que dans ce PDF, jamais gardé
-        en clair. Au plus 100 cartes à la fois ; planche A4 de 10 ou une carte par page.
+        en clair. Au plus 100 cartes à la fois ; planches A4 (10 élèves, 9 membres du
+        personnel) ou une carte par page. Photo exigée par l'école : les personnes sans photo
+        officielle sont laissées de côté (`without_photo`), 409 si plus personne ne reste.
       tags:
       - attendance
       requestBody:
@@ -1535,8 +1537,9 @@ paths:
   /api/attendance/cards/summary/:
     get:
       operationId: attendance_cards_summary_retrieve
-      description: 'Compteurs de l''écran « Cartes » : actives, élèves sans carte,
-        perdues cette année.'
+      description: |-
+        Compteurs de l'écran « Cartes » : actives, élèves sans carte, perdues cette année,
+        cartes à réimprimer.
       tags:
       - attendance
       security:
@@ -1960,6 +1963,190 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/attendance/photos/staff/{id}/:
+    get:
+      operationId: attendance_photos_staff_retrieve
+      description: Photo officielle d'un membre actif du personnel (carte de service).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+          description: PNG ou JPEG.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: attendance_photos_staff_create
+      description: Photo officielle d'un membre actif du personnel (carte de service).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhotoUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoResult'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/photos/students/{id}/:
+    get:
+      operationId: attendance_photos_students_retrieve
+      description: Photo officielle d'un élève de l'école (la même que sur sa fiche).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+          description: PNG ou JPEG.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: attendance_photos_students_create
+      description: Photo officielle d'un élève de l'école (la même que sur sa fiche).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PhotoUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoResult'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/attendance/roster/:
     get:
       operationId: attendance_roster_retrieve
@@ -2064,6 +2251,8 @@ paths:
           - staff.reactivated
           - staff.account_changed
           - staff.signature_changed
+          - staff.photo_changed
+          - staff.title_changed
           - staff.password_reset
           - staff.totp_reset
           - school.created
@@ -2238,6 +2427,8 @@ paths:
           * `staff.reactivated` - Staff member reactivated
           * `staff.account_changed` - Staff member's names or phone changed
           * `staff.signature_changed` - Staff member's signature changed
+          * `staff.photo_changed` - Staff member's official photo changed
+          * `staff.title_changed` - Staff member's position changed
           * `staff.password_reset` - Temporary password given
           * `staff.totp_reset` - Two-factor authentication reset
           * `school.created` - School created
@@ -2603,6 +2794,8 @@ paths:
           - staff.reactivated
           - staff.account_changed
           - staff.signature_changed
+          - staff.photo_changed
+          - staff.title_changed
           - staff.password_reset
           - staff.totp_reset
           - school.created
@@ -2777,6 +2970,8 @@ paths:
           * `staff.reactivated` - Staff member reactivated
           * `staff.account_changed` - Staff member's names or phone changed
           * `staff.signature_changed` - Staff member's signature changed
+          * `staff.photo_changed` - Staff member's official photo changed
+          * `staff.title_changed` - Staff member's position changed
           * `staff.password_reset` - Temporary password given
           * `staff.totp_reset` - Two-factor authentication reset
           * `school.created` - School created
@@ -17050,8 +17245,8 @@ paths:
     patch:
       operationId: matricule_format_partial_update
       description: |-
-        Un seul des deux champs suffit. Vaut pour les inscriptions et les imports suivants ;
-        les matricules déjà donnés ne changent pas.
+        Un seul des champs suffit. Vaut pour les inscriptions et les imports suivants ; les
+        matricules déjà donnés ne changent pas. `range` : plage de l'année en cours (MAT.1).
       tags:
       - organisation
       requestBody:
@@ -26716,6 +26911,8 @@ components:
       - staff.reactivated
       - staff.account_changed
       - staff.signature_changed
+      - staff.photo_changed
+      - staff.title_changed
       - staff.password_reset
       - staff.totp_reset
       - school.created
@@ -26889,6 +27086,8 @@ components:
         * `staff.reactivated` - Staff member reactivated
         * `staff.account_changed` - Staff member's names or phone changed
         * `staff.signature_changed` - Staff member's signature changed
+        * `staff.photo_changed` - Staff member's official photo changed
+        * `staff.title_changed` - Staff member's position changed
         * `staff.password_reset` - Temporary password given
         * `staff.totp_reset` - Two-factor authentication reset
         * `school.created` - School created
@@ -28683,6 +28882,10 @@ components:
           type: string
           format: uuid
           readOnly: true
+        number:
+          type: integer
+          readOnly: true
+          title: Card number
         last4:
           type: string
           readOnly: true
@@ -28707,6 +28910,7 @@ components:
           title: Reason
       required:
       - id
+      - number
       - last4
       - issued_at
       - valid_until
@@ -28742,10 +28946,11 @@ components:
           allOf:
           - $ref: '#/components/schemas/MissingEnum'
           description: |-
-            Les 100 premiers sans carte ; `remaining` : les autres.
+            Les 100 premiers sans carte, ou dont la carte est à réimprimer (`reprint`) ; `remaining` : les autres.
 
             * `students` - students
             * `staff` - staff
+            * `reprint` - reprint
         layout:
           allOf:
           - $ref: '#/components/schemas/LayoutEnum'
@@ -28759,12 +28964,17 @@ components:
         remaining:
           type: integer
           description: Personnes encore sans carte (`missing`).
+        without_photo:
+          type: integer
+          description: 'Laissées de côté : pas de photo officielle alors que l''école
+            l''exige.'
         url:
           type: string
           description: Adresse du PDF à ouvrir tout de suite (10 minutes).
       required:
       - issued
       - remaining
+      - without_photo
       - url
     CardRevokeRequest:
       type: object
@@ -28779,8 +28989,8 @@ components:
         : les autres restent.'
       properties:
         color:
-          description: 'Couleur de l''en-tête de la carte `#RRGGBB` ; vide : couleur
-            de l''école.'
+          description: 'Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de
+            la plateforme.'
           oneOf:
           - type: string
             pattern: ^(#[0-9A-Fa-f]{6})?$
@@ -28788,26 +28998,45 @@ components:
             maxLength: 0
         back_text:
           type: string
-          description: 'Texte du verso ; vide : « Cette carte est personnelle… » au
-            nom de l''école.'
+          description: 'Texte du verso ; vide : « Carte personnelle, demandée à l''entrée…
+            ».'
           maxLength: 240
         valid_until:
           type: string
           format: date
           nullable: true
           description: 'Fin de validité ; vide : dernier jour de l''année en cours.'
+        printed_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrintedFieldsEnum'
+          description: Champs facultatifs imprimés ; noms, classe, matricule, N° et
+            année toujours.
+          maxItems: 7
+        authorities_text:
+          type: string
+          description: 'Formule aux autorités (champ `authorities`) ; vide : la formule
+            habituelle.'
+          maxLength: 200
+        require_photo:
+          type: boolean
+          description: 'Pas de carte sans photo officielle : ces personnes sont laissées
+            de côté.'
       required:
       - color
       - back_text
       - valid_until
+      - printed_fields
+      - authorities_text
+      - require_photo
     CardSettingsRequest:
       type: object
       description: 'Modèle de carte (`attendance.py`, lot 10). Écriture partielle
         : les autres restent.'
       properties:
         color:
-          description: 'Couleur de l''en-tête de la carte `#RRGGBB` ; vide : couleur
-            de l''école.'
+          description: 'Couleur des bandes de la carte `#RRGGBB` ; vide : bleu de
+            la plateforme.'
           oneOf:
           - type: string
             pattern: ^(#[0-9A-Fa-f]{6})?$
@@ -28815,17 +29044,36 @@ components:
             maxLength: 0
         back_text:
           type: string
-          description: 'Texte du verso ; vide : « Cette carte est personnelle… » au
-            nom de l''école.'
+          description: 'Texte du verso ; vide : « Carte personnelle, demandée à l''entrée…
+            ».'
           maxLength: 240
         valid_until:
           type: string
           format: date
           nullable: true
           description: 'Fin de validité ; vide : dernier jour de l''année en cours.'
+        printed_fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/PrintedFieldsEnum'
+          description: Champs facultatifs imprimés ; noms, classe, matricule, N° et
+            année toujours.
+          maxItems: 7
+        authorities_text:
+          type: string
+          description: 'Formule aux autorités (champ `authorities`) ; vide : la formule
+            habituelle.'
+          maxLength: 200
+        require_photo:
+          type: boolean
+          description: 'Pas de carte sans photo officielle : ces personnes sont laissées
+            de côté.'
       required:
+      - authorities_text
       - back_text
       - color
+      - printed_fields
+      - require_photo
       - valid_until
     CardStaff:
       type: object
@@ -28854,12 +29102,26 @@ components:
           items:
             type: string
           readOnly: true
+        title:
+          type: string
+          description: 'Fonction imprimée ; vide : ses rôles.'
+        photo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Photo officielle (celle de la carte).
+        needs_reprint:
+          type: boolean
+          readOnly: true
       required:
       - card
       - last_revoked
       - member
       - name
       - roles
+      - title
+      - photo
+      - needs_reprint
     CardStudent:
       type: object
       description: Élève inscrit de l'année et sa carte (écran « Cartes », onglet
@@ -28894,7 +29156,12 @@ components:
           type: string
           nullable: true
           readOnly: true
-          description: Photo seulement avec le consentement.
+          description: Photo officielle (celle de la carte).
+        needs_reprint:
+          type: boolean
+          readOnly: true
+          description: La carte active n'imprime plus ce qui est vrai (photo, classe,
+            noms…).
       required:
       - card
       - last_revoked
@@ -28904,6 +29171,7 @@ components:
       - class_group
       - class_name
       - photo
+      - needs_reprint
     CardSummary:
       type: object
       properties:
@@ -28919,11 +29187,16 @@ components:
         lost_this_year:
           type: integer
           description: Cartes perdues depuis la rentrée.
+        to_reprint:
+          type: integer
+          description: Cartes actives (élèves et personnel) qui n'impriment plus ce
+            qui est vrai.
       required:
       - students
       - active
       - missing
       - lost_this_year
+      - to_reprint
     CashCloseRequest:
       type: object
       properties:
@@ -31383,6 +31656,11 @@ components:
           title: Accent colour
           description: Sun of the symbol and highlights on the menu (rarely).
           maxLength: 7
+        ministry_line:
+          type: string
+          description: Printed under « République démocratique du Congo » on documents
+            and cards.
+          maxLength: 120
         support_phone:
           type: string
           description: '0970000000 ou +243970000000 ; vide : aucun.'
@@ -31493,6 +31771,7 @@ components:
       - icon
       - primary_color
       - accent_color
+      - ministry_line
       - support_phone
       - support_email
       - legal_notice
@@ -38801,8 +39080,9 @@ components:
       properties:
         matricule_format:
           type: string
-          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
-            3 à 6 chiffres), {OPT} (code de l''option).'
+          description: 'Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option), {C} (clé de contrôle, à la
+            fin).'
           maxLength: 60
         example:
           type: string
@@ -38816,18 +39096,64 @@ components:
         matricule_format:
           type: string
           minLength: 1
-          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
-            3 à 6 chiffres), {OPT} (code de l''option).'
+          description: 'Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option), {C} (clé de contrôle, à la
+            fin).'
           maxLength: 60
       required:
       - matricule_format
+    MatriculeRange:
+      type: object
+      description: Plage de numéros de l'année en cours (MAT.1).
+      properties:
+        range_start:
+          type: integer
+          minimum: 1
+          description: Premier numéro de l'année.
+        range_end:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: 'Dernier numéro permis ; vide : le plus grand que permet le
+            format.'
+        next_number:
+          type: integer
+          minimum: 1
+          description: Prochain numéro donné (pour reprendre la numérotation).
+      required:
+      - range_start
+      - range_end
+      - next_number
+    MatriculeRangeRequest:
+      type: object
+      description: Plage de numéros de l'année en cours (MAT.1).
+      properties:
+        range_start:
+          type: integer
+          minimum: 1
+          description: Premier numéro de l'année.
+        range_end:
+          type: integer
+          minimum: 1
+          nullable: true
+          description: 'Dernier numéro permis ; vide : le plus grand que permet le
+            format.'
+        next_number:
+          type: integer
+          minimum: 1
+          description: Prochain numéro donné (pour reprendre la numérotation).
+      required:
+      - next_number
+      - range_end
+      - range_start
     MatriculeSettings:
       type: object
       properties:
         matricule_format:
           type: string
-          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
-            3 à 6 chiffres), {OPT} (code de l''option).'
+          description: 'Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option), {C} (clé de contrôle, à la
+            fin).'
           maxLength: 60
         example:
           type: string
@@ -38837,10 +39163,20 @@ components:
           description: 'Non : ni l''inscription ni l''import ne donnent de matricule
             ; l''école garde les siens (importés ou saisis sur la fiche) ou n''en
             a pas (C5).'
+        range:
+          allOf:
+          - $ref: '#/components/schemas/MatriculeRange'
+          nullable: true
+          description: Plage de l'année en cours ; vide sans année en cours.
+        range_limit:
+          type: integer
+          description: Plus grand numéro que permettent les chiffres du format.
       required:
       - matricule_format
       - example
       - auto_matricule
+      - range
+      - range_limit
     Me:
       type: object
       properties:
@@ -39028,10 +39364,12 @@ components:
       enum:
       - students
       - staff
+      - reprint
       type: string
       description: |-
         * `students` - students
         * `staff` - staff
+        * `reprint` - reprint
     MissingFieldsEnum:
       enum:
       - last_name
@@ -41543,6 +41881,12 @@ components:
           title: Accent colour
           description: Sun of the symbol and highlights on the menu (rarely).
           maxLength: 7
+        ministry_line:
+          type: string
+          minLength: 1
+          description: Printed under « République démocratique du Congo » on documents
+            and cards.
+          maxLength: 120
         support_phone:
           type: string
           description: '0970000000 ou +243970000000 ; vide : aucun.'
@@ -42103,14 +42447,19 @@ components:
         matricule_format:
           type: string
           minLength: 1
-          description: 'Ex. ABC-{AAAA}-{0000} : {AAAA} ou {AA} (année), {0000} (numéro,
-            3 à 6 chiffres), {OPT} (code de l''option).'
+          description: 'Ex. ABC-{AA}-{0000}-{C} : {AAAA} ou {AA} (année), {0000} (numéro,
+            3 à 6 chiffres), {OPT} (code de l''option), {C} (clé de contrôle, à la
+            fin).'
           maxLength: 60
         auto_matricule:
           type: boolean
           description: 'Non : ni l''inscription ni l''import ne donnent de matricule
             ; l''école garde les siens (importés ou saisis sur la fiche) ou n''en
             a pas (C5).'
+        range:
+          allOf:
+          - $ref: '#/components/schemas/MatriculeRangeRequest'
+          description: Plage de l'année en cours (il en faut une).
     PatchedMeUpdateRequest:
       type: object
       properties:
@@ -42344,6 +42693,10 @@ components:
         first_name:
           type: string
           maxLength: 100
+        title:
+          type: string
+          description: 'Fonction en clair sur la carte de service ; vide : ses rôles.'
+          maxLength: 80
     PatchedStudentImportUpdateRequest:
       type: object
       properties:
@@ -42934,6 +43287,14 @@ components:
       - last_name
       - middle_name
       - first_name
+    PhotoResult:
+      type: object
+      properties:
+        photo:
+          type: string
+          description: Adresse de la nouvelle photo officielle.
+      required:
+      - photo
     PhotoUploadRequest:
       type: object
       properties:
@@ -43179,6 +43540,11 @@ components:
           title: Accent colour
           description: Sun of the symbol and highlights on the menu (rarely).
           maxLength: 7
+        ministry_line:
+          type: string
+          description: Printed under « République démocratique du Congo » on documents
+            and cards.
+          maxLength: 120
         support_phone:
           type: string
           maxLength: 16
@@ -43279,6 +43645,7 @@ components:
       - icon
       - primary_color
       - accent_color
+      - ministry_line
       - support_phone
       - support_email
       - legal_notice
@@ -44153,6 +44520,24 @@ components:
       description: |-
         * `any` - any
         * `morning` - morning
+    PrintedFieldsEnum:
+      enum:
+      - birth
+      - sex
+      - nationality
+      - national_id
+      - guardian_phone
+      - address
+      - authorities
+      type: string
+      description: |-
+        * `birth` - birth
+        * `sex` - sex
+        * `nationality` - nationality
+        * `national_id` - national_id
+        * `guardian_phone` - guardian_phone
+        * `address` - address
+        * `authorities` - authorities
     PrinterEnum:
       enum:
       - thermal_58
@@ -45345,12 +45730,18 @@ components:
           format: uuid
           nullable: true
           description: Page suivante (`after`).
+        matricule_check:
+          type: boolean
+          description: 'Le format a une clé de contrôle `{C}` : un matricule tapé
+            inconnu dont la clé est fausse est « mal tapé » (algorithme de Damm sur
+            ses chiffres).'
       required:
       - version
       - unchanged
       - students
       - staff
       - next
+      - matricule_check
     RosterStaff:
       type: object
       properties:
@@ -45363,11 +45754,16 @@ components:
           type: string
         card_last4:
           type: string
+        photo:
+          type: string
+          nullable: true
+          readOnly: true
       required:
       - member
       - name
       - card_hash
       - card_last4
+      - photo
     RosterStudent:
       type: object
       properties:
@@ -45389,7 +45785,7 @@ components:
           type: string
           nullable: true
           readOnly: true
-          description: Photo seulement avec le consentement.
+          description: Photo officielle montrée à la porte (`/api/attendance/photos/…`).
       required:
       - student
       - name
@@ -46979,6 +47375,10 @@ components:
         is_active:
           type: boolean
           title: Active
+        title:
+          type: string
+          title: Job title
+          maxLength: 80
         totp:
           allOf:
           - $ref: '#/components/schemas/TotpEnum'
@@ -47004,6 +47404,7 @@ components:
       - user
       - roles
       - is_active
+      - title
       - totp
       - last_login_at
       - account_managed_here
@@ -47094,6 +47495,10 @@ components:
         is_active:
           type: boolean
           title: Active
+        title:
+          type: string
+          title: Job title
+          maxLength: 80
         totp:
           allOf:
           - $ref: '#/components/schemas/TotpEnum'
@@ -47128,6 +47533,7 @@ components:
       - user
       - roles
       - is_active
+      - title
       - totp
       - last_login_at
       - account_managed_here

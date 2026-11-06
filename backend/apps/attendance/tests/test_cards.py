@@ -1,15 +1,21 @@
 """Cartes d'élève et du personnel (6.1, A.5) : impression d'une sélection qui émet les cartes,
-carte remplacée ou révoquée au journal, impression par lots des personnes sans carte, isolation
-entre écoles et droits."""
+carte remplacée ou révoquée au journal, impression par lots des personnes sans carte, N° de carte,
+photo officielle exigée et prise par l'école seule, carte « à réimprimer », isolation entre écoles
+et droits."""
 
 import pytest
+from django.core.files.uploadedfile import SimpleUploadedFile
 
+from apps.accounts.models import Membership
 from apps.attendance import cards
 from apps.attendance.models import IdCard
 from apps.audit.actions import Action
 from apps.audit.models import AuditLog
+from apps.core.models import PlatformSettings
 from apps.core.tenancy import use_school
+from apps.students import services as students
 from apps.students.tests.conftest import enrolled
+from tests.images import image_bytes
 
 pytestmark = pytest.mark.django_db
 
@@ -29,12 +35,30 @@ def pdf_of(client, result):
     return client.get(result["url"].split("?")[0], output="pdf")
 
 
+PHOTOS = "/api/attendance/photos/"
+
+
+def jpeg() -> SimpleUploadedFile:
+    return SimpleUploadedFile("photo.jpg", image_bytes("JPEG"))
+
+
+def send_photo(client, kind: str, pk):
+    return client.client.post(
+        f"{PHOTOS}{kind}/{pk}/", {"photo": jpeg()}, HTTP_HOST=client.host, **client.headers
+    )
+
+
 @pytest.fixture
 def pupils(school, head, alpha):
-    return [
+    """Deux élèves inscrits, avec leur photo officielle (exigée par défaut sur la carte)."""
+    found = [
         enrolled(school, head, alpha["group"], last_name=name, first_name="Élève")
         for name in ("Kambale", "Mapendo")
     ]
+    with use_school(school):
+        for pupil in found:
+            students.set_photo(pupil, jpeg(), actor=head)
+    return found
 
 
 def test_printing_a_selection_issues_cards_and_reprinting_replaces_them(api, school, head, pupils):
@@ -78,10 +102,91 @@ def test_people_without_a_card_are_printed_in_batches(api, school, head, pupils,
         "active": 2,
         "missing": 0,
         "lost_this_year": 0,
+        "to_reprint": 0,
     }
+    # Le directeur n'a pas encore de photo officielle : pas de carte tant qu'elle manque.
+    refused = client.post(PRINT, {"missing": "staff"})
+    assert (refused.status_code, refused.json()["without_photo"]) == (409, 1)
+    client.patch(SETTINGS, {"card": {"require_photo": False}})
     staff = client.post(PRINT, {"missing": "staff"}).json()
     assert staff["issued"] == 1
     assert client.get(STAFF).json()["results"][0]["card"] is not None
+
+
+def test_cards_are_numbered_in_order_and_a_changed_photo_asks_for_a_reprint(
+    api, school, head, alpha, pupils
+):
+    client = api(head)
+    late = enrolled(school, head, alpha["group"], last_name="Safari", first_name="Sans photo")
+    everyone = [str(pupil.pk) for pupil in [*pupils, late]]
+    result = client.post(PRINT, {"students": everyone}).json()
+    assert (result["issued"], result["without_photo"]) == (2, 1)
+    alone = client.post(PRINT, {"students": [str(late.pk)]})
+    assert (alone.status_code, alone.json()["code"]) == (409, "card_needs_photo")
+
+    first = pupils[0]
+    client.post(PRINT, {"students": [str(first.pk)]})
+    with use_school(school):
+        assert sorted(IdCard.objects.values_list("number", flat=True)) == [1, 2, 3]
+        assert IdCard.objects.get(student=first, revoked_at=None).number == 3
+        log = AuditLog.objects.filter(action=Action.CARD_ISSUED).latest("created_at")
+        assert log.after["number"] == 3
+
+    # Nouvelle photo prise à la séance photo : au journal, et la carte est à réimprimer.
+    assert send_photo(client, "students", first.pk).status_code == 200
+    rows = {row["name"]: row for row in client.get(STUDENTS).json()["results"]}
+    assert rows[first.full_name]["needs_reprint"] is True
+    assert rows[pupils[1].full_name]["needs_reprint"] is False
+    assert client.get(SUMMARY).json()["to_reprint"] == 1
+    with use_school(school):
+        replaced = AuditLog.objects.filter(
+            action=Action.STUDENTS_STUDENT_UPDATED, entity_id=first.pk
+        ).latest("created_at")
+        assert replaced.before["photo"] != replaced.after["photo"]
+    again = client.post(PRINT, {"missing": "reprint"}).json()
+    assert (again["issued"], again["remaining"]) == (1, 0)
+    assert client.get(SUMMARY).json()["to_reprint"] == 0
+
+
+def test_staff_photo_is_taken_by_the_school_only_and_shown_at_the_door(
+    api, school, head, cashier, other_head, beta
+):
+    member = Membership.objects.get(user=cashier, school=school)
+    client = api(head)
+    # La personne elle-même ne change jamais sa photo officielle (pas le droit des cartes).
+    assert send_photo(api(cashier), "staff", member.pk).status_code == 403
+    taken = send_photo(client, "staff", member.pk)
+    assert taken.status_code == 200
+    roster = {row["member"]: row for row in client.get(ROSTER).json()["staff"]}
+    assert roster[str(member.pk)]["photo"] == taken.json()["photo"]
+    image = client.get(taken.json()["photo"].split("?")[0])
+    assert (image.status_code, image["Content-Type"]) == (200, "image/jpeg")
+    with use_school(school):
+        log = AuditLog.objects.get(action=Action.STAFF_PHOTO_CHANGED)
+        assert (log.actor_id, log.after) == (head.pk, {"photo": True})
+    other = api(other_head, host="beta.localhost")
+    assert other.get(f"{PHOTOS}staff/{member.pk}/").status_code == 404
+    assert send_photo(other, "staff", member.pk).status_code == 404
+
+
+def test_the_printed_card_follows_the_platform_and_hides_private_fields_by_default(
+    school, head, alpha
+):
+    """Ministère réglé par la plateforme (plus « EPST » en dur) ; téléphone du responsable et
+    adresse absents tant que l'école ne les coche pas (une carte perdue est lue par tous)."""
+    PlatformSettings.objects.update_or_create(pk=1, defaults={"ministry_line": "Ministère XYZ"})
+    pupil = enrolled(school, head, alpha["group"], last_name="Kambale", first_name="Josué")
+    with use_school(school):
+        enrollment = cards.students_list().get(student=pupil)
+        issued = cards.issue(actor=head, enrollments=[enrollment])
+        _head, bodies = cards.document(issued, {pupil.pk: enrollment}, cards.CARD)
+        front, back = bodies
+        assert "Ministère XYZ" in front and "0001" in front and pupil.matricule in front
+        assert "+243" not in back
+        school.settings = {"card": {"printed_fields": ["guardian_phone"]}}
+        school.save()
+        _head, (front, back) = cards.document(issued, {pupil.pk: enrollment}, cards.CARD)
+        assert "+243" in back
 
 
 def test_a_revoked_card_is_gone_from_the_roster_and_cannot_be_revoked_twice(
@@ -94,6 +199,8 @@ def test_a_revoked_card_is_gone_from_the_roster_and_cannot_be_revoked_twice(
     before = client.get(ROSTER).json()
     hashes = {row["card_hash"] for row in before["students"]}
     assert card.token_hash in hashes
+    assert before["matricule_check"] is False
+    assert before["students"][0]["photo"].startswith(f"{PHOTOS}students/")
     # Rien à envoyer tant que rien ne change.
     assert client.get(ROSTER, version=before["version"]).json()["unchanged"] is True
 
@@ -119,6 +226,9 @@ def test_cards_of_one_school_are_never_seen_printed_or_revoked_by_another(
     assert other.post(PRINT, {"students": [str(pupils[0].pk)]}).status_code == 400
     assert revoke(other, card).status_code == 404
     assert other.get(ROSTER).json()["students"] == []
+    # Photo officielle : ni lue ni changée par l'autre école.
+    assert other.get(f"{PHOTOS}students/{pupils[0].pk}/").status_code == 404
+    assert send_photo(other, "students", pupils[0].pk).status_code == 404
     # Le PDF n'est servi qu'à qui l'a demandé, dans son école.
     assert pdf_of(other, result).status_code == 410
     with use_school(school):
@@ -130,6 +240,7 @@ def test_cards_and_the_roster_need_their_right_and_the_module(api, school, head,
     assert clerk.get(STUDENTS).status_code == 403
     assert clerk.post(PRINT, {"missing": "students"}).status_code == 403
     assert clerk.get(ROSTER).status_code == 403
+    assert clerk.get(f"{PHOTOS}students/{pupils[0].pk}/").status_code == 403
     school.modules = [code for code in school.modules if code != "attendance"]
     school.save()
     assert api(head).post(PRINT, {"missing": "students"}).status_code == 403
