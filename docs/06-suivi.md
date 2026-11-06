@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 10** (carte et présences), partie ① (serveur) faite : cartes d'après les cartes congolaises, pointage, suivi, justifications, parents prévenus, matricule avec clé de contrôle (MAT.1), ligne du ministère réglable ; ② écrans en cours : page Cartes, séance photo, fonction du personnel, matricule et ligne du ministère faits (a1, a2) ; pointage caméra / borne hors ligne et SIG.1 faits (b1) ; page Suivi des présences (par classe, absents, personnel, justifications, journal, correction) et justification dans le Portail faites (b2) ; reste : lecture QR sur iPhone (dépendance `barcode-detector` à valider) |
+| Lot en cours | Aucun : lot 10 (carte et présences) terminé, PR #437 en relecture ; bibliothèque de lecture QR pour iPhone en attente de ta réponse (`A-FAIRE.md` 000 sexies) |
 | Prochain lot | Lot 11 ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #436 (lot 10) ; fiche `docs/claude/plans/lot-10.md` |
 | Branche | `lot/10-carte-presences` |
-| Dernière mise à jour | 2026-11-06 (lot 10, partie ② b2) |
+| Dernière mise à jour | 2026-11-06 (lot 10 terminé) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 7 — Finances et caisse complètes | 4 ✓ | 4 |
 | 8 — Cours communs et notes | 7 ✓ | 7 |
 | 9 — Emploi du temps fini et IA | 3 ✓ | 3 |
-| 10 — Carte et présences | 1 (①) | 3 |
+| 10 — Carte et présences | 3 ✓ | 3 |
 | 11 — Bibliothèque et ateliers | 0 | 3 |
 | 12 — Personnel et paie | 0 | 3 |
 | 13 — Messagerie et portail des élèves | 0 | 2 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **9 lots sur 17** | **50** |
+| **V1 complète** | **10 lots sur 17** | **50** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -63,6 +63,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q17.
 
 ## Journal
+
+### 2026-11-06 — Lot 10 : Carte et présences
+- Fait : cartes (QR à empreinte, photo officielle, modèle réglé par l'école, A4), pointage à l'entrée hors ligne, suivi des présences, justification dans le Portail, matricule avec clé (MAT.1), signaux (SIG.1), sélection pour impression (A.5) ; 4 articles d'aide.
+- Tests : isolation, droits, audit, idempotence du pointage ; Playwright `pointage-hors-ligne` (2 élèves sans réseau, aucun doublon) ; captures cards / entrance / follow à 390, 820, 1440 px, rapport vide.
+- Décision (`03`) : une écriture par pointage, absents jamais stockés. Reste : lecture QR sur iPhone, après ta réponse sur `barcode-detector` ; EQP.4 (lecteurs) au lot 16.
+- Suite : lot 11.
 
 ### 2026-11-06 — Lot 10, partie ① b : suivi des présences, parents ; cartes et matricule revus
 - Fait : absents calculés à la demande (corrections au journal, justifications, congés), écran du jour par classe, absents à suivre, personnel, journal, rapport Excel ; Portail : présences de l'enfant et justification (certificat photo ou PDF) ; parents prévenus une fois le matin, direction alertée au seuil ; `make demo`.
