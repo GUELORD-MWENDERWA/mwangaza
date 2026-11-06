@@ -77,6 +77,10 @@ const KIND_ICONS: Record<NotificationKind, IconName> = {
   justification_sent: "inbox",
   absence: "alert",
   justification_decided: "check",
+  loan: "file",
+  loan_reminder: "clock",
+  loss_reported: "alert",
+  loans_overdue: "clock",
 };
 
 export function NotificationsPage() {

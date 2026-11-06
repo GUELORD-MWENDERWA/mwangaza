@@ -157,6 +157,9 @@ class StudentCharge(TenantModel):
     class Source(models.TextChoices):
         RULE = "rule", _("Fee rule")
         CUSTOM = "custom", _("Custom schedule")
+        # Livre ou outil perdu, abîmé, ou rendu en retard (lot 11, `inventory/losses.py`) : hors
+        # du barème, jamais retiré par un changement de classe ou de barème.
+        ITEM = "item", _("Lost, damaged or late item")
 
     class Status(models.TextChoices):
         ACTIVE = "active", _("Due")

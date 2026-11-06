@@ -56,6 +56,14 @@ PERMISSIONS: dict[str, Promise] = {
     "attendance.scan": _("Record arrivals at the entrance (scan the cards)"),
     "attendance.view": _("View attendance, absences and their reports"),
     "attendance.correct": _("Correct attendance and accept or refuse absence notes"),
+    "library.manage": _(
+        "Manage the library: catalogue, labels, lending rules, loss and damage reports"
+    ),
+    "library.lend": _("Lend and take back books at the library desk"),
+    "workshops.manage": _("Manage workshop stock: receptions, issue slips and tools lent"),
+    "workshops.request": _("Request materials for a workshop"),
+    "workshops.approve": _("Approve or refuse requests for workshop materials"),
+    "inventory.validate": _("Validate stocktakes and correct a loss report"),
     "ai.use": _("Use the AI assistance"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
@@ -104,6 +112,16 @@ ATTENDANCE_CARDS = "attendance.cards"
 ATTENDANCE_SCAN = "attendance.scan"
 ATTENDANCE_VIEW = "attendance.view"
 ATTENDANCE_CORRECT = "attendance.correct"
+# Bibliothèque (lot 11) : catalogue, étiquettes, règles et constats ; guichet (prêt, retour,
+# prolongation). Ateliers : stock, réceptions, bons de sortie, outils prêtés ; demande de matériel
+# (enseignant) ; validation des demandes (direction). Validation des inventaires et rectification
+# d'un constat (direction), pour les deux modules.
+LIBRARY_MANAGE = "library.manage"
+LIBRARY_LEND = "library.lend"
+WORKSHOPS_MANAGE = "workshops.manage"
+WORKSHOPS_REQUEST = "workshops.request"
+WORKSHOPS_APPROVE = "workshops.approve"
+INVENTORY_VALIDATE = "inventory.validate"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
 # Abonnement de l'école à la plateforme : contrat, factures, solde, demande de module (ABO.4).
@@ -198,6 +216,10 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "attendance.scan",
             "attendance.view",
             "attendance.correct",
+            "library.manage",
+            "workshops.manage",
+            "workshops.approve",
+            "inventory.validate",
             "announcements.publish",
             "audit.view",
             "billing.view",
@@ -287,7 +309,11 @@ STARTER_ROLES: dict[str, StarterRole] = {
     ),
     # Enseignant : les notes de ses cours et de la classe dont il est titulaire (8.2.1). Parent :
     # rien dans la Gestion, le portail lui montre ses enfants.
-    "teacher": StarterRole(_("Teacher"), ("grades.enter", "discipline.record")),
+    "teacher": StarterRole(
+        _("Teacher"), ("grades.enter", "discipline.record", "workshops.request")
+    ),
+    # Bibliothèque (lot 11) : catalogue, guichet et constats ; pas la validation des inventaires.
+    "librarian": StarterRole(_("Librarian"), ("students.view", "library.manage", "library.lend")),
     "parent": StarterRole(_("Parent"), ()),
 }
 

@@ -52,6 +52,15 @@ MODULES: dict[str, tuple[Promise, tuple[str, ...]]] = {
         _("Cards and attendance"),
         ("attendance.cards", "attendance.scan", "attendance.view", "attendance.correct"),
     ),
+    # Bibliothèque et ateliers (lot 11) : même moteur (`apps/inventory`), deux modules à part.
+    "library": (
+        _("Library"),
+        ("library.manage", "library.lend", "inventory.validate"),
+    ),
+    "workshops": (
+        _("Workshops: stock, orders and tools"),
+        ("workshops.manage", "workshops.request", "workshops.approve", "inventory.validate"),
+    ),
     "ai": (_("AI assistance"), ("ai.use",)),
     "portal": (_("Parent portal"), ()),
     "notifications": (_("Notifications and reminders"), ()),
@@ -68,6 +77,9 @@ DEPENDENCIES: dict[str, tuple[str, ...]] = {
     "portal": ("students",),
     # Les cartes et les passages sont ceux des élèves inscrits.
     "attendance": ("students",),
+    # Les prêts sont ceux des élèves inscrits.
+    "library": ("students",),
+    "workshops": ("students",),
 }
 MODULE_CHOICES = [(code, label) for code, (label, _permissions) in MODULES.items()]
 ALL_MODULES = list(MODULES)
@@ -112,6 +124,7 @@ FEATURES: dict[str, tuple[str, ...]] = {
     "role.accountant": ("finance",),
     "role.cashier": ("finance",),
     "role.teacher": ("academics",),
+    "role.librarian": ("library",),
 }
 # Champ de l'élève → ce qui le porte (`FEATURES`).
 STUDENT_FIELD_FEATURES = {

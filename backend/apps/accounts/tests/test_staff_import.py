@@ -55,7 +55,7 @@ def rows(member, elsewhere):
         ["Autre", "", "Nom", elsewhere.phone, CASHIER],
         ["Paluku", "", "", "097 55 21", TEACHER],
         ["Bahati", "", "", "0000001234", TEACHER],
-        ["Kahindo", "", "", "0815550000", "Bibliothécaire"],
+        ["Kahindo", "", "", "0815550000", "Infirmière"],
         ["Mumbere", "", "", "0815550001", ""],
         ["Muhindo", "", "", "0971234567", TEACHER],
         ["", "", "Grâce", "0815550002", TEACHER],
@@ -78,7 +78,7 @@ def test_preview_writes_nothing_and_flags_each_line(api, head, school, member, e
     assert "Beta" not in response.content.decode()
     assert states[5] == ("error", [{"code": "invalid_phone"}])
     assert states[6] == ("error", [{"code": "demo_number"}])
-    assert states[7] == ("error", [{"code": "unknown_role", "role": "Bibliothécaire"}])
+    assert states[7] == ("error", [{"code": "unknown_role", "role": "Infirmière"}])
     assert states[8] == ("error", [{"code": "missing_role"}])
     assert states[9] == ("error", [{"code": "duplicate_phone", "line": 2}])
     assert states[10] == ("error", [{"code": "missing_name"}])

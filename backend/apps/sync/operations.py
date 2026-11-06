@@ -5,7 +5,7 @@ Chaque type d'opération donne le droit exigé, le contenu attendu (serializer) 
 appelé : encaissement (3.3.2), ouverture de caisse et réimpression (3.5.2), crédit utilisé à la
 caisse (3.6.2), demande d'annulation (3.8.1), clôture de caisse (3.8.2), sortie de caisse
 (FIN.2), inscription d'un élève (HL.1), feuille de notes (8.2.3), infraction d'un élève (HL.2),
-passage à l'entrée (6.3).
+passage à l'entrée (6.3), prêt et retour d'un livre ou d'un outil (lot 11).
 Une opération hors
 ligne de plus est une entrée de plus dans `OPERATIONS` ; ce qu'elle crée porte l'identifiant
 donné par l'appareil, car la trace d'une opération appliquée est effacée après `KEEP_DAYS`
@@ -39,7 +39,9 @@ from apps.accounts.roles import (
     GRADES_ENTER,
     GRADES_ENTER_ANY,
     GRADES_VALIDATE,
+    LIBRARY_LEND,
     STUDENTS_EDIT,
+    WORKSHOPS_MANAGE,
 )
 from apps.attendance import cards as attendance_cards
 from apps.attendance import scans
@@ -49,6 +51,8 @@ from apps.finance import cash_outs
 from apps.finance import services as finance
 from apps.finance.models import CashRegister, CashSession, Expense, Payment, StudentCredit
 from apps.finance.serializers import CashCloseSerializer, PaymentCreateSerializer
+from apps.inventory import loans as inventory_loans
+from apps.inventory.serializers import OfflineLoanSerializer, OfflineReturnSerializer
 from apps.schools.models import ClassGroup, Term
 from apps.students import services as students
 from apps.students.models import Student
@@ -374,6 +378,23 @@ def _scan(data: dict, device: Device, actor: User) -> dict:
     }
 
 
+def _lend(data: dict, device: Device, actor: User) -> dict:
+    """« Déjà prêté à un autre » est un refus (à revoir sur l'appareil) ; le même prêt rejoué
+    ne l'est pas."""
+    loan, already = inventory_loans.lend(actor=actor, device=device, **data)
+    return {
+        "loan": str(loan.pk),
+        "number": loan.number,
+        "due_on": str(loan.due_on),
+        "already": already,
+    }
+
+
+def _give_back(data: dict, device: Device, actor: User) -> dict:
+    loan, already = inventory_loans.give_back(actor=actor, **data)
+    return {"loan": str(loan.pk), "already": already}
+
+
 @dataclass(frozen=True)
 class OperationType:
     permission: str | tuple[str, ...]
@@ -407,6 +428,11 @@ OPERATIONS = {
         DISCIPLINE_RECORD, OfflineIncidentSerializer, _record_incident
     ),
     "attendance.scan": OperationType(ATTENDANCE_SCAN, OfflineScanSerializer, _scan),
+    # Guichet de la bibliothèque, ou outils d'un atelier : le service vérifie le droit du lieu.
+    "inventory.loan": OperationType((LIBRARY_LEND, WORKSHOPS_MANAGE), OfflineLoanSerializer, _lend),
+    "inventory.return": OperationType(
+        (LIBRARY_LEND, WORKSHOPS_MANAGE), OfflineReturnSerializer, _give_back
+    ),
 }
 
 

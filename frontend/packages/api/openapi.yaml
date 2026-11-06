@@ -2304,6 +2304,23 @@ paths:
           - attendance.corrected
           - attendance.justification_recorded
           - attendance.justification_decided
+          - inventory.item_changed
+          - inventory.copies_added
+          - inventory.imported
+          - inventory.rules_changed
+          - inventory.loan_created
+          - inventory.loan_returned
+          - inventory.loan_extended
+          - inventory.loss_reported
+          - inventory.loss_corrected
+          - inventory.stock_movement
+          - inventory.order_requested
+          - inventory.order_decided
+          - inventory.order_purchased
+          - inventory.order_received
+          - inventory.issue_slip
+          - inventory.stocktake_started
+          - inventory.stocktake_validated
           - timetable.grid_changed
           - timetable.grid_deleted
           - timetable.room_changed
@@ -2480,6 +2497,23 @@ paths:
           * `attendance.corrected` - Attendance corrected
           * `attendance.justification_recorded` - Absence justified by the school
           * `attendance.justification_decided` - Absence justification decided
+          * `inventory.item_changed` - Catalogue item saved
+          * `inventory.copies_added` - Copies added
+          * `inventory.imported` - Catalogue imported
+          * `inventory.rules_changed` - Lending rules changed
+          * `inventory.loan_created` - Item lent
+          * `inventory.loan_returned` - Item returned
+          * `inventory.loan_extended` - Loan extended
+          * `inventory.loss_reported` - Loss or damage reported
+          * `inventory.loss_corrected` - Loss report corrected
+          * `inventory.stock_movement` - Stock movement
+          * `inventory.order_requested` - Materials requested
+          * `inventory.order_decided` - Materials request decided
+          * `inventory.order_purchased` - Materials purchased
+          * `inventory.order_received` - Materials received
+          * `inventory.issue_slip` - Materials issued
+          * `inventory.stocktake_started` - Stocktake started
+          * `inventory.stocktake_validated` - Stocktake validated
           * `timetable.grid_changed` - Time grid changed
           * `timetable.grid_deleted` - Time grid deleted
           * `timetable.room_changed` - Room changed
@@ -2605,6 +2639,7 @@ paths:
           - fee_waiver
           - finance
           - grades
+          - inventory
           - legal
           - organisation
           - portal
@@ -2633,6 +2668,7 @@ paths:
           * `fee_waiver` - fee_waiver
           * `finance` - finance
           * `grades` - grades
+          * `inventory` - inventory
           * `legal` - legal
           * `organisation` - organisation
           * `portal` - portal
@@ -2847,6 +2883,23 @@ paths:
           - attendance.corrected
           - attendance.justification_recorded
           - attendance.justification_decided
+          - inventory.item_changed
+          - inventory.copies_added
+          - inventory.imported
+          - inventory.rules_changed
+          - inventory.loan_created
+          - inventory.loan_returned
+          - inventory.loan_extended
+          - inventory.loss_reported
+          - inventory.loss_corrected
+          - inventory.stock_movement
+          - inventory.order_requested
+          - inventory.order_decided
+          - inventory.order_purchased
+          - inventory.order_received
+          - inventory.issue_slip
+          - inventory.stocktake_started
+          - inventory.stocktake_validated
           - timetable.grid_changed
           - timetable.grid_deleted
           - timetable.room_changed
@@ -3023,6 +3076,23 @@ paths:
           * `attendance.corrected` - Attendance corrected
           * `attendance.justification_recorded` - Absence justified by the school
           * `attendance.justification_decided` - Absence justification decided
+          * `inventory.item_changed` - Catalogue item saved
+          * `inventory.copies_added` - Copies added
+          * `inventory.imported` - Catalogue imported
+          * `inventory.rules_changed` - Lending rules changed
+          * `inventory.loan_created` - Item lent
+          * `inventory.loan_returned` - Item returned
+          * `inventory.loan_extended` - Loan extended
+          * `inventory.loss_reported` - Loss or damage reported
+          * `inventory.loss_corrected` - Loss report corrected
+          * `inventory.stock_movement` - Stock movement
+          * `inventory.order_requested` - Materials requested
+          * `inventory.order_decided` - Materials request decided
+          * `inventory.order_purchased` - Materials purchased
+          * `inventory.order_received` - Materials received
+          * `inventory.issue_slip` - Materials issued
+          * `inventory.stocktake_started` - Stocktake started
+          * `inventory.stocktake_validated` - Stocktake validated
           * `timetable.grid_changed` - Time grid changed
           * `timetable.grid_deleted` - Time grid deleted
           * `timetable.room_changed` - Room changed
@@ -3148,6 +3218,7 @@ paths:
           - fee_waiver
           - finance
           - grades
+          - inventory
           - legal
           - organisation
           - portal
@@ -3176,6 +3247,7 @@ paths:
           * `fee_waiver` - fee_waiver
           * `finance` - finance
           * `grades` - grades
+          * `inventory` - inventory
           * `legal` - legal
           * `organisation` - organisation
           * `portal` - portal
@@ -17213,6 +17285,690 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/library/books/:
+    get:
+      operationId: library_books_list
+      description: |-
+        Catalogue : titres de la bibliothèque (recherche dans le titre et l'auteur, catégorie,
+        niveau), avec leurs exemplaires en service, disponibles et prêtés.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+      - in: query
+        name: level
+        schema:
+          type: string
+          format: uuid
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBookList'
+          description: ''
+    post:
+      operationId: library_books_create
+      description: Nouveau titre, avec `copies` exemplaires numérotés (étiquettes).
+      tags:
+      - library
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/books/{id}/:
+    get:
+      operationId: library_books_retrieve
+      description: 'Un titre et chacun de ses exemplaires : code, état, emprunteur
+        et date de retour.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDetail'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    patch:
+      operationId: library_books_partial_update
+      description: 'Modifier un titre (au journal : ce qui change).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - library
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBookWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBookWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBookWriteRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/books/{id}/copies/:
+    post:
+      operationId: library_books_copies_create
+      description: 'Ajouter des exemplaires à un titre : chacun reçoit le numéro suivant
+        de l''école.'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - library
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopiesAddRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CopiesAddRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CopiesAddRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCopyList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/desk/:
+    get:
+      operationId: library_desk_retrieve
+      description: |-
+        Liste de l'appareil du guichet : exemplaires en service (par pages de 2 000) avec leur
+        prêt ouvert, et les règles de prêt. Rien n'est envoyé si `version` est celle de
+        l'appareil ; une version changée en cours de pages : reprendre depuis la première.
+      parameters:
+      - in: query
+        name: after
+        schema:
+          type: integer
+        description: Dernier numéro de la page reçue.
+      - in: query
+        name: version
+        schema:
+          type: string
+          minLength: 1
+        description: Version de la liste de l'appareil.
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Desk'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/import/:
+    post:
+      operationId: library_import_create
+      description: |-
+        Import du catalogue depuis Excel (BIB.1). Sans `expected` : aperçu ligne par ligne
+        (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu : titres et
+        exemplaires créés d'un bloc (201) ; 409 `preview_outdated` si le résultat a changé.
+      tags:
+      - library
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CatalogueImportUploadRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogueImport'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogueImport'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/import/template/:
+    get:
+      operationId: library_import_template_retrieve
+      description: |-
+        Modèle Excel de l'import du catalogue : titre, auteur, ISBN, catégorie, niveau,
+        exemplaires, prix.
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/loans/:
+    get:
+      operationId: library_loans_list
+      description: |-
+        Prêts de la bibliothèque : en cours (par date de retour), en retard, ou rendus (plus
+        récents d'abord) ; recherche dans le titre, le nom ou le matricule.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+      - in: query
+        name: state
+        schema:
+          enum:
+          - open
+          - overdue
+          - returned
+          type: string
+          default: open
+          minLength: 1
+        description: |-
+          * `open` - Open
+          * `overdue` - Overdue
+          * `returned` - Returned
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLoanList'
+          description: ''
+  /api/library/loans/{id}/extend/:
+    post:
+      operationId: library_loans_extend_create
+      description: Prolonger un prêt en cours de la durée de l'emprunteur, dans la
+        limite des règles.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Loan'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/reports/:
+    get:
+      operationId: library_reports_list
+      description: Constats de perte et d'abîmé, plus récents d'abord, rectifications
+        comprises.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReportList'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    post:
+      operationId: library_reports_create
+      description: |-
+        Constat : l'exemplaire sort du catalogue, son prêt est fermé ; pour un élève, les frais
+        de remplacement (prix du titre par défaut) s'ajoutent à ce qu'il doit, payables à la
+        caisse ; le parent est prévenu. Au journal.
+      tags:
+      - library
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/reports/{id}/correct/:
+    post:
+      operationId: library_reports_correct_create
+      description: |-
+        Rectifier un constat fait par erreur : l'exemplaire revient, la dette encore impayée
+        est retirée (409 `charge_paid` sinon : annuler d'abord le paiement). Au journal.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - library
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportCorrectionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReportCorrectionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReportCorrectionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Report'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/library/rules/:
+    get:
+      operationId: library_rules_retrieve
+      description: Règles de prêt de l'école (valeurs par défaut tant qu'elle n'a
+        rien changé).
+      tags:
+      - library
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingRules'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+    put:
+      operationId: library_rules_update
+      description: 'Enregistrer les règles de prêt (au journal : ce qui change).'
+      tags:
+      - library
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LendingRulesRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LendingRulesRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LendingRulesRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LendingRules'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/matricule-format/:
     get:
       operationId: matricule_format_retrieve
@@ -26964,6 +27720,23 @@ components:
       - attendance.corrected
       - attendance.justification_recorded
       - attendance.justification_decided
+      - inventory.item_changed
+      - inventory.copies_added
+      - inventory.imported
+      - inventory.rules_changed
+      - inventory.loan_created
+      - inventory.loan_returned
+      - inventory.loan_extended
+      - inventory.loss_reported
+      - inventory.loss_corrected
+      - inventory.stock_movement
+      - inventory.order_requested
+      - inventory.order_decided
+      - inventory.order_purchased
+      - inventory.order_received
+      - inventory.issue_slip
+      - inventory.stocktake_started
+      - inventory.stocktake_validated
       - timetable.grid_changed
       - timetable.grid_deleted
       - timetable.room_changed
@@ -27139,6 +27912,23 @@ components:
         * `attendance.corrected` - Attendance corrected
         * `attendance.justification_recorded` - Absence justified by the school
         * `attendance.justification_decided` - Absence justification decided
+        * `inventory.item_changed` - Catalogue item saved
+        * `inventory.copies_added` - Copies added
+        * `inventory.imported` - Catalogue imported
+        * `inventory.rules_changed` - Lending rules changed
+        * `inventory.loan_created` - Item lent
+        * `inventory.loan_returned` - Item returned
+        * `inventory.loan_extended` - Loan extended
+        * `inventory.loss_reported` - Loss or damage reported
+        * `inventory.loss_corrected` - Loss report corrected
+        * `inventory.stock_movement` - Stock movement
+        * `inventory.order_requested` - Materials requested
+        * `inventory.order_decided` - Materials request decided
+        * `inventory.order_purchased` - Materials purchased
+        * `inventory.order_received` - Materials received
+        * `inventory.issue_slip` - Materials issued
+        * `inventory.stocktake_started` - Stocktake started
+        * `inventory.stocktake_validated` - Stocktake validated
         * `timetable.grid_changed` - Time grid changed
         * `timetable.grid_deleted` - Time grid deleted
         * `timetable.room_changed` - Room changed
@@ -28418,6 +29208,209 @@ components:
         * `submitted` - submitted
         * `validated` - validated
         * `returned` - returned
+    Book:
+      type: object
+      description: Titre du catalogue, avec ses exemplaires en service, disponibles
+        et prêtés.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        author:
+          type: string
+          maxLength: 120
+        isbn:
+          type: string
+          maxLength: 20
+        category:
+          type: string
+          maxLength: 60
+        level:
+          allOf:
+          - $ref: '#/components/schemas/LevelRef'
+          readOnly: true
+          nullable: true
+        price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          title: Price
+        currency:
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reference_only:
+          type: boolean
+        is_active:
+          type: boolean
+          title: Active
+        copies_total:
+          type: integer
+          readOnly: true
+        copies_available:
+          type: integer
+          readOnly: true
+        copies_lent:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - name
+      - author
+      - isbn
+      - category
+      - level
+      - price_minor
+      - currency
+      - reference_only
+      - is_active
+      - copies_total
+      - copies_available
+      - copies_lent
+    BookDetail:
+      type: object
+      description: Titre du catalogue, avec ses exemplaires en service, disponibles
+        et prêtés.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        author:
+          type: string
+          maxLength: 120
+        isbn:
+          type: string
+          maxLength: 20
+        category:
+          type: string
+          maxLength: 60
+        level:
+          allOf:
+          - $ref: '#/components/schemas/LevelRef'
+          readOnly: true
+          nullable: true
+        price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          title: Price
+        currency:
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reference_only:
+          type: boolean
+        is_active:
+          type: boolean
+          title: Active
+        copies_total:
+          type: integer
+          readOnly: true
+        copies_available:
+          type: integer
+          readOnly: true
+        copies_lent:
+          type: integer
+          readOnly: true
+        copies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Copy'
+          readOnly: true
+      required:
+      - id
+      - name
+      - author
+      - isbn
+      - category
+      - level
+      - price_minor
+      - currency
+      - reference_only
+      - is_active
+      - copies_total
+      - copies_available
+      - copies_lent
+      - copies
+    BookWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        author:
+          type: string
+          maxLength: 120
+        isbn:
+          type: string
+          maxLength: 20
+        category:
+          type: string
+          maxLength: 60
+        level:
+          type: string
+          format: uuid
+          nullable: true
+        price_minor:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Prix de remplacement, en entiers.
+        currency:
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reference_only:
+          type: boolean
+        is_active:
+          type: boolean
+        copies:
+          type: integer
+          maximum: 200
+          minimum: 0
+          description: 'Création seulement : exemplaires à créer.'
+      required:
+      - name
+    Borrower:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/BorrowerKindEnum'
+        id:
+          type: string
+          format: uuid
+          description: Élève, ou appartenance du membre du personnel.
+        name:
+          type: string
+        number:
+          type: string
+          description: Matricule de l'élève ; vide pour le personnel.
+      required:
+      - kind
+      - id
+      - name
+      - number
+    BorrowerKindEnum:
+      enum:
+      - student
+      - staff
+      type: string
+      description: |-
+        * `student` - Student
+        * `staff` - Staff member
     BudgetAmountRequest:
       type: object
       properties:
@@ -29659,6 +30652,121 @@ components:
           format: uuid
       required:
       - cash_register
+    CatalogueImport:
+      type: object
+      properties:
+        recorded:
+          type: boolean
+        ready_count:
+          type: integer
+        skipped_count:
+          type: integer
+        error_count:
+          type: integer
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogueImportLine'
+      required:
+      - recorded
+      - ready_count
+      - skipped_count
+      - error_count
+      - lines
+    CatalogueImportIssue:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/CatalogueImportIssueCodeEnum'
+        line:
+          type: integer
+          description: '`duplicate_title` : autre ligne.'
+        level:
+          type: string
+          description: '`unknown_level` : niveau écrit.'
+      required:
+      - code
+      - line
+      - level
+    CatalogueImportIssueCodeEnum:
+      enum:
+      - missing_title
+      - too_long
+      - unknown_level
+      - invalid_copies
+      - invalid_price
+      - duplicate_title
+      - already_in_catalogue
+      type: string
+      description: |-
+        * `missing_title` - Title missing
+        * `too_long` - Title or author too long
+        * `unknown_level` - Level unknown in this school
+        * `invalid_copies` - Number of copies unreadable (1 to 200)
+        * `invalid_price` - Price unreadable
+        * `duplicate_title` - Same title and author as another line
+        * `already_in_catalogue` - Already in the catalogue: left as is
+    CatalogueImportLine:
+      type: object
+      properties:
+        line:
+          type: integer
+        name:
+          type: string
+        author:
+          type: string
+        copies:
+          type: integer
+        price_minor:
+          type: integer
+          nullable: true
+        status:
+          $ref: '#/components/schemas/CatalogueImportLineStatusEnum'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/CatalogueImportIssue'
+      required:
+      - line
+      - name
+      - author
+      - copies
+      - price_minor
+      - status
+      - issues
+    CatalogueImportLineStatusEnum:
+      enum:
+      - ready
+      - skipped
+      - error
+      type: string
+      description: |-
+        * `ready` - Ready
+        * `skipped` - Skipped
+        * `error` - Error
+    CatalogueImportUploadRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Excel (.xlsx) ou CSV, 3 000 titres au plus.
+        currency:
+          allOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          description: |-
+            Devise des prix.
+
+            * `USD` - US dollar
+            * `CDF` - Congolese franc
+        expected:
+          type: integer
+          minimum: 1
+          description: 'Nombre de lignes prêtes de l''aperçu : présent, les titres
+            sont créés.'
+      required:
+      - currency
+      - file
     Change:
       type: object
       properties:
@@ -33550,6 +34658,69 @@ components:
         * `draft` - Draft
         * `active` - Active
         * `ended` - Ended
+    CopiesAddRequest:
+      type: object
+      properties:
+        count:
+          type: integer
+          maximum: 200
+          minimum: 1
+      required:
+      - count
+    Copy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          readOnly: true
+          description: 'Code de l''étiquette : LIV-000414.'
+        state:
+          $ref: '#/components/schemas/CopyStateEnum'
+        loan:
+          allOf:
+          - $ref: '#/components/schemas/CopyLoan'
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - number
+      - code
+      - state
+      - loan
+    CopyLoan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        borrower:
+          $ref: '#/components/schemas/Borrower'
+        due_on:
+          type: string
+          format: date
+      required:
+      - id
+      - borrower
+      - due_on
+    CopyStateEnum:
+      enum:
+      - available
+      - lent
+      - lost
+      - withdrawn
+      type: string
+      description: |-
+        * `available` - Available
+        * `lent` - Lent
+        * `lost` - Lost
+        * `withdrawn` - Withdrawn
     Correction:
       type: object
       description: Ligne du journal des corrections.
@@ -34997,6 +36168,64 @@ components:
       - failed
       - resetting
       type: string
+    Desk:
+      type: object
+      properties:
+        version:
+          type: string
+        unchanged:
+          type: boolean
+          description: 'Vrai : la liste de l''appareil est à jour.'
+        copies:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeskCopy'
+        next:
+          type: integer
+          nullable: true
+          description: '`after` de la page suivante.'
+        rules:
+          $ref: '#/components/schemas/LendingRules'
+      required:
+      - version
+      - unchanged
+      - copies
+      - next
+      - rules
+    DeskCopy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+        item:
+          type: string
+        author:
+          type: string
+        kind:
+          type: string
+        reference_only:
+          type: boolean
+        loan:
+          allOf:
+          - $ref: '#/components/schemas/CopyLoan'
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - number
+      - code
+      - item
+      - author
+      - kind
+      - reference_only
+      - loan
     Device:
       type: object
       description: Un appareil du compte dans l'école (« Appareils connectés » de
@@ -35270,6 +36499,7 @@ components:
       - fee_waiver
       - finance
       - grades
+      - inventory
       - legal
       - organisation
       - portal
@@ -38636,6 +39866,136 @@ components:
       - kind
       - title_en
       - title_fr
+    LendingRules:
+      type: object
+      description: Règles de prêt de l'école (`inventory/rules.py`).
+      properties:
+        student_days:
+          type: integer
+          maximum: 365
+          minimum: 1
+        student_max:
+          type: integer
+          maximum: 50
+          minimum: 1
+        student_extensions:
+          type: integer
+          maximum: 10
+          minimum: 0
+        staff_days:
+          type: integer
+          maximum: 365
+          minimum: 1
+        staff_max:
+          type: integer
+          maximum: 50
+          minimum: 1
+        staff_extensions:
+          type: integer
+          maximum: 10
+          minimum: 0
+        tool_days:
+          type: integer
+          maximum: 30
+          minimum: 0
+          description: 'Outil : 0 = rendu le jour même.'
+        block_if_overdue:
+          type: boolean
+        notify_parent:
+          type: boolean
+        remind_days_before:
+          type: integer
+          maximum: 14
+          minimum: 0
+        remind_every_days:
+          type: integer
+          maximum: 30
+          minimum: 1
+        late_fee_minor:
+          type: integer
+          minimum: 0
+          description: Pénalité par jour de retard, en entiers ; 0 = aucune.
+        late_fee_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+      required:
+      - student_days
+      - student_max
+      - student_extensions
+      - staff_days
+      - staff_max
+      - staff_extensions
+      - tool_days
+      - block_if_overdue
+      - notify_parent
+      - remind_days_before
+      - remind_every_days
+      - late_fee_minor
+      - late_fee_currency
+    LendingRulesRequest:
+      type: object
+      description: Règles de prêt de l'école (`inventory/rules.py`).
+      properties:
+        student_days:
+          type: integer
+          maximum: 365
+          minimum: 1
+        student_max:
+          type: integer
+          maximum: 50
+          minimum: 1
+        student_extensions:
+          type: integer
+          maximum: 10
+          minimum: 0
+        staff_days:
+          type: integer
+          maximum: 365
+          minimum: 1
+        staff_max:
+          type: integer
+          maximum: 50
+          minimum: 1
+        staff_extensions:
+          type: integer
+          maximum: 10
+          minimum: 0
+        tool_days:
+          type: integer
+          maximum: 30
+          minimum: 0
+          description: 'Outil : 0 = rendu le jour même.'
+        block_if_overdue:
+          type: boolean
+        notify_parent:
+          type: boolean
+        remind_days_before:
+          type: integer
+          maximum: 14
+          minimum: 0
+        remind_every_days:
+          type: integer
+          maximum: 30
+          minimum: 1
+        late_fee_minor:
+          type: integer
+          minimum: 0
+          description: Pénalité par jour de retard, en entiers ; 0 = aucune.
+        late_fee_currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+      required:
+      - block_if_overdue
+      - late_fee_currency
+      - late_fee_minor
+      - notify_parent
+      - remind_days_before
+      - remind_every_days
+      - staff_days
+      - staff_extensions
+      - staff_max
+      - student_days
+      - student_extensions
+      - student_max
+      - tool_days
     LessonException:
       type: object
       properties:
@@ -38879,6 +40239,17 @@ components:
           maximum: 20
           minimum: 1
           description: Cours perdus au repêchage qui font doubler.
+    LevelRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+      - id
+      - name
     LevelReorderRequest:
       type: object
       properties:
@@ -39020,6 +40391,66 @@ components:
       - name
       - hours
       - courses
+    Loan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        number:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+        item:
+          type: string
+        item_kind:
+          type: string
+        borrower:
+          allOf:
+          - $ref: '#/components/schemas/Borrower'
+          readOnly: true
+        lent_at:
+          type: string
+          format: date-time
+        due_on:
+          type: string
+          format: date
+        extensions:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        returned_at:
+          type: string
+          format: date-time
+          nullable: true
+        return_condition:
+          title: Condition on return
+          oneOf:
+          - $ref: '#/components/schemas/ReturnConditionEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reminders:
+          type: integer
+          maximum: 32767
+          minimum: 0
+        overdue_days:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - number
+      - code
+      - item
+      - item_kind
+      - borrower
+      - lent_at
+      - due_on
+      - extensions
+      - returned_at
+      - return_condition
+      - reminders
+      - overdue_days
     LoginCodeRequest:
       type: object
       properties:
@@ -39471,6 +40902,8 @@ components:
       - academics
       - timetable
       - attendance
+      - library
+      - workshops
       - ai
       - portal
       - notifications
@@ -39483,6 +40916,8 @@ components:
         * `academics` - Courses, grades and report cards
         * `timetable` - Timetable
         * `attendance` - Cards and attendance
+        * `library` - Library
+        * `workshops` - Workshops: stock, orders and tools
         * `ai` - AI assistance
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
@@ -39627,6 +41062,10 @@ components:
       - absence_alert
       - justification_sent
       - justification_decided
+      - loan
+      - loan_reminder
+      - loss_reported
+      - loans_overdue
       type: string
       description: |-
         * `test` - Test notification
@@ -39664,6 +41103,10 @@ components:
         * `absence_alert` - Repeated absences
         * `justification_sent` - Absence justification received
         * `justification_decided` - Answer to a justification
+        * `loan` - Book or tool lent
+        * `loan_reminder` - Book or tool to bring back
+        * `loss_reported` - Lost or damaged item
+        * `loans_overdue` - Loans overdue
     NotificationPreferences:
       type: object
       properties:
@@ -39959,6 +41402,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AuditLog'
+    PaginatedBookList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Book'
     PaginatedCancellationRequestList:
       type: object
       required:
@@ -40359,6 +41827,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Contract'
+    PaginatedCopyList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Copy'
     PaginatedCorrectionList:
       type: object
       required:
@@ -40634,6 +42127,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LessonException'
+    PaginatedLoanList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Loan'
     PaginatedModuleRequestList:
       type: object
       required:
@@ -40909,6 +42427,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PortalSummons'
+    PaginatedReportList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Report'
     PaginatedRoleList:
       type: object
       required:
@@ -41639,6 +43182,44 @@ components:
           type: integer
           maximum: 500
           minimum: 1
+    PatchedBookWriteRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        author:
+          type: string
+          maxLength: 120
+        isbn:
+          type: string
+          maxLength: 20
+        category:
+          type: string
+          maxLength: 60
+        level:
+          type: string
+          format: uuid
+          nullable: true
+        price_minor:
+          type: integer
+          minimum: 0
+          nullable: true
+          description: Prix de remplacement, en entiers.
+        currency:
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        reference_only:
+          type: boolean
+        is_active:
+          type: boolean
+        copies:
+          type: integer
+          maximum: 200
+          minimum: 0
+          description: 'Création seulement : exemplaires à créer.'
     PatchedCashRegisterUpdateRequest:
       type: object
       properties:
@@ -43222,6 +44803,12 @@ components:
       - attendance.scan
       - attendance.view
       - attendance.correct
+      - library.manage
+      - library.lend
+      - workshops.manage
+      - workshops.request
+      - workshops.approve
+      - inventory.validate
       - ai.use
       - announcements.publish
       - audit.view
@@ -43262,6 +44849,12 @@ components:
         * `attendance.scan` - Record arrivals at the entrance (scan the cards)
         * `attendance.view` - View attendance, absences and their reports
         * `attendance.correct` - Correct attendance and accept or refuse absence notes
+        * `library.manage` - Manage the library: catalogue, labels, lending rules, loss and damage reports
+        * `library.lend` - Lend and take back books at the library desk
+        * `workshops.manage` - Manage workshop stock: receptions, issue slips and tools lent
+        * `workshops.request` - Request materials for a workshop
+        * `workshops.approve` - Approve or refuse requests for workshop materials
+        * `inventory.validate` - Validate stocktakes and correct a loss report
         * `ai.use` - Use the AI assistance
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
@@ -45333,6 +46926,60 @@ components:
           maxLength: 1500
       required:
       - body
+    Report:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+        item:
+          type: string
+        kind:
+          $ref: '#/components/schemas/ReportKindEnum'
+        note:
+          type: string
+          maxLength: 200
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          title: Amount
+        currency:
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        borrower:
+          allOf:
+          - $ref: '#/components/schemas/Borrower'
+          nullable: true
+          readOnly: true
+        corrects:
+          type: string
+          format: uuid
+          nullable: true
+        corrected:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - code
+      - item
+      - kind
+      - note
+      - amount_minor
+      - currency
+      - borrower
+      - corrects
+      - corrected
+      - created_at
     ReportCardStatus:
       type: object
       description: Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes
@@ -45365,6 +47012,56 @@ components:
       required:
       - enrollment
       - name
+    ReportCorrectionRequest:
+      type: object
+      properties:
+        note:
+          type: string
+          minLength: 1
+          description: Pourquoi le constat était une erreur.
+          maxLength: 200
+      required:
+      - note
+    ReportKindEnum:
+      enum:
+      - lost
+      - damaged
+      - correction
+      type: string
+      description: |-
+        * `lost` - Lost
+        * `damaged` - Damaged
+        * `correction` - Correction
+    ReportWriteKindEnum:
+      enum:
+      - lost
+      - damaged
+      type: string
+      description: |-
+        * `lost` - Lost
+        * `damaged` - Damaged
+    ReportWriteRequest:
+      type: object
+      properties:
+        copy:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/ReportWriteKindEnum'
+        note:
+          type: string
+          minLength: 1
+          maxLength: 200
+        amount_minor:
+          type: integer
+          minimum: 0
+          description: 'Frais de remplacement ; absent : prix du titre.'
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+      required:
+      - copy
+      - kind
+      - note
     RescheduleRequest:
       type: object
       description: 'Échéancier particulier (E4) : les versements remplacent ce qui
@@ -45465,6 +47162,18 @@ components:
       - percent
       - resit_percent
       - passed
+    ReturnConditionEnum:
+      enum:
+      - good
+      - worn
+      - damaged
+      - lost
+      type: string
+      description: |-
+        * `good` - Good
+        * `worn` - Worn
+        * `damaged` - Damaged
+        * `lost` - Lost
     ReviewAction:
       type: object
       properties:
@@ -47953,10 +49662,12 @@ components:
       enum:
       - rule
       - custom
+      - item
       type: string
       description: |-
         * `rule` - Fee rule
         * `custom` - Custom schedule
+        * `item` - Lost, damaged or late item
     StudentChargeStateEnum:
       enum:
       - paid

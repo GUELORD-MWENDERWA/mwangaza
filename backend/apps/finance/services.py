@@ -539,7 +539,10 @@ def sync_charges(
             .select_related("fee_type")
             .prefetch_related("installments")
         )
-        existing = StudentCharge.objects.filter(enrollment__in=enrollments)
+        # Les frais d'un objet perdu ou rendu en retard ne viennent pas du barème : jamais touchés.
+        existing = StudentCharge.objects.filter(enrollment__in=enrollments).exclude(
+            source=StudentCharge.Source.ITEM
+        )
         if fee_type is not None:
             rules, existing = rules.filter(fee_type=fee_type), existing.filter(fee_type=fee_type)
         paid = paid_charge_ids(existing)

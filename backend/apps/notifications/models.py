@@ -293,6 +293,13 @@ class Notification(TenantModel):
         ABSENCE_ALERT = "absence_alert", _("Repeated absences")
         JUSTIFICATION_SENT = "justification_sent", _("Absence justification received")
         JUSTIFICATION_DECIDED = "justification_decided", _("Answer to a justification")
+        # Bibliothèque et ateliers (lot 11) : livre ou outil prêté à l'enfant, avec la date de
+        # retour ; rappel avant cette date et en retard ; constat de perte ou d'abîmé (au parent).
+        # Prêts en retard du jour, à ceux qui tiennent le guichet.
+        LOAN = "loan", _("Book or tool lent")
+        LOAN_REMINDER = "loan_reminder", _("Book or tool to bring back")
+        LOSS_REPORTED = "loss_reported", _("Lost or damaged item")
+        LOANS_OVERDUE = "loans_overdue", _("Loans overdue")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -331,6 +338,7 @@ class ScheduledRun(TenantModel):
         OPEN_REGISTERS = "open_registers", _("Registers still open")
         SUBSCRIPTION = "subscription", _("Subscription invoices")
         ABSENCES = "absences", _("Absent students")
+        LOANS = "loans", _("Library and workshop reminders")
 
     job = models.CharField(_("job"), max_length=20, choices=Job.choices)
     day = models.DateField(_("day"))

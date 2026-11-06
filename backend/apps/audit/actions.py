@@ -128,6 +128,25 @@ class Action(models.TextChoices):
         "attendance.justification_decided",
         _("Absence justification decided"),
     )
+    # Bibliothèque et ateliers (lot 11) : catalogue, règles, prêts et retours, constats, stock,
+    # commandes, bons de sortie, inventaires.
+    INVENTORY_ITEM_CHANGED = "inventory.item_changed", _("Catalogue item saved")
+    INVENTORY_COPIES_ADDED = "inventory.copies_added", _("Copies added")
+    INVENTORY_IMPORTED = "inventory.imported", _("Catalogue imported")
+    INVENTORY_RULES_CHANGED = "inventory.rules_changed", _("Lending rules changed")
+    LOAN_CREATED = "inventory.loan_created", _("Item lent")
+    LOAN_RETURNED = "inventory.loan_returned", _("Item returned")
+    LOAN_EXTENDED = "inventory.loan_extended", _("Loan extended")
+    LOSS_REPORTED = "inventory.loss_reported", _("Loss or damage reported")
+    LOSS_CORRECTED = "inventory.loss_corrected", _("Loss report corrected")
+    STOCK_MOVEMENT = "inventory.stock_movement", _("Stock movement")
+    ORDER_REQUESTED = "inventory.order_requested", _("Materials requested")
+    ORDER_DECIDED = "inventory.order_decided", _("Materials request decided")
+    ORDER_PURCHASED = "inventory.order_purchased", _("Materials purchased")
+    ORDER_RECEIVED = "inventory.order_received", _("Materials received")
+    ISSUE_SLIP_CREATED = "inventory.issue_slip", _("Materials issued")
+    STOCKTAKE_STARTED = "inventory.stocktake_started", _("Stocktake started")
+    STOCKTAKE_VALIDATED = "inventory.stocktake_validated", _("Stocktake validated")
     # Emploi du temps (EDT.1a) : grilles, salles, grille et salle des classes, règles générales.
     TIME_GRID_CHANGED = "timetable.grid_changed", _("Time grid changed")
     TIME_GRID_DELETED = "timetable.grid_deleted", _("Time grid deleted")

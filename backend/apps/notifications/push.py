@@ -21,6 +21,7 @@ from apps.accounts.roles import (
     FINANCE_VIEW_REPORTS,
     GRADES_ENTER,
     GRADES_VALIDATE,
+    LIBRARY_LEND,
     ROLES_MANAGE,
     STUDENTS_EDIT,
 )
@@ -69,6 +70,8 @@ STAFF_KINDS = {
     # Présences (6.6) : seuil d'absences atteint, justification envoyée par un parent.
     Kind.ABSENCE_ALERT: ATTENDANCE_CORRECT,
     Kind.JUSTIFICATION_SENT: ATTENDANCE_CORRECT,
+    # Prêts en retard du jour (BIB.3) : ceux qui tiennent le guichet de la bibliothèque.
+    Kind.LOANS_OVERDUE: LIBRARY_LEND,
 }
 # Alertes de sécurité : aucun compte ne peut les couper.
 ALWAYS_SENT = frozenset({Kind.SENSITIVE_RIGHTS})
@@ -92,6 +95,9 @@ PREFERENCE_KINDS = {
         Kind.TIMETABLE_PUBLISHED,
         Kind.ABSENCE,
         Kind.JUSTIFICATION_DECIDED,
+        Kind.LOAN,
+        Kind.LOAN_REMINDER,
+        Kind.LOSS_REPORTED,
     ],
 }
 # Notifications par tâche d'envoi : une annonce à mille familles ne retient pas un worker.

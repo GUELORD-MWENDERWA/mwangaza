@@ -823,3 +823,37 @@ def justification_decided(justification) -> None:
             " · ".join(filter(None, [_period(justification), justification.decision_note])),
         ),
     )
+
+
+def loan_made(loan) -> None:
+    """Livre ou outil prêté à l'enfant (BIB.2) : le parent voit le titre et la date de retour, et
+    ouvre la page de l'enfant (« Livres »)."""
+    student = loan.student
+    item = loan.copy.item
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.LOAN,
+        url=f"/children/{student.pk}",
+        text=lambda: (
+            _("%(student)s borrowed %(title)s") % {"student": student, "title": item.name},
+            _("To bring back by %(date)s.") % {"date": date_format(loan.due_on, "l j F")},
+        ),
+    )
+
+
+def loss_reported(report, student: Student) -> None:
+    """Constat de perte ou d'abîmé (BIB.3) : le parent voit l'objet et les frais ajoutés à ce que
+    doit l'enfant, payables à la caisse."""
+    item = report.copy.item
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.LOSS_REPORTED,
+        url=f"/children/{student.pk}",
+        text=lambda: (
+            _("Lost or damaged: %(title)s") % {"title": item.name},
+            _("%(amount)s added to the fees of %(student)s, to pay at the cash desk.")
+            % {"amount": format_amount(report.amount_minor, report.currency), "student": student},
+        ),
+    )
