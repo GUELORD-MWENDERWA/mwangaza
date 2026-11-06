@@ -78,7 +78,7 @@ Dessinées par Claude (lot 3, 2026-11-03, à valider) : offres, contrats et fact
 
 ### V1.5 — carte et présences
 
-À dessiner : carte (recto / verso, format carte bancaire et planche A4) et son modèle réglé par l'école (6.1) · poste de liaison des cartes (6.2) · borne de pointage puce / QR (6.3) · suivi des présences et du personnel (6.5) · absences et justification par le parent (6.6). Existe déjà : `gestion/presences-pointage-qr` (6.3), à compléter avec la puce.
+Dessiné au lot 10 (2026-11-06, à valider) : carte (recto / verso, format carte bancaire et planche A4) et son modèle réglé par l'école (6.1) · poste de liaison des cartes (6.2) · borne de pointage puce / QR (6.3) · suivi des présences et du personnel (6.5) · absences et justification par le parent (6.6). Existe déjà : `gestion/presences-pointage-qr` (6.3), à compléter avec la puce.
 
 ### V1.6 — bibliothèque et ateliers
 
