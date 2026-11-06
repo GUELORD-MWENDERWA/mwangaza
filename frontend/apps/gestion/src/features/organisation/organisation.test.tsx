@@ -72,6 +72,8 @@ function routes(extra: Routes = {}): Routes {
       matricule_format: "ITIG-{AAAA}-{0000}",
       auto_matricule: true,
       example: "ITIG-2026-0001",
+      range: { range_start: 1, range_end: null, next_number: 1 },
+      range_limit: 9999,
     },
     ...extra,
   };
@@ -326,6 +328,8 @@ describe("Organisation scolaire (C1-C3)", () => {
           matricule_format: "ITIG-{AAAA}-{0000}",
           auto_matricule: false,
           example: "ITIG-2026-0001",
+          range: { range_start: 1, range_end: null, next_number: 1 },
+          range_limit: 9999,
         },
       }),
     );
@@ -359,6 +363,8 @@ describe("Organisation scolaire (C1-C3)", () => {
         matricule_format: "LV/{AA}/{000}",
         auto_matricule: true,
         example: "LV/26/001",
+        range: { range_start: 1, range_end: null, next_number: 1 },
+        range_limit: 9999,
       },
     });
     const requests = mockApi(all);

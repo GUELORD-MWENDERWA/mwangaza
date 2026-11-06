@@ -53,6 +53,7 @@ const FIELDS = [
   "site_name",
   "primary_color",
   "accent_color",
+  "ministry_line",
   "support_phone",
   "support_email",
   "legal_notice",
@@ -75,6 +76,7 @@ function useSchema() {
       site_name: z.string().trim().min(1, t("validation.nameRequired")).max(60),
       primary_color: color,
       accent_color: color,
+      ministry_line: z.string().trim().min(1, t("validation.nameRequired")).max(120),
       support_phone: z.string().trim(),
       support_email: z.union([z.literal(""), z.email(t("validation.emailInvalid"))]),
       legal_notice: z.string().trim(),
@@ -100,6 +102,7 @@ const valuesOf = (identity: Identity): Values => ({
   site_name: identity.site_name,
   primary_color: identity.primary_color,
   accent_color: identity.accent_color,
+  ministry_line: identity.ministry_line,
   support_phone: identity.support_phone,
   support_email: identity.support_email,
   legal_notice: identity.legal_notice,
@@ -246,6 +249,9 @@ function IdentityForm({ identity }: { identity: Identity }) {
               <CardTitle>{t("console.identity.supportTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 min-[820px]:grid-cols-2">
+              <div className="min-[820px]:col-span-2">
+                {text("ministry_line", t("console.identity.ministryHelp"))}
+              </div>
               {text("support_phone", t("console.identity.phoneHelp"))}
               {text("support_email")}
               <Field

@@ -24,7 +24,7 @@ import { keys } from "../../lib/queries";
 import { useSettled } from "../../lib/settled";
 import { LoadError } from "../status/StatusPages";
 
-/** Valeur stable depuis `delay` ms : un aperçu par pause dans la frappe, pas par touche. */
+const VARIABLES = ["{AAAA}", "{AA}", "{0000}", "{OPT}", "{C}"] as const;
 
 export function MatriculeCard() {
   const { t } = useTranslation();
@@ -42,11 +42,30 @@ export function MatriculeCard() {
 function MatriculeForm({
   saved,
 }: {
-  saved: { matricule_format: string; auto_matricule: boolean; example: string };
+  saved: {
+    matricule_format: string;
+    auto_matricule: boolean;
+    example: string;
+    range: { range_start: number; range_end: number | null; next_number: number } | null;
+    range_limit: number;
+  };
 }) {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [value, setValue] = useState(saved.matricule_format);
+  const [start, setStart] = useState(String(saved.range?.range_start ?? 1));
+  const [end, setEnd] = useState(saved.range?.range_end ? String(saved.range.range_end) : "");
+  const [next, setNext] = useState(String(saved.range?.next_number ?? 1));
+  const rangeChanged =
+    saved.range !== null &&
+    (Number(start) !== saved.range.range_start ||
+      (end === "" ? null : Number(end)) !== saved.range.range_end ||
+      Number(next) !== saved.range.next_number);
+  const rangeValid =
+    Number(start) >= 1 &&
+    Number(next) >= Number(start) &&
+    (end === "" || Number(end) >= Number(next));
+  const formatChanged = value.trim() !== saved.matricule_format;
   const settled = useSettled(value.trim(), 400);
   const changed = settled !== saved.matricule_format && settled !== "";
   const preview = useQuery({
@@ -58,7 +77,22 @@ function MatriculeForm({
   });
   const save = useMutation({
     mutationFn: () =>
-      call(api.PATCH("/api/matricule-format/", { body: { matricule_format: value.trim() } })),
+      call(
+        api.PATCH("/api/matricule-format/", {
+          body: {
+            ...(formatChanged ? { matricule_format: value.trim() } : {}),
+            ...(rangeChanged
+              ? {
+                  range: {
+                    range_start: Number(start),
+                    range_end: end === "" ? null : Number(end),
+                    next_number: Number(next),
+                  },
+                }
+              : {}),
+          },
+        }),
+      ),
     onSuccess: (data) => queryClient.setQueryData(keys.matricule, data),
   });
   const toggle = useMutation({
@@ -127,6 +161,74 @@ function MatriculeForm({
               />
             )}
           </Field>
+          <div className="flex flex-wrap gap-2" aria-label={t("organisation.matricule.variables")}>
+            {VARIABLES.map((variable) => (
+              <Button
+                key={variable}
+                type="button"
+                size="sm"
+                variant={variable === "{C}" ? "default" : "outline"}
+                disabled={!automatic || value.includes(variable)}
+                onClick={() => {
+                  // La clé de contrôle va toujours à la fin ; les autres variables avant elle.
+                  setValue((now) =>
+                    variable === "{C}"
+                      ? `${now}-${variable}`
+                      : now.endsWith("-{C}")
+                        ? `${now.slice(0, -4)}-${variable}-{C}`
+                        : `${now}${now ? "-" : ""}${variable}`,
+                  );
+                  save.reset();
+                }}
+              >
+                {t(`organisation.matricule.variable.${variable}`)}
+              </Button>
+            ))}
+          </div>
+          {saved.range && (
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,150px),1fr))] gap-3">
+              <Field id="matricule-start" label={t("organisation.matricule.rangeStart")}>
+                {(control) => (
+                  <Input
+                    {...control}
+                    type="number"
+                    min={1}
+                    value={start}
+                    disabled={!automatic}
+                    onChange={(event) => setStart(event.target.value)}
+                  />
+                )}
+              </Field>
+              <Field
+                id="matricule-end"
+                label={t("organisation.matricule.rangeEnd")}
+                help={t("organisation.matricule.rangeLimit", { limit: saved.range_limit })}
+              >
+                {(control) => (
+                  <Input
+                    {...control}
+                    type="number"
+                    min={1}
+                    value={end}
+                    disabled={!automatic}
+                    onChange={(event) => setEnd(event.target.value)}
+                  />
+                )}
+              </Field>
+              <Field id="matricule-next" label={t("organisation.matricule.rangeNext")}>
+                {(control) => (
+                  <Input
+                    {...control}
+                    type="number"
+                    min={1}
+                    value={next}
+                    disabled={!automatic}
+                    onChange={(event) => setNext(event.target.value)}
+                  />
+                )}
+              </Field>
+            </div>
+          )}
           {automatic && example && !fieldError && (
             <Banner tone="info">
               {t("organisation.matricule.next")} <b className="font-mono">{example}</b>
@@ -148,7 +250,8 @@ function MatriculeForm({
               !automatic ||
               save.isPending ||
               value.trim() === "" ||
-              value.trim() === saved.matricule_format
+              !rangeValid ||
+              (!formatChanged && !rangeChanged)
             }
           >
             {t("common.save")}

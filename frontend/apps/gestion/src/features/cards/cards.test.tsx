@@ -96,4 +96,21 @@ describe("Cartes", () => {
     );
     expect(sent?.body).toEqual({ reason: "lost" });
   });
+
+  it("séance photo : une classe, sans caméra on passe par l'appareil du téléphone, un absent reste à prendre", async () => {
+    mockApi({
+      ...routes(),
+      "GET /api/class-groups/": [{ id: fakeId(40), name: "3HT Électricité A" }],
+    });
+    const { user } = renderApp("/cards");
+
+    await user.click(await screen.findByRole("button", { name: /Séance photo/ }));
+    await user.selectOptions(screen.getByLabelText("Classe"), fakeId(40));
+    await screen.findByText("1 sur 2");
+    expect(screen.getByText(/2 personnes n'ont pas de photo/)).toBeTruthy();
+    expect(screen.getByText("Prendre la photo")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Absent, passer" }));
+    expect(await screen.findByText("2 sur 2")).toBeTruthy();
+    expect(screen.getByText(/2 personnes n'ont pas de photo/)).toBeTruthy();
+  });
 });

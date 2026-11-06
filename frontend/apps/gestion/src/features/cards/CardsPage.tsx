@@ -34,6 +34,7 @@ import { useClasses, useYears } from "../organisation/data";
 import { Pagination } from "../shell/Pagination";
 import { LoadError } from "../status/StatusPages";
 import { CardModelTab } from "./CardModelTab";
+import { PhotoSession } from "./PhotoSession";
 import {
   type CardFilter,
   type CardLayout,
@@ -85,10 +86,20 @@ export function CardsPage() {
   const { t } = useTranslation();
   const summary = useCardSummary();
   const [tab, setTab] = useState("students");
+  const [photos, setPhotos] = useState(false);
   const data = summary.data;
+  if (photos) return <PhotoSession onClose={() => setPhotos(false)} />;
   return (
     <>
-      <PageHeader title={t("cards.title")} subtitle={t("cards.subtitle")} />
+      <PageHeader
+        title={t("cards.title")}
+        subtitle={t("cards.subtitle")}
+        actions={
+          <Button onClick={() => setPhotos(true)}>
+            <Icon name="camera" /> {t("cards.session.open")}
+          </Button>
+        }
+      />
       <div className="mt-4 grid grid-cols-[repeat(auto-fit,minmax(min(100%,180px),1fr))] gap-4">
         <Kpi
           label={t("cards.kpi.active")}
