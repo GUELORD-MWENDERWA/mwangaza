@@ -1,6 +1,7 @@
 """Réglages des cartes et des présences (lot 10) : `School.settings["card"]` (modèle de carte) et
-`School.settings["attendance"]` (heure limite d'arrivée). Jamais dans le code : chaque école les
-règle dans ses paramètres.
+`School.settings["attendance"]` (heure limite d'arrivée, heure où les parents des absents sont
+prévenus, seuil d'alerte des absences non justifiées, 0 = aucune alerte). Jamais dans le code :
+chaque école les règle dans ses paramètres.
 
 Carte : `color` vide = couleur de l'école ; `back_text` vide = texte par défaut au nom de l'école ;
 `valid_until` vide = dernier jour de l'année scolaire en cours.
@@ -9,7 +10,7 @@ Carte : `color` vide = couleur de l'école ; `back_text` vide = texte par défau
 from datetime import time
 
 CARD_DEFAULTS = {"color": "", "back_text": "", "valid_until": None}
-ATTENDANCE_DEFAULTS = {"late_after": "07:45"}
+ATTENDANCE_DEFAULTS = {"late_after": "07:45", "notify_at": "09:00", "alert_after": 3}
 
 
 def card_settings(settings: dict) -> dict:
@@ -23,6 +24,11 @@ def attendance_settings(settings: dict) -> dict:
 def late_after(settings: dict) -> time:
     """Heure au-delà de laquelle un passage à l'entrée est un retard."""
     return time.fromisoformat(attendance_settings(settings)["late_after"])
+
+
+def notify_at(settings: dict) -> time:
+    """Heure où partent les notifications d'absence du jour (toujours après `late_after`)."""
+    return time.fromisoformat(attendance_settings(settings)["notify_at"])
 
 
 def journal_fields(settings: dict) -> dict:

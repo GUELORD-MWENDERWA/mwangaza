@@ -52,7 +52,8 @@ def pupils(school, head, alpha):
     school.settings = {**school.settings, "card": {"valid_until": "2099-08-31"}}
     school.save()
     with use_school(school):
-        [issued] = cards.issue(actor=head, enrollments=list(cards.current_enrollments()[:1]))
+        mine = cards.current_enrollments().filter(student=josue)
+        [issued] = cards.issue(actor=head, enrollments=list(mine))
     assert issued.card.student_id == josue.pk
     return josue, amina, issued.token
 
@@ -94,7 +95,7 @@ def test_lateness_manual_entry_and_refused_cards_follow_the_rules(
     remember(client)
     # Matricule tapé, après l'heure limite réglée par l'école : retard.
     limit = api(head).patch("/api/school/settings/", {"attendance": {"late_after": "08:00"}})
-    assert limit.json()["attendance"] == {"late_after": "08:00"}
+    assert limit.json()["attendance"]["late_after"] == "08:00"
     on_time = push(client, scan(yesterday(school, 7, 58), student=str(josue.pk)))
     assert on_time["result"]["status"] == "present"
     late = push(client, scan(yesterday(school, 8, 5), student=str(amina.pk)))

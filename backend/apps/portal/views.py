@@ -5,6 +5,7 @@ from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_sche
 from rest_framework import serializers, status
 from rest_framework.exceptions import NotFound
 from rest_framework.generics import ListAPIView
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -13,6 +14,12 @@ from rest_framework.views import APIView
 from apps.academics.models import PlaceConfirmation
 from apps.accounts import login
 from apps.accounts.views import AuthView
+from apps.attendance import parents as attendance
+from apps.attendance.serializers import (
+    ChildAttendanceSerializer,
+    JustificationWriteSerializer,
+    PortalJustificationSerializer,
+)
 from apps.core.documents import PDF, render
 from apps.core.errors import ErrorSerializer
 from apps.core.throttling import PortalDocumentThrottle
@@ -288,6 +295,41 @@ class ChildTimetableView(APIView):
     @extend_schema(responses={200: ChildTimetableSerializer, **READ_ERRORS})
     def get(self, request: Request, pk) -> Response:
         return Response(ChildTimetableSerializer(children.child_timetable(request.user, pk)).data)
+
+
+@extend_schema(tags=["portal"])
+class ChildAttendanceView(APIView):
+    """Présences de l'année d'un enfant (6.6) : totaux, absences et leur état, justifications
+    envoyées ; 404 comme `ChildView`, ou si l'école n'a pas le module des présences."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+
+    @extend_schema(responses={200: ChildAttendanceSerializer, **READ_ERRORS})
+    def get(self, request: Request, pk) -> Response:
+        return Response(
+            ChildAttendanceSerializer(attendance.child_attendance(request.user, pk)).data
+        )
+
+
+@extend_schema(tags=["portal"])
+class ChildJustifyView(APIView):
+    """Le parent justifie une absence (maladie, deuil…), certificat en option : en attente
+    jusqu'à la réponse de l'école, qui en est prévenue."""
+
+    permission_classes = [PortalAddress, IsAuthenticated]
+    parser_classes = [MultiPartParser, JSONParser]
+
+    @extend_schema(
+        request={"multipart/form-data": JustificationWriteSerializer},
+        responses={201: PortalJustificationSerializer, **ERRORS},
+    )
+    def post(self, request: Request, pk) -> Response:
+        data = JustificationWriteSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        justification = attendance.justify(request.user, pk, **data.validated_data)
+        return Response(
+            PortalJustificationSerializer(justification).data, status=status.HTTP_201_CREATED
+        )
 
 
 @extend_schema(tags=["portal"])

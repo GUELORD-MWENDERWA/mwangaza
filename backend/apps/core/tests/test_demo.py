@@ -30,6 +30,13 @@ from apps.accounts.models import Membership, Role, User
 from apps.accounts.phone import is_demo_phone
 from apps.accounts.roles import STARTER_ROLES
 from apps.ai.models import AiAllowance, AiBalance, AiCall, AiUsageMonth
+from apps.attendance import cards, reports
+from apps.attendance.models import (
+    AbsenceJustification,
+    AttendanceRecord,
+    AttendanceSession,
+    IdCard,
+)
 from apps.audit.models import AuditLog, PlatformAuditLog
 from apps.billing.models import Invoice, InvoicePayment, LegalDocument, Plan
 from apps.core import site_content
@@ -117,6 +124,27 @@ def created(demo) -> None:
         rows = class_rows(AcademicYear.objects.get(is_current=True))
         assert {row["capacity"] for row in rows} == {39, 30}
         assert len({row["home_room"] for row in rows}) == (len(rows) + 1) // 2
+    # Lot 10 : cartes de presque tous les élèves et de tout le personnel, passages des derniers
+    # jours de classe, justification en attente de l'enfant du parent de démonstration ; rien au
+    # journal ; pas une ligne d'une école dans l'autre.
+    for school in demo.values():
+        with use_school(school):
+            assert IdCard.objects.filter(member__isnull=False).count() == cards.staff().count()
+            assert AttendanceSession.objects.count() >= 5
+            assert AttendanceRecord.objects.exclude(session__school=school).count() == 0
+            assert not AuditLog.objects.filter(action__startswith="attendance.").exists()
+    with use_school(itig):
+        assert IdCard.objects.filter(student__isnull=False).count() > 600
+        child = AbsenceJustification.objects.get(
+            source="portal",
+            created_by__isnull=False,
+            student__family__primary_user__isnull=False,
+            status="pending",
+            reason__startswith="Fièvre",
+        )
+        assert child.created_by_id == child.student.family.primary_user_id
+        day = reports.day_summary(AttendanceSession.objects.order_by("-date").first().date)
+        assert day["school_day"] and 0 < day["absent"] < day["enrolled"]
     # IA.1.1 : chaque espace a ses usages et ses crédits IA fictifs, jamais ceux d'une autre école.
     with use_school(itig):
         assert AiAllowance.objects.get().monthly_credits == 5_000

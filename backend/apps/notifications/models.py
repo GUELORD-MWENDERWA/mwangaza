@@ -286,6 +286,13 @@ class Notification(TenantModel):
         # Inscription hors ligne (HL.1) : élève aux mêmes noms et date de naissance qu'un autre, à
         # ceux qui modifient les élèves ; jamais fusionnés seuls.
         POSSIBLE_DUPLICATE = "possible_duplicate", _("Possible duplicate student")
+        # Présences (6.6) : enfant absent ce matin, au parent ; seuil d'absences non justifiées
+        # atteint, à ceux qui corrigent les présences ; justification envoyée par un parent, à
+        # eux aussi ; réponse de l'école, au parent.
+        ABSENCE = "absence", _("Your child is absent")
+        ABSENCE_ALERT = "absence_alert", _("Repeated absences")
+        JUSTIFICATION_SENT = "justification_sent", _("Absence justification received")
+        JUSTIFICATION_DECIDED = "justification_decided", _("Answer to a justification")
 
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -323,6 +330,7 @@ class ScheduledRun(TenantModel):
         REMINDERS = "reminders", _("Reminders to parents")
         OPEN_REGISTERS = "open_registers", _("Registers still open")
         SUBSCRIPTION = "subscription", _("Subscription invoices")
+        ABSENCES = "absences", _("Absent students")
 
     job = models.CharField(_("job"), max_length=20, choices=Job.choices)
     day = models.DateField(_("day"))

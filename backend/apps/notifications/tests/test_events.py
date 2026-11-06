@@ -166,6 +166,8 @@ def test_each_account_only_sets_the_kinds_it_can_receive_in_that_school(
         "parent_message",
         "ai_credits",
         "subscription",
+        "absence_alert",
+        "justification_sent",
     ]
     assert at_beta.get(preferences).json()["kinds"] == [
         "platform_news",

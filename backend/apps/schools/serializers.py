@@ -223,6 +223,15 @@ class AttendanceSettingsSerializer(serializers.Serializer):
     late_after = serializers.TimeField(
         format="%H:%M", help_text="Heure limite d'arrivée ; un passage après est un retard."
     )
+    notify_at = serializers.TimeField(
+        format="%H:%M",
+        help_text="Heure où les parents des absents du jour sont prévenus (après l'heure limite).",
+    )
+    alert_after = serializers.IntegerField(
+        min_value=0,
+        max_value=30,
+        help_text="Absences non justifiées de l'année avant l'alerte à la direction ; 0 : aucune.",
+    )
 
 
 class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):

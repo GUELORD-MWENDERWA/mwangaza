@@ -37,7 +37,12 @@ from apps.academics.models import (
     ResitGrade,
 )
 from apps.accounts.models import User
-from apps.attendance.models import AttendanceRecord, IdCard
+from apps.attendance.models import (
+    AbsenceJustification,
+    AttendanceCorrection,
+    AttendanceRecord,
+    IdCard,
+)
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
@@ -125,7 +130,13 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             # Fil avec les parents (8.8) : les messages restent.
             | Exists(Thread.objects.filter(student=student)),
         ),
-        "attended": (ATTENDANCE, Exists(AttendanceRecord.objects.filter(student=student))),
+        # Passages, corrections au journal et justifications d'absence (6.3 à 6.6).
+        "attended": (
+            ATTENDANCE,
+            Exists(AttendanceRecord.objects.filter(student=student))
+            | Exists(AttendanceCorrection.objects.filter(student=student))
+            | Exists(AbsenceJustification.objects.filter(student=student)),
+        ),
     }
 
 

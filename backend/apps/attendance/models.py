@@ -196,3 +196,123 @@ class AttendanceRecord(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.session} · {self.seen_at:%H:%M}"
+
+
+class AttendanceCorrection(TenantModel):
+    """Correction d'une présence au journal (6.5) : « présent en classe, carte oubliée », retard
+    excusé, passage d'un autre… Jamais modifiée ni effacée ; la plus récente d'une personne pour
+    un jour l'emporte sur le passage (`record`, vide s'il n'y en a pas). Toujours au journal
+    d'audit."""
+
+    class Status(models.TextChoices):
+        PRESENT = "present", _("Arrived")
+        LATE = "late", _("Late")
+        ABSENT = "absent", _("Absent")
+
+    session = models.ForeignKey(
+        AttendanceSession,
+        on_delete=models.PROTECT,
+        related_name="corrections",
+        verbose_name=_("session"),
+    )
+    student = models.ForeignKey(
+        "students.Student",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="attendance_corrections",
+        verbose_name=_("student"),
+    )
+    member = models.ForeignKey(
+        "accounts.Membership",
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="attendance_corrections",
+        verbose_name=_("staff member"),
+    )
+    record = models.ForeignKey(
+        AttendanceRecord,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="corrections",
+        verbose_name=_("corrected record"),
+    )
+    status = models.CharField(_("status"), max_length=10, choices=Status.choices)
+    previous_status = models.CharField(_("status before"), max_length=10, choices=Status.choices)
+    reason = models.CharField(_("reason"), max_length=200)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("attendance correction")
+        verbose_name_plural = _("attendance corrections")
+        constraints = [
+            models.CheckConstraint(condition=ONE_HOLDER, name="attendance_correction_one_holder")
+        ]
+        indexes = [models.Index(fields=["session", "created_at"], name="attendance_corr_session")]
+
+    def __str__(self) -> str:
+        return f"{self.session} · {self.get_status_display()}"
+
+
+def justification_path(justification, filename: str) -> str:
+    return f"attendance/{justification.school_id}/{justification.pk}/{filename}"
+
+
+class AbsenceJustification(TenantModel):
+    """Justification d'une absence (6.6), du `starts_on` au `ends_on` : envoyée par le parent
+    depuis le Portail (en attente), ou notée par l'école (acceptée d'emblée). Seule sa décision
+    change, une fois (acceptée ou refusée, au journal d'audit). `document` : certificat privé,
+    photo ré-encodée ou PDF de 5 Mo au plus."""
+
+    class Status(models.TextChoices):
+        PENDING = "pending", _("Pending")
+        ACCEPTED = "accepted", _("Accepted")
+        REFUSED = "refused", _("Refused")
+
+    class Source(models.TextChoices):
+        PORTAL = "portal", _("Sent by the parent")
+        SCHOOL = "school", _("Recorded by the school")
+
+    student = models.ForeignKey(
+        "students.Student",
+        on_delete=models.PROTECT,
+        related_name="absence_justifications",
+        verbose_name=_("student"),
+    )
+    starts_on = models.DateField(_("from"))
+    ends_on = models.DateField(_("to"))
+    reason = models.CharField(_("reason"), max_length=300)
+    document = models.FileField(_("certificate"), upload_to=justification_path, blank=True)
+    source = models.CharField(_("sent by"), max_length=10, choices=Source.choices)
+    status = models.CharField(
+        _("status"), max_length=10, choices=Status.choices, default=Status.PENDING
+    )
+    decided_at = models.DateTimeField(_("decided at"), null=True, blank=True)
+    decided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("decided by"),
+    )
+    decision_note = models.CharField(_("answer to the parent"), max_length=300, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = _("absence justification")
+        verbose_name_plural = _("absence justifications")
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(starts_on__lte=models.F("ends_on")), name="justification_starts_first"
+            )
+        ]
+        indexes = [
+            models.Index(fields=["school", "status", "created_at"], name="justification_status"),
+            models.Index(fields=["student", "ends_on"], name="justification_student_end"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.student} · {self.starts_on:%d/%m/%Y}"

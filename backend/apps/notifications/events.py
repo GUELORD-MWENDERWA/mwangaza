@@ -775,3 +775,51 @@ def ai_credits_low(balance) -> None:
         url="/settings",
         text=text,
     )
+
+
+def _period(justification) -> str:
+    first, last = justification.starts_on, justification.ends_on
+    if first == last:
+        return date_format(first, "l j F")
+    return _("%(first)s to %(last)s") % {
+        "first": date_format(first, "j F"),
+        "last": date_format(last, "j F"),
+    }
+
+
+def absence_justified(justification) -> None:
+    """Justification d'absence envoyée par un parent (6.6) : à ceux qui corrigent les
+    présences."""
+    student = justification.student
+    send(
+        staff(Kind.JUSTIFICATION_SENT),
+        app=App.GESTION,
+        kind=Kind.JUSTIFICATION_SENT,
+        url="/attendance?tab=absences",
+        text=lambda: (
+            _("Absence justified: %(student)s") % {"student": student},
+            f"{_period(justification)} · {justification.reason}",
+        ),
+    )
+
+
+def justification_decided(justification) -> None:
+    """Réponse de l'école à une justification (6.6), au parent ; elle ouvre les présences de
+    l'enfant."""
+    student = justification.student
+    accepted = justification.status == justification.Status.ACCEPTED
+    send(
+        _parents(Family.objects.filter(pk=student.family_id)),
+        app=App.PORTAIL,
+        kind=Kind.JUSTIFICATION_DECIDED,
+        url=f"/children/{student.pk}/attendance",
+        text=lambda: (
+            (
+                _("Justification accepted: %(student)s")
+                if accepted
+                else _("Justification refused: %(student)s")
+            )
+            % {"student": student},
+            " · ".join(filter(None, [_period(justification), justification.decision_note])),
+        ),
+    )

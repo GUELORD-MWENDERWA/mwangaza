@@ -11,6 +11,8 @@ Une école sans le module `notifications` est ignorée ; les relances demandent 
   montants par devise (jamais additionnés), dans sa langue.
 - Caisses encore ouvertes, à l'heure de clôture choisie par l'école (`schools/alerts.py`) : à
   ceux qui lisent les rapports.
+- Absents du jour, à l'heure choisie par l'école (module `attendance`, `attendance/parents.py`) :
+  les parents prévenus, la direction alertée au seuil d'absences non justifiées.
 
 `purge`, chaque nuit : notifications et marques de plus de `KEEP_DAYS` jours."""
 
@@ -26,6 +28,7 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from apps.accounts.models import User
+from apps.attendance import parents as attendance_parents
 from apps.core.money import Currency, format_amount
 from apps.core.tenancy import use_all_schools, use_school
 from apps.finance import services as finance
@@ -34,6 +37,7 @@ from apps.notifications import events, push
 from apps.notifications.models import Notification, ScheduledRun
 from apps.portal.children import fee_label
 from apps.schools import alerts
+from apps.schools.attendance import notify_at
 from apps.schools.models import School
 from apps.students.models import Enrollment, Family
 
@@ -71,6 +75,8 @@ def tick(now: datetime | None = None, *, force: bool = False) -> dict[str, int]:
             hours[Job.OPEN_REGISTERS] = alerts.closing_time(school.settings)
         if school.reminders["enabled"] and {"finance", "portal"} <= set(school.modules):
             hours[Job.REMINDERS] = REMINDERS_TIME
+        if school.has_module("attendance"):
+            hours[Job.ABSENCES] = notify_at(school.settings)
         for job, hour in hours.items():
             if (school.pk, job, local.date()) in done or not (force or local.time() >= hour):
                 continue
@@ -294,4 +300,5 @@ JOBS = {
     Job.REMINDERS: _reminders,
     Job.OPEN_REGISTERS: _open_registers,
     Job.SUBSCRIPTION: _subscription,
+    Job.ABSENCES: attendance_parents.morning,
 }

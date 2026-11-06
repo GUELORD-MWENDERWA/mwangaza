@@ -14,6 +14,7 @@ from apps.accounts.demo import create_demo_accounts
 from apps.accounts.models import User
 from apps.accounts.phone import DEMO_PHONE_PREFIX
 from apps.ai.demo import create_demo_ai
+from apps.attendance.demo import create_demo_attendance
 from apps.audit.demo import create_demo_security
 from apps.core.models import DemoRequest, PlatformSettings
 from apps.core.tenancy import use_all_schools
@@ -68,6 +69,7 @@ STEPS: list[Callable[[list[DemoSpace]], None]] = [
     create_demo_event_notifications,
     create_demo_communication,
     create_demo_promotion,
+    create_demo_attendance,
 ]
 
 

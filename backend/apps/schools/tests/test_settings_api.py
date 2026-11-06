@@ -84,7 +84,7 @@ def test_head_reads_the_settings(api, school, head):
         "pass_rule_presets": pass_rules.PRESETS,
         # Modèle de carte et heure limite d'arrivée (lot 10) : valeurs de l'école par défaut.
         "card": {"color": "", "back_text": "", "valid_until": None},
-        "attendance": {"late_after": "07:45"},
+        "attendance": {"late_after": "07:45", "notify_at": "09:00", "alert_after": 3},
     }
 
 

@@ -1225,6 +1225,56 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/attendance/absences/:
+    get:
+      operationId: attendance_absences_list
+      description: |-
+        Absents d'un jour (par classe et nom), avec leurs absences non justifiées de l'année ;
+        filtres `class_group` et `state`.
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: 'Jour suivi ; vide : aujourd''hui.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: state
+        schema:
+          enum:
+          - absent
+          - pending
+          - justified
+          type: string
+          minLength: 1
+        description: |-
+          Vide : tous les absents (justifiés compris).
+
+          * `absent` - Absent
+          * `pending` - Justification pending
+          * `justified` - Justified
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAbsenceList'
+          description: ''
   /api/attendance/cards/{id}/revoke/:
     post:
       operationId: attendance_cards_revoke_create
@@ -1510,6 +1560,406 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/attendance/corrections/:
+    get:
+      operationId: attendance_corrections_list
+      description: Journal des corrections, plus récentes d'abord (filtres `date_from`,
+        `date_to`).
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCorrectionList'
+          description: ''
+    post:
+      operationId: attendance_corrections_create
+      description: |-
+        Corrige la présence d'une personne un jour de classe (« présent, carte oubliée ») :
+        une ligne de plus au journal, jamais une modification du passage ; au journal d'audit.
+      parameters:
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectionWriteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CorrectionWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CorrectionWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Correction'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/day/:
+    get:
+      operationId: attendance_day_retrieve
+      description: |-
+        Un jour à l'entrée (aujourd'hui par défaut) : présents, retards, absents (justifiés
+        ou non), personnel, et chaque classe. Calculé à la demande, rien n'est stocké.
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: 'Jour suivi ; vide : aujourd''hui.'
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Day'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/export/:
+    get:
+      operationId: attendance_export_retrieve
+      description: |-
+        Rapport d'une période (une classe ou toute l'école) : jours de classe, à l'heure,
+        retards, absences, justifiées et taux de chaque élève.
+      parameters:
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+        required: true
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+          description: Classeur Excel.
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/justifications/:
+    get:
+      operationId: attendance_justifications_list
+      description: |-
+        Justifications d'absence, plus récentes d'abord (filtres `status`, `student`) ; l'école
+        note celle d'un parent venu avec un mot (acceptée d'emblée).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - accepted
+          - refused
+          type: string
+          minLength: 1
+        description: |-
+          * `pending` - Pending
+          * `accepted` - Accepted
+          * `refused` - Refused
+      - in: query
+        name: student
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedJustificationList'
+          description: ''
+    post:
+      operationId: attendance_justifications_create
+      description: |-
+        Justifications d'absence, plus récentes d'abord (filtres `status`, `student`) ; l'école
+        note celle d'un parent venu avec un mot (acceptée d'emblée).
+      parameters:
+      - in: query
+        name: status
+        schema:
+          enum:
+          - pending
+          - accepted
+          - refused
+          type: string
+          minLength: 1
+        description: |-
+          * `pending` - Pending
+          * `accepted` - Accepted
+          * `refused` - Refused
+      - in: query
+        name: student
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - attendance
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SchoolJustificationRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Justification'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/justifications/{id}/decide/:
+    post:
+      operationId: attendance_justifications_decide_create
+      description: Accepte ou refuse une justification en attente ; le parent voit
+        la réponse.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JustificationDecisionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/JustificationDecisionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JustificationDecisionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Justification'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/justifications/{id}/document/:
+    get:
+      operationId: attendance_justifications_document_retrieve
+      description: Le certificat (photo ou PDF), lu seulement par le personnel de
+        l'école.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/attendance/roster/:
     get:
       operationId: attendance_roster_retrieve
@@ -1554,6 +2004,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/staff/:
+    get:
+      operationId: attendance_staff_list
+      description: 'Personnel actif un jour : arrivé, en retard ou absent (corrections
+        comprises).'
+      parameters:
+      - in: query
+        name: date
+        schema:
+          type: string
+          format: date
+        description: 'Jour suivi ; vide : aujourd''hui.'
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStaffDayList'
           description: ''
   /api/audit/:
     get:
@@ -1633,6 +2112,9 @@ paths:
           - discipline.grade_overridden
           - attendance.card_issued
           - attendance.card_revoked
+          - attendance.corrected
+          - attendance.justification_recorded
+          - attendance.justification_decided
           - timetable.grid_changed
           - timetable.grid_deleted
           - timetable.room_changed
@@ -1804,6 +2286,9 @@ paths:
           * `discipline.grade_overridden` - Conduct grade corrected
           * `attendance.card_issued` - Card issued
           * `attendance.card_revoked` - Card revoked
+          * `attendance.corrected` - Attendance corrected
+          * `attendance.justification_recorded` - Absence justified by the school
+          * `attendance.justification_decided` - Absence justification decided
           * `timetable.grid_changed` - Time grid changed
           * `timetable.grid_deleted` - Time grid deleted
           * `timetable.room_changed` - Room changed
@@ -2166,6 +2651,9 @@ paths:
           - discipline.grade_overridden
           - attendance.card_issued
           - attendance.card_revoked
+          - attendance.corrected
+          - attendance.justification_recorded
+          - attendance.justification_decided
           - timetable.grid_changed
           - timetable.grid_deleted
           - timetable.room_changed
@@ -2337,6 +2825,9 @@ paths:
           * `discipline.grade_overridden` - Conduct grade corrected
           * `attendance.card_issued` - Card issued
           * `attendance.card_revoked` - Card revoked
+          * `attendance.corrected` - Attendance corrected
+          * `attendance.justification_recorded` - Absence justified by the school
+          * `attendance.justification_decided` - Absence justification decided
           * `timetable.grid_changed` - Time grid changed
           * `timetable.grid_deleted` - Time grid deleted
           * `timetable.room_changed` - Room changed
@@ -17939,6 +18430,102 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/portal/children/{id}/attendance/:
+    get:
+      operationId: portal_children_attendance_retrieve
+      description: |-
+        Présences de l'année d'un enfant (6.6) : totaux, absences et leur état, justifications
+        envoyées ; 404 comme `ChildView`, ou si l'école n'a pas le module des présences.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChildAttendance'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/portal/children/{id}/attendance/justify/:
+    post:
+      operationId: portal_children_attendance_justify_create
+      description: |-
+        Le parent justifie une absence (maladie, deuil…), certificat en option : en attente
+        jusqu'à la réponse de l'école, qui en est prévenue.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/JustificationWriteRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalJustification'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/portal/children/{id}/conduct/:
     get:
       operationId: portal_children_conduct_retrieve
@@ -25938,6 +26525,51 @@ paths:
           description: ''
 components:
   schemas:
+    Absence:
+      type: object
+      properties:
+        student_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        matricule:
+          type: string
+        class_name:
+          type: string
+        state:
+          $ref: '#/components/schemas/AbsenceStateEnum'
+        unjustified:
+          type: integer
+          description: Absences non justifiées depuis le début de l'année (ce jour
+            compris).
+        parent_on_portal:
+          type: boolean
+          description: 'Faux : la famille n''a pas de compte du Portail, il faut l''appeler.'
+        justification_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Justification qui couvre ce jour (en attente ou acceptée).
+      required:
+      - student_id
+      - name
+      - matricule
+      - class_name
+      - state
+      - unjustified
+      - parent_on_portal
+      - justification_id
+    AbsenceStateEnum:
+      enum:
+      - absent
+      - pending
+      - justified
+      type: string
+      description: |-
+        * `absent` - Absent
+        * `pending` - Justification pending
+        * `justified` - Justified
     AcademicYear:
       type: object
       properties:
@@ -26132,6 +26764,9 @@ components:
       - discipline.grade_overridden
       - attendance.card_issued
       - attendance.card_revoked
+      - attendance.corrected
+      - attendance.justification_recorded
+      - attendance.justification_decided
       - timetable.grid_changed
       - timetable.grid_deleted
       - timetable.room_changed
@@ -26302,6 +26937,9 @@ components:
         * `discipline.grade_overridden` - Conduct grade corrected
         * `attendance.card_issued` - Card issued
         * `attendance.card_revoked` - Card revoked
+        * `attendance.corrected` - Attendance corrected
+        * `attendance.justification_recorded` - Absence justified by the school
+        * `attendance.justification_decided` - Absence justification decided
         * `timetable.grid_changed` - Time grid changed
         * `timetable.grid_deleted` - Time grid deleted
         * `timetable.room_changed` - Room changed
@@ -27262,8 +27900,21 @@ components:
           type: string
           format: time
           description: Heure limite d'arrivée ; un passage après est un retard.
+        notify_at:
+          type: string
+          format: time
+          description: Heure où les parents des absents du jour sont prévenus (après
+            l'heure limite).
+        alert_after:
+          type: integer
+          maximum: 30
+          minimum: 0
+          description: 'Absences non justifiées de l''année avant l''alerte à la direction
+            ; 0 : aucune.'
       required:
       - late_after
+      - notify_at
+      - alert_after
     AttendanceSettingsRequest:
       type: object
       description: 'Présences (`attendance.py`, lot 10). Écriture partielle : les
@@ -27273,8 +27924,21 @@ components:
           type: string
           format: time
           description: Heure limite d'arrivée ; un passage après est un retard.
+        notify_at:
+          type: string
+          format: time
+          description: Heure où les parents des absents du jour sont prévenus (après
+            l'heure limite).
+        alert_after:
+          type: integer
+          maximum: 30
+          minimum: 0
+          description: 'Absences non justifiées de l''année avant l''alerte à la direction
+            ; 0 : aucune.'
       required:
+      - alert_after
       - late_after
+      - notify_at
     AudienceEnum:
       enum:
       - all_families
@@ -28899,6 +29563,40 @@ components:
       - first_overdue
       - last_payment
       - photo
+    ChildAbsence:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        state:
+          $ref: '#/components/schemas/AbsenceStateEnum'
+      required:
+      - date
+      - state
+    ChildAttendance:
+      type: object
+      description: |-
+        Présences de l'année d'un enfant : totaux, absences récentes (60 au plus), justifications
+        envoyées (20 au plus).
+      properties:
+        class_group:
+          type: string
+        totals:
+          $ref: '#/components/schemas/ChildTotals'
+        absences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChildAbsence'
+        justifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalJustification'
+      required:
+      - class_group
+      - totals
+      - absences
+      - justifications
     ChildConduct:
       type: object
       description: Conduite d'un enfant (8.5.1b).
@@ -29236,6 +29934,33 @@ components:
       - timetable
       - lessons
       - exams
+    ChildTotals:
+      type: object
+      properties:
+        days:
+          type: integer
+          description: Jours de classe depuis l'inscription.
+        present:
+          type: integer
+        late:
+          type: integer
+        absent:
+          type: integer
+        justified:
+          type: integer
+        pending:
+          type: integer
+        rate:
+          type: integer
+          nullable: true
+      required:
+      - days
+      - present
+      - late
+      - absent
+      - justified
+      - pending
+      - rate
     ClassActivation:
       type: object
       properties:
@@ -32546,6 +33271,81 @@ components:
         * `draft` - Draft
         * `active` - Active
         * `ended` - Ended
+    Correction:
+      type: object
+      description: Ligne du journal des corrections.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        date:
+          type: string
+          format: date
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+          nullable: true
+        member:
+          type: string
+          format: uuid
+          nullable: true
+        name:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/DayStatusEnum'
+        previous_status:
+          allOf:
+          - $ref: '#/components/schemas/DayStatusEnum'
+          readOnly: true
+          title: Status before
+        reason:
+          type: string
+          maxLength: 200
+        author:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - date
+      - student
+      - member
+      - name
+      - status
+      - previous_status
+      - reason
+      - author
+      - created_at
+    CorrectionWriteRequest:
+      type: object
+      description: Une personne (élève ou membre du personnel), un jour de classe,
+        le nouvel état.
+      properties:
+        date:
+          type: string
+          format: date
+        student:
+          type: string
+          format: uuid
+        member:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/DayStatusEnum'
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - date
+      - reason
+      - status
     Council:
       type: object
       properties:
@@ -33624,6 +34424,101 @@ components:
           format: date
       required:
       - held_on
+    Day:
+      type: object
+      description: 'Un jour à l''entrée : compteurs de l''école, du personnel et de
+        chaque classe.'
+      properties:
+        date:
+          type: string
+          format: date
+        school_day:
+          type: boolean
+          description: 'Faux : personne n''a pointé ce jour-là, ou congé ; aucun absent.'
+        holiday:
+          type: boolean
+        enrolled:
+          type: integer
+        present:
+          type: integer
+        late:
+          type: integer
+        absent:
+          type: integer
+          description: Absents, justifiés compris.
+        justified:
+          type: integer
+        pending:
+          type: integer
+          description: Absents dont la justification est en attente.
+        rate:
+          type: integer
+          nullable: true
+          description: Présents et retards, en %.
+        staff_present:
+          type: integer
+          description: Personnel arrivé (retards compris).
+        staff_total:
+          type: integer
+        late_after:
+          type: string
+          description: Heure limite d'arrivée de l'école (HH:MM).
+        parents_notified_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Heure où les parents des absents ont été prévenus ce jour-là.
+        alert_after:
+          type: integer
+          description: 'Seuil d''alerte ; 0 : aucune alerte.'
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DayClass'
+      required:
+      - date
+      - school_day
+      - holiday
+      - enrolled
+      - present
+      - late
+      - absent
+      - justified
+      - pending
+      - rate
+      - staff_present
+      - staff_total
+      - late_after
+      - parents_notified_at
+      - alert_after
+      - classes
+    DayClass:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        enrolled:
+          type: integer
+        present:
+          type: integer
+        late:
+          type: integer
+        absent:
+          type: integer
+          description: Absents, justifiés compris.
+        justified:
+          type: integer
+      required:
+      - id
+      - name
+      - enrolled
+      - present
+      - late
+      - absent
+      - justified
     DayLesson:
       type: object
       properties:
@@ -33662,6 +34557,16 @@ components:
       - course
       - class_groups
       - recorded
+    DayStatusEnum:
+      enum:
+      - present
+      - late
+      - absent
+      type: string
+      description: |-
+        * `present` - Arrived
+        * `late` - Late
+        * `absent` - Absent
     Deadline:
       type: object
       properties:
@@ -37120,6 +38025,126 @@ components:
       - period_max
       - has_exam
       - students
+    Justification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        student:
+          type: string
+          format: uuid
+          readOnly: true
+        student_name:
+          type: string
+          readOnly: true
+        starts_on:
+          type: string
+          format: date
+          readOnly: true
+          title: From
+        ends_on:
+          type: string
+          format: date
+          readOnly: true
+          title: To
+        reason:
+          type: string
+          readOnly: true
+        source:
+          allOf:
+          - $ref: '#/components/schemas/JustificationSourceEnum'
+          readOnly: true
+          title: Sent by
+        status:
+          allOf:
+          - $ref: '#/components/schemas/JustificationStatusEnum'
+          readOnly: true
+        has_document:
+          type: boolean
+          readOnly: true
+        decided_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        decided_by_name:
+          type: string
+          readOnly: true
+        decision_note:
+          type: string
+          readOnly: true
+          title: Answer to the parent
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - student
+      - student_name
+      - starts_on
+      - ends_on
+      - reason
+      - source
+      - status
+      - has_document
+      - decided_at
+      - decided_by_name
+      - decision_note
+      - created_at
+    JustificationDecisionRequest:
+      type: object
+      properties:
+        accept:
+          type: boolean
+        note:
+          type: string
+          default: ''
+          description: Réponse au parent.
+          maxLength: 300
+      required:
+      - accept
+    JustificationSourceEnum:
+      enum:
+      - portal
+      - school
+      type: string
+      description: |-
+        * `portal` - Sent by the parent
+        * `school` - Recorded by the school
+    JustificationStatusEnum:
+      enum:
+      - pending
+      - accepted
+      - refused
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `accepted` - Accepted
+        * `refused` - Refused
+    JustificationWriteRequest:
+      type: object
+      properties:
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+        document:
+          type: string
+          format: binary
+          description: 'Certificat : photo ou PDF, 5 Mo au plus.'
+      required:
+      - ends_on
+      - reason
+      - starts_on
     KeepRequest:
       type: object
       properties:
@@ -38260,6 +39285,10 @@ components:
       - ai_credits
       - support_reply
       - possible_duplicate
+      - absence
+      - absence_alert
+      - justification_sent
+      - justification_decided
       type: string
       description: |-
         * `test` - Test notification
@@ -38293,6 +39322,10 @@ components:
         * `ai_credits` - AI credits running low
         * `support_reply` - Reply from support
         * `possible_duplicate` - Possible duplicate student
+        * `absence` - Your child is absent
+        * `absence_alert` - Repeated absences
+        * `justification_sent` - Absence justification received
+        * `justification_decided` - Answer to a justification
     NotificationPreferences:
       type: object
       properties:
@@ -38513,6 +39546,31 @@ components:
       - grade
       - reason
       - term
+    PaginatedAbsenceList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Absence'
     PaginatedAnnouncementList:
       type: object
       required:
@@ -38963,6 +40021,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Contract'
+    PaginatedCorrectionList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Correction'
     PaginatedDayLessonList:
       type: object
       required:
@@ -39138,6 +40221,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Invoice'
+    PaginatedJustificationList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Justification'
     PaginatedLegalDocumentList:
       type: object
       required:
@@ -39563,6 +40671,31 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StaffAnnouncement'
+    PaginatedStaffDayList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffDay'
     PaginatedStaffList:
       type: object
       required:
@@ -42701,6 +43834,46 @@ components:
       - starts_on
       - ends_on
       - start_time
+    PortalJustification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        starts_on:
+          type: string
+          format: date
+          readOnly: true
+          title: From
+        ends_on:
+          type: string
+          format: date
+          readOnly: true
+          title: To
+        reason:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/JustificationStatusEnum'
+          readOnly: true
+        decision_note:
+          type: string
+          readOnly: true
+          title: Answer to the parent
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - starts_on
+      - ends_on
+      - reason
+      - status
+      - decision_note
+      - created_at
     PortalLoginRequest:
       type: object
       properties:
@@ -45081,6 +46254,31 @@ components:
       - currency
       - total
       - balance
+    SchoolJustificationRequest:
+      type: object
+      properties:
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+        document:
+          type: string
+          format: binary
+          description: 'Certificat : photo ou PDF, 5 Mo au plus.'
+        student:
+          type: string
+          format: uuid
+      required:
+      - ends_on
+      - reason
+      - starts_on
+      - student
     SchoolSettings:
       type: object
       description: Paramètres de l'école (M5). Le code (adresse) ne change que par
@@ -45936,6 +47134,26 @@ components:
       - created_at
       - existing_account
       - temporary_password
+    StaffDay:
+      type: object
+      properties:
+        member_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        status:
+          $ref: '#/components/schemas/DayStatusEnum'
+        seen_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Heure du passage, s'il y en a.
+      required:
+      - member_id
+      - name
+      - status
+      - seen_at
     StaffImport:
       type: object
       description: Aperçu d'un fichier du personnel, ou son résultat une fois enregistré.

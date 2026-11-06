@@ -57,10 +57,10 @@ Sur GitHub : jusqu'au 2026-10-29, chaque version est un jalon et chaque tâche u
 | ~~9~~ ✓ | ~~**Emploi du temps fini et IA**~~ | EDT.5b, EDT.6, IA.5, IA.3, IA.4 | ① horaire des épreuves, heures prestées ② grille de cours depuis un PDF, assistant de questions, aide à la rédaction | — |
 | 10 | **Carte et présences** | 6.1, 6.3, 6.5, 6.6, A.5 | ① carte et impression ② pointage (caméra, borne, hors ligne) ③ suivi, rapports, parents prévenus | — |
 | 11 | **Bibliothèque et ateliers** | INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3 (prêts, retours, sorties d'outils et inventaire **hors ligne**) | ① moteur commun ② bibliothèque ③ ateliers | — |
-| 12 | **Personnel et paie** | 7.2, 7.3, 7.4 | ① dossier et contrats ② paie ③ espace enseignant | — |
+| 12 | **Personnel et paie** | 7.2, 7.3, 7.4, PROF.1 | ① dossier et contrats ② paie ③ espace enseignant | — |
 | 13 | **Messagerie et portail des élèves** | 8.5.2, 8.6 | ① messagerie, rendez-vous, mérites, sanctions ② portail des élèves | — |
-| 14 | **Inscriptions, transferts, langues** | 7.5, 8.7, 8.9, 7.6, I18N.1 | ① pénalités, inscription validée par le paiement, documents ② transfert, attestations, sondages ③ swahili, connexion Google | — |
-| 15 | **Sites des écoles** | WEB.2 | ① serveur et Gestion ② pages publiques | — |
+| 14 | **Inscriptions, transferts, langues** | 7.5, 8.7, 8.9, 7.6, I18N.1, MAT.1 | ① pénalités, inscription validée par le paiement, documents ② transfert, attestations, sondages ③ swahili, connexion Google | — |
+| 15 | **Sites des écoles** | WEB.2, EQ.4 | ① serveur et Gestion ② pages publiques | — |
 | 16 | **Équipements : sonnerie, lecteurs et réseau** | EQP.1, EQP.2, EQP.3, EQP.4, EQP.5 (reprend 6.2, 6.4) | ① modules `bell` et `attendance`, assistant de création d'école, appareils, jumelage, API d'appareil ② sonnerie automatique ③ firmware, réseau maillé, console Uno + SD ④ lecteurs de présence, cartes, essais au banc ⑤ site, aide, guides et démonstration à jour | matériel pour les essais |
 | 17 | **Revue finale de la V1** | S.9 | ① revue ASVS des trois applications, mesures, guides et présentation, V1 déclarée finie | test d'intrusion par une personne extérieure |
 
@@ -96,6 +96,12 @@ Elles manquaient pour une V1 complète. Les autres tâches des lots gardent leur
 
 - [x] **AIDE.1** Centre d'aide et guide d'utilisation *(P1, M, 🤖)* — articles courts par rôle et par tâche (« encaisser un paiement », « imprimer les bulletins d'une classe »…), en français et en anglais, avec captures et recherche ; textes **dans le dépôt** (ils changent avec le code et sont relus dans la PR ; format choisi au début du lot, sans dépendance si possible), publiés sur le site (`/aide/`, dans le `sitemap.xml`) ; les trois guides PDF (`make guide`) sont construits depuis les mêmes textes ; page « Quoi de neuf » à chaque mise en ligne, montrée une fois dans les applications.
 - [x] **AIDE.2** Aide dans les applications *(P1, S à M, 🤖)* — bouton « Aide » sur chaque écran des trois applications, qui ouvre l'article de cet écran ; guides de première connexion par rôle (M20). À partir de ce lot, **chaque nouvel écran a son article** (§ 8.2).
+
+## 2 quater. Tâches ajoutées le 2026-11-06 (demande de l'utilisateur pendant le lot 10)
+
+- [ ] **PROF.1** Profils de tous les utilisateurs *(P1, M, 🤖, lot 12 ①)* — une page « Mon profil » cohérente dans les trois applications (Gestion, Portail, console) : ce que la personne change elle-même (langue, mot de passe, double authentification, téléphone et e-mail **vérifiés par un code**, notifications, appareils) et ce qu'elle voit sans pouvoir le changer (nom, **photo officielle**, fonction, rôles, école) avec « à changer au secrétariat » ; demande de correction envoyée à l'école (comme les changements de coordonnées des parents) ; parents et, au lot 13, élèves. Maquettes d'abord, d'après les grands sites (GitHub, Google, Stripe).
+- [ ] **MAT.1** Matricule plus sûr *(P2, S, 🤖, lot 14 ①)* — moteur actuel gardé (déterministe, hors ligne, jamais d'IA) ; variable `{C}` : **clé de contrôle** d'un signe (ISO 7064 mod 97-10 réduit, ou Luhn) qui refuse une faute de frappe à la porte et à la caisse ; `{SEC}` (code de section : cycle du niveau pour l'éducation de base, section de l'option pour les humanités) **seulement si l'utilisateur le valide** (`06`, 2026-11-06) ; matricule figé à l'attribution (jamais recalculé quand l'élève change d'option) ; matricule existant toujours gardé (import, saisie du préfet : déjà le cas).
+- [ ] **EQ.4** Cartes de l'équipe Mwangaza *(P2, M, 🤖, lot 15)* — d'après `maquettes/marque/cartes-mwangaza.html` : carte de visite (QR vCard, sans serveur) et badge porté au cordon, imprimés depuis la console au format ID-1 ; QR du badge = page publique de vérification à jeton révocable (nom, photo, fonction, « fait partie de l'équipe » ou non) ; tout vient des paramètres de la plateforme et du compte de l'équipe.
 
 ## 2 ter. Équipements : tâches ajoutées le 2026-11-03
 
@@ -513,7 +519,7 @@ Les numéros des tâches existantes restent les mêmes. **Depuis le 2026-10-29, 
 
 ### V1.5 — Carte et présences (QR d'abord, NFC en option)
 
-- [ ] **6.1** Carte de l'élève et du personnel : modèle réglé par l'école, PDF carte et planche A4, jeton secret dans le QR, révocable, carte perdue remplacée *(P1, M)*
+- [ ] **6.1** Carte de l'élève et du personnel : modèle réglé par l'école, PDF carte et planche A4, jeton secret dans le QR, révocable, carte perdue remplacée ; refaite le 2026-11-06 (élève en paysage, personnel en portrait, format ID-1 de la carte MIFARE, photo officielle gérée par l'école seule, mention Mwangaza) *(P1, M)*
 - [ ] **6.3** Pointage par téléphone ou tablette enregistrés, caméra QR, mode borne, hors ligne *(P1, M)*
 - [ ] **6.5** Suivi des présences, corrections au journal, rapports, taux au tableau de bord *(P1, M)*
 - [ ] **6.6** Présences et parents : notifications, justification dans le Portail, alerte après X absences *(P1, M)*

@@ -3,6 +3,7 @@
 (`attendance.scan`, `POST /api/sync/push/`)."""
 
 from django.db.models import Prefetch
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -10,14 +11,22 @@ from django.utils.translation import gettext_lazy
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.accounts.permissions import HasSchoolPermission
-from apps.accounts.roles import ATTENDANCE_CARDS, ATTENDANCE_SCAN
-from apps.attendance import cards
-from apps.attendance.models import IdCard
+from apps.accounts.roles import (
+    ATTENDANCE_CARDS,
+    ATTENDANCE_CORRECT,
+    ATTENDANCE_SCAN,
+    ATTENDANCE_VIEW,
+)
+from apps.attendance import cards, corrections, reports
+from apps.attendance.models import AbsenceJustification, AttendanceCorrection, IdCard
 from apps.attendance.serializers import (
+    AbsenceSerializer,
+    AbsencesQuerySerializer,
     CardListQuerySerializer,
     CardPrintResultSerializer,
     CardPrintSerializer,
@@ -26,12 +35,24 @@ from apps.attendance.serializers import (
     CardStaffSerializer,
     CardStudentSerializer,
     CardSummarySerializer,
+    CorrectionQuerySerializer,
+    CorrectionSerializer,
+    CorrectionWriteSerializer,
+    DayQuerySerializer,
+    DaySerializer,
+    JustificationDecisionSerializer,
+    JustificationQuerySerializer,
+    JustificationSerializer,
+    PeriodQuerySerializer,
     RosterQuerySerializer,
     RosterSerializer,
     RosterStaffSerializer,
     RosterStudentSerializer,
+    SchoolJustificationSerializer,
+    StaffDaySerializer,
 )
 from apps.core import printing
+from apps.core.documents import XLSX, XLSX_RESPONSE, file_response
 from apps.core.errors import ApiError, BusinessError, ErrorSerializer
 from apps.core.ids import uuid7
 from apps.students.views import _words
@@ -222,3 +243,186 @@ class RosterView(GenericAPIView):
                 "next": students[-1].student_id if has_more else None,
             }
         )
+
+
+# Suivi des présences (6.5), corrections et justifications (6.6)
+
+
+class _FollowView(GenericAPIView):
+    """Lecture : `attendance.view` ; écriture : `attendance.correct`."""
+
+    permission_classes = [HasSchoolPermission]
+    required_module = "attendance"
+
+    @property
+    def required_permission(self) -> str:
+        return ATTENDANCE_VIEW if self.request.method in ("GET", "HEAD") else ATTENDANCE_CORRECT
+
+    def query(self, serializer_class) -> dict:
+        params = serializer_class(data=self.request.query_params)
+        params.is_valid(raise_exception=True)
+        return params.validated_data
+
+
+@extend_schema(tags=["attendance"])
+class DayView(_FollowView):
+    @extend_schema(parameters=[DayQuerySerializer], responses={200: DaySerializer, **ERRORS})
+    def get(self, request: Request) -> Response:
+        """Un jour à l'entrée (aujourd'hui par défaut) : présents, retards, absents (justifiés
+        ou non), personnel, et chaque classe. Calculé à la demande, rien n'est stocké."""
+        day = self.query(DayQuerySerializer).get("date") or timezone.localdate()
+        return Response(DaySerializer(reports.day_summary(day)).data)
+
+
+@extend_schema(tags=["attendance"], parameters=[AbsencesQuerySerializer])
+class AbsencesView(_FollowView, ListAPIView):
+    """Absents d'un jour (par classe et nom), avec leurs absences non justifiées de l'année ;
+    filtres `class_group` et `state`."""
+
+    serializer_class = AbsenceSerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return IdCard.objects.none()
+        data = self.query(AbsencesQuerySerializer)
+        self.day = data.get("date") or timezone.localdate()
+        return reports.absents(self.day, data.get("class_group"), data.get("state"))
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset.enrollments)
+        rows = reports.absence_rows(self.day, page, queryset.states)
+        return self.get_paginated_response(AbsenceSerializer(rows, many=True).data)
+
+
+@extend_schema(tags=["attendance"], parameters=[DayQuerySerializer])
+class StaffDayView(_FollowView, ListAPIView):
+    """Personnel actif un jour : arrivé, en retard ou absent (corrections comprises)."""
+
+    serializer_class = StaffDaySerializer
+
+    def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return IdCard.objects.none()
+        self.day = self.query(DayQuerySerializer).get("date") or timezone.localdate()
+        return cards.staff().select_related("user").order_by("user__last_name", "user__first_name")
+
+    def list(self, request: Request, *args, **kwargs) -> Response:
+        page = self.paginate_queryset(self.get_queryset())
+        return self.get_paginated_response(
+            StaffDaySerializer(reports.staff_rows(self.day, page), many=True).data
+        )
+
+
+@extend_schema(tags=["attendance"], parameters=[CorrectionQuerySerializer])
+class CorrectionsView(_FollowView, ListAPIView):
+    """Journal des corrections, plus récentes d'abord (filtres `date_from`, `date_to`)."""
+
+    serializer_class = CorrectionSerializer
+
+    def get_queryset(self):
+        items = AttendanceCorrection.objects.select_related(
+            "session", "student", "member__user", "created_by"
+        )
+        if getattr(self, "swagger_fake_view", False):
+            return items
+        data = self.query(CorrectionQuerySerializer)
+        if data.get("date_from"):
+            items = items.filter(session__date__gte=data["date_from"])
+        if data.get("date_to"):
+            items = items.filter(session__date__lte=data["date_to"])
+        return items
+
+    @extend_schema(
+        request=CorrectionWriteSerializer, responses={201: CorrectionSerializer, **WRITE_ERRORS}
+    )
+    def post(self, request: Request) -> Response:
+        """Corrige la présence d'une personne un jour de classe (« présent, carte oubliée ») :
+        une ligne de plus au journal, jamais une modification du passage ; au journal d'audit."""
+        data = CorrectionWriteSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        values = data.validated_data
+        correction = corrections.correct(
+            actor=request.user,
+            day=values["date"],
+            status=values["status"],
+            reason=values["reason"],
+            student=values.get("student"),
+            member=values.get("member"),
+        )
+        correction = self.get_queryset().get(pk=correction.pk)
+        return Response(CorrectionSerializer(correction).data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(tags=["attendance"], parameters=[JustificationQuerySerializer])
+class JustificationsView(_FollowView, ListAPIView):
+    """Justifications d'absence, plus récentes d'abord (filtres `status`, `student`) ; l'école
+    note celle d'un parent venu avec un mot (acceptée d'emblée)."""
+
+    serializer_class = JustificationSerializer
+    parser_classes = [MultiPartParser, JSONParser]
+
+    def get_queryset(self):
+        items = AbsenceJustification.objects.select_related("student", "decided_by")
+        if getattr(self, "swagger_fake_view", False):
+            return items
+        data = self.query(JustificationQuerySerializer)
+        if data.get("status"):
+            items = items.filter(status=data["status"])
+        if data.get("student"):
+            items = items.filter(student_id=data["student"])
+        return items
+
+    @extend_schema(
+        request={"multipart/form-data": SchoolJustificationSerializer},
+        responses={201: JustificationSerializer, **WRITE_ERRORS},
+    )
+    def post(self, request: Request) -> Response:
+        data = SchoolJustificationSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        justification = corrections.justify(
+            actor=request.user, by_school=True, **data.validated_data
+        )
+        return Response(JustificationSerializer(justification).data, status=status.HTTP_201_CREATED)
+
+
+@extend_schema(tags=["attendance"])
+class JustificationDecideView(_FollowView):
+    @extend_schema(
+        request=JustificationDecisionSerializer,
+        responses={200: JustificationSerializer, **WRITE_ERRORS},
+    )
+    def post(self, request: Request, pk) -> Response:
+        """Accepte ou refuse une justification en attente ; le parent voit la réponse."""
+        data = JustificationDecisionSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        justification = get_object_or_404(AbsenceJustification.objects, pk=pk)
+        justification = corrections.decide(
+            justification,
+            actor=request.user,
+            accept=data.validated_data["accept"],
+            note=data.validated_data["note"],
+        )
+        return Response(JustificationSerializer(justification).data)
+
+
+@extend_schema(tags=["attendance"])
+class JustificationDocumentView(_FollowView):
+    @extend_schema(responses={(200, "application/octet-stream"): bytes, **ERRORS})
+    def get(self, request: Request, pk) -> FileResponse:
+        """Le certificat (photo ou PDF), lu seulement par le personnel de l'école."""
+        justification = get_object_or_404(AbsenceJustification.objects, pk=pk)
+        if not justification.document:
+            raise Http404
+        return reports.document_response(justification)
+
+
+@extend_schema(tags=["attendance"])
+class ExportView(_FollowView):
+    @extend_schema(parameters=[PeriodQuerySerializer], responses={**XLSX_RESPONSE, **ERRORS})
+    def get(self, request: Request):
+        """Rapport d'une période (une classe ou toute l'école) : jours de classe, à l'heure,
+        retards, absences, justifiées et taux de chaque élève."""
+        data = self.query(PeriodQuerySerializer)
+        content, name = reports.export(data["date_from"], data["date_to"], data.get("class_group"))
+        return file_response(content, XLSX, name)

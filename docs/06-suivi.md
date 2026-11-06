@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | **Lot 10** (carte et présences), partie ① a faite (cartes, pointage), ① b à faire |
+| Lot en cours | **Lot 10** (carte et présences), parties ① a et ① b faites (cartes, pointage, suivi, justifications, parents prévenus) ; ① c à faire : cartes refaites d'après les maquettes du 2026-11-06 |
 | Prochain lot | Lot 11 ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
 | Issue GitHub | #436 (lot 10) ; fiche `docs/claude/plans/lot-10.md` |
 | Branche | `lot/10-carte-presences` |
-| Dernière mise à jour | 2026-11-06 (lot 10 démarré) |
+| Dernière mise à jour | 2026-11-06 (lot 10, partie ① b) |
 
 ## Avancement
 
@@ -29,7 +29,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 7 — Finances et caisse complètes | 4 ✓ | 4 |
 | 8 — Cours communs et notes | 7 ✓ | 7 |
 | 9 — Emploi du temps fini et IA | 3 ✓ | 3 |
-| 10 — Carte et présences | ½ (① a) | 3 |
+| 10 — Carte et présences | ½ (① a, ① b) | 3 |
 | 11 — Bibliothèque et ateliers | 0 | 3 |
 | 12 — Personnel et paie | 0 | 3 |
 | 13 — Messagerie et portail des élèves | 0 | 2 |
@@ -63,6 +63,11 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q17.
 
 ## Journal
+
+### 2026-11-06 — Lot 10, partie ① b : suivi des présences, parents ; cartes et matricule revus
+- Fait : absents calculés à la demande (corrections au journal, justifications, congés), écran du jour par classe, absents à suivre, personnel, journal, rapport Excel ; Portail : présences de l'enfant et justification (certificat photo ou PDF) ; parents prévenus une fois le matin, direction alertée au seuil ; `make demo`.
+- Demande de l'utilisateur : cartes refaites (élève paysage, personnel portrait, format ID-1 de la carte MIFARE du kit RC522, mention Mwangaza), photo officielle gérée par l'école seule, profils de tous les utilisateurs, matricule (analyse et propositions), carte de visite et badge de l'équipe Mwangaza. Maquettes : `gestion/cartes-modeles.html`, `marque/cartes-mwangaza.html`.
+- Suite : partie ① c (cartes), puis ② écrans.
 
 ### 2026-11-06 — Lot 9 : Emploi du temps fini et IA
 - Fait : horaire des épreuves (publié, notifié, PDF, lu par enseignants et Portail) ; heures prestées (exceptions, total du mois à la demande, fiche PDF, Excel) ; IA : lecture d'un bulletin, assistant de questions (liste fermée, aucune donnée d'élève), brouillons d'annonces ; 3 articles d'aide fr/en.

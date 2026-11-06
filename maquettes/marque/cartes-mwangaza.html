@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cartes de visite et badge — Mwangaza (maquette)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+/* Cartes de la plateforme au même format ID-1 (85,60 × 53,98 mm) que celles des écoles : un seul
+   stock de cartes, une seule imprimante. Couleurs, logo et contacts : paramètres de la plateforme
+   (`PlatformSettings`) ; ici leurs valeurs du livre de marque (piste A). */
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-400-normal.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-600-normal.woff2) format("woff2");font-weight:600}
+@font-face{font-family:"Poppins";src:url(../assets/fonts/poppins-latin-700-normal.woff2) format("woff2");font-weight:700}
+.sheet{max-width:1240px;margin:0 auto;padding:28px 16px 48px}
+.sheet h1{font-size:1.6rem;margin:0 0 4px}
+.sheet h2{font-size:1.15rem;margin:36px 0 4px}
+.sheet .lead{color:var(--ink-2);margin:0 0 12px;max-width:72ch}
+.pair{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;margin-top:14px}
+.pair figure{margin:0}
+.pair figcaption{font-size:.85rem;color:var(--ink-3);margin-top:8px}
+.zoom{zoom:1.65}
+@media (max-width:1180px){.zoom{zoom:1.4}}
+@media (max-width:820px){.zoom{zoom:1.6}}
+@media (max-width:599px){.zoom{zoom:1.05}.pair{gap:18px}}
+
+.mc{--bleu:#1A2F80;--brume:#E2EAF7;--soleil:#FFA81E;--ardoise:#111418;
+  position:relative;width:85.6mm;height:53.98mm;border-radius:3.18mm;overflow:hidden;background:#fff;color:var(--ardoise);
+  font-family:"Poppins",Arial,sans-serif;font-size:6.2pt;line-height:1.3;box-shadow:0 1px 2px rgba(16,24,40,.12),0 6px 18px rgba(16,24,40,.10);flex:none}
+.mc.portrait{width:53.98mm;height:85.6mm}
+.mc.blue{background:var(--bleu) url(../assets/relief.svg) center/cover;color:#fff}
+.lock{display:block}
+.k-sun{display:inline-block;width:1.6mm;height:1.6mm;border-radius:50%;background:var(--soleil)}
+
+/* Carte de visite, recto (craie) */
+.bc .lock{position:absolute;left:5mm;top:5mm;height:6.6mm}
+.bc .k-who{position:absolute;left:5mm;top:17mm;right:8mm}
+.bc .k-who b{display:block;font-size:9.4pt;font-weight:700;color:var(--bleu);letter-spacing:-.01em;line-height:1.15}
+.bc .k-who span{display:block;font-size:6.2pt;color:#5B6475;margin-top:.4mm}
+.bc ul{position:absolute;left:5mm;bottom:4.6mm;list-style:none;margin:0;padding:0;display:grid;gap:1.1mm;font-size:5.8pt}
+.bc li{display:flex;align-items:center;gap:1.6mm}
+.bc li svg{width:2.8mm;height:2.8mm;color:var(--bleu);flex:none}
+.bc .edge{position:absolute;right:0;top:0;bottom:0;width:1.6mm;background:var(--bleu)}
+
+/* Carte de visite, verso (bleu uniforme, relief) */
+.bv .lock{position:absolute;left:50%;top:50%;height:10mm;transform:translate(-50%,-62%)}
+.bv .site{position:absolute;left:0;right:0;bottom:8mm;text-align:center;font-size:6.6pt;letter-spacing:.04em;opacity:.92}
+.bv .qr{position:absolute;right:4mm;bottom:4mm;width:12mm;height:12mm;background:#fff;border-radius:1mm;padding:.8mm}
+.bv .qrl{position:absolute;right:4mm;bottom:16.6mm;width:12mm;text-align:center;font-size:3.6pt;opacity:.85;line-height:1.1}
+
+/* Badge de l'équipe (portrait), recto */
+.tb .top{position:absolute;left:0;right:0;top:0;height:40mm;background:var(--bleu) url(../assets/relief.svg) center/cover;color:#fff}
+.tb .slot{position:absolute;left:50%;top:2.6mm;width:13mm;height:3.2mm;transform:translateX(-50%);border:.25mm dashed rgba(255,255,255,.55);border-radius:1.6mm}
+.tb .top .lock{position:absolute;left:50%;top:8.6mm;height:5.6mm;transform:translateX(-50%)}
+.tb .team{position:absolute;left:0;right:0;top:16.4mm;text-align:center;font-size:4.8pt;letter-spacing:.24em;text-transform:uppercase;opacity:.9}
+.tb .photo{position:absolute;left:50%;top:21.6mm;width:22mm;height:27mm;transform:translateX(-50%);background:var(--brume);border-radius:0 2.2mm 0 2.2mm;box-shadow:0 0 0 .8mm #fff;overflow:hidden;color:var(--bleu)}
+.tb .photo svg{width:100%;height:100%}
+.tb .id{position:absolute;left:3mm;right:3mm;top:51.6mm;text-align:center}
+.tb .id b{display:block;font-size:8.6pt;font-weight:700;line-height:1.15}
+.tb .id span{display:inline-block;margin-top:1.2mm;font-size:5.8pt;background:var(--brume);color:var(--bleu);font-weight:600;border-radius:1mm;padding:.5mm 1.8mm}
+.tb .id small{display:block;margin-top:1.6mm;font-size:5pt;color:#5B6475;font-family:"Atkinson Hyperlegible Next",sans-serif}
+.tb .foot{position:absolute;left:0;right:0;bottom:0;height:9mm;border-top:.25mm solid #DDE2EC;display:flex;align-items:center;justify-content:center;gap:1.6mm;font-size:5.2pt;color:#475467}
+
+/* Badge de l'équipe, verso */
+.tv .slot{position:absolute;left:50%;top:2.6mm;width:13mm;height:3.2mm;transform:translateX(-50%);border:.25mm dashed #DDE2EC;border-radius:1.6mm}
+.tv .qr{position:absolute;left:50%;top:10mm;width:26mm;height:26mm;transform:translateX(-50%);border:.25mm solid #DDE2EC;border-radius:1.4mm;padding:1.2mm}
+.tv .txt{position:absolute;left:4.5mm;right:4.5mm;top:40mm;bottom:12mm;text-align:center;font-family:"Atkinson Hyperlegible Next",sans-serif;font-size:5.4pt;color:#344054;display:flex;flex-direction:column;gap:1.2mm}
+.tv h4{margin:0;font-family:"Poppins",sans-serif;font-size:6.2pt;color:var(--bleu);text-transform:uppercase;letter-spacing:.05em}
+.tv .k-bar{position:absolute;left:0;right:0;bottom:0;height:8.5mm;background:var(--bleu);display:flex;align-items:center;justify-content:center}
+.tv .k-bar .lock{height:3.8mm}
+
+.legend{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));margin-top:18px}
+.legend div{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:.88rem}
+.legend b{display:block;margin-bottom:2px}
+</style></head>
+<body>
+<main class="sheet">
+  <h1>Cartes de la plateforme</h1>
+  <p class="lead">Même format ID-1 que les cartes des écoles (85,6 × 54 mm) : une seule réserve de cartes et une seule imprimante. Couleurs et logo du livre de marque, piste A.</p>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <symbol id="silhouette" viewBox="0 0 84 104"><circle cx="42" cy="38" r="17" fill="currentColor" opacity=".35"/><path d="M8 104c2-22 16-34 34-34s32 12 34 34z" fill="currentColor" opacity=".35"/></symbol>
+    <symbol id="qr" viewBox="0 0 29 29"><path fill="#111418" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM22 0h7v7h-7zM23 1v5h5V1zM24 2h3v3h-3zM0 22h7v7H0zM1 23v5h5v-5zM2 24h3v3H2zM9 0h2v2H9zM12 1h3v2h-3zM16 0h2v3h-2zM19 2h2v2h-2zM9 4h2v3H9zM13 4h2v2h-2zM17 5h3v2h-3zM0 9h3v2H0zM4 9h2v2H4zM8 9h4v2H8zM14 8h2v3h-2zM18 9h2v2h-2zM22 9h3v2h-3zM26 9h3v2h-3zM2 12h2v3H2zM6 13h3v2H6zM10 12h2v2h-2zM13 13h4v2h-4zM19 12h2v3h-2zM23 12h2v2h-2zM27 13h2v3h-2zM0 16h2v2H0zM4 17h2v2H4zM8 16h3v2H8zM12 17h2v3h-2zM16 16h2v2h-2zM20 17h3v2h-3zM25 16h2v2h-2zM9 20h2v3H9zM13 21h3v2h-3zM17 20h2v2h-2zM21 21h2v2h-2zM24 20h3v3h-3zM28 21h1v3h-1zM9 25h3v2H9zM14 24h2v3h-2zM18 25h3v2h-3zM22 26h2v3h-2zM26 25h3v2h-3zM10 28h4v1h-4zM16 28h2v1h-2z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6.6 3h3l1.6 4.2-2 1.3a12 12 0 0 0 6.3 6.3l1.3-2L21 14.4v3A2.6 2.6 0 0 1 18.4 20 15.4 15.4 0 0 1 4 5.6 2.6 2.6 0 0 1 6.6 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m3.5 6.5 8.5 6.5 8.5-6.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-web" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  </defs></svg>
+
+  <h2>Carte de visite</h2>
+  <p class="lead">Recto craie (nom, fonction, contacts), verso bleu uniforme avec le relief et le logo inversé ; le QR enregistre le contact dans le téléphone, sans internet.</p>
+  <div class="pair zoom">
+    <figure>
+      <div class="mc bc">
+        <img class="lock" src="../assets/logo/mwangaza-logo.svg" alt="Mwangaza">
+        <div class="k-who"><b>Amani Bahati</b><span>Conseillère des écoles · Goma</span></div>
+        <ul>
+          <li><svg><use href="#i-phone"/></svg>+243 000 000 000</li>
+          <li><svg><use href="#i-mail"/></svg>amani@mwangazaschool.com</li>
+          <li><svg><use href="#i-web"/></svg>mwangazaschool.com</li>
+        </ul>
+        <div class="edge"></div>
+      </div>
+      <figcaption>Recto</figcaption>
+    </figure>
+    <figure>
+      <div class="mc blue bv">
+        <img class="lock" src="../assets/logo/mwangaza-logo-inverse.svg" alt="Mwangaza">
+        <div class="site">mwangazaschool.com</div>
+        <div class="qrl">Enregistrer le contact</div>
+        <svg class="qr"><use href="#qr"/></svg>
+      </div>
+      <figcaption>Verso</figcaption>
+    </figure>
+  </div>
+
+  <h2>Badge de l'équipe</h2>
+  <p class="lead">Porté au cordon par les membres de l'équipe qui vont dans les écoles. Le QR ouvre une page de la plateforme qui dit si la personne fait toujours partie de l'équipe.</p>
+  <div class="pair zoom">
+    <figure>
+      <div class="mc portrait tb">
+        <div class="top"><div class="slot"></div><img class="lock" src="../assets/logo/mwangaza-logo-inverse.svg" alt="Mwangaza"><div class="team">Équipe Mwangaza</div></div>
+        <div class="photo"><svg><use href="#silhouette"/></svg></div>
+        <div class="id"><b>Amani Bahati</b><span>Conseillère des écoles</span><small>Badge valable jusqu'au 31/12/2027</small></div>
+        <div class="foot"><i class="k-sun"></i>mwangazaschool.com</div>
+      </div>
+      <figcaption>Recto</figcaption>
+    </figure>
+    <figure>
+      <div class="mc portrait tv">
+        <div class="slot"></div>
+        <svg class="qr"><use href="#qr"/></svg>
+        <div class="txt">
+          <h4>Vérifier ce badge</h4>
+          <p>Scannez le QR : la page de Mwangaza confirme le nom, la photo et la fonction, tant que la personne fait partie de l'équipe.</p>
+          <p>Ce badge ne donne accès à aucune donnée d'une école : seule l'école ouvre une session d'aide, et elle peut la fermer.</p>
+          <p><b>Un doute ?</b> +243 000 000 000</p>
+        </div>
+        <div class="k-bar"><img class="lock" src="../assets/logo/mwangaza-logo-inverse.svg" alt="Mwangaza"></div>
+      </div>
+      <figcaption>Verso</figcaption>
+    </figure>
+  </div>
+
+  <div class="legend">
+    <div><b>Un seul format</b>ID-1 partout : cartes des écoles, cartes de visite et badges sortent de la même imprimante à cartes, ou d'une planche A4 à découper.</div>
+    <div><b>Paramètres, pas de code</b>Nom, logo, couleurs, site et téléphone viennent des paramètres de la plateforme ; nom, fonction et photo, du compte de l'équipe (console).</div>
+    <div><b>Badge vérifiable</b>Le QR mène à une page publique qui ne montre que nom, photo, fonction et « actif » ; un badge d'un membre parti s'affiche « n'est plus de l'équipe ».</div>
+  </div>
+  <div class="note">Règles : soleil levant seulement en point (≤ 5 %) ; bleu uniforme en grand fond seulement au verso et en haut du badge ; logo jamais sous 24 px à l'écran ni sous 3,5 mm imprimé, zone de protection = la hauteur du soleil ; QR de la carte de visite = vCard (aucune donnée sur un serveur) ; QR du badge = adresse de vérification à jeton, révocable (tâche de la console à planifier) ; pas de photo réelle dans les maquettes.</div>
+</main>
+</body></html>

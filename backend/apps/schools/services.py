@@ -40,6 +40,11 @@ from apps.schools import (
 )
 from apps.schools.models import Demonstration, School
 
+NOTIFY_BEFORE_LATE = ApiError(
+    "notify_before_late",
+    _("Parents are notified after the arrival deadline: choose a later time."),
+    400,
+)
 LIVE_SPACE = ApiError("live_space", _("A live space is never deleted: stop it instead."), 409)
 # Remplir ou effacer un espace est lourd : un seul à la fois, par un refus (pas de file d'attente).
 SPACE_BUSY = ApiError(
@@ -258,9 +263,13 @@ def update_school(school: School, *, actor, **fields) -> School:
             changed["valid_until"] = changed["valid_until"].isoformat()
         school.settings = {**school.settings, "card": {**school.card, **changed}}
     if (changed := fields.pop("attendance", None)) is not None:
-        if "late_after" in changed:
-            changed["late_after"] = changed["late_after"].strftime("%H:%M")
-        school.settings = {**school.settings, "attendance": {**school.attendance, **changed}}
+        for name in ("late_after", "notify_at"):
+            if name in changed:
+                changed[name] = changed[name].strftime("%H:%M")
+        merged = {**school.attendance, **changed}
+        if merged["notify_at"] <= merged["late_after"]:
+            raise BusinessError(NOTIFY_BEFORE_LATE)
+        school.settings = {**school.settings, "attendance": merged}
     for field, value in fields.items():
         setattr(school, field, "" if field in FILE_FIELDS and value is None else value)
     return save_school(school, actor=actor)
