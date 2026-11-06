@@ -4,7 +4,7 @@
 
 ## Parties (une conversation chacune)
 - [x] ① Maquettes du lot ; serveur des 5 tâches : PDF et notification des épreuves, lecture enseignant et Portail ; `LessonException`, calcul du mois, fiche PDF, export Excel ; usages `course_grid_from_pdf`, `assistant`, `drafting` — **Opus**
-- [ ] ② Écrans : horaire des épreuves, heures prestées, grille depuis un bulletin, assistant, brouillon IA — Sonnet
+- [x] ② Écrans : horaire des épreuves, heures prestées, grille depuis un bulletin, assistant, brouillon IA — Sonnet
 - [ ] ③ Fin du lot : captures 390 / 1440, définition de « fini », `/verifier`, tous les `.md`, aide, PR — Sonnet
 
 ## Décisions (regard senior)
@@ -14,6 +14,8 @@
 - EDT.6 : on ne note que les exceptions ; total calculé à la demande (agrégats par version de l'horaire et jours de cours du mois, `SchoolEvent` congés retirés), jamais stocké. Nouveau droit `timetable.record_exceptions`.
 
 - ① fait (2026-11-06) : `exams.upcoming` / `pages` (+ `/api/timetable/exams/<p>/print/`), `exams` dans `/api/timetable/mine/` et l'horaire d'un enfant, notification = sorte `timetable_published` (qui coupe l'une coupe l'autre) ; `timetable/worked.py` + `/api/timetable/worked/` (`day/`, `exceptions/`, `…/cancel/`, `sheet/`, `export/`), un cours commun = une heure, versions par jour ; `ai/questions.py`, `drafting.py`, `course_grid.py` + `/api/ai/questions|drafts|course-grid/` ; socle : pièce jointe hors file (`ai-uploads/`, effacée après l'appel, purge), comptage exact des jetons avant un fichier (gratuit), `daily_limit` par usage (console). Assistant : impayés, encaissements, effectifs, charges (résultats et absences avec le lot 10). Démo : épreuves de la période en cours (à venir), 4 exceptions récentes. Pour ② : console (champ « par jour »), libellés `kind`, menu « Heures prestées » (droit `timetable.record_exceptions`). Pour ③ : `04`, spec EDT § 12, `reference.md`, `07` § 4, À valider (sorte de notification partagée, liste de l'assistant, appréciations reportées).
+
+- ② fait (2026-11-06) : menu « Horaire des épreuves » (`timetable.manage`) et « Heures prestées » (`timetable.record_exceptions`) ; `useAiCall` (un clic = un appel, lecture toutes les 2 s) ; bouton « Question » dans la barre du haut (panneau, conversation gardée dans l'onglet) ; « Brouillon IA » dans annonces et convocations ; « Lire un bulletin » dans Cours et maxima ; épreuves à venir dans « Mon horaire » et le Portail. Les surveillants et remplaçants se choisissent parmi les enseignants ayant des cours (liste `timetable/courses`). Reste pour ③ : captures (ajouter les écrans à `apercu/ecrans.spec.ts`), articles d'aide, docs.
 
 ## Hors périmètre
 Appel en classe (V1.5), absences dans l'assistant (lot 10), calcul de la paie (lot 12).

@@ -33,6 +33,7 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { type Draft, DraftButton, DraftPanel, useCanDraft } from "../ai/DraftAssist";
 import { applyServerErrors, errorMessage } from "../../lib/errors";
 import { fullName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
@@ -147,6 +148,8 @@ function NewAnnouncementCard() {
   const [general, setGeneral] = useState<string | null>(null);
   const [done, setDone] = useState<Audience | null>(null);
   const [preview, setPreview] = useState(false);
+  const [drafting, setDrafting] = useState(false);
+  const canDraft = useCanDraft();
   const fileInput = useRef<HTMLInputElement>(null);
   const years = useYears();
   const currentYear = years.data?.find((year) => year.is_current);
@@ -164,6 +167,16 @@ function NewAnnouncementCard() {
     form.setValue("class_groups", next, { shouldValidate: form.formState.isSubmitted });
   const setFile = (file: File | null) =>
     form.setValue("attachment", file, { shouldValidate: true });
+  const applyDraft = (draft: Draft, mode: "replace" | "append") => {
+    const join = (current: string, added: string) =>
+      current.trim() ? `${current.trimEnd()}\n\n${added}` : added;
+    const options = { shouldValidate: true, shouldDirty: true };
+    if (mode === "replace" || !form.getValues("title").trim()) {
+      form.setValue("title", draft.title, options);
+    }
+    const body = mode === "replace" ? draft.body : join(form.getValues("body"), draft.body);
+    form.setValue("body", body, options);
+  };
   const onSubmit = form.handleSubmit((value) => {
     setGeneral(null);
     setDone(null);
@@ -190,11 +203,19 @@ function NewAnnouncementCard() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-wrap gap-2">
         <CardTitle>{t("announcements.new")}</CardTitle>
+        {canDraft && <DraftButton onClick={() => setDrafting(true)} />}
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={(event) => void onSubmit(event)} noValidate>
+          {drafting && (
+            <DraftPanel
+              kinds={["announcement", "payment_reminder"]}
+              onUse={applyDraft}
+              onClose={() => setDrafting(false)}
+            />
+          )}
           {done && (
             <Banner tone="ok">
               {t(done === "staff" ? "announcements.publishedStaff" : "announcements.published")}

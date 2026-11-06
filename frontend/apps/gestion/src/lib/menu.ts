@@ -94,6 +94,20 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "EDT.2a",
       },
       {
+        key: "examSchedule",
+        path: "exam-schedule",
+        icon: "calendar",
+        permissions: ["timetable.manage"],
+        task: "EDT.5b",
+      },
+      {
+        key: "workedHours",
+        path: "worked-hours",
+        icon: "clock",
+        permissions: ["timetable.record_exceptions"],
+        task: "EDT.6",
+      },
+      {
         key: "myTimetable",
         path: "my-timetable",
         icon: "clock",

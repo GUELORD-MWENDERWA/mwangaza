@@ -26,6 +26,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { DraftButton, DraftPanel, useCanDraft } from "../ai/DraftAssist";
 import { applyServerErrors, errorMessage, firstErrorMessage } from "../../lib/errors";
 import { studentName } from "../../lib/people";
 import { useCurrentSchool } from "../../lib/school";
@@ -116,6 +117,8 @@ function NewSummonsCard() {
   const [search, setSearch] = useState("");
   const [general, setGeneral] = useState<string | null>(null);
   const [done, setDone] = useState<Summons | null>(null);
+  const [drafting, setDrafting] = useState(false);
+  const canDraft = useCanDraft();
   const settled = useSettled(search.trim());
   const found = useStudentSearch(chosen ? "" : settled);
   const issue = useIssue();
@@ -152,11 +155,29 @@ function NewSummonsCard() {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex-wrap gap-2">
         <CardTitle>{t("summons.new")}</CardTitle>
+        {canDraft && <DraftButton onClick={() => setDrafting(true)} />}
       </CardHeader>
       <CardContent>
         <form className="flex flex-col gap-4" onSubmit={(event) => void onSubmit(event)} noValidate>
+          {drafting && (
+            <DraftPanel
+              kinds={["summons"]}
+              onUse={(draft, mode) => {
+                const current = form.getValues("reason");
+                const body =
+                  mode === "append" && current.trim()
+                    ? `${current.trimEnd()}\n\n${draft.body}`
+                    : draft.body;
+                form.setValue("reason", body.slice(0, 500), {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              }}
+              onClose={() => setDrafting(false)}
+            />
+          )}
           {done && (
             <Banner tone="ok">
               {t("summons.issued", { name: done.student.full_name })}{" "}

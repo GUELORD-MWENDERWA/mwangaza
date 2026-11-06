@@ -30,6 +30,7 @@ import { NotificationBell } from "../notifications/NotificationBell";
 import { PlatformNewsBanner } from "../platform-news/PlatformNewsBanner";
 import { PlatformNewsLink } from "../platform-news/PlatformNewsLink";
 import { useKeepMyTimetable } from "../timetable/mine";
+import { QuestionButton } from "../ai/QuestionPanel";
 import { SearchPalette } from "./SearchPalette";
 import { PinBanner } from "./PinBanner";
 import { Nav, SchoolSwitcher, Sidebar } from "./Sidebar";
@@ -88,6 +89,7 @@ function TopBar({ me }: { me: Me }) {
       <MobileMenu me={me} />
       {can(me, ["students.view"]) && <SearchPalette />}
       <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-xs" />
+      <QuestionButton />
       <NotificationBell />
       <HelpMenu />
       <Link

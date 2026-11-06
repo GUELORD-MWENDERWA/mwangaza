@@ -4,6 +4,8 @@ import {
   Button,
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
   isoWeekday,
   PageHeader,
   Segmented,
@@ -99,6 +101,45 @@ export function MyTimetablePage() {
         <StateCard icon="calendar" tone="gray" title={t("timetable.mine.emptyTitle")}>
           {t(version ? "timetable.mine.emptyLessons" : "timetable.mine.emptyText")}
         </StateCard>
+      )}
+      {data && data.exams.length > 0 && view === "mine" && (
+        <Card data-guide="mytimetable-exams">
+          <CardHeader>
+            <CardTitle>{t("timetable.mine.exams.title")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="flex list-none flex-col divide-y divide-line-soft p-0">
+              {data.exams.map((exam, index) => (
+                <li key={index} className="flex gap-4 py-3">
+                  <time className="w-28 shrink-0 text-sm tabular-nums">
+                    <b className="block">{formatDay(exam.date, i18n.language)}</b>
+                    {exam.start.slice(0, 5)}–{exam.end.slice(0, 5)}
+                  </time>
+                  <div className="min-w-0 text-sm">
+                    <b className="break-words">
+                      {exam.invigilating
+                        ? t("timetable.mine.exams.watch")
+                        : `${exam.course} · ${t(`timetable.mine.exams.${exam.kind}`)}`}
+                    </b>
+                    <span className="block break-words text-ink-3">
+                      {[
+                        exam.invigilating ? exam.course : null,
+                        exam.class_group,
+                        exam.room,
+                        exam.invigilating
+                          ? t("timetable.mine.exams.you")
+                          : exam.invigilator &&
+                            t("timetable.mine.exams.invigilator", { name: exam.invigilator }),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
       )}
       {data && version && showing.length > 0 && (
         <>
