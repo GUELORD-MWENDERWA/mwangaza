@@ -6,6 +6,7 @@ import type { RouteObject } from "react-router";
 import { AccountPage } from "./features/account/AccountPage";
 import { AccountTwoFactorPage } from "./features/account/AccountTwoFactorPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
+import { CardsPage } from "./features/cards/CardsPage";
 import { CalendarPage } from "./features/calendar/CalendarPage";
 import { StaffNewsPage } from "./features/staff-news/StaffNewsPage";
 import { SummonsPage } from "./features/summons/SummonsPage";
@@ -96,6 +97,7 @@ import { MENU_ITEMS, type MenuItem, type MenuKey } from "./lib/menu";
 const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   dashboard: <DashboardPage />,
   students: <StudentsPage />,
+  cards: <CardsPage />,
   courses: <CoursesPage />,
   teachingLoads: <TeachingLoadsPage />,
   timeGrid: <TimeGridPage />,
