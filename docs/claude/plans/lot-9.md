@@ -5,7 +5,7 @@
 ## Parties (une conversation chacune)
 - [x] ① Maquettes du lot ; serveur des 5 tâches : PDF et notification des épreuves, lecture enseignant et Portail ; `LessonException`, calcul du mois, fiche PDF, export Excel ; usages `course_grid_from_pdf`, `assistant`, `drafting` — **Opus**
 - [x] ② Écrans : horaire des épreuves, heures prestées, grille depuis un bulletin, assistant, brouillon IA — Sonnet
-- [ ] ③ Fin du lot : captures 390 / 1440, définition de « fini », `/verifier`, tous les `.md`, aide, PR — Sonnet
+- [x] ③ Fin du lot : captures 390 / 1440, définition de « fini », `/verifier`, tous les `.md`, aide, PR — Sonnet
 
 ## Décisions (regard senior)
 - IA.3 : l'IA ne reçoit **aucune donnée d'élève** ; elle traduit la question en une requête d'une liste fermée (impayés, encaissements, effectifs, charge des enseignants ; résultats d'une période avec le lot 10), JSON vérifié par schéma ; le **code** calcule avec les permissions de la personne et rend chiffres + lien vers l'écran. Un appel court par question, aucune injection possible par les données. Absences : avec le lot 10 (présences pas encore faites). Limites : questions par personne et par jour, 3 questions d'avant en contexte (console).

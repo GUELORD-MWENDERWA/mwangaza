@@ -85,7 +85,7 @@ function TopBar({ me }: { me: Me }) {
   const { t } = useTranslation();
   const roleLine = useRoleLine(me);
   return (
-    <header className="flex h-14 items-center gap-2.5 border-b border-line bg-card/90 px-3 backdrop-blur min-[900px]:h-16 min-[900px]:gap-4 min-[900px]:px-8">
+    <header className="flex h-14 items-center gap-1.5 border-b border-line bg-card/90 px-3 backdrop-blur min-[900px]:h-16 min-[900px]:gap-4 min-[900px]:px-8">
       <MobileMenu me={me} />
       {can(me, ["students.view"]) && <SearchPalette />}
       <SyncMenu className="max-[899px]:px-[9px] max-[899px]:py-[5px] max-[899px]:text-xs" />
