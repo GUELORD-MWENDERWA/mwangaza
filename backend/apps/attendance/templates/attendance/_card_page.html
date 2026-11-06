@@ -1,0 +1,10 @@
+{% load i18n %}{% comment %}Une page de cartes : `faces` (une seule en format carte), `side` = front ou back. Une case vide (None) garde la place d'une carte sur la planche des versos.{% endcomment %}<section class="{% if layout == 'sheet' %}grid{% endif %}">{% for face in faces %}<div class="slot">{% if face %}{% if side == "front" %}<div class="idc">
+  <div class="head">{% if logo %}<img src="{{ logo }}" alt="">{% else %}<span class="logo">{{ school_name|slice:":4"|upper }}</span>{% endif %}<b>{{ school_name }}</b></div>
+  <div class="body"><div class="photo">{% if face.photo %}<img src="{{ face.photo }}" alt="">{% else %}{{ face.initials }}{% endif %}</div><div class="who"><b>{{ face.name }}</b>{% if face.line %}<span>{{ face.line }}</span>{% endif %}{% if face.number %}<span>{% blocktranslate with number=face.number %}Student number {{ number }}{% endblocktranslate %}</span>{% endif %}</div></div>
+  <div class="foot">{{ face.kind }}</div>
+</div>{% else %}<div class="idc back">
+  <div class="band"></div>
+  <img class="qr" src="{{ face.qr }}" alt="">
+  <p>{{ back_text }}</p>
+  <small>{% blocktranslate with date=face.valid_until|date:"d/m/Y" %}Valid until {{ date }}{% endblocktranslate %} · •••• {{ face.last4 }}</small>
+</div>{% endif %}{% endif %}</div>{% endfor %}</section>

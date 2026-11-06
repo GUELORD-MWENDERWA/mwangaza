@@ -1,0 +1,33 @@
+"""Réglages des cartes et des présences (lot 10) : `School.settings["card"]` (modèle de carte) et
+`School.settings["attendance"]` (heure limite d'arrivée). Jamais dans le code : chaque école les
+règle dans ses paramètres.
+
+Carte : `color` vide = couleur de l'école ; `back_text` vide = texte par défaut au nom de l'école ;
+`valid_until` vide = dernier jour de l'année scolaire en cours.
+"""
+
+from datetime import time
+
+CARD_DEFAULTS = {"color": "", "back_text": "", "valid_until": None}
+ATTENDANCE_DEFAULTS = {"late_after": "07:45"}
+
+
+def card_settings(settings: dict) -> dict:
+    return {**CARD_DEFAULTS, **(settings or {}).get("card", {})}
+
+
+def attendance_settings(settings: dict) -> dict:
+    return {**ATTENDANCE_DEFAULTS, **(settings or {}).get("attendance", {})}
+
+
+def late_after(settings: dict) -> time:
+    """Heure au-delà de laquelle un passage à l'entrée est un retard."""
+    return time.fromisoformat(attendance_settings(settings)["late_after"])
+
+
+def journal_fields(settings: dict) -> dict:
+    """Réglages à plat pour le journal de l'école (`card_color`, `attendance_late_after`)."""
+    return {
+        **{f"card_{name}": value for name, value in card_settings(settings).items()},
+        **{f"attendance_{name}": value for name, value in attendance_settings(settings).items()},
+    }

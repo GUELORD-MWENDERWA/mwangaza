@@ -199,6 +199,32 @@ class ReminderSettingsSerializer(serializers.Serializer):
     )
 
 
+class CardSettingsSerializer(serializers.Serializer):
+    """Modèle de carte (`attendance.py`, lot 10). Écriture partielle : les autres restent."""
+
+    color = serializers.RegexField(
+        r"^(#[0-9A-Fa-f]{6})?$",
+        allow_blank=True,
+        help_text="Couleur de l'en-tête de la carte `#RRGGBB` ; vide : couleur de l'école.",
+    )
+    back_text = serializers.CharField(
+        max_length=240,
+        allow_blank=True,
+        help_text="Texte du verso ; vide : « Cette carte est personnelle… » au nom de l'école.",
+    )
+    valid_until = serializers.DateField(
+        allow_null=True, help_text="Fin de validité ; vide : dernier jour de l'année en cours."
+    )
+
+
+class AttendanceSettingsSerializer(serializers.Serializer):
+    """Présences (`attendance.py`, lot 10). Écriture partielle : les autres restent."""
+
+    late_after = serializers.TimeField(
+        format="%H:%M", help_text="Heure limite d'arrivée ; un passage après est un retard."
+    )
+
+
 class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
     """Informations publiques de l'école : écran de connexion (nom, couleur, logo) ; fuseau et
     devises pour les écrans (dates, montants)."""
@@ -251,6 +277,19 @@ class CurrentSchoolSerializer(_LogoMixin, serializers.ModelSerializer):
         return ReceiptSettingsSerializer(receipts.receipt_settings(school.settings)).data
 
 
+# Réglages rangés dans `School.settings` (et non des champs de l'école).
+SECTIONS = (
+    "receipt",
+    "alerts",
+    "reminders",
+    "portal",
+    "grading",
+    "pass_rules",
+    "card",
+    "attendance",
+)
+
+
 class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     """Paramètres de l'école (M5). Le code (adresse) ne change que par le support Mwangaza."""
 
@@ -275,6 +314,8 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
     portal = PortalSettingsSerializer(required=False)
     grading = GradingSettingsSerializer(required=False)
     pass_rules = PassRulesSettingsSerializer(required=False)
+    card = CardSettingsSerializer(required=False)
+    attendance = AttendanceSettingsSerializer(required=False)
     pass_rule_presets = serializers.SerializerMethodField(
         help_text="Préréglages des règles de délibération (« courant », « réseau catholique »)."
     )
@@ -308,6 +349,8 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
             "grading",
             "pass_rules",
             "pass_rule_presets",
+            "card",
+            "attendance",
         ]
         read_only_fields = ["code"]
 
@@ -337,6 +380,8 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         "portal": "settings.portal",
         "grading": "settings.grading",
         "pass_rules": "settings.pass_rules",
+        "card": "settings.card",
+        "attendance": "settings.attendance",
     }
 
     def get_fields(self):
@@ -353,7 +398,7 @@ class SchoolSettingsSerializer(_LogoMixin, serializers.ModelSerializer):
         # l'école, couleur écrite `#RRGGBB`.
         school = copy(self.instance)
         for field, value in data.items():
-            if field not in ("receipt", "alerts", "reminders", "portal", "grading", "pass_rules"):
+            if field not in SECTIONS:
                 setattr(school, field, value)
         try:
             school.clean()

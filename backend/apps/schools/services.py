@@ -27,6 +27,7 @@ from apps.core.models import DemoRequest
 from apps.core.tenancy import use_school
 from apps.schools import (
     alerts,
+    attendance,
     deletion,
     exports,
     grading,
@@ -214,6 +215,7 @@ def _settings_fields(settings: dict) -> dict:
         **portal.journal_fields(settings),
         **grading.journal_fields(settings),
         **pass_rules.journal_fields(settings),
+        **attendance.journal_fields(settings),
     }
 
 
@@ -229,8 +231,9 @@ FILE_FIELDS = {
 def update_school(school: School, *, actor, **fields) -> School:
     """Paramètres de l'école (M5) ou administration : champs déjà vérifiés. `logo=None` retire
     le logo (de même pour le cachet et la signature du chef, DOC.1) ; `receipt`, `alerts`,
-    `reminders`, `portal`, `grading`, `pass_rules` : réglages du reçu, seuils d'alerte, relances aux
-    parents, portail, saisie des points ou règles de réussite à changer, les autres restent."""
+    `reminders`, `portal`, `grading`, `pass_rules`, `card`, `attendance` : réglages du reçu, seuils
+    d'alerte, relances aux parents, portail, saisie des points, règles de réussite, modèle de carte
+    ou présences à changer, les autres restent."""
     if (receipt := fields.pop("receipt", None)) is not None:
         school.settings = {**school.settings, "receipt": {**school.receipt, **receipt}}
     if (changed := fields.pop("alerts", None)) is not None:
@@ -250,6 +253,14 @@ def update_school(school: School, *, actor, **fields) -> School:
         school.settings = {**school.settings, "grading": {**school.grading, **changed}}
     if (changed := fields.pop("pass_rules", None)) is not None:
         school.settings = {**school.settings, "pass_rules": {**school.pass_rules, **changed}}
+    if (changed := fields.pop("card", None)) is not None:
+        if changed.get("valid_until") is not None:
+            changed["valid_until"] = changed["valid_until"].isoformat()
+        school.settings = {**school.settings, "card": {**school.card, **changed}}
+    if (changed := fields.pop("attendance", None)) is not None:
+        if "late_after" in changed:
+            changed["late_after"] = changed["late_after"].strftime("%H:%M")
+        school.settings = {**school.settings, "attendance": {**school.attendance, **changed}}
     for field, value in fields.items():
         setattr(school, field, "" if field in FILE_FIELDS and value is None else value)
     return save_school(school, actor=actor)

@@ -548,6 +548,7 @@ export const en: Messages<typeof fr> = {
       finance: "Finance",
       administration: "Administration",
       teaching: "Teaching",
+      attendance: "Attendance",
     },
     codes: {
       students: {
@@ -587,6 +588,12 @@ export const en: Messages<typeof fr> = {
         publish: "Publish the timetable: the draft becomes the school's timetable",
         record_exceptions:
           "Record lessons not given, replacements and extra lessons; hours worked sheet",
+      },
+      attendance: {
+        cards: "Issue, print and revoke the cards of students and staff",
+        scan: "Record arrivals at the entrance (scan the cards)",
+        view: "View attendance, absences and reports",
+        correct: "Correct attendance and handle absence notes",
       },
       grades: {
         enter: "Enter the grades of one's courses and of one's homeroom class",
@@ -3470,8 +3477,13 @@ export const en: Messages<typeof fr> = {
       support: "Support",
       devices: "Devices",
       timetable: "Timetable",
+      attendance: "Attendance",
     },
     actions: {
+      attendance: {
+        card_issued: "Card issued",
+        card_revoked: "Card revoked",
+      },
       legal: { accepted: "Terms accepted" },
       contract: { activated: "Contract started" },
       announcements: {
@@ -4412,6 +4424,7 @@ export const en: Messages<typeof fr> = {
           schedule: "custom schedule",
           portal: "parent account activated",
           grades: "grades",
+          attendance: "arrivals at the entrance",
         },
         offline:
           "Synchronise the cash registers first: a payment collected offline for one of these students would be refused when sent.",
@@ -6610,6 +6623,7 @@ export const en: Messages<typeof fr> = {
         academics: "Courses, grades and report cards",
         ai: "AI assistance",
         timetable: "Timetable",
+        attendance: "Cards and attendance",
       },
       modulesNeeds: "Needs: {{modules}}.",
       forfait: {

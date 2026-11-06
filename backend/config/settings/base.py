@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "apps.portal",
     "apps.academics",
     "apps.timetable",
+    "apps.attendance",
     "apps.ai",
     "apps.billing",
 ]

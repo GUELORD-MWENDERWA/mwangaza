@@ -52,6 +52,10 @@ PERMISSIONS: dict[str, Promise] = {
     "timetable.record_exceptions": _(
         "Record lessons not given, replacements and extra lessons (hours worked)"
     ),
+    "attendance.cards": _("Issue, print and revoke the cards of students and staff"),
+    "attendance.scan": _("Record arrivals at the entrance (scan the cards)"),
+    "attendance.view": _("View attendance, absences and their reports"),
+    "attendance.correct": _("Correct attendance and accept or refuse absence notes"),
     "ai.use": _("Use the AI assistance"),
     "announcements.publish": _("Publish announcements"),
     "audit.view": _("View the audit log"),
@@ -94,6 +98,12 @@ TIMETABLE_PUBLISH = "timetable.publish"
 # Noter les heures non données, les remplacements et les heures en plus ; fiche du mois (EDT.6).
 TIMETABLE_RECORD_EXCEPTIONS = "timetable.record_exceptions"
 ANNOUNCEMENTS_PUBLISH = "announcements.publish"
+# Présences (lot 10) : cartes (émettre, imprimer, révoquer), pointage à l'entrée, suivi et rapports,
+# corrections et justifications des absences.
+ATTENDANCE_CARDS = "attendance.cards"
+ATTENDANCE_SCAN = "attendance.scan"
+ATTENDANCE_VIEW = "attendance.view"
+ATTENDANCE_CORRECT = "attendance.correct"
 # Lire le journal d'audit de l'école (M6).
 AUDIT_VIEW = "audit.view"
 # Abonnement de l'école à la plateforme : contrat, factures, solde, demande de module (ABO.4).
@@ -184,6 +194,10 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "timetable.manage",
             "timetable.publish",
             "timetable.record_exceptions",
+            "attendance.cards",
+            "attendance.scan",
+            "attendance.view",
+            "attendance.correct",
             "announcements.publish",
             "audit.view",
             "billing.view",
@@ -202,6 +216,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "timetable.manage",
             "timetable.publish",
             "timetable.record_exceptions",
+            "attendance.view",
             "announcements.publish",
         ),
     ),
@@ -213,6 +228,10 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "discipline.override",
             "students.view",
             "timetable.record_exceptions",
+            "attendance.cards",
+            "attendance.scan",
+            "attendance.view",
+            "attendance.correct",
             "announcements.publish",
         ),
     ),
@@ -248,6 +267,8 @@ STARTER_ROLES: dict[str, StarterRole] = {
             "students.view",
             "students.edit",
             "students.import",
+            "attendance.cards",
+            "attendance.scan",
             "grades.enter_any",
             "announcements.publish",
         ),
@@ -257,6 +278,7 @@ STARTER_ROLES: dict[str, StarterRole] = {
         (
             "students.view",
             "finance.view_reports",
+            "attendance.view",
             "finance.approve_expense",
             "finance.cancel_expense",
             "audit.view",

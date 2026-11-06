@@ -1,0 +1,33 @@
+{% load i18n %}{% get_current_language as language %}{% comment %}Cartes d'élève et du personnel (6.1) : début du document (styles) ; chaque page vient de `_card_page.html`. Format carte bancaire 85,6 × 54 mm ; `layout` = `sheet` (planche A4 de 10, recto puis verso) ou `card` (une face par page, imprimante à cartes). Couleur de l'en-tête : modèle de carte de l'école.{% endcomment %}<!doctype html>
+<html lang="{{ language }}">
+<head>
+<meta charset="utf-8">
+<title>{% translate "Cards" %}</title>
+<style>
+{% if layout == "card" %}@page { size: 85.6mm 54mm; margin: 0; }{% else %}@page { size: A4 portrait; margin: 13.5mm 19.4mm; }{% endif %}
+* { box-sizing: border-box; }
+body { margin: 0; color: #101828; font-family: "Atkinson Hyperlegible Next", "DejaVu Sans", Arial, sans-serif; font-size: 7.5pt; line-height: 1.25; }
+.next { break-before: page; }
+.grid { display: grid; grid-template-columns: 85.6mm 85.6mm; grid-auto-rows: 54mm; }
+.slot { width: 85.6mm; height: 54mm; overflow: hidden; }
+/* Marques de coupe : un filet fin et clair autour de chaque carte de la planche. */
+.grid .slot { outline: .2pt dashed #A9B4C4; outline-offset: -.1pt; }
+.idc { width: 85.6mm; height: 54mm; display: flex; flex-direction: column; overflow: hidden; background: #fff; }
+.head { background: {{ color }}; color: {{ text_color }}; display: flex; align-items: center; gap: 2.5mm; padding: 2mm 3.5mm; height: 11mm; }
+.head img, .head .logo { width: 7mm; height: 7mm; object-fit: contain; background: #fff; border-radius: 1.2mm; flex: none; }
+.head .logo { color: #1A2F80; font-weight: 700; font-size: 6pt; display: flex; align-items: center; justify-content: center; }
+.head b { font-size: 8pt; line-height: 1.15; }
+.body { flex: 1; display: flex; align-items: center; gap: 3mm; padding: 2.5mm 3.5mm; min-height: 0; }
+.photo { width: 17mm; height: 21mm; border-radius: 1.5mm; background: #E2EAF7; color: #14245F; font-weight: 700; font-size: 11pt; display: flex; align-items: center; justify-content: center; flex: none; overflow: hidden; }
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.who b { display: block; font-size: 9pt; text-transform: uppercase; margin-bottom: .6mm; }
+.who span { display: block; }
+.foot { background: #FFF0D9; padding: 1.4mm 3.5mm; font-weight: 700; font-size: 6.8pt; height: 6mm; }
+.back { align-items: center; text-align: center; }
+.band { height: 5mm; background: #1A2F80; width: 100%; flex: none; }
+.qr { width: 24mm; height: 24mm; margin: 2.5mm 0 1.5mm; }
+.back p { margin: 0 5mm; font-size: 6.3pt; }
+.back small { display: block; margin-top: 1mm; font-size: 6pt; color: #5B6475; }
+</style>
+</head>
+<body>

@@ -113,6 +113,9 @@ class Action(models.TextChoices):
     DISCIPLINE_INCIDENT_RECORDED = "discipline.incident_recorded", _("Offence recorded")
     DISCIPLINE_INCIDENT_CANCELLED = "discipline.incident_cancelled", _("Offence cancelled")
     DISCIPLINE_GRADE_OVERRIDDEN = "discipline.grade_overridden", _("Conduct grade corrected")
+    # Cartes (lot 10, 6.1) : chaque carte émise (son jeton n'est jamais noté) et chaque révocation.
+    CARD_ISSUED = "attendance.card_issued", _("Card issued")
+    CARD_REVOKED = "attendance.card_revoked", _("Card revoked")
     # Emploi du temps (EDT.1a) : grilles, salles, grille et salle des classes, règles générales.
     TIME_GRID_CHANGED = "timetable.grid_changed", _("Time grid changed")
     TIME_GRID_DELETED = "timetable.grid_deleted", _("Time grid deleted")

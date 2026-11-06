@@ -1225,6 +1225,336 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
           description: ''
+  /api/attendance/cards/{id}/revoke/:
+    post:
+      operationId: attendance_cards_revoke_create
+      description: 'Carte perdue ou départ : refusée à tous les pointages dès maintenant
+        (au journal).'
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRevokeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CardRevokeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CardRevokeRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/cards/print/:
+    post:
+      operationId: attendance_cards_print_create
+      description: |-
+        Émet une carte pour chaque personne choisie (l'ancienne est remplacée) et prépare le
+        PDF à ouvrir aussitôt à `url` : le jeton du QR n'existe que dans ce PDF, jamais gardé
+        en clair. Au plus 100 cartes à la fois ; planche A4 de 10 ou une carte par page.
+      tags:
+      - attendance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardPrintRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CardPrintRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CardPrintRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardPrintResult'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/cards/print/{batch}/:
+    get:
+      operationId: attendance_cards_print_retrieve
+      description: |-
+        PDF des cartes que l'on vient d'émettre : servi par l'impression en tâche de fond
+        (page d'attente puis PDF) dans les 10 minutes ; ensuite, ou pour un autre compte, 410.
+      parameters:
+      - in: path
+        name: batch
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/cards/staff/:
+    get:
+      operationId: attendance_cards_staff_list
+      description: Personnel actif de l'école avec sa carte (filtres `search` et `card`).
+      parameters:
+      - in: query
+        name: card
+        schema:
+          enum:
+          - active
+          - none
+          type: string
+          minLength: 1
+        description: |-
+          active : avec une carte active ; none : sans carte.
+
+          * `active` - active
+          * `none` - none
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: Élèves d'une classe.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description: Nom ou matricule.
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCardStaffList'
+          description: ''
+  /api/attendance/cards/students/:
+    get:
+      operationId: attendance_cards_students_list
+      description: Élèves inscrits de l'année avec leur carte active et leur dernière
+        carte révoquée.
+      parameters:
+      - in: query
+        name: card
+        schema:
+          enum:
+          - active
+          - none
+          type: string
+          minLength: 1
+        description: |-
+          active : avec une carte active ; none : sans carte.
+
+          * `active` - active
+          * `none` - none
+      - in: query
+        name: class_group
+        schema:
+          type: string
+          format: uuid
+        description: Élèves d'une classe.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: search
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 80
+        description: Nom ou matricule.
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCardStudentList'
+          description: ''
+  /api/attendance/cards/summary/:
+    get:
+      operationId: attendance_cards_summary_retrieve
+      description: 'Compteurs de l''écran « Cartes » : actives, élèves sans carte,
+        perdues cette année.'
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSummary'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+  /api/attendance/roster/:
+    get:
+      operationId: attendance_roster_retrieve
+      description: |-
+        Liste de l'appareil de pointage : élèves inscrits (par pages de 1 000) et personnel,
+        avec l'empreinte de leur carte active et leur matricule (saisie à la main). Rien n'est
+        envoyé si `version` est celle de l'appareil ; une version changée en cours de pages :
+        reprendre depuis la première.
+      parameters:
+      - in: query
+        name: after
+        schema:
+          type: string
+          format: uuid
+        description: '`next` de la page précédente.'
+      - in: query
+        name: version
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 32
+        description: Version déjà sur l'appareil.
+      tags:
+      - attendance
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Roster'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: ''
   /api/audit/:
     get:
       operationId: audit_list
@@ -1301,6 +1631,8 @@ paths:
           - discipline.incident_recorded
           - discipline.incident_cancelled
           - discipline.grade_overridden
+          - attendance.card_issued
+          - attendance.card_revoked
           - timetable.grid_changed
           - timetable.grid_deleted
           - timetable.room_changed
@@ -1470,6 +1802,8 @@ paths:
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
+          * `attendance.card_issued` - Card issued
+          * `attendance.card_revoked` - Card revoked
           * `timetable.grid_changed` - Time grid changed
           * `timetable.grid_deleted` - Time grid deleted
           * `timetable.room_changed` - Room changed
@@ -1583,6 +1917,7 @@ paths:
           - account
           - announcements
           - application
+          - attendance
           - audit
           - auth
           - contract
@@ -1610,6 +1945,7 @@ paths:
           * `account` - account
           * `announcements` - announcements
           * `application` - application
+          * `attendance` - attendance
           * `audit` - audit
           * `auth` - auth
           * `contract` - contract
@@ -1828,6 +2164,8 @@ paths:
           - discipline.incident_recorded
           - discipline.incident_cancelled
           - discipline.grade_overridden
+          - attendance.card_issued
+          - attendance.card_revoked
           - timetable.grid_changed
           - timetable.grid_deleted
           - timetable.room_changed
@@ -1997,6 +2335,8 @@ paths:
           * `discipline.incident_recorded` - Offence recorded
           * `discipline.incident_cancelled` - Offence cancelled
           * `discipline.grade_overridden` - Conduct grade corrected
+          * `attendance.card_issued` - Card issued
+          * `attendance.card_revoked` - Card revoked
           * `timetable.grid_changed` - Time grid changed
           * `timetable.grid_deleted` - Time grid deleted
           * `timetable.room_changed` - Room changed
@@ -2110,6 +2450,7 @@ paths:
           - account
           - announcements
           - application
+          - attendance
           - audit
           - auth
           - contract
@@ -2137,6 +2478,7 @@ paths:
           * `account` - account
           * `announcements` - announcements
           * `application` - application
+          * `attendance` - attendance
           * `audit` - audit
           * `auth` - auth
           * `contract` - contract
@@ -25788,6 +26130,8 @@ components:
       - discipline.incident_recorded
       - discipline.incident_cancelled
       - discipline.grade_overridden
+      - attendance.card_issued
+      - attendance.card_revoked
       - timetable.grid_changed
       - timetable.grid_deleted
       - timetable.room_changed
@@ -25956,6 +26300,8 @@ components:
         * `discipline.incident_recorded` - Offence recorded
         * `discipline.incident_cancelled` - Offence cancelled
         * `discipline.grade_overridden` - Conduct grade corrected
+        * `attendance.card_issued` - Card issued
+        * `attendance.card_revoked` - Card revoked
         * `timetable.grid_changed` - Time grid changed
         * `timetable.grid_deleted` - Time grid deleted
         * `timetable.room_changed` - Room changed
@@ -26907,6 +27253,28 @@ components:
       - sentence
       - rule
       - reason
+    AttendanceSettings:
+      type: object
+      description: 'Présences (`attendance.py`, lot 10). Écriture partielle : les
+        autres restent.'
+      properties:
+        late_after:
+          type: string
+          format: time
+          description: Heure limite d'arrivée ; un passage après est un retard.
+      required:
+      - late_after
+    AttendanceSettingsRequest:
+      type: object
+      description: 'Présences (`attendance.py`, lot 10). Écriture partielle : les
+        autres restent.'
+      properties:
+        late_after:
+          type: string
+          format: time
+          description: Heure limite d'arrivée ; un passage après est un retard.
+      required:
+      - late_after
     AudienceEnum:
       enum:
       - all_families
@@ -27642,6 +28010,256 @@ components:
       - currency
       - total
       - count
+    Card:
+      type: object
+      description: 'Carte, sans jamais son jeton (le serveur ne l''a pas) : ses 4
+        derniers signes.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        last4:
+          type: string
+          readOnly: true
+          title: Last signs of the token
+        issued_at:
+          type: string
+          format: date-time
+          readOnly: true
+        valid_until:
+          type: string
+          format: date
+          readOnly: true
+        revoked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        revoke_reason:
+          allOf:
+          - $ref: '#/components/schemas/RevokeReasonEnum'
+          readOnly: true
+          title: Reason
+      required:
+      - id
+      - last4
+      - issued_at
+      - valid_until
+      - revoked_at
+      - revoke_reason
+    CardPrintRequest:
+      type: object
+      description: |-
+        Une seule façon de choisir : une sélection (`students`, `members`), une classe
+        (`class_group`, avec `missing_only`), ou les personnes sans carte (`missing`).
+      properties:
+        students:
+          type: array
+          items:
+            type: string
+            format: uuid
+          maxItems: 100
+        members:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Membres du personnel (`member` de la liste du personnel).
+          maxItems: 100
+        class_group:
+          type: string
+          format: uuid
+        missing_only:
+          type: boolean
+          default: false
+          description: 'Avec `class_group` : seulement les élèves sans carte.'
+        missing:
+          allOf:
+          - $ref: '#/components/schemas/MissingEnum'
+          description: |-
+            Les 100 premiers sans carte ; `remaining` : les autres.
+
+            * `students` - students
+            * `staff` - staff
+        layout:
+          allOf:
+          - $ref: '#/components/schemas/LayoutEnum'
+          default: sheet
+    CardPrintResult:
+      type: object
+      properties:
+        issued:
+          type: integer
+          description: Cartes émises (les anciennes sont remplacées).
+        remaining:
+          type: integer
+          description: Personnes encore sans carte (`missing`).
+        url:
+          type: string
+          description: Adresse du PDF à ouvrir tout de suite (10 minutes).
+      required:
+      - issued
+      - remaining
+      - url
+    CardRevokeRequest:
+      type: object
+      properties:
+        reason:
+          $ref: '#/components/schemas/ReasonEnum'
+      required:
+      - reason
+    CardSettings:
+      type: object
+      description: 'Modèle de carte (`attendance.py`, lot 10). Écriture partielle
+        : les autres restent.'
+      properties:
+        color:
+          description: 'Couleur de l''en-tête de la carte `#RRGGBB` ; vide : couleur
+            de l''école.'
+          oneOf:
+          - type: string
+            pattern: ^(#[0-9A-Fa-f]{6})?$
+          - type: string
+            maxLength: 0
+        back_text:
+          type: string
+          description: 'Texte du verso ; vide : « Cette carte est personnelle… » au
+            nom de l''école.'
+          maxLength: 240
+        valid_until:
+          type: string
+          format: date
+          nullable: true
+          description: 'Fin de validité ; vide : dernier jour de l''année en cours.'
+      required:
+      - color
+      - back_text
+      - valid_until
+    CardSettingsRequest:
+      type: object
+      description: 'Modèle de carte (`attendance.py`, lot 10). Écriture partielle
+        : les autres restent.'
+      properties:
+        color:
+          description: 'Couleur de l''en-tête de la carte `#RRGGBB` ; vide : couleur
+            de l''école.'
+          oneOf:
+          - type: string
+            pattern: ^(#[0-9A-Fa-f]{6})?$
+          - type: string
+            maxLength: 0
+        back_text:
+          type: string
+          description: 'Texte du verso ; vide : « Cette carte est personnelle… » au
+            nom de l''école.'
+          maxLength: 240
+        valid_until:
+          type: string
+          format: date
+          nullable: true
+          description: 'Fin de validité ; vide : dernier jour de l''année en cours.'
+      required:
+      - back_text
+      - color
+      - valid_until
+    CardStaff:
+      type: object
+      description: Membre du personnel et sa carte (onglet Personnel).
+      properties:
+        card:
+          allOf:
+          - $ref: '#/components/schemas/Card'
+          nullable: true
+          readOnly: true
+          description: Carte active ; null sans carte.
+        last_revoked:
+          allOf:
+          - $ref: '#/components/schemas/Card'
+          nullable: true
+          readOnly: true
+          description: Dernière carte révoquée (perdue, remplacée, départ) ; null
+            sinon.
+        member:
+          type: string
+          format: uuid
+        name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - card
+      - last_revoked
+      - member
+      - name
+      - roles
+    CardStudent:
+      type: object
+      description: Élève inscrit de l'année et sa carte (écran « Cartes », onglet
+        Élèves).
+      properties:
+        card:
+          allOf:
+          - $ref: '#/components/schemas/Card'
+          nullable: true
+          readOnly: true
+          description: Carte active ; null sans carte.
+        last_revoked:
+          allOf:
+          - $ref: '#/components/schemas/Card'
+          nullable: true
+          readOnly: true
+          description: Dernière carte révoquée (perdue, remplacée, départ) ; null
+            sinon.
+        student:
+          type: string
+          format: uuid
+        name:
+          type: string
+        matricule:
+          type: string
+        class_group:
+          type: string
+          format: uuid
+        class_name:
+          type: string
+        photo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Photo seulement avec le consentement.
+      required:
+      - card
+      - last_revoked
+      - student
+      - name
+      - matricule
+      - class_group
+      - class_name
+      - photo
+    CardSummary:
+      type: object
+      properties:
+        students:
+          type: integer
+          description: Élèves inscrits dans l'année en cours.
+        active:
+          type: integer
+          description: Élèves inscrits qui ont une carte active.
+        missing:
+          type: integer
+          description: Élèves inscrits sans carte.
+        lost_this_year:
+          type: integer
+          description: Cartes perdues depuis la rentrée.
+      required:
+      - students
+      - active
+      - missing
+      - lost_this_year
     CashCloseRequest:
       type: object
       properties:
@@ -33456,6 +34074,7 @@ components:
       - account
       - announcements
       - application
+      - attendance
       - audit
       - auth
       - contract
@@ -36612,6 +37231,14 @@ components:
       - paid_at
       - received_at
       - cancelled
+    LayoutEnum:
+      enum:
+      - sheet
+      - card
+      type: string
+      description: |-
+        * `sheet` - A4 sheet of 10
+        * `card` - one card per page
     Left:
       type: object
       properties:
@@ -37372,6 +37999,14 @@ components:
       - topic
       - body
       - created_at
+    MissingEnum:
+      enum:
+      - students
+      - staff
+      type: string
+      description: |-
+        * `students` - students
+        * `staff` - staff
     MissingFieldsEnum:
       enum:
       - last_name
@@ -37472,6 +38107,7 @@ components:
       - communication
       - academics
       - timetable
+      - attendance
       - ai
       - portal
       - notifications
@@ -37483,6 +38119,7 @@ components:
         * `communication` - Announcements
         * `academics` - Courses, grades and report cards
         * `timetable` - Timetable
+        * `attendance` - Cards and attendance
         * `ai` - AI assistance
         * `portal` - Parent portal
         * `notifications` - Notifications and reminders
@@ -37951,6 +38588,56 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CancellationRequest'
+    PaginatedCardStaffList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardStaff'
+    PaginatedCardStudentList:
+      type: object
+      required:
+      - count
+      - next
+      - previous
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardStudent'
     PaginatedCashOutList:
       type: object
       required:
@@ -40496,6 +41183,10 @@ components:
           $ref: '#/components/schemas/GradingSettingsRequest'
         pass_rules:
           $ref: '#/components/schemas/PassRulesSettingsRequest'
+        card:
+          $ref: '#/components/schemas/CardSettingsRequest'
+        attendance:
+          $ref: '#/components/schemas/AttendanceSettingsRequest'
     PatchedStaffUpdateRequest:
       type: object
       description: Rôles et état dans l'école ; noms et téléphone seulement si `account_managed_here`.
@@ -41041,6 +41732,10 @@ components:
       - timetable.manage
       - timetable.publish
       - timetable.record_exceptions
+      - attendance.cards
+      - attendance.scan
+      - attendance.view
+      - attendance.correct
       - ai.use
       - announcements.publish
       - audit.view
@@ -41077,6 +41772,10 @@ components:
         * `timetable.manage` - Configure the timetable: time grids, rooms and rules
         * `timetable.publish` - Publish the timetable
         * `timetable.record_exceptions` - Record lessons not given, replacements and extra lessons (hours worked)
+        * `attendance.cards` - Issue, print and revoke the cards of students and staff
+        * `attendance.scan` - Record arrivals at the entrance (scan the cards)
+        * `attendance.view` - View attendance, absences and their reports
+        * `attendance.correct` - Correct attendance and accept or refuse absence notes
         * `ai.use` - Use the AI assistance
         * `announcements.publish` - Publish announcements
         * `audit.view` - View the audit log
@@ -42826,6 +43525,14 @@ components:
         * `scholarship` - Scholarship
         * `waiver` - Waiver from the head
         * `other` - Other
+    ReasonEnum:
+      enum:
+      - lost
+      - left
+      type: string
+      description: |-
+        * `lost` - lost
+        * `left` - left
     ReasonRequest:
       type: object
       properties:
@@ -42842,6 +43549,7 @@ components:
       - schedule
       - portal
       - grades
+      - attendance
       type: string
       description: |-
         * `payment` - payment
@@ -42849,6 +43557,7 @@ components:
         * `schedule` - schedule
         * `portal` - portal
         * `grades` - grades
+        * `attendance` - attendance
     ReceiptSettings:
       type: object
       description: 'Réglages du reçu (M5, `receipts.py`). Écriture partielle : les
@@ -43300,6 +44009,16 @@ components:
       required:
       - explanation
       - actions
+    RevokeReasonEnum:
+      enum:
+      - lost
+      - replaced
+      - left
+      type: string
+      description: |-
+        * `lost` - Lost
+        * `replaced` - Replaced by a new card
+        * `left` - Left the school
     Role:
       type: object
       description: 'Rôle de l''école : un nom et des permissions.'
@@ -43429,6 +44148,83 @@ components:
         * `computer` - Computer room
         * `sports` - Sports ground
         * `other` - Other
+    Roster:
+      type: object
+      description: Liste gardée par l'appareil de pointage pour décider seul, même
+        sans réseau.
+      properties:
+        version:
+          type: string
+          description: 'À renvoyer : rien n''est envoyé s''il n''a pas changé.'
+        unchanged:
+          type: boolean
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/RosterStudent'
+        staff:
+          type: array
+          items:
+            $ref: '#/components/schemas/RosterStaff'
+          description: Première page seulement.
+        next:
+          type: string
+          format: uuid
+          nullable: true
+          description: Page suivante (`after`).
+      required:
+      - version
+      - unchanged
+      - students
+      - staff
+      - next
+    RosterStaff:
+      type: object
+      properties:
+        member:
+          type: string
+          format: uuid
+        name:
+          type: string
+        card_hash:
+          type: string
+        card_last4:
+          type: string
+      required:
+      - member
+      - name
+      - card_hash
+      - card_last4
+    RosterStudent:
+      type: object
+      properties:
+        student:
+          type: string
+          format: uuid
+        name:
+          type: string
+        matricule:
+          type: string
+        class_name:
+          type: string
+        card_hash:
+          type: string
+          description: Empreinte SHA-256 du jeton ; vide sans carte.
+        card_last4:
+          type: string
+        photo:
+          type: string
+          nullable: true
+          readOnly: true
+          description: Photo seulement avec le consentement.
+      required:
+      - student
+      - name
+      - matricule
+      - class_name
+      - card_hash
+      - card_last4
+      - photo
     Row:
       type: object
       properties:
@@ -44406,6 +45202,10 @@ components:
           readOnly: true
           description: Préréglages des règles de délibération (« courant », « réseau
             catholique »).
+        card:
+          $ref: '#/components/schemas/CardSettings'
+        attendance:
+          $ref: '#/components/schemas/AttendanceSettings'
       required:
       - code
       - name
@@ -44433,6 +45233,8 @@ components:
       - grading
       - pass_rules
       - pass_rule_presets
+      - card
+      - attendance
     SchoolStatusEnum:
       enum:
       - trial

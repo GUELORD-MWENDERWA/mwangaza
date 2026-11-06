@@ -550,6 +550,7 @@ export const fr = {
       finance: "Finances",
       administration: "Administration",
       teaching: "Enseignement",
+      attendance: "Présences",
     },
     codes: {
       students: {
@@ -589,6 +590,12 @@ export const fr = {
         publish: "Publier l'emploi du temps : le brouillon devient celui de l'école",
         record_exceptions:
           "Noter les heures non données, les remplacements et les heures en plus ; fiche des heures prestées",
+      },
+      attendance: {
+        cards: "Émettre, imprimer et révoquer les cartes des élèves et du personnel",
+        scan: "Pointer les arrivées à l'entrée (lire les cartes)",
+        view: "Voir les présences, les absents et les rapports",
+        correct: "Corriger les présences et traiter les justifications d'absence",
       },
       grades: {
         enter: "Saisir les notes de ses cours et de la classe dont on est titulaire",
@@ -3504,8 +3511,13 @@ export const fr = {
       support: "Support",
       devices: "Appareils",
       timetable: "Emploi du temps",
+      attendance: "Présences",
     },
     actions: {
+      attendance: {
+        card_issued: "Carte émise",
+        card_revoked: "Carte révoquée",
+      },
       legal: { accepted: "Conditions acceptées" },
       contract: { activated: "Contrat démarré" },
       announcements: {
@@ -4448,6 +4460,7 @@ export const fr = {
           schedule: "échéancier particulier",
           portal: "compte parent activé",
           grades: "notes",
+          attendance: "passages à l'entrée",
         },
         offline:
           "Synchronisez d'abord les caisses : un paiement encaissé hors ligne pour l'un de ces élèves serait refusé à l'envoi.",
@@ -6671,6 +6684,7 @@ export const fr = {
         academics: "Cours, notes et bulletins",
         ai: "Assistance par l'IA",
         timetable: "Emploi du temps",
+        attendance: "Cartes et présences",
       },
       modulesNeeds: "Nécessite : {{modules}}.",
       forfait: {

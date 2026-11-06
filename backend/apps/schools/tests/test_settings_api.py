@@ -82,6 +82,9 @@ def test_head_reads_the_settings(api, school, head):
         # Règles de délibération : préréglage « courant » (NB.4, Q15), et les deux préréglages.
         "pass_rules": pass_rules.DEFAULTS,
         "pass_rule_presets": pass_rules.PRESETS,
+        # Modèle de carte et heure limite d'arrivée (lot 10) : valeurs de l'école par défaut.
+        "card": {"color": "", "back_text": "", "valid_until": None},
+        "attendance": {"late_after": "07:45"},
     }
 
 
