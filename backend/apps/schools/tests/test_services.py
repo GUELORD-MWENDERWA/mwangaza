@@ -204,7 +204,7 @@ def test_suspension_keeps_everything(platform_admin, school, head):
 
     assert Membership.objects.filter(school=school, user=head, is_active=True).exists()
     with use_school(school):
-        assert Role.objects.count() == 9
+        assert Role.objects.count() == len(STARTER_ROLES)
 
 
 # Logo

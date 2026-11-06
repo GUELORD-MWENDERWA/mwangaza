@@ -12,7 +12,8 @@ geste de trop effacerait une année d'élèves qui n'ont pas encore payé.
 Tout nouveau modèle lié à un élève ou à une inscription s'ajoute ici : aux raisons de garder
 l'élève (`_touches`) ou à ce qui part avec lui (`cancel`). Sinon la base refuse l'annulation.
 Une convocation des parents (5.7) part avec l'élève, par cascade (`Summons.student`). Ses cartes
-(lot 10) partent avec lui ; un passage à l'entrée le garde.
+(lot 10) partent avec lui ; un passage à l'entrée le garde, comme un prêt de livre ou d'outil
+(lot 11).
 """
 
 import logging
@@ -47,6 +48,7 @@ from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
 from apps.finance.models import CreditAllocation, Discount, Payment, StudentCharge, StudentCredit
+from apps.inventory.models import Loan
 from apps.notifications.models import Thread
 from apps.schools.models import AcademicYear
 from apps.students.models import Enrollment, Family, MatriculeSequence, Student, StudentImport
@@ -56,8 +58,8 @@ from apps.sync import changes as sync_changes
 logger = logging.getLogger(__name__)
 
 PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES = "payment", "discount", "schedule", "portal", "grades"
-ATTENDANCE = "attendance"
-REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES, ATTENDANCE)
+ATTENDANCE, LIBRARY = "attendance", "library"
+REASONS = (PAYMENT, DISCOUNT, SCHEDULE, PORTAL, GRADES, ATTENDANCE, LIBRARY)
 # Élèves gardés nommés à l'écran ; au-delà, leur nombre seulement.
 KEPT_SHOWN = 50
 CANCEL_WITHIN = timedelta(days=30)
@@ -137,6 +139,8 @@ def _touches() -> dict[str, tuple[str, Exists]]:
             | Exists(AttendanceCorrection.objects.filter(student=student))
             | Exists(AbsenceJustification.objects.filter(student=student)),
         ),
+        # Prêts de la bibliothèque et des ateliers (lot 11), ouverts ou rendus : leur trace reste.
+        "borrowed": (LIBRARY, Exists(Loan.objects.filter(student=student))),
     }
 
 

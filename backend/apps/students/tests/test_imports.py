@@ -23,6 +23,8 @@ from apps.core.tenancy import use_school
 from apps.finance import services as finance
 from apps.finance.models import Payment, PaymentAllocation, StudentCharge
 from apps.finance.tests.test_payments import pay
+from apps.inventory.catalogue import library, save_item
+from apps.inventory.models import Loan
 from apps.schools.models import School, Term
 from apps.students import import_cancellation, imports, services
 from apps.students.demo import import_rows, import_workbook
@@ -381,6 +383,17 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
             method=AttendanceRecord.Method.MANUAL,
             status=AttendanceRecord.Status.PRESENT,
         )
+        # Un prêt de livre, même rendu, le garde aussi (lot 11).
+        book = save_item(
+            None, actor=head, location=library(), kind="book", name="Physique 3e", copies=1
+        )
+        Loan.objects.create(
+            number=1,
+            copy=book.copies.get(),
+            student=enrollment["Esther"].student,
+            lent_at=timezone.now(),
+            due_on=timezone.localdate(),
+        )
 
     client = api(head)
     path = f"{IMPORTS}{imp.pk}/"
@@ -388,7 +401,7 @@ def test_cancelling_an_import_removes_untouched_students_and_never_touches_money
     assert (preview["removable_count"], preview["kept_count"]) == (2, 4)
     assert {student["first_name"]: student["reasons"] for student in preview["kept"]} == {
         "Daniel": ["payment", "grades"],
-        "Esther": ["discount"],
+        "Esther": ["discount", "library"],
         "Christian": ["schedule", "grades"],
         "Grâce": ["portal", "attendance"],
     }

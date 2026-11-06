@@ -5452,6 +5452,221 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/library/books/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Catalogue : titres de la bibliothèque (recherche dans le titre et l'auteur, catégorie,
+         *     niveau), avec leurs exemplaires en service, disponibles et prêtés.
+         */
+        get: operations["library_books_list"];
+        put?: never;
+        /** @description Nouveau titre, avec `copies` exemplaires numérotés (étiquettes). */
+        post: operations["library_books_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/books/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Un titre et chacun de ses exemplaires : code, état, emprunteur et date de retour. */
+        get: operations["library_books_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Modifier un titre (au journal : ce qui change). */
+        patch: operations["library_books_partial_update"];
+        trace?: never;
+    };
+    "/api/library/books/{id}/copies/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Ajouter des exemplaires à un titre : chacun reçoit le numéro suivant de l'école. */
+        post: operations["library_books_copies_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/desk/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Liste de l'appareil du guichet : exemplaires en service (par pages de 2 000) avec leur
+         *     prêt ouvert, et les règles de prêt. Rien n'est envoyé si `version` est celle de
+         *     l'appareil ; une version changée en cours de pages : reprendre depuis la première.
+         */
+        get: operations["library_desk_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/import/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Import du catalogue depuis Excel (BIB.1). Sans `expected` : aperçu ligne par ligne
+         *     (200), rien n'est écrit. Avec le nombre de lignes prêtes de l'aperçu : titres et
+         *     exemplaires créés d'un bloc (201) ; 409 `preview_outdated` si le résultat a changé.
+         */
+        post: operations["library_import_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/import/template/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Modèle Excel de l'import du catalogue : titre, auteur, ISBN, catégorie, niveau,
+         *     exemplaires, prix.
+         */
+        get: operations["library_import_template_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/loans/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Prêts de la bibliothèque : en cours (par date de retour), en retard, ou rendus (plus
+         *     récents d'abord) ; recherche dans le titre, le nom ou le matricule.
+         */
+        get: operations["library_loans_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/loans/{id}/extend/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Prolonger un prêt en cours de la durée de l'emprunteur, dans la limite des règles. */
+        post: operations["library_loans_extend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/reports/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Constats de perte et d'abîmé, plus récents d'abord, rectifications comprises. */
+        get: operations["library_reports_list"];
+        put?: never;
+        /**
+         * @description Constat : l'exemplaire sort du catalogue, son prêt est fermé ; pour un élève, les frais
+         *     de remplacement (prix du titre par défaut) s'ajoutent à ce qu'il doit, payables à la
+         *     caisse ; le parent est prévenu. Au journal.
+         */
+        post: operations["library_reports_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/reports/{id}/correct/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Rectifier un constat fait par erreur : l'exemplaire revient, la dette encore impayée
+         *     est retirée (409 `charge_paid` sinon : annuler d'abord le paiement). Au journal.
+         */
+        post: operations["library_reports_correct_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/library/rules/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Règles de prêt de l'école (valeurs par défaut tant qu'elle n'a rien changé). */
+        get: operations["library_rules_retrieve"];
+        /** @description Enregistrer les règles de prêt (au journal : ce qui change). */
+        put: operations["library_rules_update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/matricule-format/": {
         parameters: {
             query?: never;
@@ -8882,6 +9097,23 @@ export interface components {
          *     * `attendance.corrected` - Attendance corrected
          *     * `attendance.justification_recorded` - Absence justified by the school
          *     * `attendance.justification_decided` - Absence justification decided
+         *     * `inventory.item_changed` - Catalogue item saved
+         *     * `inventory.copies_added` - Copies added
+         *     * `inventory.imported` - Catalogue imported
+         *     * `inventory.rules_changed` - Lending rules changed
+         *     * `inventory.loan_created` - Item lent
+         *     * `inventory.loan_returned` - Item returned
+         *     * `inventory.loan_extended` - Loan extended
+         *     * `inventory.loss_reported` - Loss or damage reported
+         *     * `inventory.loss_corrected` - Loss report corrected
+         *     * `inventory.stock_movement` - Stock movement
+         *     * `inventory.order_requested` - Materials requested
+         *     * `inventory.order_decided` - Materials request decided
+         *     * `inventory.order_purchased` - Materials purchased
+         *     * `inventory.order_received` - Materials received
+         *     * `inventory.issue_slip` - Materials issued
+         *     * `inventory.stocktake_started` - Stocktake started
+         *     * `inventory.stocktake_validated` - Stocktake validated
          *     * `timetable.grid_changed` - Time grid changed
          *     * `timetable.grid_deleted` - Time grid deleted
          *     * `timetable.room_changed` - Room changed
@@ -8984,7 +9216,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "inventory.item_changed" | "inventory.copies_added" | "inventory.imported" | "inventory.rules_changed" | "inventory.loan_created" | "inventory.loan_returned" | "inventory.loan_extended" | "inventory.loss_reported" | "inventory.loss_corrected" | "inventory.stock_movement" | "inventory.order_requested" | "inventory.order_decided" | "inventory.order_purchased" | "inventory.order_received" | "inventory.issue_slip" | "inventory.stocktake_started" | "inventory.stocktake_validated" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -9478,6 +9710,83 @@ export interface components {
          * @enum {string}
          */
         BoardCourseStatusEnum: "not_started" | "in_progress" | "submitted" | "validated" | "returned";
+        /** @description Titre du catalogue, avec ses exemplaires en service, disponibles et prêtés. */
+        Book: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            author: string;
+            isbn: string;
+            category: string;
+            readonly level: components["schemas"]["LevelRef"] | null;
+            /**
+             * Price
+             * Format: int64
+             */
+            price_minor: number | null;
+            currency: components["schemas"]["CurrencyEnum"] | components["schemas"]["BlankEnum"];
+            reference_only: boolean;
+            /** Active */
+            is_active: boolean;
+            readonly copies_total: number;
+            readonly copies_available: number;
+            readonly copies_lent: number;
+        };
+        /** @description Titre du catalogue, avec ses exemplaires en service, disponibles et prêtés. */
+        BookDetail: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            author: string;
+            isbn: string;
+            category: string;
+            readonly level: components["schemas"]["LevelRef"] | null;
+            /**
+             * Price
+             * Format: int64
+             */
+            price_minor: number | null;
+            currency: components["schemas"]["CurrencyEnum"] | components["schemas"]["BlankEnum"];
+            reference_only: boolean;
+            /** Active */
+            is_active: boolean;
+            readonly copies_total: number;
+            readonly copies_available: number;
+            readonly copies_lent: number;
+            readonly copies: components["schemas"]["Copy"][];
+        };
+        BookWriteRequest: {
+            name: string;
+            author?: string;
+            isbn?: string;
+            category?: string;
+            /** Format: uuid */
+            level?: string | null;
+            /** @description Prix de remplacement, en entiers. */
+            price_minor?: number | null;
+            currency?: components["schemas"]["CurrencyEnum"] | components["schemas"]["BlankEnum"];
+            reference_only?: boolean;
+            is_active?: boolean;
+            /** @description Création seulement : exemplaires à créer. */
+            copies?: number;
+        };
+        Borrower: {
+            kind: components["schemas"]["BorrowerKindEnum"];
+            /**
+             * Format: uuid
+             * @description Élève, ou appartenance du membre du personnel.
+             */
+            id: string;
+            name: string;
+            /** @description Matricule de l'élève ; vide pour le personnel. */
+            number: string;
+        };
+        /**
+         * @description * `student` - Student
+         *     * `staff` - Staff member
+         * @enum {string}
+         */
+        BorrowerKindEnum: "student" | "staff";
         BudgetAmountRequest: {
             /** Format: uuid */
             category: string;
@@ -9990,6 +10299,63 @@ export interface components {
             id?: string;
             /** Format: uuid */
             cash_register: string;
+        };
+        CatalogueImport: {
+            recorded: boolean;
+            ready_count: number;
+            skipped_count: number;
+            error_count: number;
+            lines: components["schemas"]["CatalogueImportLine"][];
+        };
+        CatalogueImportIssue: {
+            code: components["schemas"]["CatalogueImportIssueCodeEnum"];
+            /** @description `duplicate_title` : autre ligne. */
+            line: number;
+            /** @description `unknown_level` : niveau écrit. */
+            level: string;
+        };
+        /**
+         * @description * `missing_title` - Title missing
+         *     * `too_long` - Title or author too long
+         *     * `unknown_level` - Level unknown in this school
+         *     * `invalid_copies` - Number of copies unreadable (1 to 200)
+         *     * `invalid_price` - Price unreadable
+         *     * `duplicate_title` - Same title and author as another line
+         *     * `already_in_catalogue` - Already in the catalogue: left as is
+         * @enum {string}
+         */
+        CatalogueImportIssueCodeEnum: "missing_title" | "too_long" | "unknown_level" | "invalid_copies" | "invalid_price" | "duplicate_title" | "already_in_catalogue";
+        CatalogueImportLine: {
+            line: number;
+            name: string;
+            author: string;
+            copies: number;
+            price_minor: number | null;
+            status: components["schemas"]["CatalogueImportLineStatusEnum"];
+            issues: components["schemas"]["CatalogueImportIssue"][];
+        };
+        /**
+         * @description * `ready` - Ready
+         *     * `skipped` - Skipped
+         *     * `error` - Error
+         * @enum {string}
+         */
+        CatalogueImportLineStatusEnum: "ready" | "skipped" | "error";
+        CatalogueImportUploadRequest: {
+            /**
+             * Format: binary
+             * @description Excel (.xlsx) ou CSV, 3 000 titres au plus.
+             */
+            file: string;
+            /**
+             * @description Devise des prix.
+             *
+             *     * `USD` - US dollar
+             *     * `CDF` - Congolese franc
+             */
+            currency: components["schemas"]["CurrencyEnum"];
+            /** @description Nombre de lignes prêtes de l'aperçu : présent, les titres sont créés. */
+            expected?: number;
         };
         Change: {
             seq: number;
@@ -11699,6 +12065,33 @@ export interface components {
          * @enum {string}
          */
         ContractStatusEnum: "draft" | "active" | "ended";
+        CopiesAddRequest: {
+            count: number;
+        };
+        Copy: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            /** @description Code de l'étiquette : LIV-000414. */
+            readonly code: string;
+            state: components["schemas"]["CopyStateEnum"];
+            readonly loan: components["schemas"]["CopyLoan"] | null;
+        };
+        CopyLoan: {
+            /** Format: uuid */
+            id: string;
+            borrower: components["schemas"]["Borrower"];
+            /** Format: date */
+            due_on: string;
+        };
+        /**
+         * @description * `available` - Available
+         *     * `lent` - Lent
+         *     * `lost` - Lost
+         *     * `withdrawn` - Withdrawn
+         * @enum {string}
+         */
+        CopyStateEnum: "available" | "lent" | "lost" | "withdrawn";
         /** @description Ligne du journal des corrections. */
         Correction: {
             /** Format: uuid */
@@ -12391,6 +12784,26 @@ export interface components {
         };
         /** @enum {string} */
         DemonstrationStateEnum: "filling" | "ready" | "failed" | "resetting";
+        Desk: {
+            version: string;
+            /** @description Vrai : la liste de l'appareil est à jour. */
+            unchanged: boolean;
+            copies: components["schemas"]["DeskCopy"][];
+            /** @description `after` de la page suivante. */
+            next: number | null;
+            rules: components["schemas"]["LendingRules"];
+        };
+        DeskCopy: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            code: string;
+            item: string;
+            author: string;
+            kind: string;
+            reference_only: boolean;
+            readonly loan: components["schemas"]["CopyLoan"] | null;
+        };
         /** @description Un appareil du compte dans l'école (« Appareils connectés » de Mon compte). */
         Device: {
             /** Format: uuid */
@@ -12507,7 +12920,7 @@ export interface components {
             signature: string | null;
         };
         /** @enum {string} */
-        DomainEnum: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+        DomainEnum: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "inventory" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
         Draft: {
             /** Format: uuid */
             readonly id: string;
@@ -14002,6 +14415,42 @@ export interface components {
             body_fr: string;
             body_en: string;
         };
+        /** @description Règles de prêt de l'école (`inventory/rules.py`). */
+        LendingRules: {
+            student_days: number;
+            student_max: number;
+            student_extensions: number;
+            staff_days: number;
+            staff_max: number;
+            staff_extensions: number;
+            /** @description Outil : 0 = rendu le jour même. */
+            tool_days: number;
+            block_if_overdue: boolean;
+            notify_parent: boolean;
+            remind_days_before: number;
+            remind_every_days: number;
+            /** @description Pénalité par jour de retard, en entiers ; 0 = aucune. */
+            late_fee_minor: number;
+            late_fee_currency: components["schemas"]["CurrencyEnum"];
+        };
+        /** @description Règles de prêt de l'école (`inventory/rules.py`). */
+        LendingRulesRequest: {
+            student_days: number;
+            student_max: number;
+            student_extensions: number;
+            staff_days: number;
+            staff_max: number;
+            staff_extensions: number;
+            /** @description Outil : 0 = rendu le jour même. */
+            tool_days: number;
+            block_if_overdue: boolean;
+            notify_parent: boolean;
+            remind_days_before: number;
+            remind_every_days: number;
+            /** @description Pénalité par jour de retard, en entiers ; 0 = aucune. */
+            late_fee_minor: number;
+            late_fee_currency: components["schemas"]["CurrencyEnum"];
+        };
         LessonException: {
             /** Format: uuid */
             readonly id: string;
@@ -14109,6 +14558,11 @@ export interface components {
             /** @description Cours perdus au repêchage qui font doubler. */
             resit_failures_to_fail?: number;
         };
+        LevelRef: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+        };
         LevelReorderRequest: {
             /** @description Tous les niveaux de l'école, dans l'ordre voulu. */
             ids: string[];
@@ -14176,6 +14630,26 @@ export interface components {
             name: string;
             hours: number;
             courses: number;
+        };
+        Loan: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly number: number;
+            code: string;
+            item: string;
+            item_kind: string;
+            readonly borrower: components["schemas"]["Borrower"];
+            /** Format: date-time */
+            lent_at: string;
+            /** Format: date */
+            due_on: string;
+            extensions: number;
+            /** Format: date-time */
+            returned_at: string | null;
+            /** Condition on return */
+            return_condition: components["schemas"]["ReturnConditionEnum"] | components["schemas"]["BlankEnum"];
+            reminders: number;
+            readonly overdue_days: number;
         };
         LoginCodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
@@ -14380,13 +14854,15 @@ export interface components {
          *     * `academics` - Courses, grades and report cards
          *     * `timetable` - Timetable
          *     * `attendance` - Cards and attendance
+         *     * `library` - Library
+         *     * `workshops` - Workshops: stock, orders and tools
          *     * `ai` - AI assistance
          *     * `portal` - Parent portal
          *     * `notifications` - Notifications and reminders
          *     * `offline` - Offline work and synchronisation
          * @enum {string}
          */
-        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "attendance" | "ai" | "portal" | "notifications" | "offline";
+        ModulesEnum: "students" | "finance" | "communication" | "academics" | "timetable" | "attendance" | "library" | "workshops" | "ai" | "portal" | "notifications" | "offline";
         MonthFlow: {
             /**
              * Format: date
@@ -14463,9 +14939,13 @@ export interface components {
          *     * `absence_alert` - Repeated absences
          *     * `justification_sent` - Absence justification received
          *     * `justification_decided` - Answer to a justification
+         *     * `loan` - Book or tool lent
+         *     * `loan_reminder` - Book or tool to bring back
+         *     * `loss_reported` - Lost or damaged item
+         *     * `loans_overdue` - Loans overdue
          * @enum {string}
          */
-        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply" | "possible_duplicate" | "absence" | "absence_alert" | "justification_sent" | "justification_decided";
+        NotificationKindEnum: "test" | "platform_news" | "payment_received" | "announcement" | "cancellation_request" | "cash_difference" | "subscription" | "payment_due" | "payment_overdue" | "register_open" | "staff_announcement" | "summons" | "discipline_incident" | "place_offered" | "sensitive_rights" | "grades_sent" | "grades_returned" | "grades_reminder" | "report_cards_ready" | "grades_validated" | "results_proclaimed" | "results_reopened" | "grades_corrected" | "resits_to_enter" | "course_teacher" | "parent_message" | "school_reply" | "timetable_published" | "ai_credits" | "support_reply" | "possible_duplicate" | "absence" | "absence_alert" | "justification_sent" | "justification_decided" | "loan" | "loan_reminder" | "loss_reported" | "loans_overdue";
         NotificationPreferences: {
             /** @description Clé publique Web Push ; vide : envoi sur l'écran indisponible. */
             readonly vapid_public_key: string;
@@ -14615,6 +15095,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["AuditLog"][];
+        };
+        PaginatedBookList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Book"][];
         };
         PaginatedCancellationRequestList: {
             /** @example 123 */
@@ -14856,6 +15351,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Contract"][];
         };
+        PaginatedCopyList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Copy"][];
+        };
         PaginatedCorrectionList: {
             /** @example 123 */
             count: number;
@@ -15021,6 +15531,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["LessonException"][];
         };
+        PaginatedLoanList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Loan"][];
+        };
         PaginatedModuleRequestList: {
             /** @example 123 */
             count: number;
@@ -15185,6 +15710,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["PortalSummons"][];
+        };
+        PaginatedReportList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["Report"][];
         };
         PaginatedRoleList: {
             /** @example 123 */
@@ -15563,6 +16103,21 @@ export interface components {
             /** Format: int64 */
             monthly_cap_micro?: number;
             hourly_limit?: number;
+        };
+        PatchedBookWriteRequest: {
+            name?: string;
+            author?: string;
+            isbn?: string;
+            category?: string;
+            /** Format: uuid */
+            level?: string | null;
+            /** @description Prix de remplacement, en entiers. */
+            price_minor?: number | null;
+            currency?: components["schemas"]["CurrencyEnum"] | components["schemas"]["BlankEnum"];
+            reference_only?: boolean;
+            is_active?: boolean;
+            /** @description Création seulement : exemplaires à créer. */
+            copies?: number;
         };
         PatchedCashRegisterUpdateRequest: {
             name?: string;
@@ -16390,13 +16945,19 @@ export interface components {
          *     * `attendance.scan` - Record arrivals at the entrance (scan the cards)
          *     * `attendance.view` - View attendance, absences and their reports
          *     * `attendance.correct` - Correct attendance and accept or refuse absence notes
+         *     * `library.manage` - Manage the library: catalogue, labels, lending rules, loss and damage reports
+         *     * `library.lend` - Lend and take back books at the library desk
+         *     * `workshops.manage` - Manage workshop stock: receptions, issue slips and tools lent
+         *     * `workshops.request` - Request materials for a workshop
+         *     * `workshops.approve` - Approve or refuse requests for workshop materials
+         *     * `inventory.validate` - Validate stocktakes and correct a loss report
          *     * `ai.use` - Use the AI assistance
          *     * `announcements.publish` - Publish announcements
          *     * `audit.view` - View the audit log
          *     * `billing.view` - View the subscription, invoices and payments to the platform
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "timetable.record_exceptions" | "attendance.cards" | "attendance.scan" | "attendance.view" | "attendance.correct" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "timetable.record_exceptions" | "attendance.cards" | "attendance.scan" | "attendance.view" | "attendance.correct" | "library.manage" | "library.lend" | "workshops.manage" | "workshops.request" | "workshops.approve" | "inventory.validate" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -17333,6 +17894,26 @@ export interface components {
         ReplyRequest: {
             body: string;
         };
+        Report: {
+            /** Format: uuid */
+            readonly id: string;
+            code: string;
+            item: string;
+            kind: components["schemas"]["ReportKindEnum"];
+            note: string;
+            /**
+             * Amount
+             * Format: int64
+             */
+            amount_minor: number;
+            currency: components["schemas"]["CurrencyEnum"] | components["schemas"]["BlankEnum"];
+            readonly borrower: components["schemas"]["Borrower"] | null;
+            /** Format: uuid */
+            corrects: string | null;
+            readonly corrected: boolean;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
         /** @description Le bulletin de la classe peut-il s'imprimer ? Feuilles de notes pas encore validées. */
         ReportCardStatus: {
             missing_count: number;
@@ -17345,6 +17926,32 @@ export interface components {
             /** Format: uuid */
             enrollment: string;
             name: string;
+        };
+        ReportCorrectionRequest: {
+            /** @description Pourquoi le constat était une erreur. */
+            note: string;
+        };
+        /**
+         * @description * `lost` - Lost
+         *     * `damaged` - Damaged
+         *     * `correction` - Correction
+         * @enum {string}
+         */
+        ReportKindEnum: "lost" | "damaged" | "correction";
+        /**
+         * @description * `lost` - Lost
+         *     * `damaged` - Damaged
+         * @enum {string}
+         */
+        ReportWriteKindEnum: "lost" | "damaged";
+        ReportWriteRequest: {
+            /** Format: uuid */
+            copy: string;
+            kind: components["schemas"]["ReportWriteKindEnum"];
+            note: string;
+            /** @description Frais de remplacement ; absent : prix du titre. */
+            amount_minor?: number;
+            currency?: components["schemas"]["CurrencyEnum"];
         };
         /** @description Échéancier particulier (E4) : les versements remplacent ce qui reste dû pour ce frais. */
         RescheduleRequest: {
@@ -17397,6 +18004,14 @@ export interface components {
             resit_percent: string | null;
             passed: boolean | null;
         };
+        /**
+         * @description * `good` - Good
+         *     * `worn` - Worn
+         *     * `damaged` - Damaged
+         *     * `lost` - Lost
+         * @enum {string}
+         */
+        ReturnConditionEnum: "good" | "worn" | "damaged" | "lost";
         ReviewAction: {
             /** @description `kind:identifiant`, à renvoyer pour appliquer. */
             key: string;
@@ -18601,9 +19216,10 @@ export interface components {
         /**
          * @description * `rule` - Fee rule
          *     * `custom` - Custom schedule
+         *     * `item` - Lost, damaged or late item
          * @enum {string}
          */
-        StudentChargeSourceEnum: "rule" | "custom";
+        StudentChargeSourceEnum: "rule" | "custom" | "item";
         /**
          * @description * `paid` - paid
          *     * `overdue` - overdue
@@ -22330,6 +22946,23 @@ export interface operations {
                  *     * `attendance.corrected` - Attendance corrected
                  *     * `attendance.justification_recorded` - Absence justified by the school
                  *     * `attendance.justification_decided` - Absence justification decided
+                 *     * `inventory.item_changed` - Catalogue item saved
+                 *     * `inventory.copies_added` - Copies added
+                 *     * `inventory.imported` - Catalogue imported
+                 *     * `inventory.rules_changed` - Lending rules changed
+                 *     * `inventory.loan_created` - Item lent
+                 *     * `inventory.loan_returned` - Item returned
+                 *     * `inventory.loan_extended` - Loan extended
+                 *     * `inventory.loss_reported` - Loss or damage reported
+                 *     * `inventory.loss_corrected` - Loss report corrected
+                 *     * `inventory.stock_movement` - Stock movement
+                 *     * `inventory.order_requested` - Materials requested
+                 *     * `inventory.order_decided` - Materials request decided
+                 *     * `inventory.order_purchased` - Materials purchased
+                 *     * `inventory.order_received` - Materials received
+                 *     * `inventory.issue_slip` - Materials issued
+                 *     * `inventory.stocktake_started` - Stocktake started
+                 *     * `inventory.stocktake_validated` - Stocktake validated
                  *     * `timetable.grid_changed` - Time grid changed
                  *     * `timetable.grid_deleted` - Time grid deleted
                  *     * `timetable.room_changed` - Room changed
@@ -22431,7 +23064,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "inventory.item_changed" | "inventory.copies_added" | "inventory.imported" | "inventory.rules_changed" | "inventory.loan_created" | "inventory.loan_returned" | "inventory.loan_extended" | "inventory.loss_reported" | "inventory.loss_corrected" | "inventory.stock_movement" | "inventory.order_requested" | "inventory.order_decided" | "inventory.order_purchased" | "inventory.order_received" | "inventory.issue_slip" | "inventory.stocktake_started" | "inventory.stocktake_validated" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -22450,6 +23083,7 @@ export interface operations {
                  *     * `fee_waiver` - fee_waiver
                  *     * `finance` - finance
                  *     * `grades` - grades
+                 *     * `inventory` - inventory
                  *     * `legal` - legal
                  *     * `organisation` - organisation
                  *     * `portal` - portal
@@ -22461,7 +23095,7 @@ export interface operations {
                  *     * `support` - support
                  *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+                domain?: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "inventory" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description A page number within the paginated result set. */
@@ -22655,6 +23289,23 @@ export interface operations {
                  *     * `attendance.corrected` - Attendance corrected
                  *     * `attendance.justification_recorded` - Absence justified by the school
                  *     * `attendance.justification_decided` - Absence justification decided
+                 *     * `inventory.item_changed` - Catalogue item saved
+                 *     * `inventory.copies_added` - Copies added
+                 *     * `inventory.imported` - Catalogue imported
+                 *     * `inventory.rules_changed` - Lending rules changed
+                 *     * `inventory.loan_created` - Item lent
+                 *     * `inventory.loan_returned` - Item returned
+                 *     * `inventory.loan_extended` - Loan extended
+                 *     * `inventory.loss_reported` - Loss or damage reported
+                 *     * `inventory.loss_corrected` - Loss report corrected
+                 *     * `inventory.stock_movement` - Stock movement
+                 *     * `inventory.order_requested` - Materials requested
+                 *     * `inventory.order_decided` - Materials request decided
+                 *     * `inventory.order_purchased` - Materials purchased
+                 *     * `inventory.order_received` - Materials received
+                 *     * `inventory.issue_slip` - Materials issued
+                 *     * `inventory.stocktake_started` - Stocktake started
+                 *     * `inventory.stocktake_validated` - Stocktake validated
                  *     * `timetable.grid_changed` - Time grid changed
                  *     * `timetable.grid_deleted` - Time grid deleted
                  *     * `timetable.room_changed` - Room changed
@@ -22756,7 +23407,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.photo_changed" | "staff.title_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "attendance.card_issued" | "attendance.card_revoked" | "attendance.corrected" | "attendance.justification_recorded" | "attendance.justification_decided" | "inventory.item_changed" | "inventory.copies_added" | "inventory.imported" | "inventory.rules_changed" | "inventory.loan_created" | "inventory.loan_returned" | "inventory.loan_extended" | "inventory.loss_reported" | "inventory.loss_corrected" | "inventory.stock_movement" | "inventory.order_requested" | "inventory.order_decided" | "inventory.order_purchased" | "inventory.order_received" | "inventory.issue_slip" | "inventory.stocktake_started" | "inventory.stocktake_validated" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -22775,6 +23426,7 @@ export interface operations {
                  *     * `fee_waiver` - fee_waiver
                  *     * `finance` - finance
                  *     * `grades` - grades
+                 *     * `inventory` - inventory
                  *     * `legal` - legal
                  *     * `organisation` - organisation
                  *     * `portal` - portal
@@ -22786,7 +23438,7 @@ export interface operations {
                  *     * `support` - support
                  *     * `timetable` - timetable
                  */
-                domain?: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
+                domain?: "account" | "announcements" | "application" | "attendance" | "audit" | "auth" | "contract" | "course_group" | "courses" | "deliberation" | "devices" | "discipline" | "fee_waiver" | "finance" | "grades" | "inventory" | "legal" | "organisation" | "portal" | "resit" | "roles" | "school" | "staff" | "students" | "support" | "timetable";
                 /** @description Historique d'un objet (`entity_id`). */
                 entity?: string;
                 /** @description Dans le nom de l'objet. */
@@ -36907,6 +37559,713 @@ export interface operations {
                 };
             };
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_books_list: {
+        parameters: {
+            query?: {
+                category?: string;
+                level?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                search?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBookList"];
+                };
+            };
+        };
+    };
+    library_books_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BookWriteRequest"];
+                "multipart/form-data": components["schemas"]["BookWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Book"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_books_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookDetail"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_books_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedBookWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedBookWriteRequest"];
+                "multipart/form-data": components["schemas"]["PatchedBookWriteRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookDetail"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_books_copies_create: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopiesAddRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CopiesAddRequest"];
+                "multipart/form-data": components["schemas"]["CopiesAddRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedCopyList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_desk_retrieve: {
+        parameters: {
+            query?: {
+                /** @description Dernier numéro de la page reçue. */
+                after?: number;
+                /** @description Version de la liste de l'appareil. */
+                version?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Desk"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_import_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["CatalogueImportUploadRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueImport"];
+                };
+            };
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogueImport"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_import_template_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_loans_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                search?: string;
+                /**
+                 * @description * `open` - Open
+                 *     * `overdue` - Overdue
+                 *     * `returned` - Returned
+                 */
+                state?: "open" | "overdue" | "returned";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLoanList"];
+                };
+            };
+        };
+    };
+    library_loans_extend_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Loan"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_reports_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedReportList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_reports_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReportWriteRequest"];
+                "multipart/form-data": components["schemas"]["ReportWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Report"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_reports_correct_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportCorrectionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReportCorrectionRequest"];
+                "multipart/form-data": components["schemas"]["ReportCorrectionRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Report"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_rules_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LendingRules"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    library_rules_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LendingRulesRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LendingRulesRequest"];
+                "multipart/form-data": components["schemas"]["LendingRulesRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LendingRules"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

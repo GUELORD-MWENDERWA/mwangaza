@@ -127,6 +127,7 @@ urlpatterns = [
     path("api/", include("apps.academics.urls")),
     path("api/", include("apps.timetable.urls")),
     path("api/", include("apps.attendance.urls")),
+    path("api/", include("apps.inventory.urls")),
     path("api/", include("apps.billing.urls")),
     path("api/", include("apps.ai.urls")),
     path("api/portal/", include("apps.portal.urls")),

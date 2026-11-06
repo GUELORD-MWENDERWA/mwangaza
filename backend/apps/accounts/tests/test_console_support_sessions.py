@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from apps.accounts import support
 from apps.accounts.models import Role
+from apps.accounts.roles import STARTER_ROLES
 from apps.core.tenancy import use_all_schools, use_school
 
 pytestmark = pytest.mark.django_db
@@ -25,7 +26,7 @@ def open_session(client, reason: str) -> None:
 def rename_teacher_role(client, school, name: str) -> None:
     # Le rôle d'enseignant du modèle de départ, quel que soit son nom du moment.
     with use_school(school):
-        role = Role.objects.get(permissions=["grades.enter", "discipline.record"])
+        role = Role.objects.get(permissions=list(STARTER_ROLES["teacher"].permissions))
     assert client.patch(f"/api/roles/{role.id}/", {"name": name}).status_code == 200
 
 

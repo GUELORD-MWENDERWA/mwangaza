@@ -3,7 +3,8 @@
 **But** : l'école prête ses livres et ses outils sans papier ni cahier perdu ; le parent est prévenu ; un livre perdu devient une dette payée à la caisse ; les ateliers savent ce qu'ils ont, ce qui manque et qui l'a pris. Tâches : INV.1, BIB.1, BIB.2, BIB.3, ATL.1, ATL.2, ATL.3.
 
 ## Parties (une conversation chacune)
-- [ ] ① Serveur — Opus : **a** app `inventory` (INV.1 : articles, exemplaires + étiquette QR, lieux, mouvements immuables, inventaire), catalogue + import Excel (BIB.1), prêts / retours / prolongation / limite + opérations de synchro `inventory.loan` et `inventory.return` (BIB.2) ; **b** retards et rappels, constat perte / abîmé → `StudentCharge` (BIB.3), stock et seuil (ATL.1), commandes → dépense FIN.1 → réception → bon de sortie (ATL.2), outils prêtés (ATL.3), modules `library` et `workshops`, `make demo`, `import_cancellation.py`
+- [x] ①a Serveur — Opus (2026-11-06) : app `inventory` (modèles de tout le lot), modules `library` / `workshops`, 6 droits, rôle « Bibliothécaire », catalogue + exemplaires + import Excel, règles (`/api/library/rules/`), prêt / retour par la synchro (`inventory.loan`, `inventory.return`), prolongation, constat → `StudentCharge` (source `item`) et rectification, pénalité de retard, liste du guichet (`/api/library/desk/`), `import_cancellation.py`, libellés front (droits, notifications, audit, modules)
+- [ ] ①b Serveur — Opus : rappels quotidiens (`Job.LOANS`, BIB.3) ; Portail « livres de mon enfant » ; ateliers `/api/workshops/…` (lieux, articles, stock + seuil, mouvements et correction, commandes → dépense FIN.1 → réception, bons de sortie, outils prêtés : même synchro) ; inventaires (comptage, écarts, validation) ; `make demo` (+ compte bibliothécaire `0000001011`, droits du chef d'atelier) et `test_demo.py`
 - [ ] ② Écrans — Sonnet : **a** bibliothèque (catalogue, étiquettes, guichet prêt / retour hors ligne, prêts et retards, constat, règles, bon de prêt PDF, Portail : « livres de mon enfant ») ; **b** ateliers (stock, commandes, bon de sortie, outils prêtés) et inventaire scanné
 - [ ] ③ Fin du lot — Sonnet : Playwright hors ligne (prêt + retour réseau coupé, aucun doublon), captures 390 / 1440, aide, `/verifier`, tous les `.md`, PR
 
@@ -13,7 +14,10 @@
 - Hors ligne (niveau A, `equipements.md` § 5) : seuls **prêt et retour** passent par la file ; « livre déjà prêté » au rejeu = rejet visible dans « à revoir », pas de blocage. Catalogue, commandes, inventaire : en ligne.
 - Perte : un `StudentCharge` (règles de l'argent), pas de nouvelle table de dettes ; tarif = prix de remplacement de l'article.
 - Pénalité de retard facultative, désactivée par défaut ; rappels par le planificateur existant, **une tâche par jour et par école** (pas une par prêt).
-- Inventaire : feuille de comptage (scan des étiquettes) → écarts → mouvements de régularisation validés par la direction.
+- Inventaire : feuille de comptage (scan des étiquettes) → écarts → mouvements de régularisation validés par la direction ; **en ligne** (`equipements.md` § 5 à corriger).
+- ①a : les limites (nombre de prêts, retard, ouvrage de référence) sont appliquées **par l'appareil** au guichet ; au rejeu le serveur ne refuse que l'impossible (déjà prêté, perdu, élève parti) : refuser un prêt déjà fait laisserait le livre dehors sans trace. Une seule bibliothèque par école (créée au premier besoin) ; l'enseignant reçoit `workshops.request`, le directeur la gestion et la validation.
+
+Partie ② : étiquettes et bon de prêt (PDF), libellés de la source `item` et des erreurs ; docs/04 § 8 (rôle Bibliothécaire, 6 droits : tableau recopié dans `test_starter_roles.py`).
 
 ## Hors périmètre
 Achat d'ouvrages en ligne, numérique (PDF des livres), lecteurs RFID / NFC (lot 16), comptabilité des immobilisations.

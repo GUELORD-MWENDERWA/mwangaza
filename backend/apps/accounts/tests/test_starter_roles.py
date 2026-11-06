@@ -20,7 +20,7 @@ pytestmark = pytest.mark.django_db
 
 # Tableau de `docs/04` § 8 recopié ici : un écart entre le code et le document fait échouer le test.
 # Colonnes : directeur, dir. des études, dir. de discipline, comptable, caissier, secrétaire,
-# promoteur, enseignant.
+# promoteur, enseignant, bibliothécaire.
 COLUMNS = [
     "head",
     "study_director",
@@ -30,46 +30,53 @@ COLUMNS = [
     "secretary",
     "promoter",
     "teacher",
+    "librarian",
 ]
 TABLE = {
-    "school.configure": "✔ . . . . . . .",
-    "classes.manage": "✔ ✔ . . . . . .",
-    "courses.configure": "✔ ✔ . . . . . .",
-    "grades.enter": ". . . . . . . ✔",
-    "grades.enter_any": ". ✔ . . . ✔ . .",
-    "grades.validate": ". ✔ . . . . . .",
-    "grades.waive_fees": "✔ . . . . . . .",
-    "discipline.configure": "✔ . ✔ . . . . .",
-    "discipline.record": "✔ ✔ ✔ . . . . ✔",
-    "discipline.override": "✔ . ✔ . . . . .",
-    "roles.manage": "✔ . . . . . . .",
-    "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔ .",
-    "students.edit": "✔ ✔ . . . ✔ . .",
-    "students.import": "✔ . . . . ✔ . .",
-    "finance.configure_fees": "✔ . . ✔ . . . .",
-    "finance.set_exchange_rate": "✔ . . ✔ . . . .",
-    "finance.grant_discount": "✔ . . ✔ . . . .",
-    "finance.collect_payment": ". . . ✔ ✔ . . .",
-    "finance.request_cancellation": ". . . ✔ ✔ . . .",
-    "finance.approve_cancellation": "✔ . . ✔ . . . .",
-    "finance.close_register": ". . . ✔ ✔ . . .",
-    "finance.view_reports": "✔ . . ✔ . . ✔ .",
-    "finance.record_expense": ". . . ✔ . . . .",
-    "finance.approve_expense": "✔ . . . . . ✔ .",
-    "finance.cancel_expense": "✔ . . . . . ✔ .",
-    "finance.import_prior_payments": "✔ . . ✔ . . . .",
-    "finance.manage_budget": "✔ . . ✔ . . . .",
-    "timetable.manage": "✔ ✔ . . . . . .",
-    "timetable.publish": "✔ ✔ . . . . . .",
-    "timetable.record_exceptions": "✔ ✔ ✔ . . . . .",
-    "attendance.cards": "✔ . ✔ . . ✔ . .",
-    "attendance.scan": "✔ . ✔ . . ✔ . .",
-    "attendance.view": "✔ ✔ ✔ . . . ✔ .",
-    "attendance.correct": "✔ . ✔ . . . . .",
-    "ai.use": ". . . . . . . .",
-    "announcements.publish": "✔ ✔ ✔ . . ✔ . .",
-    "audit.view": "✔ . . . . . ✔ .",
-    "billing.view": "✔ . . . . . ✔ .",
+    "school.configure": "✔ . . . . . . . .",
+    "classes.manage": "✔ ✔ . . . . . . .",
+    "courses.configure": "✔ ✔ . . . . . . .",
+    "grades.enter": ". . . . . . . ✔ .",
+    "grades.enter_any": ". ✔ . . . ✔ . . .",
+    "grades.validate": ". ✔ . . . . . . .",
+    "grades.waive_fees": "✔ . . . . . . . .",
+    "discipline.configure": "✔ . ✔ . . . . . .",
+    "discipline.record": "✔ ✔ ✔ . . . . ✔ .",
+    "discipline.override": "✔ . ✔ . . . . . .",
+    "roles.manage": "✔ . . . . . . . .",
+    "students.view": "✔ ✔ ✔ ✔ ✔ ✔ ✔ . ✔",
+    "students.edit": "✔ ✔ . . . ✔ . . .",
+    "students.import": "✔ . . . . ✔ . . .",
+    "finance.configure_fees": "✔ . . ✔ . . . . .",
+    "finance.set_exchange_rate": "✔ . . ✔ . . . . .",
+    "finance.grant_discount": "✔ . . ✔ . . . . .",
+    "finance.collect_payment": ". . . ✔ ✔ . . . .",
+    "finance.request_cancellation": ". . . ✔ ✔ . . . .",
+    "finance.approve_cancellation": "✔ . . ✔ . . . . .",
+    "finance.close_register": ". . . ✔ ✔ . . . .",
+    "finance.view_reports": "✔ . . ✔ . . ✔ . .",
+    "finance.record_expense": ". . . ✔ . . . . .",
+    "finance.approve_expense": "✔ . . . . . ✔ . .",
+    "finance.cancel_expense": "✔ . . . . . ✔ . .",
+    "finance.import_prior_payments": "✔ . . ✔ . . . . .",
+    "finance.manage_budget": "✔ . . ✔ . . . . .",
+    "timetable.manage": "✔ ✔ . . . . . . .",
+    "timetable.publish": "✔ ✔ . . . . . . .",
+    "timetable.record_exceptions": "✔ ✔ ✔ . . . . . .",
+    "attendance.cards": "✔ . ✔ . . ✔ . . .",
+    "attendance.scan": "✔ . ✔ . . ✔ . . .",
+    "attendance.view": "✔ ✔ ✔ . . . ✔ . .",
+    "attendance.correct": "✔ . ✔ . . . . . .",
+    "library.manage": "✔ . . . . . . . ✔",
+    "library.lend": ". . . . . . . . ✔",
+    "workshops.manage": "✔ . . . . . . . .",
+    "workshops.request": ". . . . . . . ✔ .",
+    "workshops.approve": "✔ . . . . . . . .",
+    "inventory.validate": "✔ . . . . . . . .",
+    "ai.use": ". . . . . . . . .",
+    "announcements.publish": "✔ ✔ ✔ . . ✔ . . .",
+    "audit.view": "✔ . . . . . ✔ . .",
+    "billing.view": "✔ . . . . . ✔ . .",
 }
 
 
@@ -106,6 +113,7 @@ def test_a_new_school_gets_the_starter_roles_as_ordinary_named_roles(school, oth
         "Secrétaire",
         "Promoteur",
         "Enseignant",
+        "Bibliothécaire",
         "Parent",
     ]
     assert [set(role.permissions) for role in roles] == list(expected_permissions().values())
@@ -127,9 +135,9 @@ def test_school_created_inside_another_school_context(school):
     with use_school(school):
         new_school = SchoolFactory(code="gamma")
     with use_school(new_school):
-        assert Role.objects.count() == 9
+        assert Role.objects.count() == len(STARTER_ROLES)
     with use_school(school):
-        assert Role.objects.count() == 9
+        assert Role.objects.count() == len(STARTER_ROLES)
 
 
 def test_former_system_roles_are_named_as_the_school_saw_them():
