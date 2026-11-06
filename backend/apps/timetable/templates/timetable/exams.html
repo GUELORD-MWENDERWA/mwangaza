@@ -1,0 +1,28 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Exam timetable" %}{% endblock %}
+{% block style %}
+.ex { table-layout: fixed; }
+.ex td.day { background: #EDF1F6; font-weight: 700; }
+.ex td.h { width: 26mm; white-space: nowrap; }
+.ex td.k { color: #475467; font-size: .85em; }
+.sign { margin-top: 2em; text-align: right; }
+.draft { text-align: center; font-weight: 700; color: #475467; letter-spacing: .05em; }
+{% endblock %}
+{% block content %}
+{% blocktranslate asvar title %}Exam timetable — {{ term }}{% endblocktranslate %}
+{% include "core/_document_header.html" with service=_("Studies") service_code="DE" title=title reference=True %}
+{% if draft %}<p class="draft">{% translate "DRAFT — not published" %}</p>{% endif %}
+{% if class_group %}<p class="center small">{% blocktranslate %}Class: {{ class_group }}{% endblocktranslate %}{% if homeroom %} · {% blocktranslate %}Homeroom teacher: {{ homeroom }}{% endblocktranslate %}{% endif %}</p>{% endif %}
+<table class="ex">
+  <thead><tr><th class="h">{% translate "Time" %}</th>{% if general %}<th>{% translate "Class" %}</th>{% endif %}<th>{% translate "Course" %}</th><th>{% translate "Room" %}</th><th>{% translate "Invigilator" %}</th></tr></thead>
+  <tbody>
+  {% for day in days %}
+    <tr><td class="day" colspan="{% if general %}5{% else %}4{% endif %}">{{ day.date|date:"l j F Y"|capfirst }}</td></tr>
+    {% for row in day.rows %}
+    <tr><td class="h">{{ row.start|time:"H:i" }} – {{ row.end|time:"H:i" }}</td>{% if general %}<td>{{ row.class_group }}</td>{% endif %}<td><b>{{ row.course }}</b> <span class="k">({{ row.kind|lower }})</span></td><td>{{ row.room }}</td><td>{{ row.invigilator }}</td></tr>
+    {% endfor %}
+  {% endfor %}
+  </tbody>
+</table>
+<p class="sign">{% translate "The director of studies" %}</p>
+{% endblock %}

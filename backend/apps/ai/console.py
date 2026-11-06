@@ -67,6 +67,7 @@ def _use_rows(config: AiSettings, totals: dict[str, dict]) -> list[dict]:
                 "model": use.model,
                 "max_input_tokens": use.max_input_tokens,
                 "max_output_tokens": use.max_output_tokens,
+                "daily_limit": use.daily_limit,
                 "changed": code in config.use_overrides,
                 "calls": total.get("calls") or 0,
                 "kept_percent": _kept_percent(total.get("kept") or 0, total.get("abandoned") or 0),
@@ -198,13 +199,20 @@ def change_price(*, actor: User, model: str, input_: int, output: int, cache_rea
 
 @transaction.atomic
 def change_use(
-    *, actor: User, code: str, model: str | None, max_input: int | None, max_output: int | None
+    *,
+    actor: User,
+    code: str,
+    model: str | None,
+    max_input: int | None,
+    max_output: int | None,
+    daily_limit: int | None = None,
 ):
-    """Modèle et limites d'un usage ; tout à `None` : retour au réglage du catalogue."""
+    """Modèle et limites d'un usage (demandes par personne et par jour comprises) ; tout à
+    `None` : retour au réglage du catalogue."""
     config = AiSettings.objects.select_for_update().get_or_create(pk=1)[0]
     base = resolve_use(AiSettings(), code)  # lève 404 pour un usage inconnu
     overrides = {**config.use_overrides}
-    if model is None and max_input is None and max_output is None:
+    if model is None and max_input is None and max_output is None and daily_limit is None:
         overrides.pop(code, None)
     else:
         model = model or base.model
@@ -220,6 +228,7 @@ def change_use(
             "model": model,
             "max_input_tokens": max_input,
             "max_output_tokens": max_output,
+            "daily_limit": daily_limit or base.daily_limit,
         }
     return update_settings(actor=actor, use_overrides=overrides)
 

@@ -503,6 +503,23 @@ class ScheduleLessonSerializer(serializers.Serializer):
     room = serializers.CharField(help_text="Vide : sans salle.")
 
 
+class UpcomingExamSerializer(serializers.Serializer):
+    """Épreuve publiée à venir (EDT.5b)."""
+
+    term = serializers.CharField(help_text="La période ou les examens.")
+    date = serializers.DateField()
+    start = serializers.TimeField(format="%H:%M")
+    end = serializers.TimeField(format="%H:%M")
+    kind = serializers.ChoiceField(choices=["quiz", "exam"])
+    course = serializers.CharField()
+    class_group = serializers.CharField()
+    room = serializers.CharField(help_text="Vide : sans salle.")
+    invigilator = serializers.CharField(help_text="Vide : pas de surveillant, ou Portail.")
+    invigilating = serializers.BooleanField(
+        default=False, help_text="Le compte surveille cette épreuve."
+    )
+
+
 class PublishedTimetableSerializer(serializers.Serializer):
     name = serializers.CharField()
     valid_from = serializers.DateField(allow_null=True, help_text="En vigueur dès.")
@@ -512,6 +529,7 @@ class PublishedTimetableSerializer(serializers.Serializer):
 class HomeroomScheduleSerializer(serializers.Serializer):
     class_group = serializers.CharField()
     lessons = ScheduleLessonSerializer(many=True)
+    exams = UpcomingExamSerializer(many=True, help_text="Épreuves à venir de la classe.")
 
 
 class MyTimetableSerializer(serializers.Serializer):
@@ -519,6 +537,9 @@ class MyTimetableSerializer(serializers.Serializer):
         allow_null=True, help_text="Vide : aucun horaire publié cette année."
     )
     lessons = ScheduleLessonSerializer(many=True, help_text="Séances du compte.")
+    exams = UpcomingExamSerializer(
+        many=True, help_text="Épreuves à venir de ses cours et celles qu'il surveille."
+    )
     homeroom = HomeroomScheduleSerializer(
         allow_null=True, help_text="Classe dont le compte est titulaire cette année."
     )

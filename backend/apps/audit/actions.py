@@ -131,6 +131,14 @@ class Action(models.TextChoices):
     EXAM_SITTING_DELETED = "timetable.exam_sitting_deleted", _("Exam sitting deleted")
     EXAM_TIMETABLE_PUBLISHED = "timetable.exam_published", _("Exam timetable published")
     EXAM_TIMETABLE_REOPENED = "timetable.exam_reopened", _("Exam timetable reopened")
+    LESSON_EXCEPTION_RECORDED = (
+        "timetable.lesson_exception_recorded",
+        _("Lesson exception recorded"),
+    )
+    LESSON_EXCEPTION_CANCELLED = (
+        "timetable.lesson_exception_cancelled",
+        _("Lesson exception cancelled"),
+    )
     APPLICATION_GRADE_OVERRIDDEN = "application.grade_overridden", _("Application grade corrected")
     RESIT_GRADE_CHANGED = "resit.grade_changed", _("Resit grade changed")
     # Délibération (8.4.2) : décision d'un élève, date, proclamation des résultats, réouverture.

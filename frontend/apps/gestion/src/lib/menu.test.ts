@@ -17,6 +17,7 @@ describe("menu selon les permissions (04 § 8)", () => {
       "rooms",
       "timetableChecks",
       "timetable",
+      "examSchedule",
       "promotion",
       "unpaid",
       "fees",

@@ -1,6 +1,7 @@
 """Horaire des interrogations et des examens (EDT.5, `exams.py`) : l'API du directeur des
 études ; le droit est `timetable.manage`, la publication `timetable.publish`."""
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
@@ -8,9 +9,14 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.accounts.roles import TIMETABLE_PUBLISH
+from apps.core.documents import PRINT_RESPONSE, print_options, render, school_header
+from apps.core.errors import ErrorSerializer
+from apps.core.kept import Keep
+from apps.core.tenancy import require_current_school
 from apps.schools.models import Term
 from apps.timetable import exams
 from apps.timetable.exam_serializers import (
+    ExamPrintQuerySerializer,
     ExamScheduleSerializer,
     ExamSittingSerializer,
     ExamSittingWriteSerializer,
@@ -109,3 +115,36 @@ class ExamPublishView(_TimetableView):
         period = _term(term)
         exams.reopen(period, actor=request.user)
         return _state(period)
+
+
+@extend_schema(tags=["timetable"])
+class ExamPrintView(_TimetableView):
+    @extend_schema(
+        parameters=[TERM, ExamPrintQuerySerializer],
+        responses={**PRINT_RESPONSE, 409: ErrorSerializer, **WRITE_ERRORS},
+    )
+    def get(self, request: Request, term) -> HttpResponse:
+        """Horaire des épreuves imprimé (EDT.5b) : une page par classe (ou la classe `subject`),
+        ou l'horaire général groupé par jour ; un brouillon porte sa mention. Aperçu HTML ou PDF
+        gardé tant que l'horaire ne change pas."""
+        params = ExamPrintQuerySerializer(data=request.query_params)
+        params.is_valid(raise_exception=True)
+        data = params.validated_data
+        pages = exams.pages(_term(term), data["kind"], data.get("subject"))
+        options = print_options(data, "portrait")
+        header = school_header(require_current_school())
+        contexts = [{**header, **context} for _subject, context in pages]
+        return render(
+            "timetable/exams.html",
+            contexts[0],
+            data["output"],
+            "horaire-epreuves.pdf",
+            options,
+            more=contexts[1:],
+            keep=Keep(
+                kind=f"exam_timetable_{data['kind']}",
+                subjects=[subject for subject, _context in pages],
+                variant=f"{options['paper']}-{options['orientation']}",
+                volatile={"printed_at": None},
+            ),
+        )

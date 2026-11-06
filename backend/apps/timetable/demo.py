@@ -13,6 +13,7 @@ from collections import defaultdict
 from datetime import time, timedelta
 
 from django.db.models import Q
+from django.utils import timezone
 
 from apps.academics.models import MAIN, MORNING, PRACTICAL, Course
 from apps.accounts.demo import TEACHER_POOL
@@ -22,10 +23,11 @@ from apps.core.tenancy import use_school
 from apps.schools.demo import DemoSpace
 from apps.schools.models import ClassGroup, Term
 from apps.schools.organisation import current_year
-from apps.timetable import checks, constraints, exams, runs, versions
+from apps.timetable import checks, constraints, exams, runs, schedule, versions, worked
 from apps.timetable.models import (
     ExamSchedule,
     ExamSitting,
+    LessonException,
     Room,
     TeacherTimetableProfile,
     TimeGrid,
@@ -103,6 +105,7 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
     for space in spaces:
         with use_school(space.school):
             ExamSchedule.objects.all().delete()
+            LessonException.objects.all().delete()
             Timetable.objects.all().delete()
             ClassGroup.objects.filter(
                 Q(time_grid__isnull=False) | Q(home_room__isnull=False)
@@ -150,6 +153,7 @@ def create_demo_timetable(spaces: list[DemoSpace]) -> None:
                 _assign_teachers(space)
                 _calculated()
                 _exams()
+                _worked()
 
 
 def _fit_hours() -> None:
@@ -334,8 +338,20 @@ def _exams() -> None:
     classes, un jour chacune dès le premier lundi, deux cours le matin (l'examen puis une
     interrogation), leur enseignant surveillant, dans la salle de la classe."""
     year = current_year()
-    term = Term.objects.filter(academic_year=year, kind=Term.Kind.PERIOD).order_by("order").first()
-    start = term.starts_on or year.starts_on
+    today = timezone.localdate()
+    periods = list(Term.objects.filter(academic_year=year, kind=Term.Kind.PERIOD).order_by("order"))
+    # La période en cours (ou la suivante) quand elle laisse au moins deux semaines : les
+    # épreuves sont alors à venir et se lisent dans « Mon horaire » et le Portail (EDT.5b).
+    upcoming = next(
+        (
+            period
+            for period in periods
+            if period.starts_on and period.ends_on and period.ends_on >= today + timedelta(days=14)
+        ),
+        None,
+    )
+    term = upcoming or periods[0]
+    start = max(term.starts_on, today) if upcoming else (term.starts_on or year.starts_on)
     monday = start + timedelta(days=-start.weekday() % 7)
     schedule = ExamSchedule.objects.create(term=term)
     sittings = []
@@ -361,3 +377,66 @@ def _exams() -> None:
             )
     ExamSitting.objects.bulk_create(sittings)
     exams.publish(term, actor=None)
+
+
+def _worked() -> None:
+    """EDT.6 : quatre exceptions des trois dernières semaines dans l'horaire publié de l'ITIG
+    (absence, remplacement, cours annulé, heure en plus), pour que « Heures prestées » et la fiche
+    du mois aient de quoi montrer. Écrites directement, comme le reste de la démonstration (pas de
+    journal)."""
+    year = current_year()
+    today = timezone.localdate()
+    days = worked.school_days(today - timedelta(days=21), today - timedelta(days=1), year)[0]
+    version = schedule.published(year.pk)
+    if version is None:
+        return
+    entries = list(
+        TimetableEntry.objects.filter(timetable=version, course__teacher__isnull=False)
+        .select_related(
+            "course__class_group__level", "course__class_group__track", "course__teacher"
+        )
+        .order_by("first", "course__class_group__level__order")
+    )
+    staff = [entry.course.teacher for entry in entries]
+    rows = []
+    plans = (
+        (LessonException.Kind.TEACHER_ABSENT, "Malade"),
+        (LessonException.Kind.REPLACED, "Formation à Bukavu"),
+        (LessonException.Kind.CANCELLED, "Sortie pédagogique"),
+        (LessonException.Kind.EXTRA, "Rattrapage avant les examens"),
+    )
+    for day, (kind, reason) in zip(days[::3], plans, strict=False):
+        entry = next((e for e in entries if e.weekday == day.isoweekday()), None)
+        if entry is None:
+            continue
+        teacher = entry.course.teacher
+        label = f"{entry.course.name} · {entry.course.class_group.name}"
+        if kind == LessonException.Kind.EXTRA:
+            rows.append(
+                LessonException(
+                    date=day,
+                    kind=kind,
+                    teacher=teacher,
+                    course=entry.course,
+                    hours=2,
+                    label=label,
+                    reason=reason,
+                )
+            )
+            continue
+        other = next((person for person in staff if person.pk != teacher.pk), None)
+        rows.append(
+            LessonException(
+                date=day,
+                kind=kind,
+                teacher=teacher,
+                replacement=other if kind == LessonException.Kind.REPLACED else None,
+                entry=entry,
+                course=entry.course,
+                first=entry.first,
+                hours=entry.length,
+                label=label,
+                reason=reason,
+            )
+        )
+    LessonException.objects.bulk_create(rows)

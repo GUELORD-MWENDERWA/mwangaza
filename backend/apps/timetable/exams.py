@@ -7,9 +7,11 @@ publication) : une classe, un surveillant ou une salle à deux épreuves en mêm
 de la période. Orange : surveillant absent ce jour-là (EDT.1b), jour de congé du calendrier."""
 
 from collections import defaultdict
+from datetime import date
 from itertools import combinations
 
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -18,6 +20,7 @@ from apps.academics.models import Course
 from apps.audit import services as audit
 from apps.audit.actions import Action
 from apps.core.errors import ApiError, BusinessError
+from apps.notifications import events
 from apps.notifications.models import SchoolEvent
 from apps.schools.models import Term
 from apps.timetable import checks
@@ -44,6 +47,7 @@ HAS_CONFLICTS = ApiError(
     409,
 )
 EMPTY = ApiError("exam_timetable_empty", _("Add at least one sitting before publishing."), 409)
+NOTHING_TO_PRINT = ApiError("nothing_to_print", _("There is no sitting to print."), 409)
 
 FIELDS = ("course", "kind", "date", "start", "end", "room", "invigilator")
 
@@ -131,7 +135,9 @@ def sittings_of(schedule: ExamSchedule | None) -> list[ExamSitting]:
     if schedule is None:
         return []
     return list(
-        schedule.sittings.select_related("course__class_group", "course__teacher", "room").order_by(
+        schedule.sittings.select_related(
+            "course__class_group__homeroom_teacher", "course__teacher", "room", "invigilator"
+        ).order_by(
             "date", "start", "course__class_group__level__order", "course__class_group__section"
         )
     )
@@ -237,6 +243,7 @@ def publish(term: Term, *, actor) -> ExamSchedule:
     schedule.published_at = timezone.now()
     schedule.published_by = actor
     schedule.save(update_fields=["status", "published_at", "published_by", "updated_at"])
+    events.exam_timetable_published(schedule, sittings, actor=actor)
     audit.record(
         Action.EXAM_TIMETABLE_PUBLISHED,
         schedule,
@@ -266,3 +273,94 @@ def reopen(term: Term, *, actor) -> ExamSchedule:
         label=str(term),
     )
     return schedule
+
+
+# Lecture (EDT.5b) : « Mon horaire » de l'enseignant et la page d'un enfant sur le Portail.
+
+UPCOMING_MAX = 120  # une classe a rarement plus de 40 épreuves par période
+
+
+def _name(user) -> str:
+    """Le nom seulement, jamais le téléphone qui sert de nom à un compte sans nom."""
+    return user.get_full_name() if user else ""
+
+
+def upcoming(where: Q, *, today: date | None = None, invigilator: bool = True) -> list[dict]:
+    """Épreuves publiées d'aujourd'hui et des jours à venir qui répondent à `where`, par jour et
+    heure ; jamais un brouillon. Une requête."""
+    today = today or timezone.localdate()
+    rows = (
+        ExamSitting.objects.filter(where, schedule__status=PUBLISHED, date__gte=today)
+        .select_related("schedule__term", "course__class_group", "room", "invigilator")
+        .order_by("date", "start")[:UPCOMING_MAX]
+    )
+    return [
+        {
+            "term": str(row.schedule.term),
+            "date": row.date,
+            "start": row.start,
+            "end": row.end,
+            "kind": row.kind,
+            "course": row.course.name,
+            "class_group": row.course.class_group.name,
+            "class_group_id": row.course.class_group_id,
+            "room": row.room.name if row.room else "",
+            "invigilator": _name(row.invigilator) if invigilator else "",
+            "invigilator_id": row.invigilator_id,
+            "teacher_id": row.course.teacher_id,
+        }
+        for row in rows
+    ]
+
+
+# Impression (EDT.5b) : une page par classe, ou l'horaire général groupé par jour.
+
+BY_CLASS, GENERAL = "class", "general"
+
+
+def _days(sittings: list[ExamSitting]) -> list[dict]:
+    days: dict = defaultdict(list)
+    for sitting in sittings:
+        days[sitting.date].append(
+            {
+                "start": sitting.start,
+                "end": sitting.end,
+                "kind": sitting.get_kind_display(),
+                "course": sitting.course.name,
+                "class_group": sitting.course.class_group.name,
+                "room": sitting.room.name if sitting.room else "",
+                "invigilator": _name(sitting.invigilator),
+            }
+        )
+    return [{"date": day, "rows": rows} for day, rows in days.items()]
+
+
+def pages(term: Term, kind: str, subject=None) -> list[tuple[object, dict]]:
+    """Pages du document : (ce qu'elles montrent, contexte du gabarit). Un brouillon s'imprime
+    avec sa mention. Sans épreuve : 409."""
+    schedule = schedule_of(term)
+    sittings = [
+        sitting
+        for sitting in sittings_of(schedule)
+        if subject is None or sitting.course.class_group_id == subject
+    ]
+    if schedule is None or not sittings:
+        raise BusinessError(NOTHING_TO_PRINT)
+    common = {"term": str(term), "draft": schedule.status == DRAFT}
+    if kind == GENERAL:
+        return [(schedule.pk, {**common, "general": True, "days": _days(sittings)})]
+    by_group: dict = defaultdict(list)
+    for sitting in sittings:
+        by_group[sitting.course.class_group].append(sitting)
+    return [
+        (
+            group.pk,
+            {
+                **common,
+                "class_group": group.name,
+                "homeroom": _name(group.homeroom_teacher),
+                "days": _days(rows),
+            },
+        )
+        for group, rows in by_group.items()
+    ]

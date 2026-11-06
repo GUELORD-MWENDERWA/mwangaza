@@ -410,6 +410,13 @@ test("tous les écrans à 390, 820 et 1440 px", async ({ browser }) => {
       },
     );
     await visit(director, `${ITIG}deliberation/prior-results`, "gestion", "reprise-resultats");
+    // Lot 9 : horaire des épreuves, heures prestées, « Lire un bulletin ».
+    await visit(director, `${ITIG}exam-schedule`, "gestion", "horaire-epreuves");
+    await visit(director, `${ITIG}worked-hours`, "gestion", "heures-prestees");
+    await visit(director, `${ITIG}courses`, "gestion", "lire-un-bulletin", async (page) => {
+      await page.getByRole("button", { name: "Lire un bulletin" }).click({ timeout: 5_000 });
+      await page.waitForTimeout(500);
+    });
     // Situations (8.4.4) : la classe que la démonstration proclame.
     await visit(director, `${ITIG}situations`, "gestion", "situations", async (page) => {
       await page.getByLabel("Classe").selectOption({ label: "4HT MÉCANIQUE AUTOMOBILE A" });

@@ -1,0 +1,24 @@
+{% extends "core/print_base.html" %}{% load i18n %}
+{% block title %}{% translate "Hours worked" %}{% endblock %}
+{% block style %}
+.wk td.num, .wk th.num { width: 20mm; text-align: right; }
+.sign { margin-top: 2.5em; display: flex; justify-content: space-between; }
+{% endblock %}
+{% block content %}
+{% blocktranslate asvar title with month=month|date:"F Y" %}Hours worked — {{ month }}{% endblocktranslate %}
+{% include "core/_document_header.html" with service=_("Studies") service_code="DE" title=title reference=True %}
+<p class="center small">{% blocktranslate %}Teacher: {{ teacher }}{% endblocktranslate %} · {% blocktranslate count days=school_days %}{{ days }} school day{% plural %}{{ days }} school days{% endblocktranslate %}{% if holidays %} · {% translate "holidays" %} : {% for day in holidays %}{{ day|date:"d/m" }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</p>
+<table class="wk">
+  <thead><tr><th>{% translate "Course and class" %}</th><th class="num">{% translate "Planned" %}</th><th class="num">{% translate "Not given" %}</th><th class="num">{% translate "Replacements" %}</th><th class="num">{% translate "Extra" %}</th><th class="num">{% translate "Worked" %}</th></tr></thead>
+  <tbody>{% for row in rows %}<tr><td>{{ row.label }}</td><td class="num">{{ row.planned }}</td><td class="num">{{ row.missed }}</td><td class="num">{{ row.replacements }}</td><td class="num">{{ row.extra }}</td><td class="num"><b>{{ row.given }}</b></td></tr>{% endfor %}</tbody>
+  <tfoot><tr><td>{% translate "Total" %}</td><td class="num">{{ line.planned }}</td><td class="num">{{ line.absent|add:line.cancelled }}</td><td class="num">{{ line.replacements }}</td><td class="num">{{ line.extra }}</td><td class="num"><b>{{ line.given }}</b></td></tr></tfoot>
+</table>
+{% if exceptions %}
+<h2>{% translate "Details of the exceptions" %}</h2>
+<table>
+  <thead><tr><th>{% translate "Date" %}</th><th>{% translate "Course and class" %}</th><th>{% translate "Exception" %}</th><th class="num">{% translate "Hours" %}</th><th>{% translate "Reason" %}</th></tr></thead>
+  <tbody>{% for row in exceptions %}<tr><td>{{ row.date|date:"d/m" }}</td><td>{{ row.label }}</td><td>{{ row.get_kind_display }}{% if row.replacement %} · {{ row.replacement.get_full_name }}{% endif %}</td><td class="num">{{ row.hours }}</td><td>{{ row.reason }}</td></tr>{% endfor %}</tbody>
+</table>
+{% endif %}
+<div class="sign"><span>{% translate "The teacher" %}<br><br><br>{{ teacher }}</span><span>{% translate "The director of studies" %}</span></div>
+{% endblock %}

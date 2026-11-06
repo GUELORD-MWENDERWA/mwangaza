@@ -9,7 +9,7 @@ from datetime import timedelta
 
 from django.utils import timezone
 
-from apps.accounts.models import Membership
+from apps.accounts.models import Membership, Role
 from apps.ai import prices, uses
 from apps.ai.models import AiAllowance, AiBalance, AiCall, AiResult, AiUsageMonth
 from apps.ai.services import month_start
@@ -54,6 +54,11 @@ def _month_usage(space: DemoSpace, granted: list[str], credits: int) -> None:
     user = members.filter(roles__permissions__contains=["timetable.manage"]).first()
     if user is None:
         return
+    # La démonstration donne le droit aux rôles qui règlent l'horaire : on peut essayer l'IA.
+    for role in Role.objects.filter(permissions__contains=["timetable.manage"]):
+        if "ai.use" not in role.permissions:
+            role.permissions = [*role.permissions, "ai.use"]
+            role.save(update_fields=["permissions"])
     now = timezone.now()
     states = [AiCall.State.KEPT, AiCall.State.ABANDONED, AiCall.State.KEPT]
     for hours, state in enumerate(states):

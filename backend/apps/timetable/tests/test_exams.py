@@ -126,3 +126,81 @@ def test_each_check_and_publication_refused_with_red(api, school, head):
     assert "outside_term" in codes(client.get(url).json())
     assert client.post(f"{url}publish/").json()["code"] == "publish_conflicts"
     assert not log(school, Action.EXAM_TIMETABLE_PUBLISHED)
+
+
+def test_published_exams_are_read_printed_and_announced(
+    api, school, head, other_school, other_head
+):
+    """EDT.5b : rien avant la publication ; puis l'enseignant (ses cours), le surveillant, le
+    titulaire et le parent (sans surveillant) lisent les épreuves ; une notification chacun ;
+    impression par classe et générale, pour qui règle l'horaire de son école seulement."""
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    from apps.notifications.models import Notification
+    from apps.portal.tests.test_access import activate, portal
+    from apps.portal.tests.test_families import family_of
+    from apps.schools.models import ClassGroup
+    from apps.students.tests.conftest import enrolled
+
+    data = classes(school, head)
+    today = timezone.localdate()
+    with use_school(school):
+        term = Term.objects.filter(academic_year=data["year"], kind=Term.Kind.PERIOD).first()
+        term.starts_on, term.ends_on = today, today + timedelta(days=30)
+        term.save()
+    day = (today + timedelta(days=7)).isoformat()
+    teacher, watcher, titular = (
+        MembershipFactory(school=school, roles=["teacher"]).user for _ in range(3)
+    )
+    with use_school(school):
+        ClassGroup.objects.filter(pk=data["a"].pk).update(homeroom_teacher=titular)
+    maths = new(data["a"], "Mathématique", 4, teacher=teacher)
+    french = new(data["b"], "Français", 4)
+    client, url = api(head), f"{EXAMS}{term.pk}/"
+    client.post(url, sitting(maths, day=day, invigilator=str(watcher.pk)))
+    client.post(url, sitting(french, day=day))
+    child = enrolled(school, head, data["a"])
+    with use_school(school):
+        enrollment = child.enrollments.get()
+    parent = portal()
+    activate(parent, family_of(school, enrollment).code)
+    child_url = f"/api/portal/children/{child.pk}/timetable/"
+
+    # Brouillon : personne ne le voit.
+    MINE = "/api/timetable/mine/"
+    assert api(teacher).get(MINE).json()["exams"] == []
+    assert parent.get(child_url).json()["exams"] == []
+
+    assert client.post(f"{url}publish/").status_code == 200
+    with use_school(school):
+        told = sorted(
+            (n.user_id, n.app)
+            for n in Notification.objects.filter(kind=Notification.Kind.TIMETABLE_PUBLISHED)
+        )
+    # L'enseignant, le surveillant, le parent de la classe A ; pas l'auteur.
+    assert [user for user, app in told if app == "gestion"] == sorted([teacher.pk, watcher.pk])
+    assert [app for _user, app in told].count("portail") == 1
+
+    def exams(rows) -> list[tuple]:
+        return [(x["course"], x["class_group"], x["invigilating"]) for x in rows]
+
+    assert exams(api(teacher).get(MINE).json()["exams"]) == [
+        ("Mathématique", data["a"].name, False)
+    ]
+    assert exams(api(watcher).get(MINE).json()["exams"]) == [("Mathématique", data["a"].name, True)]
+    homeroom = api(titular).get(MINE).json()["homeroom"]
+    assert [x["course"] for x in homeroom["exams"]] == ["Mathématique"]
+    seen = parent.get(child_url).json()["exams"]
+    assert [(x["course"], x["invigilator"]) for x in seen] == [("Mathématique", "")]
+
+    # Impression : par classe (une page chacune), générale ; droits et isolation.
+    page = client.get(f"{url}print/?kind=class&output=html")
+    assert page.status_code == 200
+    html = page.content.decode()
+    assert data["a"].name in html and data["b"].name in html and "Mathématique" in html
+    general = client.get(f"{url}print/?kind=general&output=html&subject={data['a'].pk}")
+    assert "Français" not in general.content.decode()
+    assert api(teacher).get(f"{url}print/?output=html").status_code == 403
+    assert api(other_head, host="beta.localhost").get(f"{url}print/").status_code == 404

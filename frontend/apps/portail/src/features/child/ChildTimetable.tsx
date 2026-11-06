@@ -22,46 +22,74 @@ export function ChildTimetable({ id }: { id: string }) {
   const data = query.data;
   if (!data) return null;
   const version = data.timetable;
+  const exams = data.exams;
   const since = version?.valid_from;
   return (
-    <Card className="mt-4">
-      <CardHeader className="flex flex-row flex-wrap items-baseline justify-between gap-2">
-        <CardTitle>{t("portal.child.timetableTitle")}</CardTitle>
-        {since && (
-          <span className="text-sm text-ink-3">
-            {t(
-              since <= new Date().toISOString().slice(0, 10)
-                ? "portal.child.timetableSince"
-                : "portal.child.timetableFrom",
-              { date: formatDay(since, i18n.language) },
-            )}
-          </span>
-        )}
-      </CardHeader>
-      <CardContent>
-        {version ? (
-          <WeekSchedule
-            dayNames={{
-              long: DAYS.map((day) => t(`timetable.days.${day}`)),
-              short: DAYS.map((day) => t(`timetable.daysShort.${day}`)),
-            }}
-            lessons={toSchedule(
-              data.lessons,
-              (lesson) => [lesson.teacher, lesson.room],
-              (first, last) =>
-                first === last
-                  ? t("portal.child.timetableHour", { first })
-                  : t("portal.child.timetableHours", { first, last }),
-            )}
-            label={t("portal.child.timetableDay")}
-            today={isoWeekday()}
-            todayLabel={t("portal.child.timetableToday")}
-            emptyDay={t("portal.child.timetableNoLessons")}
-          />
-        ) : (
-          <p className="text-sm text-ink-3">{t("portal.child.timetableEmpty")}</p>
-        )}
-      </CardContent>
-    </Card>
+    <>
+      <Card className="mt-4">
+        <CardHeader className="flex flex-row flex-wrap items-baseline justify-between gap-2">
+          <CardTitle>{t("portal.child.timetableTitle")}</CardTitle>
+          {since && (
+            <span className="text-sm text-ink-3">
+              {t(
+                since <= new Date().toISOString().slice(0, 10)
+                  ? "portal.child.timetableSince"
+                  : "portal.child.timetableFrom",
+                { date: formatDay(since, i18n.language) },
+              )}
+            </span>
+          )}
+        </CardHeader>
+        <CardContent>
+          {version ? (
+            <WeekSchedule
+              dayNames={{
+                long: DAYS.map((day) => t(`timetable.days.${day}`)),
+                short: DAYS.map((day) => t(`timetable.daysShort.${day}`)),
+              }}
+              lessons={toSchedule(
+                data.lessons,
+                (lesson) => [lesson.teacher, lesson.room],
+                (first, last) =>
+                  first === last
+                    ? t("portal.child.timetableHour", { first })
+                    : t("portal.child.timetableHours", { first, last }),
+              )}
+              label={t("portal.child.timetableDay")}
+              today={isoWeekday()}
+              todayLabel={t("portal.child.timetableToday")}
+              emptyDay={t("portal.child.timetableNoLessons")}
+            />
+          ) : (
+            <p className="text-sm text-ink-3">{t("portal.child.timetableEmpty")}</p>
+          )}
+        </CardContent>
+      </Card>
+      {exams.length > 0 && (
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>{t("portal.child.examsTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="flex list-none flex-col divide-y divide-line-soft p-0">
+              {exams.map((exam, index) => (
+                <li key={index} className="flex gap-4 py-3">
+                  <time className="w-28 shrink-0 text-sm tabular-nums">
+                    <b className="block">{formatDay(exam.date, i18n.language)}</b>
+                    {exam.start.slice(0, 5)}–{exam.end.slice(0, 5)}
+                  </time>
+                  <div className="min-w-0 text-sm">
+                    <b className="break-words">
+                      {exam.course} · {t(`portal.child.examKind.${exam.kind}`)}
+                    </b>
+                    {exam.room && <span className="block text-ink-3">{exam.room}</span>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </>
   );
 }

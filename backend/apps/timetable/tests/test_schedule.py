@@ -59,7 +59,12 @@ def test_my_timetable_and_the_childs_only_from_the_published_version(
 
     # Rien de publié : vide, même avec un brouillon.
     client.post(DRAFTS, {"name": "Brouillon"})
-    assert mine.get(MINE).json() == {"timetable": None, "lessons": [], "homeroom": None}
+    assert mine.get(MINE).json() == {
+        "timetable": None,
+        "lessons": [],
+        "exams": [],
+        "homeroom": None,
+    }
 
     published = publish(client, [(maths, 1, 1, 2), (french, 2, 1, 1), (english, 1, 3, 1)])
     page = mine.get(MINE).json()
@@ -83,7 +88,12 @@ def test_my_timetable_and_the_childs_only_from_the_published_version(
     assert rows(mine.get(MINE).json()["lessons"])[1][0] == 2
 
     # L'école B ne voit rien de A ; un compte de A n'entre pas dans B ; module coupé : 403.
-    assert beta.get(MINE).json() == {"timetable": None, "lessons": [], "homeroom": None}
+    assert beta.get(MINE).json() == {
+        "timetable": None,
+        "lessons": [],
+        "exams": [],
+        "homeroom": None,
+    }
     assert api(teacher, host="beta.localhost").get(MINE).status_code == 403
     modules = school.modules
     School.objects.filter(pk=school.pk).update(modules=["students", "academics"])

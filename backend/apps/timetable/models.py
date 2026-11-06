@@ -494,3 +494,86 @@ class ExamSitting(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.course} · {self.date}"
+
+
+class LessonException(TenantModel):
+    """Ce qui ne s'est pas passé comme l'horaire publié le prévoyait (EDT.6, spec § 12) [T] : une
+    heure de l'horaire non donnée (enseignant absent, remplacé, cours annulé) ou une heure en plus.
+    Les heures prestées s'en déduisent, jamais stockées. Ne se supprime pas : une annulation garde
+    la ligne (qui, quand, motif) et la retire du calcul ; tout est au journal (paie, règle 5)."""
+
+    class Kind(models.TextChoices):
+        TEACHER_ABSENT = "teacher_absent", _("Teacher absent")
+        REPLACED = "replaced", _("Replaced")
+        CANCELLED = "cancelled", _("Lesson cancelled")
+        EXTRA = "extra", _("Extra lesson")
+
+    date = models.DateField(_("date"))
+    kind = models.CharField(_("kind"), max_length=16, choices=Kind.choices)
+    teacher = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="+",
+        verbose_name=_("teacher"),
+    )
+    replacement = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("replacement"),
+    )
+    # L'heure de l'horaire (vide pour une heure en plus) ; une grille réécrite ou un cours retiré
+    # ne fait pas perdre l'exception : `first`, `hours` et `label` la décrivent.
+    entry = models.ForeignKey(
+        TimetableEntry,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("lesson"),
+    )
+    course = models.ForeignKey(
+        "academics.Course",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("course"),
+    )
+    first = models.PositiveSmallIntegerField(_("first hour"), null=True, blank=True)
+    hours = models.PositiveSmallIntegerField(_("hours"))
+    label = models.CharField(_("course and class"), max_length=160)
+    reason = models.CharField(_("reason"), max_length=200)
+    cancelled_at = models.DateTimeField(_("cancelled on"), null=True, blank=True)
+    cancelled_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name="+",
+        verbose_name=_("cancelled by"),
+    )
+    cancel_reason = models.CharField(_("reason for cancelling"), max_length=200, blank=True)
+
+    class Meta:
+        ordering = ["-date", "first"]
+        verbose_name = _("lesson exception")
+        verbose_name_plural = _("lesson exceptions")
+        constraints = [
+            # Une heure de l'horaire d'un enseignant ne se note qu'une fois par jour (un cours
+            # commun à trois classes est une seule heure).
+            models.UniqueConstraint(
+                fields=["school", "date", "teacher", "first"],
+                condition=models.Q(cancelled_at__isnull=True, first__isnull=False),
+                name="lesson_exception_once_per_hour",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(hours__gte=1), name="lesson_exception_hours_positive"
+            ),
+        ]
+        indexes = [models.Index(fields=["school", "date"], name="lesson_exception_school_date")]
+
+    def __str__(self) -> str:
+        return f"{self.label} · {self.date}"

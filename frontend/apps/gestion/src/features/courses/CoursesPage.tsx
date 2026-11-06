@@ -57,6 +57,8 @@ import {
   type PlacementDraft,
 } from "./placement";
 import { PlacementTable } from "./PlacementTable";
+import { GridFromReportDialog, type ReadCourse } from "./GridFromReportDialog";
+import { AiButton } from "../ai/AiButton";
 
 /** Cours en cours de saisie ; `key` : repère local (un nouveau cours n'a pas encore d'`id`). */
 type GradeEntry = Course["grade_entry"];
@@ -142,6 +144,24 @@ function fromGrid(grid: OfficialGrid, current: Draft[]): Draft[] {
   });
 }
 
+/** Les cours lus sur un bulletin remplacent les lignes ; un cours du même nom garde son `id`,
+ *  son enseignant et ses heures (rien n'est enregistré avant « Enregistrer »). */
+function fromReport(read: ReadCourse[], current: Draft[]): Draft[] {
+  const same = new Map(current.map((draft) => [draft.name.trim().toLowerCase(), draft]));
+  return read.map((course) => {
+    const kept = same.get(course.name.toLowerCase());
+    return {
+      ...(kept ?? blank()),
+      name: course.name,
+      domain: course.domain || (kept?.domain ?? ""),
+      period_max: String(course.period_max),
+      has_exam: course.has_exam,
+      is_taught: true,
+      category: course.category as Category,
+    };
+  });
+}
+
 export function CoursesPage() {
   const { t } = useTranslation();
   const years = useYears();
@@ -191,7 +211,10 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
   const courses = useCourses(group.id);
   const staff = useTeachingLoads();
   const grids = useOfficialGrids();
-  const canPlace = can(useCurrentMe(), ["timetable.manage"]);
+  const me = useCurrentMe();
+  const canPlace = can(me, ["timetable.manage"]);
+  const canRead = Boolean(me.school?.modules.includes("ai")) && can(me, ["ai.use"]);
+  const [readingReport, setReadingReport] = useState(false);
   const rooms = useRooms(canPlace);
   const rules = useTimetableRules(canPlace);
   const [view, setView] = useState<View>("report");
@@ -332,6 +355,11 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
             <Button asChild variant="outline">
               <Link to="/courses/joint">{t("courses.joint.title")}</Link>
             </Button>
+            {canRead && (
+              <AiButton use="course_grid_from_pdf" onClick={() => setReadingReport(true)}>
+                {t("courses.report.open")}
+              </AiButton>
+            )}
             <Button
               variant="outline"
               disabled={dirty || rows.length === 0 || classes.length < 2}
@@ -754,6 +782,15 @@ function CourseGrid({ group, year, classes, onChoose }: GridProps) {
       >
         {t("courses.leave.body", { name: group.name })}
       </ConfirmDialog>
+      {readingReport && (
+        <GridFromReportDialog
+          onClose={() => setReadingReport(false)}
+          onUse={(read) => {
+            edit(fromReport(read, rows));
+            setNotice(t("courses.report.done", { count: read.length }));
+          }}
+        />
+      )}
       <CopyDialog
         open={copying}
         onOpenChange={setCopying}

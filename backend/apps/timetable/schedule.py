@@ -12,7 +12,7 @@ from django.db.models import Prefetch, Q
 
 from apps.schools import organisation
 from apps.schools.models import ClassGroup
-from apps.timetable import checks
+from apps.timetable import checks, exams
 from apps.timetable.models import TimeGrid, TimeSlot, Timetable, TimetableEntry
 
 
@@ -31,6 +31,7 @@ class Lesson:
     class_group_id: UUID
     course_id: UUID
     room_id: UUID | None
+    entry_id: UUID | None = None
 
 
 def published(year_id) -> Timetable | None:
@@ -84,6 +85,7 @@ def lessons(timetable: Timetable | None, where: Q) -> list[Lesson]:
                 class_group_id=group.pk,
                 course_id=course.pk,
                 room_id=entry.room_id,
+                entry_id=entry.pk,
             )
         )
     found.sort(key=lambda row: (row.weekday, row.start is None, row.start, row.first))
@@ -104,13 +106,21 @@ def mine(user) -> dict:
     if homeroom:
         where |= Q(course__class_group=homeroom)
     found = lessons(version, where)
+    sittings = exams.upcoming(where | Q(invigilator=user))
+    own = [
+        {**row, "invigilating": row["invigilator_id"] == user.pk}
+        for row in sittings
+        if row["teacher_id"] == user.pk or row["invigilator_id"] == user.pk
+    ]
     return {
         "timetable": version,
         "lessons": [lesson for lesson in found if lesson.teacher_id == user.pk],
+        "exams": own,
         "homeroom": homeroom
         and {
             "class_group": homeroom.name,
             "lessons": [lesson for lesson in found if lesson.class_group_id == homeroom.pk],
+            "exams": [row for row in sittings if row["class_group_id"] == homeroom.pk],
         },
     }
 

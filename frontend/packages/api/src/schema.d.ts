@@ -78,6 +78,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/ai/course-grid/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Envoie le PDF ou la photo d'un bulletin (IA.5) : l'appel est rendu tout de suite, la
+         *     grille proposée se lit sur l'appel. Droits `courses.configure` et `ai.use`.
+         */
+        post: operations["ai_course_grid_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/course-grid/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description État de la lecture ; prête, les cours lus (revérifiés) et ce qui n'a pas été repris. */
+        get: operations["ai_course_grid_retrieve"];
+        put?: never;
+        /** @description La grille lue a été mise dans l'écran (gardée) ou laissée (abandonnée). */
+        post: operations["ai_course_grid_settle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/ai/credits/": {
         parameters: {
             query?: never;
@@ -91,6 +129,85 @@ export interface paths {
          *     `ai.use`.
          */
         get: operations["ai_credits_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/drafts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Demande un brouillon d'annonce, de relance ou de convocation (IA.4) à partir d'une
+         *     phrase. Droits `announcements.publish` et `ai.use`.
+         */
+        post: operations["ai_drafts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/drafts/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description État de la demande ; prête, le brouillon (titre, texte). */
+        get: operations["ai_drafts_retrieve"];
+        put?: never;
+        /** @description Le brouillon a été mis dans le texte (gardé) ou laissé (abandonné). */
+        post: operations["ai_drafts_settle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/questions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Pose une question sur les chiffres de l'école (IA.3) : l'IA la traduit en une requête
+         *     d'une liste fermée, l'application calcule la réponse avec les droits de la personne.
+         */
+        post: operations["ai_questions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/ai/questions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description État de la question ; prête, la réponse calculée (une seule fois : ensuite l'appel est
+         *     gardé ou abandonné et la réponse vit dans l'écran). Sans le droit de l'écran d'où vient
+         *     la réponse : `forbidden`, sans chiffre.
+         */
+        get: operations["ai_questions_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -7581,6 +7698,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/exams/{term}/print/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Horaire des épreuves imprimé (EDT.5b) : une page par classe (ou la classe `subject`),
+         *     ou l'horaire général groupé par jour ; un brouillon porte sa mention. Aperçu HTML ou PDF
+         *     gardé tant que l'horaire ne change pas.
+         */
+        get: operations["timetable_exams_print_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/timetable/exams/{term}/publish/": {
         parameters: {
             query?: never;
@@ -7945,6 +8083,123 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timetable/worked/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Heures prestées du mois (jusqu'à aujourd'hui) : une ligne par enseignant qui avait des
+         *     heures ou une exception (prévues, absent, annulées, remplacements faits, en plus,
+         *     prestées), jours de cours et congés.
+         */
+        get: operations["timetable_worked_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/worked/day/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Heures d'un enseignant un jour donné dans l'horaire en vigueur ce jour-là (une par
+         *     heure, cours commun compris), avec l'exception déjà notée.
+         */
+        get: operations["timetable_worked_day_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/worked/exceptions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Exceptions actives du mois, les plus récentes d'abord (paginées). */
+        get: operations["timetable_worked_exceptions_list"];
+        put?: never;
+        /**
+         * @description Note ce qui s'est passé un jour passé : absence, remplacement ou annulation d'heures de
+         *     l'horaire de l'enseignant (une exception par heure), ou heure en plus d'un cours. Motif
+         *     obligatoire ; journal.
+         */
+        post: operations["timetable_worked_exceptions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/worked/exceptions/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Annule une exception (motif, journal) : elle sort du calcul, la ligne reste. */
+        post: operations["timetable_worked_exceptions_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/worked/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Classeur du mois pour la paie et les primes : une ligne par enseignant. */
+        get: operations["timetable_worked_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/timetable/worked/sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Fiche des heures prestées d'un enseignant pour un mois (une page, à la demande, pas
+         *     gardée : les exceptions peuvent changer) ; deux signatures.
+         */
+        get: operations["timetable_worked_sheet_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tracks/": {
         parameters: {
             query?: never;
@@ -8244,6 +8499,8 @@ export interface components {
          *     * `timetable.exam_sitting_deleted` - Exam sitting deleted
          *     * `timetable.exam_published` - Exam timetable published
          *     * `timetable.exam_reopened` - Exam timetable reopened
+         *     * `timetable.lesson_exception_recorded` - Lesson exception recorded
+         *     * `timetable.lesson_exception_cancelled` - Lesson exception cancelled
          *     * `application.grade_overridden` - Application grade corrected
          *     * `resit.grade_changed` - Resit grade changed
          *     * `deliberation.decided` - Deliberation decision recorded
@@ -8328,7 +8585,7 @@ export interface components {
          *     * `support.ended` - Support session closed
          * @enum {string}
          */
-        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+        ActionEnum: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
         /** @description Comptes du portail activés (H7) : école, puis chaque classe de l'année en cours. */
         ActivationSummary: {
             families: number;
@@ -8383,6 +8640,10 @@ export interface components {
             remaining_credits: number;
             blocked: string;
             uses: components["schemas"]["AiCreditUse"][];
+        };
+        AiDraft: {
+            title: string;
+            body: string;
         };
         AiLastCall: {
             /** Format: uuid */
@@ -8470,6 +8731,8 @@ export interface components {
             model: string;
             max_input_tokens: number;
             max_output_tokens: number;
+            /** @description Demandes par personne et par jour ; vide : sans limite. */
+            daily_limit: number | null;
             changed: boolean;
             calls: number;
             kept_percent: number | null;
@@ -8493,6 +8756,7 @@ export interface components {
             model?: string | null;
             max_input_tokens?: number | null;
             max_output_tokens?: number | null;
+            daily_limit?: number | null;
         };
         AiUseRow: {
             code: string;
@@ -8502,6 +8766,8 @@ export interface components {
             model: string;
             max_input_tokens: number;
             max_output_tokens: number;
+            /** @description Demandes par personne et par jour ; vide : sans limite. */
+            daily_limit: number | null;
             changed: boolean;
             calls: number;
             kept_percent: number | null;
@@ -8536,6 +8802,10 @@ export interface components {
              */
             closing_time: string;
         };
+        Amount: {
+            currency: string;
+            amount_minor: number;
+        };
         Announcement: {
             /** Format: uuid */
             readonly id: string;
@@ -8567,6 +8837,11 @@ export interface components {
              */
             attachment?: string;
         };
+        Answer: {
+            intent: components["schemas"]["IntentEnum"];
+            status: components["schemas"]["AnswerStatusEnum"];
+            figures: components["schemas"]["Figures"];
+        };
         /**
          * @description * `yes` - yes
          *     * `no` - no
@@ -8574,6 +8849,14 @@ export interface components {
          * @enum {string}
          */
         AnswerEnum: "yes" | "no";
+        /**
+         * @description * `answered` - answered
+         *     * `not_understood` - not_understood
+         *     * `forbidden` - forbidden
+         *     * `not_available` - not_available
+         * @enum {string}
+         */
+        AnswerStatusEnum: "answered" | "not_understood" | "forbidden" | "not_available";
         ApplicationOverrideRequest: {
             /** Format: uuid */
             term: string;
@@ -9377,6 +9660,8 @@ export interface components {
             /** @description Vide : l'école n'a pas encore publié son horaire. */
             timetable: components["schemas"]["PublishedTimetable"] | null;
             lessons: components["schemas"]["ScheduleLesson"][];
+            /** @description Épreuves publiées à venir de la classe. */
+            exams: components["schemas"]["UpcomingExam"][];
         };
         ClassActivation: {
             /** Format: uuid */
@@ -10912,6 +11197,27 @@ export interface components {
          * @enum {string}
          */
         CourseCategoryEnum: "general" | "main" | "option" | "practical";
+        CourseGridAskRequest: {
+            /**
+             * Format: uuid
+             * @description Fabriqué par l'écran : un clic, un appel.
+             */
+            request_id: string;
+            /**
+             * Format: binary
+             * @description PDF (3 pages au plus) ou photo JPEG / PNG.
+             */
+            file: string;
+        };
+        CourseGridCall: {
+            /** Format: uuid */
+            id: string;
+            /** @description queued, running, done, error, refused, kept, abandoned. */
+            state: string;
+            /** @description Code du refus ou de l'erreur. */
+            refusal: string;
+            proposal: components["schemas"]["GridProposal"] | null;
+        };
         CourseGroup: {
             /** Format: uuid */
             readonly id: string;
@@ -11316,6 +11622,23 @@ export interface components {
             /** Format: date */
             held_on: string;
         };
+        DayLesson: {
+            /**
+             * Format: uuid
+             * @description La séance à noter.
+             */
+            entry: string;
+            first: number;
+            length: number;
+            /** Format: time */
+            start: string | null;
+            /** Format: time */
+            end: string | null;
+            course: string;
+            class_groups: string[];
+            /** @description Exception déjà notée. */
+            recorded: string | null;
+        };
         Deadline: {
             /**
              * Format: date
@@ -11527,6 +11850,23 @@ export interface components {
             /** Format: date-time */
             readonly updated_at: string;
         };
+        DraftAskRequest: {
+            /** Format: uuid */
+            request_id: string;
+            kind: components["schemas"]["DraftKindEnum"];
+            /** @default formal */
+            tone: components["schemas"]["ToneEnum"];
+            brief: string;
+        };
+        DraftCall: {
+            /** Format: uuid */
+            id: string;
+            /** @description queued, running, done, error, refused, kept, abandoned. */
+            state: string;
+            /** @description Code du refus ou de l'erreur. */
+            refusal: string;
+            draft: components["schemas"]["AiDraft"] | null;
+        };
         DraftCreateRequest: {
             name: string;
             /**
@@ -11535,6 +11875,13 @@ export interface components {
              */
             based_on?: string | null;
         };
+        /**
+         * @description * `announcement` - announcement
+         *     * `payment_reminder` - payment_reminder
+         *     * `summons` - summons
+         * @enum {string}
+         */
+        DraftKindEnum: "announcement" | "payment_reminder" | "summons";
         DraftState: {
             /** Format: uuid */
             id: string;
@@ -11783,6 +12130,9 @@ export interface components {
             room?: string | null;
             /** Format: uuid */
             invigilator?: string | null;
+        };
+        ExceptionCancelRequest: {
+            reason: string;
         };
         ExchangeRate: {
             /** Format: uuid */
@@ -12134,6 +12484,18 @@ export interface components {
             code: string;
             detail: string;
         };
+        /** @description Chiffres calculés par l'application ; seuls ceux de la requête sont présents. */
+        Figures: {
+            class_group: string | null;
+            period: string;
+            count: number;
+            girls: number;
+            boys: number;
+            amounts: components["schemas"]["Amount"][];
+            rows: components["schemas"]["LoadRow"][];
+            /** @description Écran d'où vient la réponse. */
+            link: string;
+        };
         /**
          * @description * `detailed` - detailed
          *     * `totals` - totals
@@ -12311,6 +12673,19 @@ export interface components {
              */
             entry: components["schemas"]["GradeEntryEnum"];
         };
+        GridCourse: {
+            name: string;
+            domain: string;
+            period_max: number;
+            has_exam: boolean;
+            category: string;
+            /** @description Peu lisible : à vérifier. */
+            doubtful: boolean;
+        };
+        GridProposal: {
+            courses: components["schemas"]["GridCourse"][];
+            skipped: components["schemas"]["Skipped"][];
+        };
         Guardian: {
             /** Format: uuid */
             id: string;
@@ -12461,6 +12836,8 @@ export interface components {
         HomeroomSchedule: {
             class_group: string;
             lessons: components["schemas"]["ScheduleLesson"][];
+            /** @description Épreuves à venir de la classe. */
+            exams: components["schemas"]["UpcomingExam"][];
         };
         HomeroomStats: {
             students: number;
@@ -12688,6 +13065,15 @@ export interface components {
              */
             due_on: string;
         };
+        /**
+         * @description * `unpaid` - unpaid
+         *     * `collected` - collected
+         *     * `headcount` - headcount
+         *     * `teacher_load` - teacher_load
+         *     * `unknown` - unknown
+         * @enum {string}
+         */
+        IntentEnum: "unpaid" | "collected" | "headcount" | "teacher_load" | "unknown";
         InvitationMessage: {
             text: string;
             /** @description Numéro du tuteur principal (E.164). */
@@ -12787,6 +13173,10 @@ export interface components {
             has_exam: boolean;
             students: number;
         };
+        KeepRequest: {
+            /** @description Vrai : mis dans l'écran ; faux : laissé. */
+            kept: boolean;
+        };
         /**
          * @description * `fr` - Français
          *     * `en` - English
@@ -12870,6 +13260,55 @@ export interface components {
             title_en: string;
             body_fr: string;
             body_en: string;
+        };
+        LessonException: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: date */
+            date: string;
+            kind: components["schemas"]["LessonExceptionKindEnum"];
+            /** Format: uuid */
+            teacher: string;
+            readonly teacher_name: string;
+            /** Format: uuid */
+            replacement: string | null;
+            readonly replacement_name: string | null;
+            /** First hour */
+            first: number | null;
+            hours: number;
+            /** Course and class */
+            label: string;
+            reason: string;
+            readonly created_by_name: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description * `teacher_absent` - Teacher absent
+         *     * `replaced` - Replaced
+         *     * `cancelled` - Lesson cancelled
+         *     * `extra` - Extra lesson
+         * @enum {string}
+         */
+        LessonExceptionKindEnum: "teacher_absent" | "replaced" | "cancelled" | "extra";
+        LessonExceptionWriteRequest: {
+            /** Format: date */
+            date: string;
+            kind: components["schemas"]["LessonExceptionKindEnum"];
+            /** Format: uuid */
+            teacher: string;
+            reason: string;
+            /** @description Heures de l'horaire (absence, remplacement, annulation). */
+            entries?: string[];
+            /** Format: uuid */
+            replacement?: string | null;
+            /**
+             * Format: uuid
+             * @description Heure en plus : le cours.
+             */
+            course?: string;
+            /** @description Heure en plus : combien. */
+            hours?: number;
         };
         Level: {
             /** Format: uuid */
@@ -12991,6 +13430,11 @@ export interface components {
              * @description Cours commun (8.1.2a) : ses classes ne comptent qu'une fois dans la charge.
              */
             course_group: string | null;
+        };
+        LoadRow: {
+            name: string;
+            hours: number;
+            courses: number;
         };
         LoginCodeRequest: {
             /** @description Code à 6 chiffres de l'application, ou code de secours (ex. 7KQ4-M2XP). */
@@ -13193,6 +13637,8 @@ export interface components {
             timetable: components["schemas"]["PublishedTimetable"] | null;
             /** @description Séances du compte. */
             lessons: components["schemas"]["ScheduleLesson"][];
+            /** @description Épreuves à venir de ses cours et celles qu'il surveille. */
+            exams: components["schemas"]["UpcomingExam"][];
             /** @description Classe dont le compte est titulaire cette année. */
             homeroom: components["schemas"]["HomeroomSchedule"] | null;
         };
@@ -13590,6 +14036,21 @@ export interface components {
             previous: string | null;
             results: components["schemas"]["Contract"][];
         };
+        PaginatedDayLessonList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["DayLesson"][];
+        };
         PaginatedDeviceList: {
             /** @example 123 */
             count: number;
@@ -13694,6 +14155,21 @@ export interface components {
              */
             previous: string | null;
             results: components["schemas"]["LegalDocument"][];
+        };
+        PaginatedLessonExceptionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous: string | null;
+            results: components["schemas"]["LessonException"][];
         };
         PaginatedModuleRequestList: {
             /** @example 123 */
@@ -15036,13 +15512,14 @@ export interface components {
          *     * `finance.manage_budget` - Set the budget, the opening balance of the accounts and the transfers between them
          *     * `timetable.manage` - Configure the timetable: time grids, rooms and rules
          *     * `timetable.publish` - Publish the timetable
+         *     * `timetable.record_exceptions` - Record lessons not given, replacements and extra lessons (hours worked)
          *     * `ai.use` - Use the AI assistance
          *     * `announcements.publish` - Publish announcements
          *     * `audit.view` - View the audit log
          *     * `billing.view` - View the subscription, invoices and payments to the platform
          * @enum {string}
          */
-        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
+        PermissionsEnum: "school.configure" | "classes.manage" | "courses.configure" | "grades.enter" | "grades.enter_any" | "grades.validate" | "grades.waive_fees" | "discipline.configure" | "discipline.record" | "discipline.override" | "roles.manage" | "students.view" | "students.edit" | "students.import" | "finance.configure_fees" | "finance.set_exchange_rate" | "finance.grant_discount" | "finance.collect_payment" | "finance.request_cancellation" | "finance.approve_cancellation" | "finance.close_register" | "finance.view_reports" | "finance.record_expense" | "finance.approve_expense" | "finance.cancel_expense" | "finance.import_prior_payments" | "finance.manage_budget" | "timetable.manage" | "timetable.publish" | "timetable.record_exceptions" | "ai.use" | "announcements.publish" | "audit.view" | "billing.view";
         Person: {
             /** Format: uuid */
             readonly id: string;
@@ -15778,6 +16255,22 @@ export interface components {
         PushUnsubscribeRequest: {
             /** Format: uri */
             endpoint: string;
+        };
+        QuestionAskRequest: {
+            /** Format: uuid */
+            request_id: string;
+            question: string;
+            /** @description Les questions d'avant de la conversation (gardée dans le navigateur). */
+            history?: string[];
+        };
+        QuestionCall: {
+            /** Format: uuid */
+            id: string;
+            /** @description queued, running, done, error, refused, kept, abandoned. */
+            state: string;
+            /** @description Code du refus ou de l'erreur. */
+            refusal: string;
+            answer: components["schemas"]["Answer"] | null;
         };
         ReadRequest: {
             /** @description Annonces affichées ; celles qui ne visent pas la famille sont ignorées. */
@@ -16846,6 +17339,10 @@ export interface components {
          * @enum {string}
          */
         SizeEnum: "lt300" | "300-800" | "800-1500" | "gt1500";
+        Skipped: {
+            name: string;
+            reason: string;
+        };
         Snapshot: {
             /** @description Première page seulement : numéro à garder pour `pull` (pas celui d'une page suivante). */
             cursor: number | null;
@@ -18159,6 +18656,12 @@ export interface components {
          */
         TimetableStatusEnum: "draft" | "published" | "archived";
         /**
+         * @description * `formal` - formal
+         *     * `simple` - simple
+         * @enum {string}
+         */
+        ToneEnum: "formal" | "simple";
+        /**
          * @description * `waiver` - Request for a report card waiver
          *     * `grade` - Question about a grade or a decision
          *     * `other` - Other question
@@ -18376,6 +18879,35 @@ export interface components {
             /** @description Tranches des frais dus, par échéance (filtre). */
             installments: string[];
         };
+        /** @description Épreuve publiée à venir (EDT.5b). */
+        UpcomingExam: {
+            /** @description La période ou les examens. */
+            term: string;
+            /** Format: date */
+            date: string;
+            /** Format: time */
+            start: string;
+            /** Format: time */
+            end: string;
+            kind: components["schemas"]["UpcomingExamKindEnum"];
+            course: string;
+            class_group: string;
+            /** @description Vide : sans salle. */
+            room: string;
+            /** @description Vide : pas de surveillant, ou Portail. */
+            invigilator: string;
+            /**
+             * @description Le compte surveille cette épreuve.
+             * @default false
+             */
+            invigilating: boolean;
+        };
+        /**
+         * @description * `quiz` - quiz
+         *     * `exam` - exam
+         * @enum {string}
+         */
+        UpcomingExamKindEnum: "quiz" | "exam";
         Validation: {
             /** Format: uuid */
             academic_year: string | null;
@@ -18416,6 +18948,37 @@ export interface components {
             html: string;
             /** @description Page « Quoi de neuf » du centre d'aide. */
             url: string;
+        };
+        WorkedLine: {
+            /** Format: uuid */
+            teacher: string;
+            name: string;
+            /** @description Heures prévues par l'horaire publié. */
+            planned: number;
+            /** @description Non données : absent, ou remplacé. */
+            absent: number;
+            cancelled: number;
+            /** @description Données à la place d'un autre. */
+            replacements: number;
+            /** @description Heures en plus. */
+            extra: number;
+            /** @description Prestées. */
+            given: number;
+        };
+        WorkedMonth: {
+            /** Format: date */
+            month: string;
+            /** @description Jours de cours du mois, jusqu'à aujourd'hui. */
+            school_days: number;
+            /** @description Congés du mois. */
+            holidays: string[];
+            totals: components["schemas"]["WorkedTotals"];
+            teachers: components["schemas"]["WorkedLine"][];
+        };
+        WorkedTotals: {
+            planned: number;
+            missed: number;
+            added: number;
         };
         Year: {
             /** Format: uuid */
@@ -18772,6 +19335,220 @@ export interface operations {
             };
         };
     };
+    ai_course_grid_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["CourseGridAskRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseGridCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_course_grid_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CourseGridCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_course_grid_settle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeepRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["KeepRequest"];
+                "multipart/form-data": components["schemas"]["KeepRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     ai_credits_retrieve: {
         parameters: {
             query?: never;
@@ -18790,6 +19567,364 @@ export interface operations {
                 };
             };
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_drafts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DraftAskRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DraftAskRequest"];
+                "multipart/form-data": components["schemas"]["DraftAskRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_drafts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DraftCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_drafts_settle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KeepRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["KeepRequest"];
+                "multipart/form-data": components["schemas"]["KeepRequest"];
+            };
+        };
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_questions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionAskRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["QuestionAskRequest"];
+                "multipart/form-data": components["schemas"]["QuestionAskRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    ai_questions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuestionCall"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -19260,6 +20395,8 @@ export interface operations {
                  *     * `timetable.exam_sitting_deleted` - Exam sitting deleted
                  *     * `timetable.exam_published` - Exam timetable published
                  *     * `timetable.exam_reopened` - Exam timetable reopened
+                 *     * `timetable.lesson_exception_recorded` - Lesson exception recorded
+                 *     * `timetable.lesson_exception_cancelled` - Lesson exception cancelled
                  *     * `application.grade_overridden` - Application grade corrected
                  *     * `resit.grade_changed` - Resit grade changed
                  *     * `deliberation.decided` - Deliberation decision recorded
@@ -19343,7 +20480,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -19575,6 +20712,8 @@ export interface operations {
                  *     * `timetable.exam_sitting_deleted` - Exam sitting deleted
                  *     * `timetable.exam_published` - Exam timetable published
                  *     * `timetable.exam_reopened` - Exam timetable reopened
+                 *     * `timetable.lesson_exception_recorded` - Lesson exception recorded
+                 *     * `timetable.lesson_exception_cancelled` - Lesson exception cancelled
                  *     * `application.grade_overridden` - Application grade corrected
                  *     * `resit.grade_changed` - Resit grade changed
                  *     * `deliberation.decided` - Deliberation decision recorded
@@ -19658,7 +20797,7 @@ export interface operations {
                  *     * `support.started` - Support session opened
                  *     * `support.ended` - Support session closed
                  */
-                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
+                action?: "auth.login" | "account.password_changed" | "account.totp_enabled" | "account.totp_changed" | "account.totp_disabled" | "account.totp_reset" | "account.recovery_codes_renewed" | "account.changed" | "account.deactivated" | "account.reactivated" | "account.password_reset" | "roles.created" | "roles.updated" | "roles.deleted" | "staff.added" | "staff.roles_changed" | "staff.deactivated" | "staff.reactivated" | "staff.account_changed" | "staff.signature_changed" | "staff.password_reset" | "staff.totp_reset" | "school.created" | "school.updated" | "legal.accepted" | "contract.activated" | "school.logo_changed" | "school.signature_changed" | "school.suspended" | "school.reactivated" | "school.stopped" | "organisation.year_created" | "organisation.year_updated" | "organisation.year_deleted" | "organisation.terms_changed" | "organisation.level_created" | "organisation.level_updated" | "organisation.level_deleted" | "organisation.levels_reordered" | "organisation.track_created" | "organisation.track_updated" | "organisation.track_deleted" | "organisation.class_created" | "organisation.class_updated" | "organisation.class_deleted" | "organisation.matricule_format_changed" | "courses.changed" | "course_group.changed" | "grades.changed" | "grades.submitted" | "grades.validated" | "grades.substitute_set" | "grades.substitute_removed" | "grades.reopened" | "grades.deadline_set" | "grades.reminded" | "grades.report_cards_ready" | "grades.report_cards_withdrawn" | "grades.report_card_printed" | "grades.sheet_printed" | "grades.situation_printed" | "discipline.rule_changed" | "discipline.scale_changed" | "discipline.incident_recorded" | "discipline.incident_cancelled" | "discipline.grade_overridden" | "timetable.grid_changed" | "timetable.grid_deleted" | "timetable.room_changed" | "timetable.class_changed" | "timetable.rules_changed" | "timetable.teacher_changed" | "timetable.rule_changed" | "timetable.rule_deleted" | "timetable.draft_created" | "timetable.draft_deleted" | "timetable.lock_changed" | "timetable.published" | "timetable.exam_sitting_changed" | "timetable.exam_sitting_deleted" | "timetable.exam_published" | "timetable.exam_reopened" | "timetable.lesson_exception_recorded" | "timetable.lesson_exception_cancelled" | "application.grade_overridden" | "resit.grade_changed" | "deliberation.decided" | "deliberation.proclaimed" | "deliberation.reopened" | "fee_waiver.granted" | "fee_waiver.lifted" | "deliberation.council" | "deliberation.minutes_printed" | "students.family_created" | "students.family_updated" | "students.family_deleted" | "students.student_created" | "students.student_updated" | "students.enrolled" | "students.enrollment_updated" | "students.place_offered" | "students.place_withdrawn" | "students.place_answered" | "students.student_imported" | "students.import_cancelled" | "students.student_removed" | "students.family_code_printed" | "students.family_code_renewed" | "students.family_invitation_printed" | "students.family_invitation_shared" | "students.portal_suspended" | "students.portal_restored" | "students.contact_change_applied" | "students.contact_change_dismissed" | "portal.activated" | "portal.report_viewed" | "portal.password_reset" | "finance.fee_type_created" | "finance.fee_type_updated" | "finance.fee_type_deleted" | "finance.fee_rule_created" | "finance.fee_rule_updated" | "finance.fee_rule_deleted" | "finance.fee_rules_copied" | "finance.exchange_rate_set" | "finance.charges_rescheduled" | "finance.discount_granted" | "finance.discount_revoked" | "finance.cash_register_created" | "finance.cash_register_updated" | "finance.cash_session_opened" | "finance.cash_session_closed" | "finance.payment_recorded" | "finance.prior_payment_recorded" | "finance.expense_category_created" | "finance.expense_category_updated" | "finance.expense_settings_updated" | "finance.expense_recorded" | "finance.expense_approved" | "finance.expense_rejected" | "finance.expense_cancelled" | "finance.cash_out_recorded" | "finance.cash_out_cancelled" | "finance.budget_updated" | "finance.treasury_movement_recorded" | "finance.treasury_movement_cancelled" | "finance.payment_reprinted" | "finance.cancellation_requested" | "finance.payment_cancelled" | "finance.cancellation_rejected" | "finance.cancellation_reprinted" | "finance.credit_created" | "finance.credit_used" | "finance.credit_voided" | "finance.unpaid_exported" | "finance.receipt_register_exported" | "finance.statement_printed" | "announcements.published" | "announcements.archived" | "announcements.summons_issued" | "announcements.summons_cancelled" | "devices.registered" | "devices.revoked" | "audit.exported" | "support.started" | "support.ended";
                 /** @description Qui (`id` du compte). */
                 actor?: string;
                 /**
@@ -41001,6 +42140,90 @@ export interface operations {
             };
         };
     };
+    timetable_exams_print_retrieve: {
+        parameters: {
+            query: {
+                /**
+                 * @description `class` : une page par classe ; `general` : toutes les classes, par jour.
+                 *
+                 *     * `class` - class
+                 *     * `general` - general
+                 */
+                kind?: "class" | "general";
+                /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
+                 * @description * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                /** @description Une seule classe. */
+                subject?: string;
+                /** @description La période ou les examens. */
+                term: string;
+            };
+            header?: never;
+            path: {
+                term: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     timetable_exams_publish_create: {
         parameters: {
             query?: never;
@@ -42286,6 +43509,347 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Version"][];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_retrieve: {
+        parameters: {
+            query: {
+                /** @description Le mois, `AAAA-MM`. */
+                month: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkedMonth"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_day_list: {
+        parameters: {
+            query: {
+                date: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                teacher: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDayLessonList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_exceptions_list: {
+        parameters: {
+            query: {
+                /**
+                 * @description * `teacher_absent` - Teacher absent
+                 *     * `replaced` - Replaced
+                 *     * `cancelled` - Lesson cancelled
+                 *     * `extra` - Extra lesson
+                 */
+                kind?: "teacher_absent" | "replaced" | "cancelled" | "extra";
+                /** @description Le mois, `AAAA-MM`. */
+                month: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLessonExceptionList"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_exceptions_create: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LessonExceptionWriteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LessonExceptionWriteRequest"];
+                "multipart/form-data": components["schemas"]["LessonExceptionWriteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLessonExceptionList"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_exceptions_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExceptionCancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ExceptionCancelRequest"];
+                "multipart/form-data": components["schemas"]["ExceptionCancelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LessonException"];
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_export_retrieve: {
+        parameters: {
+            query: {
+                /** @description Le mois, `AAAA-MM`. */
+                month: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Classeur Excel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+                };
+            };
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    timetable_worked_sheet_retrieve: {
+        parameters: {
+            query: {
+                /** @description Le mois, `AAAA-MM`. */
+                month: string;
+                /**
+                 * @description Absent : le sens habituel du document.
+                 *
+                 *     * `portrait` - portrait
+                 *     * `landscape` - landscape
+                 */
+                orientation?: "portrait" | "landscape";
+                /**
+                 * @description * `pdf` - pdf
+                 *     * `html` - html
+                 */
+                output?: "pdf" | "html";
+                /**
+                 * @description * `a4` - a4
+                 *     * `a5` - a5
+                 */
+                paper?: "a4" | "a5";
+                teacher: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Document PDF (`output=pdf`). */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": string;
+                    "text/html": string;
                 };
             };
             403: {

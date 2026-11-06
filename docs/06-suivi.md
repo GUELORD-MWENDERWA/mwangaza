@@ -7,12 +7,12 @@ Ce fichier dit **où en est le projet**. Il est mis à jour à chaque étape (d�
 | | |
 |---|---|
 | Phase | V1.0 et V1.1 finies et en ligne ; **plan regroupé en 17 lots le 2026-10-29** pour finir toute la V1 avant la V2 (`05` § 2 : un lot = une PR) |
-| Lot en cours | Aucun — lot 8 fini, PR en relecture |
-| Prochain lot | Lot 9 (emploi du temps fini et IA) ; reste du lot 4 : mesure PERF.6 |
+| Lot en cours | Aucun : **lot 9** fini, PR en relecture |
+| Prochain lot | Lot 10 (carte et présences) ; reste du lot 4 : mesure PERF.6 |
 | Toi, en parallèle | `make deploy` si NB.8 et R.1 ne sont pas en ligne, puis PERF.8b ; OPS.1 ; identité de la plateforme et premier espace réel `itig` ; pour le lot 3 : tarif (T6), informations légales (I20), juriste ; Q15 et Q16 ci-dessous |
-| Issue GitHub | #430 (lot 8) |
-| Branche | `lot/8-cours-communs` |
-| Dernière mise à jour | 2026-11-05 (lot 8 fini) |
+| Issue GitHub | #434 (lot 9) ; fiche `docs/claude/plans/lot-9.md` |
+| Branche | `lot/9-edt-ia` |
+| Dernière mise à jour | 2026-11-06 (lot 9 fini) |
 
 ## Avancement
 
@@ -28,7 +28,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 6 — Aide, guide et support | 5 ✓ | 5 |
 | 7 — Finances et caisse complètes | 4 ✓ | 4 |
 | 8 — Cours communs et notes | 7 ✓ | 7 |
-| 9 — Emploi du temps fini et IA | 0 | 2 |
+| 9 — Emploi du temps fini et IA | 3 ✓ | 3 |
 | 10 — Carte et présences | 0 | 3 |
 | 11 — Bibliothèque et ateliers | 0 | 3 |
 | 12 — Personnel et paie | 0 | 3 |
@@ -37,7 +37,7 @@ Avant le 2026-10-29 : **153 tâches faites** (V1.0 : 67 ; V1.1 : 12 ; lancement,
 | 15 — Sites des écoles | 0 | 2 |
 | 16 — Équipements : sonnerie, lecteurs et réseau | 0 | 5 |
 | 17 — Revue finale de la V1 | 0 | 1 |
-| **V1 complète** | **7 lots sur 17** | **50** |
+| **V1 complète** | **9 lots sur 17** | **50** |
 
 Sur GitHub : jalon « V1 complète », une issue par lot (les anciens jalons V1.2 à V1.7 gardent les issues des tâches, fermées par la PR de leur lot).
 
@@ -63,6 +63,12 @@ Liste complète et détaillée (maquettes M1–M20, informations I1–I18, déci
 Q1 à Q11 tranchées le 2026-09-26, Q13 et Q14 le 2026-10-10 (voir le journal). Prochain numéro : Q17.
 
 ## Journal
+
+### 2026-11-06 — Lot 9 : Emploi du temps fini et IA
+- Fait : horaire des épreuves (publié, notifié, PDF, lu par enseignants et Portail) ; heures prestées (exceptions, total du mois à la demande, fiche PDF, Excel) ; IA : lecture d'un bulletin, assistant de questions (liste fermée, aucune donnée d'élève), brouillons d'annonces ; 3 articles d'aide fr/en.
+- Tests : isolation entre écoles, 403, journal des exceptions, calcul du mois (congé, remplacement, version) ; captures 390 / 1440 des nouveaux écrans. Démo : le directeur des études reçoit `ai.use`.
+- Décisions (`03`) : sorte de notification partagée avec l'horaire des cours ; liste de l'assistant ; appréciations de bulletin reportées (à valider).
+- Suite : lot 10.
 
 ### 2026-11-05 — Lot 8 : Cours communs et notes
 - Fait : cours communs (un enseignant, une fiche de cotes pour plusieurs classes ; charges et horaire le comptent une fois), remplaçant d'un cours (total et examen seulement, motif pour toute correction), import des points depuis Excel (contrôle ligne par ligne, rien écrit si une ligne est fausse), conduite sans réseau (HL.2 : infraction en file, une seule fois au serveur).

@@ -21,6 +21,7 @@ class AiUse:
     model: str = DEFAULT_MODEL
     max_input_tokens: int = 20_000
     max_output_tokens: int = 4_000
+    daily_limit: int | None = None  # demandes par personne et par jour (vide : sans limite)
 
 
 USES: dict[str, AiUse] = {
@@ -32,6 +33,23 @@ USES: dict[str, AiUse] = {
             "academics",
             "courses.configure",
             max_input_tokens=30_000,
+        ),
+        AiUse(
+            "assistant",
+            _("Questions about the school's figures"),
+            "ai",
+            "ai.use",
+            max_input_tokens=4_000,
+            max_output_tokens=600,
+            daily_limit=30,
+        ),
+        AiUse(
+            "drafting",
+            _("Drafts of announcements and summons"),
+            "communication",
+            "announcements.publish",
+            max_input_tokens=3_000,
+            max_output_tokens=1_500,
         ),
         AiUse(
             "timetable_constraints",

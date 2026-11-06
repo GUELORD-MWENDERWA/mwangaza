@@ -49,6 +49,7 @@ const GROUPS: {
       "courses.configure",
       "timetable.manage",
       "timetable.publish",
+      "timetable.record_exceptions",
       "grades.enter",
       "grades.enter_any",
       "grades.validate",

@@ -22,7 +22,7 @@ from apps.finance.models import Payment, PaymentCancellation, StudentCharge
 from apps.schools.models import School
 from apps.students.models import Enrollment, Student
 from apps.students.photos import photo_version
-from apps.timetable import schedule
+from apps.timetable import exams, schedule
 
 # État d'un frais à l'écran : ceux de `finance`, plus « payé d'avance » (échéance pas encore
 # arrivée) et « partiel » (entamé, pas encore échu).
@@ -199,4 +199,9 @@ def child_timetable(user: User, student_id) -> dict:
             "class_group": enrollment.class_group.name,
             "timetable": version,
             "lessons": schedule.lessons(version, Q(course__class_group=enrollment.class_group_id)),
+            "exams": exams.upcoming(
+                Q(course__class_group=enrollment.class_group_id), invigilator=False
+            )
+            if student.school.has_module("timetable")
+            else [],
         }
