@@ -20,6 +20,14 @@ export const apiError = (code: string, status: number, fields?: object) =>
   json({ code, detail: code, ...(fields ? { fields } : {}) }, status);
 
 /** Remplace `fetch` ; renvoie les requêtes reçues, avec leur corps JSON. */
+function parseBody(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return text;
+  }
+}
+
 export function mockApi(routes: Record<string, Response | object | (() => Response | object)>) {
   const requests: { method: string; path: string; search: string; body: unknown }[] = [];
   vi.stubGlobal(
@@ -31,7 +39,8 @@ export function mockApi(routes: Record<string, Response | object | (() => Respon
         method: request.method,
         path: pathname,
         search,
-        body: text ? JSON.parse(text) : null,
+        // Un envoi de fichier (multipart) n'est pas du JSON : on garde le texte brut.
+        body: text ? parseBody(text) : null,
       });
       const reply = routes[`${request.method} ${pathname}`];
       if (reply === undefined) return apiError("not_found", 404);

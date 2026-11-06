@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ACCOUNT, currency, ITIG } from "../../test/fixtures";
@@ -149,5 +149,36 @@ describe("paiements d'un enfant", () => {
       body: "Je paie vendredi",
       topic: "waiver",
     });
+  });
+
+  it("justifie une absence : motif obligatoire, envoyé pour le jour choisi", async () => {
+    const requests = mockApi({
+      "GET /api/portal/me/": ACCOUNT,
+      "GET /api/portal/families/": [ITIG],
+      "GET /api/portal/children/s1/": CHILD,
+      "GET /api/portal/children/s1/attendance/": {
+        class_group: "3e Électricité A",
+        totals: { days: 40, present: 37, late: 1, absent: 2, justified: 1, pending: 0, rate: 95 },
+        absences: [
+          { date: "2026-11-05", state: "absent" },
+          { date: "2026-10-26", state: "justified" },
+        ],
+        justifications: [],
+      },
+      "POST /api/portal/children/s1/attendance/justify/": { id: "j1" },
+    });
+    const { user } = renderApp("/children/s1");
+
+    await user.click(await screen.findByRole("button", { name: "Justifier" }));
+    const send = screen.getByRole("button", { name: "Envoyer à l'école" });
+    expect((send as HTMLButtonElement).disabled).toBe(true);
+    await user.type(screen.getByLabelText(/Motif/), "Malade");
+    await user.click(send);
+
+    await waitFor(() =>
+      expect(requests.some((r) => r.path === "/api/portal/children/s1/attendance/justify/")).toBe(
+        true,
+      ),
+    );
   });
 });

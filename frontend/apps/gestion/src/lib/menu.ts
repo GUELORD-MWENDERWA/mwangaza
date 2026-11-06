@@ -68,6 +68,14 @@ export const MENU: { section: SectionKey; items: MenuItem[] }[] = [
         task: "6.3",
       },
       {
+        key: "follow",
+        path: "follow",
+        icon: "clock",
+        permissions: ["attendance.view"],
+        module: "attendance",
+        task: "6.5",
+      },
+      {
         key: "courses",
         path: "courses",
         icon: "book",

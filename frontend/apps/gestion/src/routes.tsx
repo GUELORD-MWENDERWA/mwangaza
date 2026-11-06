@@ -7,6 +7,7 @@ import { AccountPage } from "./features/account/AccountPage";
 import { AccountTwoFactorPage } from "./features/account/AccountTwoFactorPage";
 import { AnnouncementsPage } from "./features/announcements/AnnouncementsPage";
 import { EntrancePage } from "./features/attendance/EntrancePage";
+import { FollowPage } from "./features/attendance/FollowPage";
 import { CardsPage } from "./features/cards/CardsPage";
 import { CalendarPage } from "./features/calendar/CalendarPage";
 import { StaffNewsPage } from "./features/staff-news/StaffNewsPage";
@@ -100,6 +101,7 @@ const SCREENS: Partial<Record<MenuKey, ReactNode>> = {
   students: <StudentsPage />,
   cards: <CardsPage />,
   entrance: <EntrancePage />,
+  follow: <FollowPage />,
   courses: <CoursesPage />,
   teachingLoads: <TeachingLoadsPage />,
   timeGrid: <TimeGridPage />,
