@@ -14,7 +14,7 @@ test("pointage sans réseau : deux élèves gardés sur l'appareil, envoyés une
     navigator.storage.persisted = async () => true;
   });
   await page.goto(`${ITIG}entrance`);
-  await enterPassword(page, "0000001006");
+  await enterPassword(page, "0000001003");
   const indicator = page.getByRole("status").filter({ hasText: /ligne|Synchronisation/ });
   await expect(indicator).toHaveText("En ligne · à jour", { timeout: 30_000 });
   // La liste des élèves et des cartes gardée sur l'appareil sert hors ligne.
